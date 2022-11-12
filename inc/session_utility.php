@@ -3327,6 +3327,8 @@ function texttodocount2($textid): string
     '\');" style="cursor: pointer;vertical-align:middle" title="Lookup New Words" alt="Lookup New Words" />&nbsp;&nbsp;&nbsp;';
     if ($show_buttons != 2) {
         $res .= '<input type="button" onclick="iknowall(' . $textid . ');" value=" Set All to Known " />'; 
+        $res .= '&nbsp;&nbsp;';
+        $res .= '<input type="button" id="bulkStatusUpdateBtn" onclick="open_bulk_status_popup();" value=" Set highlighted status " disabled />';
     }
     if ($show_buttons != 1) { 
         $res .= '<input type="button" onclick="ignoreall(' . $textid . ');" value=" Ignore All " />'; 

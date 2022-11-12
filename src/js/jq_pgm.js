@@ -440,12 +440,21 @@ function word_dblclick_event_do_text_text () {
   }
 }
 
+
 /**
  * Do a word edition window. Usually called when the user clicks on a word.
  * 
  * @returns {bool} false
  */
-function word_click_event_do_text_text () {
+function word_click_event_do_text_text (e) {
+  if (e.shiftKey) {
+    add_shift_clicked_element($(this));
+    return;
+  }
+  else {
+    clear_shift_clicked_elements();
+  }
+
   const status = $(this).attr('data_status');
   let ann = '';
   if ($(this).attr('data_ann') !== undefined) { 

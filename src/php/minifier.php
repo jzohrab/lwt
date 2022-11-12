@@ -165,7 +165,8 @@ $jsFiles = array(
     'src/js/jq_feedwizard.js', 
     'src/js/jq_pgm.js', 'src/js/pgm.js', 
     'src/js/translation_api.js', 'src/js/unloadformcheck.js',
-    'src/js/third_party/sorttable.js', 'src/js/user_interactions.js', 
+    'src/js/third_party/sorttable.js', 'src/js/user_interactions.js',
+    'src/js/bulk_status_edit.js'
 );
 
 /**

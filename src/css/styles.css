@@ -72,7 +72,13 @@
    background-color: #DDFFDD;
    color: #000000;
  }
- 
+
+ span.shiftClicked
+ {
+   margin-right: 2px;
+   color: red !important;
+ }
+
  span.status99
  {
    background-color: #F8F8F8;
