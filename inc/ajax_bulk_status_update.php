@@ -29,34 +29,35 @@ function update_new_words($status, $newterms) {
     global $tbpref;
 
     // 1. Load all to temp table.
-    $temptbl = "{$tbpref}TMP_new_words";
-    $sql = "DROP TABLE IF EXISTS {$temptbl}";
+    $tmpLoad = "{$tbpref}TMP_new_words_loading";
+    $sql = "DROP TABLE IF EXISTS {$tmpLoad}";
     runsql($sql, "");
 
     // All of these fields are necessary
     // for the bulk insert.
-    $sql = "CREATE TEMPORARY TABLE {$temptbl}
-      ( WoText varchar(250),
-        WoTextLC varchar(250),
-        WoStatus tinyint(4),
-        WoStatusChanged timestamp )";
+    $sql = "CREATE TEMPORARY TABLE {$tmpLoad}
+      ( WoTextLC varchar(250) )";
     runsql($sql, "");
 
-    $addrow = function($text, $temp, $newstatus) {
-        $lc = mb_strtolower($text, 'UTF-8');
-
-        $text = convert_string_to_sqlsyntax($text);
-        $lc = convert_string_to_sqlsyntax($lc);
-        $sql = "INSERT INTO {$temp}
-(WoText, WoTextLC, WoStatus, WoStatusChanged)
-VALUES ({$text}, {$lc}, {$newstatus}, NOW())";
-
-        runsql($sql, "");
-    };
-
     foreach ($newterms as $w) {
-        $addrow($w['text'], $temptbl, $status);
+        $lc = mb_strtolower($w['text'], 'UTF-8');
+        $sqllc = convert_string_to_sqlsyntax($lc);
+        runsql("INSERT INTO {$tmpLoad} (WoTextLC) VALUES ({$sqllc})", "");
     }
+
+    // 1b. Create final temp table with the unique terms
+    // and all fields needed for the bulk insert.
+    // 1. Load all to temp table.
+    $temptbl = "{$tbpref}TMP_new_words";
+    $sql = "DROP TABLE IF EXISTS {$temptbl}";
+    runsql($sql, "");
+
+    $sql = "CREATE TEMPORARY TABLE {$temptbl} AS (
+      SELECT t.WoTextLC as WoText, t.WoTextLC as WoTextLC,
+             ${status} as WoStatus, NOW() AS WoStatusChanged
+      FROM (SELECT DISTINCT WoTextLC from {$tmpLoad}) AS t
+    )";
+    runsql($sql, "");
 
     // 2. Bulk insert any new words.
     $sql = "SELECT StValue as value FROM {$tbpref}settings
