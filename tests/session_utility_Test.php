@@ -14,6 +14,7 @@ final class session_utility_Test extends TestCase
     {
         $_SERVER['HTTP_HOST'] = 'localhost';
         $_SERVER['REQUEST_URI'] = '/dummyuri';
+        $this->clear_session();
     }
 
     public function tearDown(): void
@@ -21,15 +22,10 @@ final class session_utility_Test extends TestCase
         // echo "tearing down ... \n";
     }
 
-    /**
-     * SMOKE TESTS ONLY.
-     *
-     * These don't really test functionality at the moment,
-     * they just ensure that the queries etc work.
-     * When the db setup/teardown is in place, and test data
-     * loaded, these tests can be replaced/updated to show
-     * actual data.
-     */
+    private function clear_session() {
+        $session_keys = [ 'TAGS', 'TBPREF_TAGS', 'TEXTTAGS', 'TBPREF_TEXTTAGS' ];
+        $this->unset_session_keys($session_keys);
+    }
 
     private function unset_session_keys($keys) {
         foreach($keys as $k) {
@@ -44,22 +40,66 @@ final class session_utility_Test extends TestCase
         };
     }
 
+    /**
+     * SMOKE TESTS ONLY.
+     *
+     * These don't test functionality,
+     * they just ensure that the queries etc work.
+     */
+    public function test_smoke_tests(): void
+    {
+        $this->clear_session();
+        get_tags();
+
+        $this->clear_session();
+        get_texttags();
+
+        getTextTitle(42);
+
+        get_tag_selectoptions('cat', '');
+        get_tag_selectoptions('cat', 42);
+
+        get_texttag_selectoptions('cat', '');
+        get_texttag_selectoptions('cat', 42);
+
+        get_txtag_selectoptions('', 'cat');
+        get_txtag_selectoptions(42, 'cat');
+
+        get_archivedtexttag_selectoptions('cat', '');
+        get_archivedtexttag_selectoptions('cat', 42);
+
+        // TODO - before adding new smoke tests, have to complete
+        // dbsetup ... in particular, need to ensure that the tests
+        // are only run with a db named TESTING_xxx.
+    }
+
+
+    /**
+     * STUB TESTS ONLY.
+     *
+     * These don't really test functionality at the moment,
+     * they just ensure that the queries etc work.
+     * When the db setup/teardown is in place, and test data
+     * loaded, these tests can be replaced/updated to show
+     * actual data.
+     */
+
+    /** TAGS **/
+
     public function test_smoke_get_tags(): void
     {
-        $session_keys = [ 'TAGS', 'TBPREF_TAGS' ];
-        $this->unset_session_keys($session_keys);
         $t = get_tags();
         $this->assertIsArray($t, 'returns tags');
-        $this->assert_all_session_keys_set($session_keys);
+        $keys = [ 'TAGS', 'TBPREF_TAGS' ];
+        $this->assert_all_session_keys_set($keys);
     }
 
     public function test_smoke_get_texttags(): void
     {
-        $session_keys = [ 'TEXTTAGS', 'TBPREF_TEXTTAGS' ];
-        $this->unset_session_keys($session_keys);
         $t = get_texttags();
         $this->assertIsArray($t, 'returns tags');
-        $this->assert_all_session_keys_set($session_keys);
+        $keys = [ 'TEXTTAGS', 'TBPREF_TEXTTAGS' ];
+        $this->assert_all_session_keys_set($keys);
     }
 
 }
