@@ -31,32 +31,35 @@ final class session_utility_Test extends TestCase
      * actual data.
      */
 
-    public function test_smoke_get_tags(): void
-    {
-        $session_keys = [ 'TAGS', 'TBPREF_TAGS' ];
-        foreach($session_keys as $k) {
+    private function unset_session_keys($keys) {
+        foreach($keys as $k) {
             unset($_SESSION[$k]);
             $this->assertFalse(isset($_SESSION[$k]), 'sanity check');
         };
-        $t = get_tags();
-        $this->assertIsArray($t, 'returns tags');
-        foreach($session_keys as $k) {
+    }
+
+    private function assert_all_session_keys_set($keys) {
+        foreach($keys as $k) {
             $this->assertTrue(isset($_SESSION[$k]), "Session {$k} set");
         };
+    }
+
+    public function test_smoke_get_tags(): void
+    {
+        $session_keys = [ 'TAGS', 'TBPREF_TAGS' ];
+        $this->unset_session_keys($session_keys);
+        $t = get_tags();
+        $this->assertIsArray($t, 'returns tags');
+        $this->assert_all_session_keys_set($session_keys);
     }
 
     public function test_smoke_get_texttags(): void
     {
         $session_keys = [ 'TEXTTAGS', 'TBPREF_TEXTTAGS' ];
-        foreach($session_keys as $k) {
-            unset($_SESSION[$k]);
-            $this->assertFalse(isset($_SESSION[$k]), 'sanity check');
-        };
+        $this->unset_session_keys($session_keys);
         $t = get_texttags();
         $this->assertIsArray($t, 'returns tags');
-        foreach($session_keys as $k) {
-            $this->assertTrue(isset($_SESSION[$k]), "Session {$k} set");
-        };
+        $this->assert_all_session_keys_set($session_keys);
     }
 
 }
