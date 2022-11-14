@@ -1,6 +1,7 @@
 <?php declare(strict_types=1);
 
 require_once __DIR__ . '/../inc/session_utility.php';
+require_once __DIR__ . '/db_helpers.php';
 
 use PHPUnit\Framework\TestCase;
 
@@ -12,6 +13,7 @@ final class session_utility_Test extends TestCase
      */
     public function setUp(): void
     {
+        DbHelpers::ensure_using_test_db();
         $_SERVER['HTTP_HOST'] = 'localhost';
         $_SERVER['REQUEST_URI'] = '/dummyuri';
         $this->clear_session();
