@@ -8,12 +8,13 @@ use PHPUnit\Framework\TestCase;
 final class session_utility_Test extends TestCase
 {
 
-    /**
-     * Hack/fake session and server information.
-     */
     public function setUp(): void
     {
+        // Set up db.
         DbHelpers::ensure_using_test_db();
+        DbHelpers::clean_db();
+
+        // Fake session and server info.
         $_SERVER['HTTP_HOST'] = 'localhost';
         $_SERVER['REQUEST_URI'] = '/dummyuri';
         $this->clear_session();
@@ -76,32 +77,28 @@ final class session_utility_Test extends TestCase
     }
 
 
-    /**
-     * STUB TESTS ONLY.
-     *
-     * These don't really test functionality at the moment,
-     * they just ensure that the queries etc work.
-     * When the db setup/teardown is in place, and test data
-     * loaded, these tests can be replaced/updated to show
-     * actual data.
-     */
-
     /** TAGS **/
 
-    public function test_smoke_get_tags(): void
+    public function test_get_tags(): void
     {
+        $expected = ['a', 'b', 'c'];
+        DbHelpers::add_tags($expected);
         $t = get_tags();
-        $this->assertIsArray($t, 'returns tags');
-        $keys = [ 'TAGS', 'TBPREF_TAGS' ];
-        $this->assert_all_session_keys_set($keys);
+        $this->assertEquals($t, $expected);
+        $this->assertEquals($_SESSION['TAGS'], $expected);
+        $this->assertEquals($_SESSION['TBPREF_TAGS'], 'http://localhost/dummyuri/');
     }
 
-    public function test_smoke_get_texttags(): void
+    public function test_get_texttags(): void
     {
+        $expected = ['a2', 'b2', 'c2'];
+        DbHelpers::add_texttags($expected);
+
         $t = get_texttags();
-        $this->assertIsArray($t, 'returns tags');
-        $keys = [ 'TEXTTAGS', 'TBPREF_TEXTTAGS' ];
-        $this->assert_all_session_keys_set($keys);
+
+        $this->assertEquals($t, $expected);
+        $this->assertEquals($_SESSION['TEXTTAGS'], $expected);
+        $this->assertEquals($_SESSION['TBPREF_TEXTTAGS'], 'http://localhost/dummyuri/');
     }
 
 }

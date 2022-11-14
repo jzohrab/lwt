@@ -42,6 +42,57 @@ you must use a dedicated test database when running tests.
         }
     }
 
+    public static function clean_db() {
+        $tables = [
+            "_lwtgeneral",
+            "archivedtexts",
+            "archtexttags",
+            "feedlinks",
+            "languages",
+            "newsfeeds",
+            "sentences",
+            // "settings",  // Keep these????
+            "tags",
+            "tags2",
+            "temptextitems",
+            "tempwords",
+            "textitems2",
+            "texts",
+            "texttags",
+            "tts",
+            "words",
+            "wordtags"
+        ];
+        foreach ($tables as $t) {
+            do_mysqli_query("truncate {$t}");
+        }
+    }
+
+    /**
+     * Data loaders.
+     *
+     * These might belong in an /api/db/ or similar.
+     *
+     * These are very hacky, not handling weird chars etc., and are
+     * also very inefficient!  Will fix if tests get stupid slow.
+     */
+
+    public static function add_tags($tags) {
+        foreach ($tags as $t) {
+            $sql = "insert into tags (TgText, TgComment)
+            values ('{$t}', '{$t} comment')";
+            do_mysqli_query($sql);
+        };
+    }
+
+    public static function add_texttags($tags) {
+        foreach ($tags as $t) {
+            $sql = "insert into tags2 (T2Text, T2Comment)
+            values ('{$t}', '{$t} comment')";
+            do_mysqli_query($sql);
+        };
+    }
+
 }
 
 ?>
