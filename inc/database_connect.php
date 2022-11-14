@@ -1934,15 +1934,21 @@ if (!empty($dspltime)) {
 /**
  * @var mysqli $DBCONNECTION Connection to the database
  */
+global $DBCONNECTION;
 $DBCONNECTION = connect_to_database($server, $userid, $passwd, $dbname);
+
 /** 
  * @var string $tbpref Database table prefix 
  */
+global $tbpref;
 $tbpref = null;
+
 /** 
  * @var int $fixed_tbpref Database prefix is fixed (1) or not (0)
  */
+global $fixed_tbpref;
 $fixed_tbpref = get_database_prefixes($tbpref);
+
 // check/update db
 check_update_db($debug, $tbpref, $dbname);
 
