@@ -21,7 +21,17 @@ final class session_utility_Test extends TestCase
         // echo "tearing down ... \n";
     }
 
-    public function test_smoke_tests_tags(): void
+    /**
+     * SMOKE TESTS ONLY.
+     *
+     * These don't really test functionality at the moment,
+     * they just ensure that the queries etc work.
+     * When the db setup/teardown is in place, and test data
+     * loaded, these tests can be replaced/updated to show
+     * actual data.
+     */
+
+    public function test_smoke_get_tags(): void
     {
         $session_keys = [ 'TAGS', 'TBPREF_TAGS' ];
         foreach($session_keys as $k) {
@@ -29,6 +39,20 @@ final class session_utility_Test extends TestCase
             $this->assertFalse(isset($_SESSION[$k]), 'sanity check');
         };
         $t = get_tags();
+        $this->assertIsArray($t, 'returns tags');
+        foreach($session_keys as $k) {
+            $this->assertTrue(isset($_SESSION[$k]), "Session {$k} set");
+        };
+    }
+
+    public function test_smoke_get_texttags(): void
+    {
+        $session_keys = [ 'TEXTTAGS', 'TBPREF_TEXTTAGS' ];
+        foreach($session_keys as $k) {
+            unset($_SESSION[$k]);
+            $this->assertFalse(isset($_SESSION[$k]), 'sanity check');
+        };
+        $t = get_texttags();
         $this->assertIsArray($t, 'returns tags');
         foreach($session_keys as $k) {
             $this->assertTrue(isset($_SESSION[$k]), "Session {$k} set");
