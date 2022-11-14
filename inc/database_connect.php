@@ -1950,6 +1950,7 @@ global $fixed_tbpref;
 $fixed_tbpref = get_database_prefixes($tbpref);
 
 // check/update db
+global $debug;
 check_update_db($debug, $tbpref, $dbname);
 
 ?>
