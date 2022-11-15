@@ -330,6 +330,18 @@ function word_click_event_do_test_test () {
  * @returns {bool} true if nothing was done, false otherwise
  */
 function keydown_event_do_test_test (e) {
+  let solution_shown = ($('.todo').text() == SOLUTION);
+  const RETURN = 13;
+  if (e.which == RETURN && !solution_shown) {
+    $('.word').trigger('click');
+    cClick();
+    return false;
+  }
+  if (e.which == RETURN && solution_shown) {
+    // Passed.
+    showRightFrames('set_test_status.php?wid=' + WID + '&stchange=1');
+    return false;
+  }
   if (e.which == 32 && OPENED == 0) { // space : show sol.
     $('.word').trigger('click');
     cClick();
@@ -337,7 +349,6 @@ function keydown_event_do_test_test (e) {
     OPENED = 1;
     return false;
   }
-  if (OPENED == 0) return true;
   if (e.which == 38) { // up : status+1
 		showRightFrames('set_test_status.php?wid=' + WID + '&stchange=1');
     return false;
@@ -1100,7 +1111,7 @@ function showRightFrames(roUrl, ruUrl) {
     top.frames.ru.location.href = ruUrl;
   }
   if ($('#frames-r').length) {
-    $('#frames-r').animate({right: '5px'});
+    $('#frames-r').animate({right: '5px'}, 100);
     return true;
   }
   return false;
@@ -1113,7 +1124,7 @@ function showRightFrames(roUrl, ruUrl) {
  */
 function hideRightFrames() {
   if ($('#frames-r').length) {
-    $('#frames-r').animate({right: '-100%'});
+    $('#frames-r').animate({right: '-100%'}, 100);
     return true;
   }
   return false;
