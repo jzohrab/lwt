@@ -20,6 +20,7 @@
  */
 
 require_once 'inc/session_utility.php';
+require 'inc/db_restore.php';
 
 $message = '';
 
