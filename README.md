@@ -10,6 +10,7 @@ This is a fork of [Hugo Fara's fork](https://github.com/hugofara) of the origina
 ## Major differences with Hugo Fara's repo
 
 * Wordpress logins give new users their own separate LWT database instance.  See [docs.wordpress](./docs/wordpress.md) for notes.
+* Backup/restore removed from the UI: use `sqldump` from the command line, instead of verbose/error-prone PHP code.
 
 ## Installation, usage, etc.
 
