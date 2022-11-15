@@ -1431,6 +1431,8 @@ function update_database($dbname)
 {
     global $tbpref, $debug;
 
+    // TODO: replace this with database migrations.
+
     // DB Version
     $currversion = get_version_number();
     
@@ -1457,78 +1459,6 @@ function update_database($dbname)
     // Do DB Updates if tables seem to be old versions
     
     if ($dbversion < $currversion) {
-
-        if ($debug) { 
-            echo "<p>DEBUG: check DB collation: "; 
-        }
-        if ('utf8utf8_general_ci' != get_first_value(
-            'SELECT concat(default_character_set_name, default_collation_name) as value 
-            FROM information_schema.SCHEMATA 
-            WHERE schema_name = "' . $dbname . '"'
-        )
-        ) {
-            runsql("SET collation_connection = 'utf8_general_ci'", '');
-            runsql('ALTER DATABASE `' . $dbname . '` CHARACTER SET utf8 COLLATE utf8_general_ci', '');
-            
-            if ($debug) { 
-                echo 'changed to utf8_general_ci</p>'; 
-            }
-        } else if ($debug) { 
-            echo 'OK</p>'; 
-        }
-
-        if ($debug) { 
-            echo "<p>DEBUG: do DB updates: $dbversion --&gt; $currversion</p>"; 
-        }
-        runsql("ALTER TABLE " . $tbpref . "words ADD WoTodayScore DOUBLE NOT NULL DEFAULT 0, ADD WoTomorrowScore DOUBLE NOT NULL DEFAULT 0, ADD WoRandom DOUBLE NOT NULL DEFAULT 0", '', $sqlerrdie = false);
-        runsql("ALTER TABLE " . $tbpref . "words ADD WoWordCount tinyint(3) unsigned NOT NULL DEFAULT 0 AFTER WoSentence", '', $sqlerrdie = false);
-        runsql("ALTER TABLE " . $tbpref . "words ADD INDEX WoTodayScore (WoTodayScore), ADD INDEX WoTomorrowScore (WoTomorrowScore), ADD INDEX WoRandom (WoRandom)", '', $sqlerrdie = false);
-        runsql("ALTER TABLE " . $tbpref . "languages ADD LgRightToLeft tinyint(1) UNSIGNED NOT NULL DEFAULT  0", '', $sqlerrdie = false);
-        runsql("ALTER TABLE " . $tbpref . "texts ADD TxAnnotatedText LONGTEXT NOT NULL AFTER TxText", '', $sqlerrdie = false);
-        runsql("ALTER TABLE " . $tbpref . "archivedtexts ADD AtAnnotatedText LONGTEXT NOT NULL AFTER AtText", '', $sqlerrdie = false);
-        runsql("ALTER TABLE " . $tbpref . "tags CHANGE TgComment TgComment VARCHAR(200) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT ''", '', $sqlerrdie = false);
-        runsql("ALTER TABLE " . $tbpref . "tags2 CHANGE T2Comment T2Comment VARCHAR(200) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT ''", '', $sqlerrdie = false);
-        runsql("ALTER TABLE " . $tbpref . "languages CHANGE LgGoogleTTSURI LgExportTemplate VARCHAR(1000) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL", '', $sqlerrdie = false);
-        runsql("ALTER TABLE " . $tbpref . "texts ADD TxSourceURI VARCHAR(1000) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL", '', $sqlerrdie = false);
-        runsql("ALTER TABLE " . $tbpref . "archivedtexts ADD AtSourceURI VARCHAR(1000) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL", '', $sqlerrdie = false);
-        runsql("ALTER TABLE " . $tbpref . "texts ADD TxPosition smallint(5) NOT NULL DEFAULT  0", '', $sqlerrdie = false);
-        runsql("ALTER TABLE " . $tbpref . "texts ADD TxAudioPosition float NOT NULL DEFAULT  0", '', $sqlerrdie = false);
-        runsql('ALTER TABLE `' . $tbpref . 'wordtags` DROP INDEX WtWoID', '', $sqlerrdie = false);
-        runsql('ALTER TABLE `' . $tbpref . 'texttags` DROP INDEX TtTxID', '', $sqlerrdie = false);
-        runsql('ALTER TABLE `' . $tbpref . 'archtexttags` DROP INDEX AgAtID', '', $sqlerrdie = false);
-
-        runsql('ALTER TABLE `' . $tbpref . 'archivedtexts` MODIFY COLUMN `AtLgID` tinyint(3) unsigned NOT NULL, MODIFY COLUMN `AtID` smallint(5) unsigned NOT NULL, ADD INDEX AtLgIDSourceURI (AtSourceURI(20),AtLgID)', '', $sqlerrdie = false);
-        runsql('ALTER TABLE `' . $tbpref . 'languages` MODIFY COLUMN `LgID` tinyint(3) unsigned NOT NULL AUTO_INCREMENT, MODIFY COLUMN `LgRemoveSpaces` tinyint(1) unsigned NOT NULL, MODIFY COLUMN `LgSplitEachChar` tinyint(1) unsigned NOT NULL, MODIFY COLUMN `LgRightToLeft` tinyint(1) unsigned NOT NULL', '', $sqlerrdie = false);
-        runsql('ALTER TABLE `' . $tbpref . 'sentences` MODIFY COLUMN `SeID` mediumint(8) unsigned NOT NULL AUTO_INCREMENT, MODIFY COLUMN `SeLgID` tinyint(3) unsigned NOT NULL, MODIFY COLUMN `SeTxID` smallint(5) unsigned NOT NULL, MODIFY COLUMN `SeOrder` smallint(5) unsigned NOT NULL', '', $sqlerrdie = false);
-        runsql('ALTER TABLE `' . $tbpref . 'texts` MODIFY COLUMN `TxID` smallint(5) unsigned NOT NULL AUTO_INCREMENT, MODIFY COLUMN `TxLgID` tinyint(3) unsigned NOT NULL, ADD INDEX TxLgIDSourceURI (TxSourceURI(20),TxLgID)', '', $sqlerrdie = false);
-        runsql('ALTER TABLE `' . $tbpref . 'words` MODIFY COLUMN `WoID` mediumint(8) unsigned NOT NULL AUTO_INCREMENT, MODIFY COLUMN `WoLgID` tinyint(3) unsigned NOT NULL, MODIFY COLUMN `WoStatus` tinyint(4) NOT NULL', '', $sqlerrdie = false);        
-        runsql('ALTER TABLE `' . $tbpref . 'words` DROP INDEX WoTextLC', '', $sqlerrdie = false);
-        runsql('ALTER TABLE `' . $tbpref . 'words` DROP INDEX WoLgIDTextLC, ADD UNIQUE INDEX WoTextLCLgID (WoTextLC,WoLgID)', '', $sqlerrdie = false);
-        runsql('ALTER TABLE `' . $tbpref . 'words` ADD INDEX WoWordCount (WoWordCount)', '', $sqlerrdie = false);
-        runsql('ALTER TABLE `' . $tbpref . 'archtexttags` MODIFY COLUMN `AgAtID` smallint(5) unsigned NOT NULL, MODIFY COLUMN `AgT2ID` smallint(5) unsigned NOT NULL', '', $sqlerrdie = false);
-        runsql('ALTER TABLE `' . $tbpref . 'tags` MODIFY COLUMN `TgID` smallint(5) unsigned NOT NULL AUTO_INCREMENT', '', $sqlerrdie = false);
-        runsql('ALTER TABLE `' . $tbpref . 'tags2` MODIFY COLUMN `T2ID` smallint(5) unsigned NOT NULL AUTO_INCREMENT', '', $sqlerrdie = false);
-        runsql('ALTER TABLE `' . $tbpref . 'wordtags` MODIFY COLUMN `WtTgID` smallint(5) unsigned NOT NULL AUTO_INCREMENT', '', $sqlerrdie = false);
-        runsql('ALTER TABLE `' . $tbpref . 'texttags` MODIFY COLUMN `TtTxID` smallint(5) unsigned NOT NULL, MODIFY COLUMN `TtT2ID` smallint(5) unsigned NOT NULL', '', $sqlerrdie = false);
-        runsql('ALTER TABLE `' . $tbpref . 'temptextitems` ADD TiCount smallint(5) unsigned NOT NULL, DROP TiLgID, DROP TiTxID', '', $sqlerrdie = false);
-        runsql('ALTER TABLE `' . $tbpref . 'temptextitems` ADD DROP INDEX TiTextLC', '', $sqlerrdie = false);
-        runsql('ALTER TABLE `' . $tbpref . 'temptextitems` ADD  DROP TiTextLC', '', $sqlerrdie = false);
-        runsql('ALTER TABLE `' . $tbpref . 'temptextitems` ADD TiCount smallint(5) unsigned NOT NULL', '', $sqlerrdie = false);
-        runsql('UPDATE ' . $tbpref . 'sentences join ' . $tbpref . 'textitems2 on Ti2SeID=SeID and Ti2Order=SeFirstPos and Ti2WordCount=0 SET SeFirstPos=SeFirstPos+1', '', $sqlerrdie = false);
-        if ($debug) { 
-            echo '<p>DEBUG: rebuilding tts</p>'; 
-        }
-        runsql(
-            "CREATE TABLE IF NOT EXISTS tts (
-                TtsID mediumint(8) unsigned NOT NULL AUTO_INCREMENT, 
-                TtsTxt varchar(100) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL, 
-                TtsLc varchar(8) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL, 
-                PRIMARY KEY (TtsID), 
-                UNIQUE KEY TtsTxtLC (TtsTxt,TtsLc)
-            ) ENGINE=MyISAM DEFAULT CHARSET=utf8 PACK_KEYS=1", 
-            ''
-        );
-        
         // set to current.
         saveSetting('dbversion', $currversion);
         saveSetting('lastscorecalc', '');  // do next section, too
