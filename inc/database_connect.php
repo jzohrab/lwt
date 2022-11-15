@@ -505,23 +505,6 @@ function LWTTableGet($key): string
     );
 }
 
-/**
- * Adjust the auto-incrementation in the database.
- *
- * @global string $tbpref Database table prefix
- */
-function adjust_autoincr($table, $key): void 
-{
-    global $tbpref;
-    $val = get_first_value(
-        'SELECT max(' . $key .')+1 AS value FROM ' . $tbpref . $table
-    );
-    if (!isset($val)) { 
-        $val = 1; 
-    }
-    $sql = 'ALTER TABLE ' . $tbpref . $table . ' AUTO_INCREMENT = ' . $val;
-    do_mysqli_query($sql);
-}
 
 /**
  * Optimize the database.
@@ -531,15 +514,6 @@ function adjust_autoincr($table, $key): void
 function optimizedb(): void 
 {
     global $tbpref;
-    adjust_autoincr('archivedtexts', 'AtID');
-    adjust_autoincr('languages', 'LgID');
-    adjust_autoincr('sentences', 'SeID');
-    adjust_autoincr('texts', 'TxID');
-    adjust_autoincr('words', 'WoID');
-    adjust_autoincr('tags', 'TgID');
-    adjust_autoincr('tags2', 'T2ID');
-    adjust_autoincr('newsfeeds', 'NfID');
-    adjust_autoincr('feedlinks', 'FlID');
     $sql = 
     'SHOW TABLE STATUS 
     WHERE Engine IN ("MyISAM","Aria") AND (
@@ -1426,7 +1400,6 @@ function reparse_all_texts(): void
     global $tbpref;
     runsql('TRUNCATE ' . $tbpref . 'sentences', '');
     runsql('TRUNCATE ' . $tbpref . 'textitems2', '');
-    adjust_autoincr('sentences', 'SeID');
     init_word_count();
     $sql = "select TxID, TxLgID from " . $tbpref . "texts";
     $res = do_mysqli_query($sql);

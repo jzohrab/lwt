@@ -836,8 +836,6 @@ function write_rss_to_db($texts): string
                     ""
                 );
                 // $message .= $message4 . " / " . $message1 . " / " . $message2 . " / " . $message3;
-                adjust_autoincr('texts', 'TxID');
-                adjust_autoincr('sentences', 'SeID');
                 runsql(
                     "DELETE " . $tbpref . "texttags 
                     FROM (" 

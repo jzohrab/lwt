@@ -78,7 +78,6 @@ function edit_languages_refresh($lid): string
         'delete from ' . $tbpref . 'textitems2 where Ti2LgID = ' . $lid, 
         "Text items deleted"
     );
-    adjust_autoincr('sentences', 'SeID');
     $sql = "select TxID, TxText from " . $tbpref . "texts 
     where TxLgID = " . $lid . " 
     order by TxID";
@@ -291,7 +290,6 @@ function edit_languages_op_change($lid): string
             'delete from ' . $tbpref . 'textitems2 where Ti2LgID = ' . $lid, 
             "Text items deleted"
         );
-        adjust_autoincr('sentences', 'SeID');
         runsql(
             "UPDATE  " . $tbpref . "words 
             SET WoWordCount  = 0 

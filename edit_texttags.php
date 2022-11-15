@@ -46,7 +46,6 @@ if (isset($_REQUEST['markaction'])) {
                     $message = runsql('delete from ' . $tbpref . 'tags2 where T2ID in ' . $list, "Deleted");
                     runsql("DELETE " . $tbpref . "texttags FROM (" . $tbpref . "texttags LEFT JOIN " . $tbpref . "tags2 on TtT2ID = T2ID) WHERE T2ID IS NULL", '');
                     runsql("DELETE " . $tbpref . "archtexttags FROM (" . $tbpref . "archtexttags LEFT JOIN " . $tbpref . "tags2 on AgT2ID = T2ID) WHERE T2ID IS NULL", '');
-                    adjust_autoincr('tags2', 'T2ID');
                 }
             }
         }
@@ -62,7 +61,6 @@ if (isset($_REQUEST['allaction'])) {
         $message = runsql('delete from ' . $tbpref . 'tags2 where (1=1) ' . $wh_query, "Deleted");
         runsql("DELETE " . $tbpref . "texttags FROM (" . $tbpref . "texttags LEFT JOIN " . $tbpref . "tags2 on TtT2ID = T2ID) WHERE T2ID IS NULL", '');
         runsql("DELETE " . $tbpref . "archtexttags FROM (" . $tbpref . "archtexttags LEFT JOIN " . $tbpref . "tags2 on AgT2ID = T2ID) WHERE T2ID IS NULL", '');
-        adjust_autoincr('tags2', 'T2ID');
     }
 }
 
@@ -72,7 +70,6 @@ elseif (isset($_REQUEST['del'])) {
     $message = runsql('delete from ' . $tbpref . 'tags2 where T2ID = ' . $_REQUEST['del'], "Deleted");
     runsql("DELETE " . $tbpref . "texttags FROM (" . $tbpref . "texttags LEFT JOIN " . $tbpref . "tags2 on TtT2ID = T2ID) WHERE T2ID IS NULL", '');
     runsql("DELETE " . $tbpref . "archtexttags FROM (" . $tbpref . "archtexttags LEFT JOIN " . $tbpref . "tags2 on AgT2ID = T2ID) WHERE T2ID IS NULL", '');
-    adjust_autoincr('tags2', 'T2ID');
 }
 
 // INS/UPD

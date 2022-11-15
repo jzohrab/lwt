@@ -46,7 +46,6 @@ if (isset($_REQUEST['markaction'])) {
                 if ($markaction == 'del') {
                     $message = runsql('delete from ' . $tbpref . 'tags where TgID in ' . $list, "Deleted");
                     runsql("DELETE " . $tbpref . "wordtags FROM (" . $tbpref . "wordtags LEFT JOIN " . $tbpref . "tags on WtTgID = TgID) WHERE TgID IS NULL", '');
-                    adjust_autoincr('tags', 'TgID');
                 }
             }
         }
@@ -61,7 +60,6 @@ if (isset($_REQUEST['allaction'])) {
     if ($allaction == 'delall') {
         $message = runsql('delete from ' . $tbpref . 'tags where (1=1) ' . $wh_query, "Deleted");
         runsql("DELETE " . $tbpref . "wordtags FROM (" . $tbpref . "wordtags LEFT JOIN " . $tbpref . "tags on WtTgID = TgID) WHERE TgID IS NULL", '');
-        adjust_autoincr('tags', 'TgID');
     }
 }
 
@@ -70,7 +68,6 @@ if (isset($_REQUEST['allaction'])) {
 elseif (isset($_REQUEST['del'])) {
     $message = runsql('delete from ' . $tbpref . 'tags where TgID = ' . $_REQUEST['del'], "Deleted");
     runsql("DELETE " . $tbpref . "wordtags FROM (" . $tbpref . "wordtags LEFT JOIN " . $tbpref . "tags on WtTgID = TgID) WHERE TgID IS NULL", '');
-    adjust_autoincr('tags', 'TgID');
 }
 
 // INS/UPD

@@ -49,7 +49,6 @@ function delete_word_from_database($wid)
         WHERE WoID = ' . $wid, 
         ''
     );
-    adjust_autoincr('words', 'WoID');
     runsql(
         "UPDATE  " . $tbpref . "textitems2 
         SET Ti2WoID  = 0 
