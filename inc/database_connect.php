@@ -456,34 +456,11 @@ function saveSetting($k, $v)
     return $dum;
 }
 
-/**
- * Check if the _lwtgeneral table exists, create it if not.
- */
-function LWTTableCheck(): void
-{
-    if (mysqli_num_rows(do_mysqli_query("SHOW TABLES LIKE '\\_lwtgeneral'")) == 0) {
-        runsql(
-            "CREATE TABLE IF NOT EXISTS _lwtgeneral ( 
-                LWTKey varchar(40) NOT NULL, 
-                LWTValue varchar(40) DEFAULT NULL, 
-                PRIMARY KEY (LWTKey)
-            ) ENGINE=MyISAM DEFAULT CHARSET=utf8", 
-            ''
-        );
-        if (mysqli_num_rows(
-            do_mysqli_query("SHOW TABLES LIKE '\\_lwtgeneral'")
-        ) == 0
-        ) { 
-            my_die("Unable to create table '_lwtgeneral'!"); 
-        }
-    }
-}
 
 // -------------------------------------------------------------
 
 function LWTTableSet($key, $val): void
 {
-    LWTTableCheck();
     runsql(
         "INSERT INTO _lwtgeneral (LWTKey, LWTValue) VALUES (
             " . convert_string_to_sqlsyntax($key) . ", 
@@ -497,7 +474,6 @@ function LWTTableSet($key, $val): void
 
 function LWTTableGet($key): string
 {
-    LWTTableCheck();
     return (string)get_first_value(
         "SELECT LWTValue as value 
         FROM _lwtgeneral 
