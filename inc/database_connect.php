@@ -1117,45 +1117,25 @@ function update_default_values($id, $lid, $sql)
 {
     global $tbpref;
     do_mysqli_query(
-        'ALTER TABLE ' . $tbpref . 'textitems2 
-        ALTER Ti2LgID SET DEFAULT ' . $lid . ', 
-        ALTER Ti2TxID SET DEFAULT ' . $id
-    );
-    do_mysqli_query(
         'INSERT INTO ' . $tbpref . 'textitems2 (
-            Ti2WoID, Ti2SeID, Ti2Order, Ti2WordCount, Ti2Text
+            Ti2LgID, Ti2TxID, Ti2WoID, Ti2SeID, Ti2Order, Ti2WordCount, Ti2Text
         ) ' . $sql . '
-        select  WoID, TiSeID, TiOrder, TiWordCount, TiText 
+        select  ' . $lid . ', ' . $id . ', WoID, TiSeID, TiOrder, TiWordCount, TiText 
         FROM ' . $tbpref . 'temptextitems 
         left join ' . $tbpref . 'words 
         on lower(TiText) = WoTextLC and TiWordCount=1 and WoLgID = ' . $lid . ' 
         order by TiOrder,TiWordCount'
     );
-    do_mysqli_query(
-        'ALTER TABLE ' . $tbpref . 'sentences 
-        ALTER SeLgID SET DEFAULT ' . $lid . ', 
-        ALTER SeTxID SET DEFAULT ' . $id
-    );
     do_mysqli_query('set @a=0;');
     do_mysqli_query(
         'INSERT INTO ' . $tbpref . 'sentences (
-            SeOrder, SeFirstPos, SeText
-        ) SELECT 
+            SeLgID, SeTxID, SeOrder, SeFirstPos, SeText
+        ) SELECT ' . $lid . ', ' . $id . ',
         @a:=@a+1, 
         min(if(TiWordCount=0,TiOrder+1,TiOrder)),
         GROUP_CONCAT(TiText order by TiOrder SEPARATOR "") 
         FROM ' . $tbpref . 'temptextitems 
         group by TiSeID'
-    );
-    do_mysqli_query(
-        'ALTER TABLE ' . $tbpref . 'textitems2 
-        ALTER Ti2LgID DROP DEFAULT, 
-        ALTER Ti2TxID DROP DEFAULT'
-    );
-    do_mysqli_query(
-        'ALTER TABLE ' . $tbpref . 'sentences 
-        ALTER SeLgID DROP DEFAULT, 
-        ALTER SeTxID DROP DEFAULT'
     );
 }
 
