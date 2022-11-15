@@ -16,16 +16,19 @@
  * @var int $debug 
  * 1 = debugging on, 0 = .. off 
  */
-$debug = 0;     
+global $debug;
+$debug = 0;
 /** 
  * @var int $dsplerrors 
  * 1 = display all errors on, 0 = .. off 
  */   
+global $dsplerrors;
 $dsplerrors = 0;
 /** 
  * @var int $dspltime 
  * 1 = display time on, 0 = .. off 
  */
+global $dspltime;
 $dspltime = 0;
 
 ?>
