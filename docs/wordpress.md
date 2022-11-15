@@ -1,12 +1,8 @@
 # Wordpress Integration
 
-*   **IMPORTANT: Please read this [THIS WARNING](#mue) first!**  
-    I CANNOT give any support for this feature, NOR can I help you with any WordPress problems!  
-    **USE AT YOUR OWN RISK!**  
-      
-    
-The following instructions are for users who have installed WordPress, and want to install LWT for multiple WordPress users in conjunction with WordPress authentication. Every WordPress user will have his/her own LWT table set.  
-      
+The following instructions are for users who have installed WordPress, and want to install LWT for multiple WordPress users in conjunction with WordPress authentication.
+
+**Every WordPress user will automatically be given his/her own LWT database.**
     
 
 1.  [Download](http://wordpress.org/) and install WordPress.
@@ -22,3 +18,22 @@ The following instructions are for users who have installed WordPress, and want 
     _http://...path-to-wp-blog.../lwt/wp\_lwt\_stop.php_  
     The LWT home page has such a link. If you only log out via the links on the WordPress pages, you will still be able to use LWT until the browser is closed. If you want to log out from both WordPress and LWT, use the above link, or click on the link on the LWT home page!
 8.  If you delete a user, you must find out its user number (table "wp\_users"). After deleting the user in WordPress, you can delete the database for that user ($rootdbname + the user number, e.g., "wordpress_lwt_42").  You can do this in phpMyAdmin.
+
+
+## Each WP user gets a separate database -- migration required
+
+**This is a change from the upstream repo.**
+
+The original LWT project gives each WordPress user their own set of
+tables within the mysql LWT database.  For example, given users 1, 2,
+and 3, there would be `1_words`, `2_words`, `3_words`.  This makes the
+code harder to work with.
+
+This version of LWT instead gives each separate user their own
+database, running on the same server, e.g. `lwt_1`, `lwt_2`, `lwt_3`,
+with their own standard tables.
+
+If any existing WordPress+LWT users would like to use this code,
+they'll need to migrate the data from their LWT installations to use
+this database.  E.g, the table `1_words` would need to be migrated to
+`lwt_1` database, `words` table.
