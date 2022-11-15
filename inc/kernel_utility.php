@@ -348,7 +348,6 @@ function quickMenu(): void
     <option value="statistics">Statistics</option>
     <option value="rss_import">Newsfeed Import</option>
     <optgroup label="Other">
-        <option value="backup_restore">Backup/Restore</option>
         <option value="settings">Settings</option>
         <option value="text_to_speech_settings">Text-to-Speech Settings</option>
         <option value="INFO">Help</option>
