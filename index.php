@@ -311,7 +311,7 @@ echo '<div>' .
         if ($langcnt == 0) {
             ?> 
         <div><p>Hint: The database seems to be empty.</p></div>
-        <a href="install_demo.php">Install the LWT demo database, </a>
+        <a href="install_demo.php">Install the LWT demo database.</a>
         <a href="edit_languages.php?new=1">Define the first language you want to learn.</a>
             <?php
         } else if ($langcnt > 0) {
@@ -341,7 +341,6 @@ echo '<div>' .
     
     <div class="menu">
         <a href="do_feeds.php?check_autoupdate=1">Newsfeed Import</a>
-        <a href="backup_restore.php">Backup / Restore / Empty Database</a>
     </div>
 
     <div class="menu">

@@ -830,7 +830,7 @@ function upload_words_display(): void
     <tr>
         <td class="td1 center" colspan="2">
             <span class="red2">
-                A DATABASE <input type="button" value="BACKUP" onclick="location.href='backup_restore.php';" /> MAY BE ADVISABLE!<br />
+                A DATABASE BACKUP MAY BE ADVISABLE ... <br />
                 PLEASE DOUBLE-CHECK EVERYTHING!
             </span>
             <br />
