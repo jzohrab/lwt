@@ -101,7 +101,8 @@ function mword_each_do_text_text(_){if($(this).attr('data_status')!=''){const wi
 $(this).attr('data_ann',ann);break}}}}
 if(!JQ_TOOLTIP){this.title=make_tooltip($(this).attr('data_text'),$(this).attr('data_trans'),$(this).attr('data_rom'),$(this).attr('data_status'))}}}
 function word_dblclick_event_do_text_text(){const t=parseInt($('#totalcharcount').text(),10);if(t==0)return;let p=100*($(this).attr('data_pos')-5)/t;if(p<0)p=0;if(typeof(window.parent.frames.h.new_pos)==='function'){window.parent.frames.h.new_pos(p)}}
-function word_click_event_do_text_text(){const status=$(this).attr('data_status');let ann='';if($(this).attr('data_ann')!==undefined){ann=$(this).attr('data_ann')}
+function word_click_event_do_text_text(e){if(e.shiftKey){add_shift_clicked_element($(this));return}else{clear_shift_clicked_elements()}
+const status=$(this).attr('data_status');let ann='';if($(this).attr('data_ann')!==undefined){ann=$(this).attr('data_ann')}
 let hints;if(JQ_TOOLTIP){hints=make_tooltip($(this).text(),$(this).attr('data_trans'),$(this).attr('data_rom'),status)}else{hints=$(this).attr('title')}
 const multi_words=Array(7);for(let i=0;i<7;i++){multi_words[i]=$(this).attr('data_mw'+(i+2))}
 if(status<1){run_overlib_status_unknown(WBLINK1,WBLINK2,WBLINK3,hints,TID,$(this).attr('data_order'),$(this).text(),multi_words,RTL);showRightFrames('edit_word.php?tid='+TID+'&ord='+$(this).attr('data_order')+'&wid=')}else if(status==99){run_overlib_status_99(WBLINK1,WBLINK2,WBLINK3,hints,TID,$(this).attr('data_order'),$(this).text(),$(this).attr('data_wid'),multi_words,RTL,ann)}else if(status==98){run_overlib_status_98(WBLINK1,WBLINK2,WBLINK3,hints,TID,$(this).attr('data_order'),$(this).text(),$(this).attr('data_wid'),multi_words,RTL,ann)}else{run_overlib_status_1_to_5(WBLINK1,WBLINK2,WBLINK3,hints,TID,$(this).attr('data_order'),$(this).text(),$(this).attr('data_wid'),status,multi_words,RTL,ann)}
@@ -376,4 +377,18 @@ if(rate){msg.rate=rate}else if(getCookie(prefix+'Rate]')){msg.rate=parseInt(getC
 if(pitch){msg.pitch=pitch}else if(getCookie(prefix+'Pitch]')){msg.pitch=parseInt(getCookie(prefix+'Pitch]'),10)}
 window.speechSynthesis.speak(msg)}
 function readTextAloud(text,lang,rate,pitch){let parsed_text;if(lang.substring(0,2)=='ja'){parsed_text=getPhoneticText(text,lang)}else{parsed_text=text}
-readRawTextAloud(parsed_text,lang,rate,pitch)}
+readRawTextAloud(parsed_text,lang,rate,pitch)};let shift_clicked_elements=[];function deactivate_bulk_update_button(){const btn=$('#bulkStatusUpdateBtn');if(btn.length){btn.prop('disabled',(shift_clicked_elements.length==0))}}
+function add_shift_clicked_element(el){const elid=el.attr('id');const existing_index=shift_clicked_elements.findIndex(e=>e.attr('id')==elid);if(existing_index!=-1){el.removeClass('shiftClicked');shift_clicked_elements.splice(existing_index,1)}else{el.addClass('shiftClicked');shift_clicked_elements.push(el)}
+deactivate_bulk_update_button()}
+function clear_shift_clicked_elements(){shift_clicked_elements.forEach(el=>el.removeClass('shiftClicked'));shift_clicked_elements=[];deactivate_bulk_update_button()}
+function open_bulk_status_popup(){n=shift_clicked_elements.length;if(n==0){console.log('odd ... Should never reach open_bulk_status_popup');return}
+function make_status_link(newstat){const t=getStatusName(newstat);const abbr=getStatusAbbr(newstat);return `<span class="click"
+      onclick="set_status_for_shift_clicked_elements(${newstat})"
+      title="${t}">[${abbr}]</span>`}
+status_links=[1,2,3,4,5,99,98].map(make_status_link).join('&nbsp;');const overlib_body=`<p>Click the new status:</p>
+<div>
+${status_links}
+</div>
+<br />`;return overlib(overlib_body,CAPTION,`Status update (${n} terms)`)}
+function set_status_for_shift_clicked_elements(newStatus){const wids=shift_clicked_elements.filter(e=>e.attr('data_wid')).map((e)=>({'wid':e.attr('data_wid'),'text':e.text()}));const unknowns=shift_clicked_elements.filter(e=>!e.attr('data_wid')).map((e)=>({'pos':e.attr('data_pos'),'ord':e.attr('data_order'),'text':e.text()}));$.ajax({url:'inc/ajax_bulk_status_update.php',type:'post',data:{status:newStatus,terms:wids,newterms:unknowns},dataType:'JSON',success:function(response){update_ui_for_bulk_status_changes(newStatus);cClick();clear_shift_clicked_elements()},error:function(response,status,err){const msg={response:response,status:status,error:err};console.log(`failed: ${JSON.stringify(msg, null, 2)}`)}})}
+function update_ui_for_bulk_status_changes(newStatus){const newClass=`status${newStatus}`;shift_clicked_elements.forEach(function(e){ltext=e.text().toLowerCase();matches=$('span.word').toArray().filter(el=>$(el).text().toLowerCase()==ltext);matches.forEach(function(m){$(m).removeClass('status98 status99 status1 status2 status3 status4 status5 shiftClicked').addClass(newClass).attr('data_status',`${newStatus}`)})})}
