@@ -10,14 +10,12 @@ require_once __DIR__ . '/session_utility.php';
 
 
 function update_existing_words($status, $terms) {
-    global $tbpref;
-
     $ids = [];
     foreach ($terms as $t) {
         array_push($ids, $t['wid']);
     }
     $idlist = implode(', ', $ids);
-    $sql = "UPDATE {$tbpref}words
+    $sql = "UPDATE words
       SET WoStatus = {$status}
       WHERE WoID IN ({$idlist})";
 
@@ -26,10 +24,9 @@ function update_existing_words($status, $terms) {
 }
 
 function update_new_words($status, $newterms) {
-    global $tbpref;
 
     // 1. Load all to temp table.
-    $tmpLoad = "{$tbpref}TMP_new_words_loading";
+    $tmpLoad = "TMP_new_words_loading";
     $sql = "DROP TABLE IF EXISTS {$tmpLoad}";
     runsql($sql, "");
 
@@ -48,7 +45,7 @@ function update_new_words($status, $newterms) {
     // 1b. Create final temp table with the unique terms
     // and all fields needed for the bulk insert.
     // 1. Load all to temp table.
-    $temptbl = "{$tbpref}TMP_new_words";
+    $temptbl = "TMP_new_words";
     $sql = "DROP TABLE IF EXISTS {$temptbl}";
     runsql($sql, "");
 
@@ -60,7 +57,7 @@ function update_new_words($status, $newterms) {
     runsql($sql, "");
 
     // 2. Bulk insert any new words.
-    $sql = "SELECT StValue as value FROM {$tbpref}settings
+    $sql = "SELECT StValue as value FROM settings
 WHERE StKey = 'currentlanguage'";
     $lang = get_first_value($sql);
 
@@ -68,7 +65,7 @@ WHERE StKey = 'currentlanguage'";
     $scorefields = make_score_random_insert_update('iv');
     $scorevals = make_score_random_insert_update('id');
 
-    $sql = "INSERT INTO {$tbpref}words (
+    $sql = "INSERT INTO words (
 WoLgID, WoTextLC, WoText, WoStatus, WoStatusChanged,
 WoTranslation, WoSentence, WoRomanization,
 {$scorefields})
@@ -78,14 +75,14 @@ SELECT
 {$scorevals}
 FROM {$temptbl} AS tt
 WHERE WoTextLC NOT IN (
-  SELECT WoTextLC FROM {$tbpref}words
+  SELECT WoTextLC FROM words
   WHERE WoLgID = {$lang} )
 ";
     $count = runsql($sql, "");
 
     // 3. Update all texts that have new terms.
-    $sql = "UPDATE {$tbpref}textitems2 AS ti2
-JOIN {$tbpref}words as w
+    $sql = "UPDATE textitems2 AS ti2
+JOIN words as w
 ON (LOWER(ti2.Ti2Text) = w.WoTextLC AND ti2.Ti2LgID = w.WoLgID)
 SET ti2.Ti2WoID = w.WoID
 WHERE ti2.Ti2WoID = 0

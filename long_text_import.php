@@ -164,7 +164,7 @@ function long_text_check($max_input_vars): void
  */
 function long_text_save(): void
 {
-    global $tbpref;
+
     $langid = (int) $_REQUEST["LgID"];
     $title = $_REQUEST["TxTitle"];
     $source_uri = $_REQUEST["TxSourceURI"];
@@ -183,7 +183,7 @@ function long_text_save(): void
             $counter = makeCounterWithTotal($textcount, $i+1);
             $thistitle = $title . ($counter == '' ? '' : (' (' . $counter . ')')); 
             $imported += (int) runsql(
-                'insert into ' . $tbpref . 'texts (
+                'insert into texts (
                     TxLgID, TxTitle, TxText, TxAnnotatedText, TxAudioURI, 
                     TxSourceURI
                 ) values( ' . 

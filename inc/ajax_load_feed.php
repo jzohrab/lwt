@@ -20,11 +20,11 @@ require_once __DIR__ . '/session_utility.php';
  *
  * @return array{0: int, 1: int} Number of imported feeds and number of duplicated feeds.
  *
- * @global string $tbpref Database table prefix
+ *
  */
 function get_feeds_list($feed, $nfid): array
 {
-    global $tbpref;
+
     $valuesArr = array();
     foreach ($feed as $data) {
         $d_title=convert_string_to_sqlsyntax($data['title']);
@@ -36,7 +36,7 @@ function get_feeds_list($feed, $nfid): array
         $d_feed=convert_string_to_sqlsyntax($nfid);
         $valuesArr[] = "($d_title,$d_link,$d_text,$d_desc,$d_date,$d_audio,$d_feed)";
     }
-    $sql = 'INSERT IGNORE INTO ' . $tbpref . 'feedlinks (FlTitle,FlLink,FlText,FlDescription,FlDate,FlAudio,FlNfID) 
+    $sql = 'INSERT IGNORE INTO feedlinks (FlTitle,FlLink,FlText,FlDescription,FlDate,FlAudio,FlNfID) 
     VALUES ' . implode(',', $valuesArr);
     do_mysqli_query($sql);
     $imported_feed = mysqli_affected_rows($GLOBALS["DBCONNECTION"]);
@@ -56,13 +56,13 @@ function get_feeds_list($feed, $nfid): array
  * 
  * @return void
  * 
- * @global string $tbpref Database table prefix
+ *
  */
 function print_feed_result($imported_feed, $nif, $nfname, $nfid, $nfoptions)
 {
-    global $tbpref;
+
     do_mysqli_query(
-        'UPDATE ' . $tbpref . 'newsfeeds 
+        'UPDATE newsfeeds 
         SET NfUpdate="' . time() . '" 
         WHERE NfID=' . $nfid
     );
@@ -92,14 +92,14 @@ function print_feed_result($imported_feed, $nif, $nfname, $nfid, $nfoptions)
     }
     $result=do_mysqli_query(
         "SELECT COUNT(*) AS total 
-        FROM " . $tbpref . "feedlinks 
+        FROM feedlinks 
         WHERE FlNfID IN (".$nfid.")"
     );
     $row = mysqli_fetch_assoc($result);
     $to = ($row['total'] - $nf_max_links);
     if ($to>0) {
         do_mysqli_query(
-            "DELETE FROM " . $tbpref . "feedlinks 
+            "DELETE FROM feedlinks 
             WHERE FlNfID in (".$nfid.") 
             ORDER BY FlDate 
             LIMIT $to"

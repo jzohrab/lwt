@@ -25,11 +25,11 @@ require_once 'inc/langdefs.php';
  * 
  * @return string SQL request string
  * 
- * @global string $tbpref Table prefix
+ *
  */
 function get_test_sql()
 {
-    global $tbpref;
+
     if (isset($_REQUEST['selection']) && isset($_SESSION['testsql'])) { 
         $testsql = $_SESSION['testsql'];
         $cntlang = get_first_value(
@@ -42,9 +42,9 @@ function get_test_sql()
             exit();
         }
     } else if (isset($_REQUEST['lang'])) {
-        $testsql = " {$tbpref}words WHERE WoLgID = " . $_REQUEST['lang'] . " ";
+        $testsql = " words WHERE WoLgID = " . $_REQUEST['lang'] . " ";
     } else if (isset($_REQUEST['text'])) {
-        $testsql = " {$tbpref}words, {$tbpref}textitems2 
+        $testsql = " words, textitems2 
         WHERE Ti2LgID = WoLgID AND Ti2WoID = WoID AND Ti2TxID = " . 
         $_REQUEST['text'] . " ";
     } else {
@@ -128,7 +128,7 @@ function do_test_test_finished($testsql, $totaltests)
  * @param string $lang   ID of the language
  * @param string $wordlc 
  * 
- * @global string $tbpref Table prefix
+ *
  * @global int    $debug  Echo the passage number if 1. 
  * 
  * @return array{0: string|null, 1: int} Sentence with escaped word and not a 0 
@@ -139,22 +139,22 @@ function do_test_test_finished($testsql, $totaltests)
  */
 function do_test_test_sentence($wid, $lang, $wordlc)
 {
-    global $debug, $tbpref;
+    global $debug;
     $num = 0;
     $sent = null;
 
     // Select sentences where at least 70 % of words are known
     $sql = "SELECT DISTINCT ti.Ti2SeID AS SeID
-    FROM {$tbpref}textitems2 ti
+    FROM textitems2 ti
     JOIN (
       SELECT t.Ti2SeID, COUNT(*) AS c
-      FROM {$tbpref}textitems2 t
+      FROM textitems2 t
       WHERE t.Ti2WordCount = 1
       GROUP BY t.Ti2SeID
     ) AS sWordCount ON sWordCount.Ti2SeID = ti.Ti2SeID
     LEFT JOIN (
       SELECT t.Ti2SeID, COUNT(*) AS c
-      FROM {$tbpref}textitems2 t
+      FROM textitems2 t
       WHERE t.Ti2WordCount = 1 AND t.Ti2WoID = 0
       GROUP BY t.Ti2SeID
     ) AS sUnknownCount on sUnknownCount.Ti2SeID = ti.Ti2SeID
@@ -269,14 +269,14 @@ function print_term_test($wo_record, $sent, $testtype, $nosent, $regexword)
  *
  * @return int Number of tests left to do.
  *
- * @global string $tbpref Table prefix 
+ *
  * @global int    $debug  Show the SQL query used if 1.
  *
  * @psalm-return int<0, max>
  */
 function prepare_test_area($testsql, $totaltests, $count, $testtype): int
 {
-    global $tbpref, $debug;
+    global $debug;
     $nosent = 0;
     if ($testtype > 3) {
         $testtype -= 3;
@@ -294,7 +294,7 @@ function prepare_test_area($testsql, $totaltests, $count, $testtype): int
     
     $sql = 'SELECT LgName, LgDict1URI, LgDict2URI, LgGoogleTranslateURI, LgTextSize, 
     LgRemoveSpaces, LgRegexpWordCharacters, LgRightToLeft 
-    FROM ' . $tbpref . 'languages WHERE LgID = ' . $lang;
+    FROM languages WHERE LgID = ' . $lang;
     $res = do_mysqli_query($sql);
     $record = mysqli_fetch_assoc($res);
     $wb1 = isset($record['LgDict1URI']) ? $record['LgDict1URI'] : "";
@@ -408,19 +408,19 @@ function prepare_test_area($testsql, $totaltests, $count, $testtype): int
  * 
  * @return void
  * 
- * @global string $tbpref  Database table prefix
+ *
  * @global string $angDefs Languages definition array
  */
 function do_test_test_javascript_interaction(
     $wo_record, $wb1, $wb2, $wb3, $testtype, $nosent, $save
 ) {
-    global $tbpref, $langDefs;
+    global $langDefs;
 
     $wid = $wo_record['WoID'];
     $trans = repl_tab_nl($wo_record['WoTranslation']) . 
     getWordTagList($wid, ' ', 1, 0);
     $lang = get_first_value(
-        'SELECT LgName AS value FROM ' . $tbpref . 'languages
+        'SELECT LgName AS value FROM languages
         WHERE LgID = ' . $wo_record['WoLgID'] . '
         LIMIT 1'        
     );

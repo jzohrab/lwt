@@ -28,11 +28,11 @@ require_once __DIR__ . '/session_utility.php';
  */
 function make_trans($i, $wid, $trans, $word, $lang): string 
 {
-    global $tbpref;    
+
     $trans = trim($trans);
     $widset = is_numeric($wid);
     if ($widset) {
-        $alltrans = get_first_value("SELECT WoTranslation AS value FROM " . $tbpref . "words WHERE WoID = " . $wid);
+        $alltrans = get_first_value("SELECT WoTranslation AS value FROM words WHERE WoID = " . $wid);
         $transarr = preg_split('/[' . get_sepas()  . ']/u', $alltrans);
         $r = "";
         $set = false;
@@ -102,14 +102,14 @@ function make_trans($i, $wid, $trans, $word, $lang): string
  *
  * @return string[] $r and $rr.
  *
- * @global string $tbpref Database table prefix.
+ *
  *
  * @psalm-return array{0: string, 1: string}
  */
 function make_form($textid, $wordlc): array
 { 
-    global $tbpref;
-    $sql = 'SELECT TxLgID, TxAnnotatedText FROM ' . $tbpref . 'texts WHERE TxID = ' . $textid;
+
+    $sql = 'SELECT TxLgID, TxAnnotatedText FROM texts WHERE TxID = ' . $textid;
     $res = do_mysqli_query($sql);
     $record = mysqli_fetch_assoc($res);
     $langid = $record['TxLgID'];
@@ -119,7 +119,7 @@ function make_form($textid, $wordlc): array
     }
     mysqli_free_result($res);
     
-    $sql = 'SELECT LgTextSize, LgRightToLeft FROM ' . $tbpref . 'languages WHERE LgID = ' . $langid;
+    $sql = 'SELECT LgTextSize, LgRightToLeft FROM languages WHERE LgID = ' . $langid;
     $res = do_mysqli_query($sql);
     $record = mysqli_fetch_assoc($res);
     $textsize = (int)$record['LgTextSize'];
@@ -168,7 +168,7 @@ function make_form($textid, $wordlc): array
                 if (is_numeric($wid)) {
                     $temp_wid = (int)get_first_value(
                         "SELECT COUNT(WoID) AS value 
-                        FROM " . $tbpref . "words 
+                        FROM words 
                         WHERE WoID = ". $wid
                     );
                     if ($temp_wid < 1) { 

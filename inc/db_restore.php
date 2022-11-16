@@ -15,12 +15,11 @@ require_once 'database_connect.php';
  * Finalize db tables and optimize.
  */
 function finalize_restore() {
-    global $tbpref;
     global $debug;
     global $dbname;
 
-    runsql('DROP TABLE IF EXISTS ' . $tbpref . 'textitems', '');
-    check_update_db($debug, $tbpref, $dbname);
+    runsql('DROP TABLE IF EXISTS textitems', '');
+    check_update_db($debug, $dbname);
     reparse_all_texts();
     optimizedb();
     get_tags(1);
@@ -30,8 +29,6 @@ function finalize_restore() {
 
 /**
  * Execute a given filename.
- * 
- * @global string $tbpref Table name prefix
  * 
  * @return [ boolean pass_or_fail, string message ]
  */
@@ -73,8 +70,6 @@ function execute_sql_file($file): array
 /**
  * Install a db using a set of files.
  * 
- * @global string $tbpref Table name prefix
- * 
  * @return string message.
  */
 function install_db_fileset($files, $name): string 
@@ -95,8 +90,6 @@ function install_db_fileset($files, $name): string
 /**
  * Install a new db, with no demo data.
  * 
- * @global string $tbpref Table name prefix
- * 
  * @return string message.
  */
 function install_new_db(): string 
@@ -107,8 +100,6 @@ function install_new_db(): string
 
 /**
  * Install the db, including demo data.
- * 
- * @global string $tbpref Table name prefix
  * 
  * @return string message.
  */

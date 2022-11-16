@@ -22,7 +22,6 @@ $lwtwpuser = $_SESSION['LWT-WP-User'];
 if (isset($lwtwpuser)) {
     global $dbname;
     $dbname = "{$rootdbname}_{$lwtwpuser}";
-    $tbpref = '';
 } else {
     $url = '';
     if ($_SERVER['REQUEST_METHOD'] == 'GET') {

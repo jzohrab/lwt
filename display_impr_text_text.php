@@ -24,10 +24,10 @@ require_once 'inc/session_utility.php';
  */
 function get_annotated_text($textid)
 {
-    global $tbpref;
+
     $ann = get_first_value(
         "SELECT TxAnnotatedText AS value 
-        FROM " . $tbpref . "texts 
+        FROM texts 
         WHERE TxID = " . $textid
     );
     return (string)$ann;
@@ -43,10 +43,10 @@ function get_annotated_text($textid)
  */
 function get_display_impr_text_text_data($textid)
 {
-    global $tbpref;
+
 
     /*$sql = 'SELECT TxLgID, TxTitle 
-    FROM ' . $tbpref . 'texts 
+    FROM texts 
     WHERE TxID = ' . $textid;
     $res = do_mysqli_query($sql);
     $record = mysqli_fetch_assoc($res);
@@ -54,11 +54,11 @@ function get_display_impr_text_text_data($textid)
     mysqli_free_result($res);
 
     $sql = 'SELECT LgTextSize, LgRemoveSpaces, LgRightToLeft 
-    FROM ' . $tbpref . 'languages WHERE LgID = ' . $langid;*/
+    FROM languages WHERE LgID = ' . $langid;*/
 
     $sql = 'SELECT LgTextSize, LgRightToLeft 
-    FROM ' . $tbpref . 'texts 
-    JOIN ' . $tbpref . 'languages ON LgID = TxLgID
+    FROM texts 
+    JOIN languages ON LgID = TxLgID
     WHERE TxID = ' . $textid;
     $res = do_mysqli_query($sql);
     $record = mysqli_fetch_assoc($res);
@@ -144,11 +144,11 @@ function do_diplay_impr_text_text_area($ann, $textsize, $rtlScript)
  * 
  * @return array{0: string, 1: string} Translation and romanization.
  * 
- * @global string $tbpref Database table prefix.
+ *
  */
 function get_word_annotations($vals)
 {
-    global $tbpref;
+
     $trans = '';
     $c = count($vals);
     $rom = '';
@@ -157,7 +157,7 @@ function get_word_annotations($vals)
             $wid = (int)$vals[2];
             $rom = get_first_value(
                 "SELECT WoRomanization AS value 
-                FROM " . $tbpref . "words WHERE WoID = " . $wid
+                FROM words WHERE WoID = " . $wid
             );
             if (!isset($rom)) {
                 $rom = ''; 

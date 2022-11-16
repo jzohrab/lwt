@@ -77,9 +77,9 @@ function get_similar_terms(
     $lang_id, $compared_term, $max_count, $min_ranking
 ): array { 
 
-    global $tbpref;
+
     $compared_term_lc = mb_strtolower($compared_term, 'UTF-8');
-    $sql = "select WoID, WoTextLC from " . $tbpref . "words 
+    $sql = "select WoID, WoTextLC from words 
     where WoLgID = " . $lang_id . 
     " AND WoTextLC <> " . convert_string_to_sqlsyntax($compared_term_lc);
     $res = do_mysqli_query($sql);
@@ -109,7 +109,7 @@ function get_similar_terms(
  */
 function print_similar_terms($lang_id, $compared_term): string 
 {
-    global $tbpref;
+
     $max_count = (int)getSettingWithDefault("set-similar-terms-count");
     if ($max_count <= 0) { 
         return ''; 
@@ -121,7 +121,7 @@ function print_similar_terms($lang_id, $compared_term): string
     $termarr = get_similar_terms($lang_id, $compared_term, $max_count, 0.33);
     $rarr = array();
     foreach ($termarr as $termid) {
-        $sql = "select WoText, WoTranslation, WoRomanization from " . $tbpref . "words where WoID = " . $termid;
+        $sql = "select WoText, WoTranslation, WoRomanization from words where WoID = " . $termid;
         $res = do_mysqli_query($sql);
         if ($record = mysqli_fetch_assoc($res)) {
             $term = tohtml($record["WoText"]);

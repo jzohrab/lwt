@@ -25,13 +25,13 @@ require_once __DIR__ . '/session_utility.php';
  * 
  * @return void
  * 
- * @global string $tbpref Database table prefix
+ *
  */
 function save_text_position($textid, $position)
 {
-    global $tbpref;
+
     runsql(
-        'UPDATE ' . $tbpref . 'texts 
+        'UPDATE texts 
         SET TxPosition = ' . $position . ' 
         WHERE TxID = ' . $textid, 
         ""
@@ -46,13 +46,13 @@ function save_text_position($textid, $position)
  * 
  * @return void
  * 
- * @global string $tbpref Database table prefix
+ *
  */
 function save_audio_position($textid, $audioposition) 
 {
-    global $tbpref;
+
     runsql(
-        'UPDATE ' . $tbpref . 'texts 
+        'UPDATE texts 
         SET TxAudioPosition = ' . $audioposition . ' 
         WHERE TxID = ' . $textid, 
         ""

@@ -22,15 +22,15 @@ require_once 'inc/session_utility.php';
  * @return array{0: string, 1: string, 2: string} Text title, 
  * text audio and source URI
  * 
- * @global string $tbpref Database table prefix.
+ *
  */
 function do_diplay_impr_text_header_data($textid)
 {
-    global $tbpref;
+
 
     $sql = 
     'SELECT TxLgID, TxTitle, TxAudioURI, TxSourceURI 
-    FROM ' . $tbpref . 'texts
+    FROM texts
     WHERE TxID = ' . $textid;
     $res = do_mysqli_query($sql);
     $record = mysqli_fetch_assoc($res);

@@ -51,19 +51,19 @@ function get_new_status($oldstatus, $up)
  * 
  * @return string|null HTML-formatted string with plus/minus controls if a success. 
  * 
- * @global string $tbpref Database table prefix
+ *
  */
 function update_word_status($wid, $currstatus)
 {
-    global $tbpref;
+
     if (($currstatus >= 1 && $currstatus <= 5) || $currstatus == 99 || $currstatus == 98) {
         $m1 = (int)runsql(
-            'UPDATE ' . $tbpref . 'words 
+            'UPDATE words 
             SET WoStatus = ' . $currstatus . ', WoStatusChanged = NOW(),' . make_score_random_insert_update('u') . '
             WHERE WoID = ' . $wid, ''
         );
         if ($m1 == 1) {
-            $currstatus = get_first_value('SELECT WoStatus as value FROM ' . $tbpref . 'words where WoID = ' . $wid);
+            $currstatus = get_first_value('SELECT WoStatus as value FROM words where WoID = ' . $wid);
             if (!isset($currstatus)) {
                 return null;
             }
@@ -82,16 +82,16 @@ function update_word_status($wid, $currstatus)
  * 
  * @return void
  * 
- * @global string $tbpref Database table prefix.
+ *
  */
 function do_ajax_chg_term_status($wid, $up)
 {
-    global $tbpref;
+
     chdir('..');
 
     $tempstatus = get_first_value(
         'SELECT WoStatus as value 
-        FROM ' . $tbpref . 'words 
+        FROM words 
         WHERE WoID = ' . $wid
     );
     if (!isset($tempstatus)) {

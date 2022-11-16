@@ -22,7 +22,7 @@ require_once 'inc/langdefs.php' ;
  *
  * @param string $textid ID of the text
  *
- * @global string $tbpref Table name prefix
+ *
  *
  * @since 2.0.3-fork
  *
@@ -32,11 +32,11 @@ require_once 'inc/langdefs.php' ;
  */
 function getData($textid)
 {
-    global $tbpref;
+
     $sql = 
     'SELECT LgName, TxLgID, TxText, TxTitle, TxAudioURI, TxSourceURI, TxAudioPosition 
-    FROM ' . $tbpref . 'texts 
-    JOIN ' . $tbpref . 'languages ON TxLgID = LgID 
+    FROM texts 
+    JOIN languages ON TxLgID = LgID 
     WHERE TxID = ' . $textid;
     $res = do_mysqli_query($sql);
     $record = mysqli_fetch_assoc($res);

@@ -22,11 +22,11 @@ require_once 'inc/session_utility.php';
  * 
  * @return string SQL request string
  * 
- * @global string $tbpref Table prefix
+ *
  */
 function get_test_table_sql()
 {
-    global $tbpref;
+
     if (isset($_REQUEST['selection']) && isset($_SESSION['testsql'])) { 
         $testsql = $_SESSION['testsql'];
         $cntlang = get_first_value('SELECT count(distinct WoLgID) AS value FROM ' . $testsql);
@@ -38,9 +38,9 @@ function get_test_table_sql()
             exit();
         }
     } else if (isset($_REQUEST['lang'])) {
-        $testsql = ' ' . $tbpref . 'words where WoLgID = ' . $_REQUEST['lang'] . ' ';
+        $testsql = ' words where WoLgID = ' . $_REQUEST['lang'] . ' ';
     } else if (isset($_REQUEST['text'])) {
-        $testsql = ' ' . $tbpref . 'words, ' . $tbpref . 'textitems2 
+        $testsql = ' words, textitems2 
         WHERE Ti2LgID = WoLgID AND Ti2WoID = WoID AND Ti2TxID = ' . $_REQUEST['text'] . ' ';
     } else { 
         my_die("do_test_table.php called with wrong parameters"); 
@@ -56,7 +56,7 @@ function get_test_table_sql()
  */
 function do_test_table_language_settings($testsql)
 {
-    global $tbpref;
+
 
     $lang = get_first_value('SELECT WoLgID AS value FROM ' . $testsql . ' LIMIT 1');
 
@@ -68,7 +68,7 @@ function do_test_table_language_settings($testsql)
     }
 
     $sql = 'SELECT LgTextSize, LgRegexpWordCharacters, LgRightToLeft 
-    FROM ' . $tbpref . 'languages WHERE LgID = ' . $lang;
+    FROM languages WHERE LgID = ' . $lang;
     $res = do_mysqli_query($sql);
     $record = mysqli_fetch_assoc($res);
     mysqli_free_result($res);

@@ -23,17 +23,17 @@ require_once __DIR__ . '/session_utility.php';
  *
  * @return string Success string
  *
- * @global string $tbpref Database table prefix.
+ *
  *
  * @psalm-return 'NOTOK'|'OK'
  */
 function save_impr_text_data($textid, $line, $val): string
 {
-    global $tbpref;
+
     $success = "NOTOK";
     $ann = get_first_value(
         "SELECT TxAnnotatedText AS value 
-        FROM " . $tbpref . "texts 
+        FROM texts 
         WHERE TxID = " . $textid
     );
     $items = preg_split('/[\n]/u', $ann);
@@ -43,7 +43,7 @@ function save_impr_text_data($textid, $line, $val): string
             $vals[3] = $val;
             $items[$line-1] = implode("\t", $vals);
             runsql(
-                'UPDATE ' . $tbpref . 'texts 
+                'UPDATE texts 
                 SET TxAnnotatedText = ' . convert_string_to_sqlsyntax(implode("\n", $items)) . ' 
                 WHERE TxID = ' . $textid, ""
             );

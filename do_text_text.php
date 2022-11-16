@@ -23,16 +23,16 @@ require_once 'inc/session_utility.php';
  * @return array{TxLgID: int, TxTitle: string, TxAnnotatedText: string, 
  * TxPosition: int}|false|null Record corresponding to this text.
  * 
- * @global string $tbpref Table name prefix
+ *
  *
  * @psalm-return array<string, float|int|null|string>|false|null
  */
 function get_text_data($textid)
 {
-    global $tbpref;
+
     $sql = 
     'SELECT TxLgID, TxTitle, TxAnnotatedText, TxPosition 
-    FROM ' . $tbpref . 'texts
+    FROM texts
     WHERE TxID = ' . $textid;
     $res = do_mysqli_query($sql);
     $record = mysqli_fetch_assoc($res);
@@ -48,7 +48,7 @@ function get_text_data($textid)
  * @return array{TxLgID: int, TxTitle: string, TxAnnotatedText: string, 
  * TxPosition: int}|false|null Record corresponding to this text.
  * 
- * @global string $tbpref Table name prefix
+ *
  *
  * @deprecated Use get_text_data instead.
  *
@@ -68,17 +68,17 @@ function getTextData($textid)
  * LgDict2URI: string, LgGoogleTranslateURI: string, LgTextSize: int, 
  * LgRemoveSpaces: int, LgRightToLeft: int}|false|null Record corresponding to this language.
  * 
- * @global string $tbpref Table name prefix
+ *
  *
  * @psalm-return array<string, float|int|null|string>|false|null
  */
 function get_language_settings($langid)
 {
-    global $tbpref;
+
     $sql = 
     'SELECT LgName, LgDict1URI, LgDict2URI, LgGoogleTranslateURI, 
     LgTextSize, LgRemoveSpaces, LgRightToLeft
-    FROM ' . $tbpref . 'languages
+    FROM languages
     WHERE LgID = ' . $langid;
     $res = do_mysqli_query($sql);
     $record = mysqli_fetch_assoc($res);
@@ -95,7 +95,7 @@ function get_language_settings($langid)
  * LgDict2URI: string, LgGoogleTranslateURI: string, LgTextSize: int, 
  * LgRemoveSpaces: int, LgRightToLeft: int}|false|null Record corresponding to this language.
  * 
- * @global string $tbpref Table name prefix
+ *
  *
  * @deprecated Use get_language_settings instead.
  *
@@ -400,11 +400,11 @@ function wordParser($record, $showAll, $currcharcount, $hideuntil): int
  * 
  * @return void
  * 
- * @global string $tbpref Table name prefix
+ *
  */
 function main_word_loop($textid, $showAll): void
 {
-    global $tbpref;
+
     
     $sql = 
     "SELECT
@@ -419,7 +419,7 @@ function main_word_loop($textid, $showAll): void
         ELSE CHAR_LENGTH(`WoTextLC`) 
      END AS TiTextLength, 
      WoID, WoText, WoStatus, WoTranslation, WoRomanization
-     FROM {$tbpref}textitems2 LEFT JOIN {$tbpref}words ON Ti2WoID = WoID
+     FROM textitems2 LEFT JOIN words ON Ti2WoID = WoID
      WHERE Ti2TxID = $textid
      ORDER BY Ti2Order asc, Ti2WordCount desc";
     
@@ -478,7 +478,7 @@ function main_word_loop($textid, $showAll): void
  * 
  * @return void
  * 
- * @global string $tbpref Table name prefix
+ *
  * 
  * @deprecated Use main_word_loop instead.
  */
