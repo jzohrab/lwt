@@ -40,24 +40,6 @@ function get_text_data($textid)
     return $record;
 }
 
-/**
- * Get the record for this text in the database.
- *
- * @param string $textid ID of the text
- * 
- * @return array{TxLgID: int, TxTitle: string, TxAnnotatedText: string, 
- * TxPosition: int}|false|null Record corresponding to this text.
- * 
- *
- *
- * @deprecated Use get_text_data instead.
- *
- * @psalm-return array<string, float|int|null|string>|false|null
- */
-function getTextData($textid)
-{
-    return get_text_data($textid);
-}
 
 /**
  * Return the settings relative to this language.
@@ -84,26 +66,6 @@ function get_language_settings($langid)
     $record = mysqli_fetch_assoc($res);
     mysqli_free_result($res);
     return $record;
-}
-
-/**
- * Return the settings relative to this language.
- *
- * @param int $langid Language ID as defined in the database.
- * 
- * @return array{LgName: string, LgDict1URI: string, 
- * LgDict2URI: string, LgGoogleTranslateURI: string, LgTextSize: int, 
- * LgRemoveSpaces: int, LgRightToLeft: int}|false|null Record corresponding to this language.
- * 
- *
- *
- * @deprecated Use get_language_settings instead.
- *
- * @psalm-return array<string, float|int|null|string>|false|null
- */
-function getLanguagesSettings($langid)
-{
-    return get_language_settings($langid);
 }
 
 
@@ -188,77 +150,6 @@ function echo_term($actcode, $showAll, $spanid, $hidetag, $currcharcount, $recor
     }
 }
 
-/**
- * Print the output when the word is a term.
- *
- * @param int                   $actcode       Action code, > 1 for multiword
- * @param int                   $showAll       Show all words or not
- * @param int                   $hideuntil     Unused
- * @param string                $spanid        ID for this span element
- * @param int                   $currcharcount Current number of characters
- * @param array<string, string> $record        Various data
- *
- * @since 2.2.1 Return 0 instead of a new value for $hideuntil
- *
- * @deprecated Use echo_term instead.
- */
-function echoTerm(
-    $actcode, $showAll, $hideuntil, $spanid, $hidetag, $currcharcount, $record
-): int {
-    echo_term($actcode, $showAll, $spanid, $hidetag, $currcharcount, $record);
-    return 0;
-}
-
-
-/**
- * Process each word (can be punction, term, etc...). Caused laggy texts, replaced by wordParser.
- *
- * @param string[] $record        Record information
- * @param 0|1      $showAll       Show all words or not
- * @param int      $currcharcount Current number of caracters 
- * 
- * @return int New number of caracters
- * 
- * @deprecated Use sentenceParser and wordParser instead.
- */
-function wordProcessor($record, $showAll, $currcharcount): int
-{
-    $cnt = 1;
-    $sid = 0;
-
-    if ($sid != $record['Ti2SeID']) {
-        if ($sid != 0) {
-            echo '</span>';
-        }
-        $sid = $record['Ti2SeID'];
-        echo '<span id="sent_', $sid, '">';
-    }
-    $actcode = (int)$record['Code'];
-    $spanid = 'ID-' . $record['Ti2Order'] . '-' . $actcode;
-
-    // Check if work should be hidden
-    $hidetag = '';
-
-    if ($cnt < $record['Ti2Order']) {
-        echo '<span id="ID-' . $cnt++ . '-1"></span>';
-    }
-    // The current word is not a term
-    if ($record['TiIsNotWord'] != 0) {
-        echo '<span id="' . $spanid . '" class="' . $hidetag . '">' .
-        str_replace("¶", '<br />', tohtml($record['TiText'])) . 
-        '</span>';
-    } else {
-        echo_term(
-            $actcode, $showAll, $spanid, $hidetag, $currcharcount, $record
-        );
-    }
-    
-    if ($actcode == 1) { 
-        $currcharcount += (int)$record['TiTextLength'];
-    }
-
-    return $currcharcount;
-}
 
 /**
  * Check if a new sentence SPAN should be started.
@@ -281,20 +172,6 @@ function sentence_parser($sid, $old_sid)
     return $sid;
 }
 
-/**
- * Check if a new sentence SPAN should be started.
- * 
- * @param int $sid     Sentence ID
- * @param int $old_sid Old sentence ID
- * 
- * @return int Sentence ID
- * 
- * @deprecated Use sentence_parser instead.
- */
-function sentenceParser($sid, $old_sid) 
-{
-    return sentence_parser($sid, $old_sid);
-}
 
 /**
  * Process each text item (can be punction, term, etc...)
@@ -373,24 +250,6 @@ function word_parser($record, $showAll, $currcharcount, $hideuntil): int
     return $hideuntil;
 }
 
-/**
- * Process each word (can be punction, term, etc...)
- *
- * @param string[] $record        Record information
- * @param 0|1      $showAll       Show all words or not
- * @param int      $currcharcount Current number of caracters 
- * @param int      $cnt
- * @param int      $sid           Sentence ID
- * @param int      $hideuntil     Should the value be hidden or not
- * 
- * @return int New value for $hideuntil
- * 
- * @deprecated Use word_parser instead.
- */
-function wordParser($record, $showAll, $currcharcount, $hideuntil): int
-{
-    return word_parser($record, $showAll, $currcharcount, $hideuntil);
-}
 
 /**
  * Get all words and start the iterate over them.
