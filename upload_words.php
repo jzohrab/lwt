@@ -40,11 +40,11 @@ function my_str_getcsv($input)
  * 
  * @return void
  * 
- * @global string $tbpref Database table prefix
+ *
  */
 function upload_words_import_terms($fields, $tabs, $file_upl, $col, $lang): void
 {
-    global $tbpref;
+
     $sql = "SELECT * FROM languages WHERE LgID=$lang";
     $res = do_mysqli_query($sql);
     $record = mysqli_fetch_assoc($res);
@@ -544,11 +544,11 @@ function showImportedTerms(last_update, rtl, count, page) {
  * 
  * @return void
  * 
- * @global string $tbpref Database table prefix
+ *
  */
 function upload_words_import_tags($fields, $tabs, $file_upl): void
 {
-    global $tbpref;
+
     $columns = '';
     for ($j=1; $j<=$fields["tl"]; $j++) {
         $columns .= ($j==1?'(':',') . ($j==$fields["tl"]?'@taglist':'@dummy');
@@ -636,11 +636,11 @@ function upload_words_import_tags($fields, $tabs, $file_upl): void
  * 
  * @return void
  * 
- * @global string $tbpref Database table prefix
+ *
  */
 function upload_words_import(): void
 {
-    global $tbpref;
+
     $tabs = $_REQUEST["Tab"];
     $lang = $_REQUEST["LgID"];
     $sql = "SELECT * FROM languages WHERE LgID=$lang";

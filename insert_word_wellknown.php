@@ -20,11 +20,11 @@ require_once 'inc/session_utility.php';
  *
  * @return string A word
  *
- * @global string $tbpref 
+ *
  */
 function get_word($textid, $textpos): string 
 {
-    global $tbpref;
+
     $word = (string)get_first_value(
         "SELECT Ti2Text AS value 
         FROM textitems2 
@@ -41,11 +41,11 @@ function get_word($textid, $textpos): string
  * 
  * @return int Word ID 
  * 
- * @global string $tbpref 
+ *
  */
 function insert_word_wellknown_to_database($textid, $word)
 {
-    global $tbpref;
+
     
     $wordlc = mb_strtolower($word, 'UTF-8');
     
@@ -82,7 +82,7 @@ function insert_word_wellknown_to_database($textid, $word)
  * @param string $hex    Hexadecimal version of the lowercase word.
  * @param string $textid ID of the text.
  * 
- * @global string $tbpref 
+ *
  * 
  * @return void
  */

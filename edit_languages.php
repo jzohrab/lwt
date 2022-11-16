@@ -65,11 +65,11 @@ function edit_languages_alert_duplicate()
  *
  * @return string Number of sentences and textitems refreshed
  *
- * @global string $tbpref Database table prefix
+ *
  */
 function edit_languages_refresh($lid): string
 {
-    global $tbpref;
+
     $message2 = runsql(
         'delete from sentences where SeLgID = ' . $lid, 
         "Sentences deleted"
@@ -112,11 +112,11 @@ function edit_languages_refresh($lid): string
  * 
  * @return string Info on the number of languages deleted
  * 
- * @global string $tbpref Database table prefix
+ *
  */
 function edit_languages_delete($lid): string
 {
-    global $tbpref;
+
     $anztexts = get_first_value(
         'select count(TxID) as value 
         from texts 
@@ -160,11 +160,11 @@ function edit_languages_delete($lid): string
  * 
  * @return string Success or error message
  * 
- * @global string $tbpref Database table prefix
+ *
  */
 function edit_languages_op_save(): string
 {
-    global $tbpref;
+
     $val = get_first_value(
         'select min(LgID) as value 
         from languages 
@@ -226,11 +226,11 @@ function edit_languages_op_save(): string
  *
  * @return string Number of texts updated and items reparsed.
  *
- * @global string $tbpref Database table prefix
+ *
  */
 function edit_languages_op_change($lid): string 
 {
-    global $tbpref;
+
     // Get old values
     $sql = "select * from languages where LgID=" . $lid;
     $res = do_mysqli_query($sql);
@@ -449,7 +449,7 @@ function edit_languages_new()
  */
 function edit_languages_change($lid)
 {
-    global $tbpref;
+
     $sql = 'select * from languages where LgID = ' . $lid;
     $res = do_mysqli_query($sql);
     if ($record = mysqli_fetch_assoc($res)) {
@@ -567,14 +567,14 @@ function edit_languages_change($lid)
  * 
  * @param {string} $message An information message to display.
  * 
- * @global {string} $tbpref Database table prefix
+ *
  * @global {int}    $debug 1 to display debugging data
  * 
  * @return void
  */
 function edit_languages_display($message)
 {
-    global $tbpref, $debug;
+    global $debug;
 
     echo error_message_with_hide($message, 0);
     

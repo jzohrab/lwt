@@ -23,13 +23,13 @@ require_once __DIR__ . '/session_utility.php';
  *
  * @return string Success string
  *
- * @global string $tbpref Database table prefix.
+ *
  *
  * @psalm-return 'NOTOK'|'OK'
  */
 function save_impr_text_data($textid, $line, $val): string
 {
-    global $tbpref;
+
     $success = "NOTOK";
     $ann = get_first_value(
         "SELECT TxAnnotatedText AS value 

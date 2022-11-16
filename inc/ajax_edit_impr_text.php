@@ -28,7 +28,7 @@ require_once __DIR__ . '/session_utility.php';
  */
 function make_trans($i, $wid, $trans, $word, $lang): string 
 {
-    global $tbpref;    
+
     $trans = trim($trans);
     $widset = is_numeric($wid);
     if ($widset) {
@@ -102,13 +102,13 @@ function make_trans($i, $wid, $trans, $word, $lang): string
  *
  * @return string[] $r and $rr.
  *
- * @global string $tbpref Database table prefix.
+ *
  *
  * @psalm-return array{0: string, 1: string}
  */
 function make_form($textid, $wordlc): array
 { 
-    global $tbpref;
+
     $sql = 'SELECT TxLgID, TxAnnotatedText FROM texts WHERE TxID = ' . $textid;
     $res = do_mysqli_query($sql);
     $record = mysqli_fetch_assoc($res);

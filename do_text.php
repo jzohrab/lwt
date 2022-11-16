@@ -127,11 +127,11 @@ width: <?php echo 97 - $frame_l_width; ?>%;">
  * 
  * @return void
  * 
- * @global string $tbpref Database table prefix.
+ *
  */
 function do_text_page($textid)
 {
-    global $tbpref;
+
 
     //framesetheader('Read');
     pagestart_nobody('Read');

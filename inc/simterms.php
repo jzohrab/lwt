@@ -77,7 +77,7 @@ function get_similar_terms(
     $lang_id, $compared_term, $max_count, $min_ranking
 ): array { 
 
-    global $tbpref;
+
     $compared_term_lc = mb_strtolower($compared_term, 'UTF-8');
     $sql = "select WoID, WoTextLC from words 
     where WoLgID = " . $lang_id . 
@@ -109,7 +109,7 @@ function get_similar_terms(
  */
 function print_similar_terms($lang_id, $compared_term): string 
 {
-    global $tbpref;
+
     $max_count = (int)getSettingWithDefault("set-similar-terms-count");
     if ($max_count <= 0) { 
         return ''; 

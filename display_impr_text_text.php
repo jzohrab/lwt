@@ -24,7 +24,7 @@ require_once 'inc/session_utility.php';
  */
 function get_annotated_text($textid)
 {
-    global $tbpref;
+
     $ann = get_first_value(
         "SELECT TxAnnotatedText AS value 
         FROM texts 
@@ -43,7 +43,7 @@ function get_annotated_text($textid)
  */
 function get_display_impr_text_text_data($textid)
 {
-    global $tbpref;
+
 
     /*$sql = 'SELECT TxLgID, TxTitle 
     FROM texts 
@@ -144,11 +144,11 @@ function do_diplay_impr_text_text_area($ann, $textsize, $rtlScript)
  * 
  * @return array{0: string, 1: string} Translation and romanization.
  * 
- * @global string $tbpref Database table prefix.
+ *
  */
 function get_word_annotations($vals)
 {
-    global $tbpref;
+
     $trans = '';
     $c = count($vals);
     $rom = '';

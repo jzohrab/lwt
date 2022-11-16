@@ -25,11 +25,11 @@ require_once 'inc/langdefs.php';
  * 
  * @return string SQL request string
  * 
- * @global string $tbpref Table prefix
+ *
  */
 function get_test_sql()
 {
-    global $tbpref;
+
     if (isset($_REQUEST['selection']) && isset($_SESSION['testsql'])) { 
         $testsql = $_SESSION['testsql'];
         $cntlang = get_first_value(
@@ -128,7 +128,7 @@ function do_test_test_finished($testsql, $totaltests)
  * @param string $lang   ID of the language
  * @param string $wordlc 
  * 
- * @global string $tbpref Table prefix
+ *
  * @global int    $debug  Echo the passage number if 1. 
  * 
  * @return array{0: string|null, 1: int} Sentence with escaped word and not a 0 
@@ -139,7 +139,7 @@ function do_test_test_finished($testsql, $totaltests)
  */
 function do_test_test_sentence($wid, $lang, $wordlc)
 {
-    global $debug, $tbpref;
+    global $debug;
     $num = 0;
     $sent = null;
 
@@ -269,14 +269,14 @@ function print_term_test($wo_record, $sent, $testtype, $nosent, $regexword)
  *
  * @return int Number of tests left to do.
  *
- * @global string $tbpref Table prefix 
+ *
  * @global int    $debug  Show the SQL query used if 1.
  *
  * @psalm-return int<0, max>
  */
 function prepare_test_area($testsql, $totaltests, $count, $testtype): int
 {
-    global $tbpref, $debug;
+    global $debug;
     $nosent = 0;
     if ($testtype > 3) {
         $testtype -= 3;
@@ -408,13 +408,13 @@ function prepare_test_area($testsql, $totaltests, $count, $testtype): int
  * 
  * @return void
  * 
- * @global string $tbpref  Database table prefix
+ *
  * @global string $angDefs Languages definition array
  */
 function do_test_test_javascript_interaction(
     $wo_record, $wb1, $wb2, $wb3, $testtype, $nosent, $save
 ) {
-    global $tbpref, $langDefs;
+    global $langDefs;
 
     $wid = $wo_record['WoID'];
     $trans = repl_tab_nl($wo_record['WoTranslation']) . 
