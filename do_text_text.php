@@ -205,51 +205,6 @@ function item_parser($record, $showAll, $currcharcount, $hide): void
     }
 }
 
-/**
- * Process each text item (can be punction, term, etc...)
- *
- * @param string[] $record        Record information
- * @param 0|1      $showAll       Show all words or not
- * @param int      $currcharcount Current number of caracters
- * @param int      $hideuntil     Should the value be hidden or not
- * 
- * @return int New value for $hideuntil
- * 
- * @deprecated Use item_parser instead (since 2.5.0-fork).
- */
-function word_parser($record, $showAll, $currcharcount, $hideuntil): int
-{
-    $actcode = (int)$record['Code'];
-    $spanid = 'ID-' . $record['Ti2Order'] . '-' . $actcode;
-
-    // Check if item should be hidden
-    $hidetag = '';
-    if ($record['Ti2Order'] <= $hideuntil) {
-        if (!$showAll || ($showAll && $actcode > 1)) {
-            $hidetag = ' hide';
-        } 
-    } else {
-        $hidetag = '';
-        $hideuntil = -1;    
-    }
-
-    if ($record['TiIsNotWord'] != 0) {
-        // The current item is not a term (likely punctuation)
-        echo "<span id=\"$spanid\" class=\"$hidetag\">" .
-        str_replace("¶", '<br />', tohtml($record['TiText'])) . '</span>';
-    } else {
-        // A term (word or multi-word)
-        echo_term(
-            $actcode, $showAll, $spanid, $hidetag, $currcharcount, $record
-        );
-        if ($hideuntil == -1) {
-            $hideuntil = (int)$record['Ti2Order'] + ($actcode - 1) * 2;
-        }
-    }
-
-    return $hideuntil;
-}
-
 
 /**
  * Get all words and start the iterate over them.
@@ -329,22 +284,6 @@ function main_word_loop($textid, $showAll): void
     echo '<span id="totalcharcount" class="hide">' . $currcharcount . '</span>';
 }
 
-/**
- * Get all words and start the iterate over them.
- *
- * @param string $textid  ID of the text 
- * @param 0|1    $showAll Show all words or not
- * 
- * @return void
- * 
- *
- * 
- * @deprecated Use main_word_loop instead.
- */
-function mainWordLoop($textid, $showAll): void
-{
-    main_word_loop($textid, $showAll);
-}
 
 /**
  * Prepare style for showing word status. Write a now STYLE object
@@ -415,22 +354,6 @@ function do_text_text_style($showLearning, $mode_trans, $textsize, $ann_exists):
     echo '</style>';
 }
 
-/**
- * Prepare style for showing word status. Write a now STYLE object
- * 
- * @param int       $showLearning 1 to show learning translations
- * @param int<1, 4> $mode_trans   Annotation position
- * @param int       $textsize     Text font size
- * @param bool      $ann_exist    Does annotations exist for this text
- *
- * @return void
- * 
- * @deprecated Use do_text_text_style instead.
- */
-function prepareStyle($showLearning, $mode_trans, $textsize, $ann_exists): void
-{
-    do_text_text_style($showLearning, $mode_trans, $textsize, $ann_exists);
-}
 
 /**
  * Print JavaScript-formatted content.
@@ -475,19 +398,6 @@ function do_text_text_javascript($var_array): void
     <?php
 }
 
-/**
- * Print JavaScript-formatted content.
- * 
- * @param array<string, mixed> Associative array of all global variables for JS
- * 
- * @return void
- * 
- * @deprecated Use do_text_text_javascript instead.
- */
-function do_text_javascript($var_array): void
-{
-    do_text_text_javascript($var_array);
-}
 
 /**
  * Main function for displaying sentences. It will print HTML content.
