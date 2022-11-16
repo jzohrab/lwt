@@ -1153,7 +1153,7 @@ function check_text_with_expressions($id, $lid, $wl, $wl_max, $mw_sql): string
     do_mysqli_query('TRUNCATE TABLE numbers');
     do_mysqli_query('INSERT IGNORE INTO numbers(n) VALUES (' . implode('),(', $wl) . ');');
     if ($id>0) {
-        $sql = 'SELECT straight_join WoID, sent, TiOrder - (2*(n-1)) TiOrder, n TiWordCount,word';
+        $sql = 'SELECT straight_join ' . $lid . ', ' . $id . ', WoID, sent, TiOrder - (2*(n-1)) TiOrder, n TiWordCount,word';
     } else {
         $sql = 'SELECT straight_join count(WoID) cnt, n as len, lower(WoText) as word, WoTranslation';
     }
