@@ -71,9 +71,27 @@ final class session_utility_Test extends TestCase
         get_archivedtexttag_selectoptions('cat', '');
         get_archivedtexttag_selectoptions('cat', 42);
 
-        // TODO - before adding new smoke tests, have to complete
-        // dbsetup ... in particular, need to ensure that the tests
-        // are only run with a db named TESTING_xxx.
+        $_SESSION['TAGS'] = ['cat'];
+        $_REQUEST = array('TermTags' => array('TagList' => ['a']));
+        saveWordTags(42);
+
+        $_SESSION['TEXTTAGS'] = ['cat'];
+        $_REQUEST = array('TextTags' => array('TagList' => ['a']));
+        saveTextTags(42);
+
+        $_SESSION['TEXTTAGS'] = ['aoeuaoeu'];
+        $_REQUEST = array('TextTags' => array('TagList' => ['a']));
+        saveArchivedTextTags(42);
+
+        getWordTags(42);
+
+        getTextTags(42);
+
+        getArchivedTextTags(42);
+
+        addtaglist('cat', '(1,2)');
+        addarchtexttaglist('cat', '(1,2)');
+        addtexttaglist('cat', '(1,2)');
     }
 
 
