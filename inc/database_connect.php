@@ -189,12 +189,9 @@ function convert_regexp_to_sqlsyntax($input): string
  * @param string $currentlang Language ID to validate
  *
  * @return string '' if the language is not valid, $currentlang otherwise
- * 
- * @global string $tbpref Table name prefix
  */
 function validateLang($currentlang): string 
 {
-    global $tbpref;
     if ($currentlang == '') {
         return '';
     }
@@ -213,12 +210,9 @@ function validateLang($currentlang): string
  * @param string $currenttext Text ID to validate
  *
  * @global string '' if the text is not valid, $currenttext otherwise
- * 
- * @global string $tbpref Table name prefix
  */
 function validateText($currenttext): string 
 {
-    global $tbpref;
     if ($currenttext == '') {
         return '';
     }
@@ -235,7 +229,6 @@ function validateText($currenttext): string
 
 function validateTag($currenttag,$currentlang) 
 {
-    global $tbpref;
     if ($currenttag != '' && $currenttag != -1) {
         $sql = "SELECT (
             " . $currenttag . " IN (
@@ -264,7 +257,6 @@ function validateTag($currenttag,$currentlang)
 
 function validateArchTextTag($currenttag,$currentlang) 
 {
-    global $tbpref;
     if ($currenttag != '' && $currenttag != -1) {
         if ($currentlang == '') {
             $sql = "select (
@@ -302,7 +294,6 @@ function validateArchTextTag($currenttag,$currentlang)
 
 function validateTextTag($currenttag,$currentlang) 
 {
-    global $tbpref;
     if ($currenttag != '' && $currenttag != -1) {
         if ($currentlang == '') {
             $sql = "select (
@@ -360,11 +351,9 @@ function getSettingZeroOrOne($key, $dft): int
  * @param  string $key Setting key. If $key is 'currentlanguage' or 
  *                     'currenttext', we validate language/text.
  * @return string $val Value in the database if found, or an empty string
- * @global string $tbpref Table name prefix
  */
 function getSetting($key) 
 {
-    global $tbpref;
     $val = get_first_value(
         'SELECT StValue AS value 
         FROM settings 
@@ -391,12 +380,9 @@ function getSetting($key)
  * @param string $key Settings key
  * 
  * @return string Requested setting, or default value, or ''
- * 
- * @global string $tbpref Table name prefix
  */
 function getSettingWithDefault($key) 
 {
-    global $tbpref;
     $dft = get_setting_data();
     $val = get_first_value(
         'SELECT StValue AS value
@@ -419,13 +405,10 @@ function getSettingWithDefault($key)
  * @param string $k Setting key
  * @param mixed  $v Setting value, will get converted to string
  * 
- * @global string $tbpref Table name prefix
- * 
  * @return string Error or success message
  */
 function saveSetting($k, $v) 
 {
-    global $tbpref;
     $dft = get_setting_data();
     if (!isset($v)) {
         return ''; 
@@ -489,18 +472,11 @@ function LWTTableGet($key): string
  */
 function optimizedb(): void 
 {
-    global $tbpref;
     $sql = 
-    'SHOW TABLE STATUS 
-    WHERE Engine IN ("MyISAM","Aria") AND (
+    "SHOW TABLE STATUS 
+    WHERE Engine IN ('MyISAM','Aria') AND (
         (Data_free / Data_length > 0.1 AND Data_free > 102400) OR Data_free > 1048576
-    ) AND Name';
-    if(empty($tbpref)) { 
-        $sql.= " NOT LIKE '\_%'"; 
-    }
-    else { 
-        $sql.= " LIKE " . convert_string_to_sqlsyntax(rtrim($tbpref, '_')) . "'\_%'"; 
-    }
+    ) AND Name NOT LIKE '\_%'";
     $res = do_mysqli_query($sql);
     while($row = mysqli_fetch_assoc($res)) {
         runsql('OPTIMIZE TABLE ' . $row['Name'], '');
@@ -514,13 +490,9 @@ function optimizedb(): void
  * @param int $japid Japanese language ID
  * 
  * @return void
- * 
- * @global string $tbpref Database table prefix.
  */
 function update_japanese_word_count($japid)
 {
-    global $tbpref;
-        
     // STEP 1: write the useful info to a file
     $db_to_mecab = tempnam(sys_get_temp_dir(), "db_to_mecab");
     $mecab_args = ' -F %m%t\\t -U %m%t\\t -E \\n ';
@@ -594,12 +566,9 @@ function update_japanese_word_count($japid)
  * Only terms with a word count set to 0 are changed.
  * 
  * @return void
- * 
- * @global string $tbpref Database table prefix
  */
 function init_word_count(): void 
 {
-    global $tbpref;
     $sqlarr = array();
     $i = 0;
     $min = 0;
@@ -657,8 +626,6 @@ function init_word_count(): void
  * 
  * @return void
  * 
- * @global string $tbpref Database table prefix
- * 
  * @deprecated Use init_word_count: same effect, but more logical name. Will be 
  * removed in version 3.0.0.
  */
@@ -678,13 +645,10 @@ function set_word_count()
  *
  * @since 2.5.1-fork Works even if LOAD DATA LOCAL INFILE operator is disabled.
  *
- * @global string $tbpref Database table prefix
- *
  * @psalm-return non-empty-list<string>|null
  */
 function parse_japanese_text($text, $id): ?array
 {
-    global $tbpref;
     $text = preg_replace('/[ \t]+/u', ' ', $text);
     $text = trim($text);
     if ($id == -1) {
@@ -696,7 +660,7 @@ function parse_japanese_text($text, $id): ?array
         return explode("\n", $text);
     }
 
-    $file_name = tempnam(sys_get_temp_dir(), $tbpref . "tmpti");
+    $file_name = tempnam(sys_get_temp_dir(), "tmpti");
     // We use the format "word  num num" for all nodes
     $mecab_args = " -F %m\\t%t\\t%h\\n -U %m\\t%t\\t%h\\n -E EOS\\t3\\t7\\n";
     $mecab_args .= " -o $file_name ";
@@ -836,13 +800,10 @@ function parse_japanese_text($text, $id): ?array
  *
  * @since 2.5.1-fork Works even if LOAD DATA LOCAL INFILE operator is disabled.
  *
- * @global string $tbpref Database table prefix
- *
  * @psalm-return non-empty-list<string>|null
  */
 function parse_standard_text($text, $id, $lid): ?array
 {
-    global $tbpref;
     $sql = "SELECT * FROM languages WHERE LgID=$lid";
     $res = do_mysqli_query($sql);
     $record = mysqli_fetch_assoc($res);
@@ -922,7 +883,7 @@ function parse_standard_text($text, $id, $lid): ?array
     // It is faster to write to a file and let SQL do its magic, but may run into
     // security restrictions
     if (get_first_value("SELECT @@GLOBAL.local_infile as value")) {
-        $file_name = sys_get_temp_dir() . DIRECTORY_SEPARATOR . $tbpref . "tmpti.txt";
+        $file_name = sys_get_temp_dir() . DIRECTORY_SEPARATOR . "tmpti.txt";
         $fp = fopen($file_name, 'w');
         fwrite($fp, $text);
         fclose($fp);
@@ -999,13 +960,10 @@ function parse_standard_text($text, $id, $lid): ?array
  *
  * @return null|string[] If $id = -2 return a splitted version of the text
  *
- * @global string $tbpref Database table prefix
- *
  * @psalm-return non-empty-list<string>|null
  */
 function prepare_text_parsing($text, $id, $lid): ?array
 {
-    global $tbpref;
     $sql = "SELECT * FROM languages WHERE LgID=" . $lid;
     $res = do_mysqli_query($sql);
     $record = mysqli_fetch_assoc($res);
@@ -1034,13 +992,10 @@ function prepare_text_parsing($text, $id, $lid): ?array
 /**
  * Echo the sentences in a text. Prepare JS data for words and word count.
  * 
- * @global string $tbpref Database table prefix
- * 
  * @return void
  */
 function check_text_valid($lid)
 {
-    global $tbpref;
     $wo = $nw = array();
     $res = do_mysqli_query(
         'SELECT GROUP_CONCAT(TiText order by TiOrder SEPARATOR "") 
@@ -1086,12 +1041,9 @@ function check_text_valid($lid)
  * @param string $sql 
  * 
  * @return void
- * 
- * @global string $tbpref Database table prefix
  */
 function update_default_values($id, $lid, $sql)
 {
-    global $tbpref;
     do_mysqli_query(
         'INSERT INTO textitems2 (
             Ti2LgID, Ti2TxID, Ti2WoID, Ti2SeID, Ti2Order, Ti2WordCount, Ti2Text
@@ -1182,13 +1134,9 @@ function check_text($sql, $rtlScript, $wl)
  * @param string $mw_sql SQL-formatted string
  *
  * @return string SQL-formatted query string
- *
- * @global string $tbpref Database table prefix
  */
 function check_text_with_expressions($id, $lid, $wl, $wl_max, $mw_sql): string
 {
-    global $tbpref;
-
     $set_wo_sql = $set_wo_sql_2 = $del_wo_sql = $init_var = '';
     do_mysqli_query('SET GLOBAL max_heap_table_size = 1024 * 1024 * 1024 * 2');
     do_mysqli_query('SET GLOBAL tmp_table_size = 1024 * 1024 * 1024 * 2');
@@ -1275,15 +1223,12 @@ function check_text_with_expressions($id, $lid, $wl, $wl_max, $mw_sql): string
  *                     $id = -2     => Only return sentence array
  *                     $id = TextID => Split: insert sentences/textitems entries in DB
  *
- * @global string $tbpref Database table prefix
- *
  * @return null|string[] The sentence array if $id = -2
  *
  * @psalm-return non-empty-list<string>|null
  */
 function splitCheckText($text, $lid, $id) 
 {
-    global $tbpref;
     $wl = array();
     $wl_max = 0;
     $mw_sql = '';
@@ -1348,12 +1293,9 @@ function splitCheckText($text, $lid, $id)
 
 /**
  * Reparse all texts in order.
- *
- * @global string $tbpref Database table prefix
  */
 function reparse_all_texts(): void 
 {
-    global $tbpref;
     runsql('TRUNCATE sentences', '');
     runsql('TRUNCATE textitems2', '');
     init_word_count();
@@ -1378,14 +1320,13 @@ function reparse_all_texts(): void
  *
  * @param string $dbname Name of the database
  *
- * @global string $tbpref Database table prefix
  * @global 0|1    $debug  Output debug messages.
  * 
  * @return void
  */
 function update_database($dbname)
 {
-    global $tbpref, $debug;
+    global $debug;
 
     // TODO: replace this with database migrations.
 
@@ -1426,11 +1367,11 @@ function update_database($dbname)
  *
  * @global mysqli $DBCONNECTION Connection to the database
  */
-function check_update_db($debug, $tbpref, $dbname): void 
+function check_update_db($debug, $dbname): void 
 {
     $tables = array();
     
-    $res = do_mysqli_query(str_replace('_', "\\_", "SHOW TABLES LIKE " . convert_string_to_sqlsyntax_nonull($tbpref . '%')));
+    $res = do_mysqli_query(str_replace('_', "\\_", "SHOW TABLES LIKE " . convert_string_to_sqlsyntax_nonull('%')));
     while ($row = mysqli_fetch_row($res)) {
         $tables[] = $row[0]; 
     }
@@ -1514,59 +1455,6 @@ function connect_to_database($server, $userid, $passwd, $dbname): mysqli
     return $DBCONNECTION;
 }
 
-/**
- * Get the prefixes for the database.
- * 
- * Is $tbpref set in connect.inc.php? Take it and $fixed_tbpref=1.
- * If not: $fixed_tbpref=0. Is it set in table "_lwtgeneral"? Take it.
- * If not: Use $tbpref = '' (no prefix, old/standard behaviour).
- * 
- * @param string|null $tbpref Temporary database table prefix
- * 
- * @return 0|1 Table Prefix is fixed, no changes possible
- */
-function get_database_prefixes(&$tbpref) 
-{
-    // *** GLOBAL VARIABLES ***
-
-    if (!isset($tbpref)) {
-        $fixed_tbpref = 0;
-        $p = LWTTableGet("current_table_prefix");
-        $tbpref = isset($p) ? $p : '';
-    } else {
-        $fixed_tbpref = 1; 
-    }
-
-    $len_tbpref = strlen($tbpref); 
-    if ($len_tbpref > 0) {
-        if ($len_tbpref > 20) { 
-            my_die('Table prefix/set "' . $tbpref . '" longer than 20 digits or characters. Please fix in "connect.inc.php".'); 
-        }
-        for ($i=0; $i < $len_tbpref; $i++) { 
-            if (strpos(
-                "_0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ", 
-                substr($tbpref, $i, 1)
-            ) === false
-            ) {
-                my_die(
-                    'Table prefix/set "' . $tbpref . 
-                    '" contains characters or digits other than 0-9, a-z, A-Z or _. Please fix in "connect.inc.php".'
-                ); 
-            } 
-        } 
-    }
-
-    if (!$fixed_tbpref) { 
-        LWTTableSet("current_table_prefix", $tbpref); 
-    }
-
-    // *******************************************************************
-    // IF PREFIX IS NOT '', THEN ADD A '_', TO ENSURE NO IDENTICAL NAMES
-    if ($tbpref !== '') { 
-        $tbpref .= "_"; 
-    }
-    return $fixed_tbpref;
-}
 
 // --------------------  S T A R T  --------------------------- //
 
@@ -1581,20 +1469,9 @@ if (!empty($dspltime)) {
 global $DBCONNECTION;
 $DBCONNECTION = connect_to_database($server, $userid, $passwd, $dbname);
 
-/** 
- * @var string $tbpref Database table prefix 
- */
-global $tbpref;
-$tbpref = null;
-
-/** 
- * @var int $fixed_tbpref Database prefix is fixed (1) or not (0)
- */
-global $fixed_tbpref;
-$fixed_tbpref = get_database_prefixes($tbpref);
 
 // check/update db
 global $debug;
-check_update_db($debug, $tbpref, $dbname);
+check_update_db($debug, $dbname);
 
 ?>

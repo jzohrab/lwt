@@ -22,17 +22,14 @@ require_once 'database_connect.php';
  * 
  * @param int $refresh If true, refresh all tags for session
  * 
- * @global string $tbpref Table name prefix
- * 
  * @return array<string> All tags
  */
 function get_tags($refresh = 0) 
 {
-    global $tbpref;
     if (isset($_SESSION['TAGS']) 
         && is_array($_SESSION['TAGS']) 
         && isset($_SESSION['TBPREF_TAGS']) 
-        && $_SESSION['TBPREF_TAGS'] == $tbpref . url_base() 
+        && $_SESSION['TBPREF_TAGS'] == url_base() 
         && $refresh == 0
     ) {
             return $_SESSION['TAGS'];
@@ -45,7 +42,7 @@ function get_tags($refresh = 0)
     }
     mysqli_free_result($res);
     $_SESSION['TAGS'] = $tags;
-    $_SESSION['TBPREF_TAGS'] = $tbpref . url_base();
+    $_SESSION['TBPREF_TAGS'] = url_base();
     return $_SESSION['TAGS'];
 }
 
@@ -54,18 +51,15 @@ function get_tags($refresh = 0)
  * 
  * @param int $refresh If true, refresh all text tags for session
  * 
- * @global string $tbpref Table name prefix
- * 
  * @return array<string> All text tags
  */
 function get_texttags($refresh = 0) 
 {
-    global $tbpref;
     if (isset($_SESSION['TEXTTAGS']) 
         && is_array($_SESSION['TEXTTAGS']) 
         && isset($_SESSION['TBPREF_TEXTTAGS']) 
         && $refresh == 0
-        && $_SESSION['TBPREF_TEXTTAGS'] == $tbpref . url_base()
+        && $_SESSION['TBPREF_TEXTTAGS'] == url_base()
     ) {
             return $_SESSION['TEXTTAGS']; 
     }
@@ -77,7 +71,7 @@ function get_texttags($refresh = 0)
     }
     mysqli_free_result($res);
     $_SESSION['TEXTTAGS'] = $tags;
-    $_SESSION['TBPREF_TEXTTAGS'] = $tbpref . url_base();
+    $_SESSION['TBPREF_TEXTTAGS'] = url_base();
     return $_SESSION['TEXTTAGS'];
 }
 
@@ -85,7 +79,6 @@ function get_texttags($refresh = 0)
 
 function getTextTitle($textid): string 
 {
-    global $tbpref;
     $text = get_first_value(
         "SELECT TxTitle AS value 
         FROM texts 
@@ -101,7 +94,6 @@ function getTextTitle($textid): string
 
 function get_tag_selectoptions($v,$l): string 
 {
-    global $tbpref;
     if (!isset($v)) { 
         $v = ''; 
     }
@@ -140,7 +132,6 @@ function get_tag_selectoptions($v,$l): string
 
 function get_texttag_selectoptions($v,$l): string 
 {
-    global $tbpref;
     if (!isset($v) ) {
         $v = ''; 
     }
@@ -179,7 +170,6 @@ function get_texttag_selectoptions($v,$l): string
 
 function get_txtag_selectoptions($l,$v): string
 {
-    global $tbpref;
     if (!isset($v)) {
         $v = ''; 
     }
@@ -215,7 +205,6 @@ function get_txtag_selectoptions($l,$v): string
 
 function get_archivedtexttag_selectoptions($v,$l): string 
 {
-    global $tbpref;
     if (!isset($v)) { 
         $v = ''; 
     }
@@ -260,7 +249,6 @@ function get_archivedtexttag_selectoptions($v,$l): string
  */
 function saveWordTags($wid) 
 {
-    global $tbpref;
     runsql("DELETE from wordtags WHERE WtWoID =" . $wid, '');
     if (!isset($_REQUEST['TermTags'])  
         || !is_array($_REQUEST['TermTags'])  
@@ -297,12 +285,9 @@ function saveWordTags($wid)
  * Save the tags for texts.
  * 
  * @return void
- * 
- * @global string $tbpref Database table prefix.
  */
 function saveTextTags($tid): void 
 {
-    global $tbpref;
     runsql(
         "DELETE FROM texttags WHERE TtTxID =" . $tid, 
         ''
@@ -343,12 +328,9 @@ function saveTextTags($tid): void
  * Save the tags for archived texts.
  * 
  * @return void
- * 
- * @global string $tbpref Databse table prefix. 
  */
 function saveArchivedTextTags($tid): void 
 {
-    global $tbpref;
     runsql("DELETE from archtexttags WHERE AgAtID =" . $tid, '');
     if (!isset($_REQUEST['TextTags']) 
         || !is_array($_REQUEST['TextTags']) 
@@ -384,7 +366,6 @@ function saveArchivedTextTags($tid): void
 
 function getWordTags($wid): string 
 {
-    global $tbpref;
     $r = '<ul id="termtags">';
     if ($wid > 0) {
         $sql = 'select TgText 
@@ -407,12 +388,9 @@ function getWordTags($wid): string
  * @param int $tid Text ID. Can be below 1 to create an empty list.
  *
  * @return string UL list of text tags
- *
- * @global string $tbpref Database table prefix 
  */
 function getTextTags($tid): string 
 {
-    global $tbpref;
     $r = '<ul id="texttags">';
     if ($tid > 0) {
         $sql = 'SELECT T2Text 
@@ -436,12 +414,9 @@ function getTextTags($tid): string
  * @param int $tid Text ID. Can be below 1 to create an empty list.
  *
  * @return string UL list of text tags
- *
- * @global string $tbpref Database table prefix 
  */
 function getArchivedTextTags($tid): string 
 {
-    global $tbpref;
     $r = '<ul id="texttags">';
     if ($tid > 0) {
         $sql = 'SELECT T2Text 
@@ -462,7 +437,6 @@ function getArchivedTextTags($tid): string
 
 function addtaglist($item, $list): string 
 {
-    global $tbpref;
     $tagid = get_first_value(
         'select TgID as value 
         from tags 
@@ -503,7 +477,6 @@ function addtaglist($item, $list): string
 
 function addarchtexttaglist($item, $list): string 
 {
-    global $tbpref;
     $tagid = get_first_value(
         'select T2ID as value from tags2 
         where T2Text = ' . convert_string_to_sqlsyntax($item)
@@ -542,7 +515,6 @@ function addarchtexttaglist($item, $list): string
 
 function addtexttaglist($item, $list): string 
 {
-    global $tbpref;
     $tagid = get_first_value(
         'select T2ID as value 
         from tags2 
@@ -582,7 +554,6 @@ function addtexttaglist($item, $list): string
 
 function removetaglist($item, $list): string 
 {
-    global $tbpref;
     $tagid = get_first_value(
         'SELECT TgID AS value
         FROM tags
@@ -610,7 +581,6 @@ function removetaglist($item, $list): string
 
 function removearchtexttaglist($item, $list): string 
 {
-    global $tbpref;
     $tagid = get_first_value(
         'select T2ID as value 
         from tags2 
@@ -638,7 +608,6 @@ function removearchtexttaglist($item, $list): string
 
 function removetexttaglist($item, $list): string 
 {
-    global $tbpref;
     $tagid = get_first_value(
         'select T2ID as value from tags2 
         where T2Text = ' . convert_string_to_sqlsyntax($item)
@@ -665,7 +634,6 @@ function removetexttaglist($item, $list): string
 
 function load_feeds($currentfeed): void
 {
-    global $tbpref;
     $cnt=0;
     $ajax=$feeds=array();
     echo '<script type="text/javascript">';
@@ -731,7 +699,6 @@ function load_feeds($currentfeed): void
 
 function write_rss_to_db($texts): string
 {
-    global $tbpref;
     $texts=array_reverse($texts);
     $message1=$message2=$message3=$message4=0;
     $Nf_ID = null;
@@ -1154,7 +1121,6 @@ function get_links_from_rss($NfSourceURI,$NfArticleSection)
  */
 function get_text_from_rsslink($feed_data, $NfArticleSection, $NfFilterTags, $NfCharset=null)
 {
-    global $tbpref;
     $data = null;
     foreach ($feed_data as $key =>$val) {
         if (strncmp($NfArticleSection, 'redirect:', 9)==0) {    
@@ -1431,7 +1397,6 @@ function get_text_from_rsslink($feed_data, $NfArticleSection, $NfFilterTags, $Nf
  */
 function getPreviousAndNextTextLinks($textid, $url, $onlyann, $add): string 
 {
-    global $tbpref;
     $currentlang = validateLang(
         processDBParam("filterlang", 'currentlanguage', '', 0)
     );
@@ -1578,47 +1543,15 @@ function getPreviousAndNextTextLinks($textid, $url, $onlyann, $add): string
 
 /**
  * Return an HTML formatted logo of the application.
- *
- * @global string $tbpref Table name prefix (optional)
  */
 function echo_lwt_logo(): void 
 {
-    global $tbpref;
-    $pref = substr($tbpref, 0, -1);
-    if ($pref == '') { 
-        $pref = 'Default Table Set'; 
-    }
     echo '<img class="lwtlogo" src="' . 
     get_file_path('img/lwt_icon.png') . 
-    '" title="LWT - Current Table Set: ' . tohtml($pref) . 
-    '" alt="LWT - Current Table Set: ' . tohtml($pref) . '" />';
+    '" />';
 }
 
 // -------------------------------------------------------------
-
-/**
- * Return all different database prefixes that are in use.
- * 
- * @return (false|string)[] A list of prefixes.
- *
- * @psalm-return list<false|string>
- */
-function getprefixes(): array 
-{
-    $prefix = array();
-    $res = do_mysqli_query(
-        str_replace(
-            '_', 
-            "\\_", 
-            "SHOW TABLES LIKE " . convert_string_to_sqlsyntax_nonull('%_settings')
-        )
-    );
-    while ($row = mysqli_fetch_row($res)) {
-        $prefix[] = substr($row[0], 0, -9); 
-    }
-    mysqli_free_result($res);
-    return $prefix;
-}
 
 /**
  * Select the path for a media (audio or video).
@@ -2020,7 +1953,6 @@ function processDBParam($reqkey, $dbkey, $default, $isnum)
 
 function getWordTagList($wid, $before=' ', $brack=1, $tohtml=1): string 
 {
-    global $tbpref;
     $r = get_first_value(
         "SELECT IFNULL(" . ($brack ? "CONCAT('['," : "") . 
         "GROUP_CONCAT(DISTINCT TgText ORDER BY TgText separator ', ')" . 
@@ -2122,7 +2054,6 @@ function make_status_controls_test_table($score, $status, $wordid): string
 
 function get_languages_selectoptions($v,$dt): string 
 {
-    global $tbpref;
     $sql = "select LgID, LgName from languages 
     where LgName<>'' order by LgName";
     $res = do_mysqli_query($sql);
@@ -2524,7 +2455,6 @@ function get_multiplearchivedtextactions_selectoptions(): string
 
 function get_texts_selectoptions($lang, $v): string 
 {
-    global $tbpref;
     if (! isset($v) ) { $v = ''; 
     }
     if (! isset($lang) ) { $lang = ''; 
@@ -2733,7 +2663,6 @@ function createTheDictLink($u, $t)
 
 function createDictLinksInEditWin($lang,$word,$sentctljs,$openfirst): string 
 {
-    global $tbpref;
     $sql = 'SELECT LgDict1URI, LgDict2URI, LgGoogleTranslateURI 
     FROM languages 
     WHERE LgID = ' . $lang;
@@ -2817,7 +2746,6 @@ function makeOpenDictStrDynSent($url, $sentctljs, $txt): string
 
 function createDictLinksInEditWin2($lang,$sentctljs,$wordctljs): string 
 {
-    global $tbpref;
     $sql = 'SELECT LgDict1URI, LgDict2URI, LgGoogleTranslateURI 
     FROM languages 
     WHERE LgID = ' . $lang;
@@ -2852,7 +2780,6 @@ function createDictLinksInEditWin2($lang,$sentctljs,$wordctljs): string
 
 function makeDictLinks($lang,$wordctljs): string 
 {
-    global $tbpref;
     $sql = 'SELECT LgDict1URI, LgDict2URI, LgGoogleTranslateURI 
     FROM languages WHERE LgID = ' . $lang;
     $res = do_mysqli_query($sql);
@@ -2886,7 +2813,6 @@ function makeDictLinks($lang,$wordctljs): string
 
 function createDictLinksInEditWin3($lang,$sentctljs,$wordctljs): string 
 {
-    global $tbpref;
     $sql = 'SELECT LgDict1URI, LgDict2URI, LgGoogleTranslateURI 
     FROM languages WHERE LgID = ' . $lang;
     $res = do_mysqli_query($sql);
@@ -3216,12 +3142,9 @@ function mask_term_in_sentence($s,$regexword): string
  * number of unique expressions, unique statistics
  *
  * @param string $textID Text IDs separated by comma
- *
- * @global string $tbpref Table name prefix
  */
 function textwordcount($textID): void 
 {
-    global $tbpref;
     $total = $total_unique = $expr = $expr_unique = $stat = $stat_unique = array();
     $res = do_mysqli_query(
         "SELECT Ti2TxID AS text, COUNT(DISTINCT LOWER(Ti2Text)) AS value, 
@@ -3270,7 +3193,6 @@ function textwordcount($textID): void
 
 function texttodocount($text): string 
 {
-    global $tbpref;
     return '<span title="To Do" class="status0">&nbsp;' . 
     (get_first_value(
         'SELECT count(DISTINCT LOWER(Ti2Text)) as value 
@@ -3286,12 +3208,9 @@ function texttodocount($text): string
  * @param string|int $textid Text ID
  *
  * @return string HTML result
- *
- * @global string $tbpref Database table prefix
  */
 function texttodocount2($textid): string
 {
-    global $tbpref;
     if (is_string($textid)) {
         $textid = (int) $textid;
     }
@@ -3345,11 +3264,9 @@ function texttodocount2($textid): string
  *  
  * @return array{0: string, 1: string} [0]=html, word in bold, [1]=text, word in {}
  * 
- * @global string $tbpref Database table prefix.
  */
 function getSentence($seid, $wordlc, $mode): array 
 {
-    global $tbpref;
     $res = do_mysqli_query(
         "SELECT 
         CONCAT(
@@ -3504,11 +3421,9 @@ function getSentence($seid, $wordlc, $mode): array
  * @return string HTML-formatted string of which elements are candidate santences to 
  *                use.
  *
- * @global string $tbpref Database table prefix
  */
 function get20Sentences($lang, $wordlc, $wid, $jsctlname, $mode): string 
 {
-    global $tbpref;
     $r = '<p><b>Sentences in active texts with <i>' . tohtml($wordlc) . '</i></b></p>
     <p>(Click on <img src="icn/tick-button.png" title="Choose" alt="Choose" /> 
     to copy sentence into above term)</p>';
@@ -3624,7 +3539,6 @@ function get20Sentences($lang, $wordlc, $wid, $jsctlname, $mode): string
  */
 function get_languages(): array 
 {
-    global $tbpref;
     $langs = array();
     $sql = "SELECT LgID, LgName FROM languages WHERE LgName<>''";
     $res = do_mysqli_query($sql);
@@ -3641,11 +3555,9 @@ function get_languages(): array
  * 
  * @param  string $lid Language ID
  * @return string Language name
- * @global string $tbpref Table name prefix
  */ 
 function getLanguage($lid) 
 {
-    global $tbpref;
     if (!isset($lid) || trim($lid) == '' || !is_numeric($lid)) { 
         return ''; 
     }
@@ -3664,7 +3576,6 @@ function getLanguage($lid)
 
 function getScriptDirectionTag($lid): string 
 {
-    global $tbpref;
     if (!isset($lid) ) { 
         return ''; 
     }
@@ -3700,14 +3611,10 @@ function getScriptDirectionTag($lid): string
  *
  * @since 2.5.0-fork Function added.
  *
- * @global string $tbpref Table name prefix
- *
  * @psalm-return array{0: array<int, string>, 1: list<string>}
  */
 function insert_expression_from_mecab($text, $lid, $wid, $len): array
 {
-    global $tbpref;
-
     $db_to_mecab = tempnam(sys_get_temp_dir(), "db_to_mecab");
     $mecab_args = " -F %m\\t%t\\t%h\\n -U %m\\t%t\\t%h\\n -E EOS\\t3\\t7\\n ";
 
@@ -3787,8 +3694,6 @@ function insert_expression_from_mecab($text, $lid, $wid, $len): array
  *
  * @deprecated Use insert_expression_from_mecab instead.
  *
- * @global string $tbpref Table name prefix
- *
  * @psalm-return array{0: array<int, string>, 1: list<string>}
  */
 function insertExpressionFromMeCab($textlc, $lid, $wid, $len, $mode): array
@@ -3809,13 +3714,10 @@ function insertExpressionFromMeCab($textlc, $lid, $wid, $len, $mode): array
  * @since 2.5.0-fork Mode is unnused and data are always added to the output.
  * @since 2.5.2-fork Fixed multi-words insertion for languages using no space
  *
- * @global string $tbpref Table name prefix
- *
  * @psalm-return array{0: array<int, mixed|string>, 1: array<empty, empty>, 2: list<string>}
  */
 function insert_standard_expression($textlc, $lid, $wid, $len, $mode): array
 {
-    global $tbpref;
     $appendtext = array();
     $sqlarr = array();
     $res = do_mysqli_query("SELECT * FROM languages WHERE LgID=$lid");
@@ -3936,11 +3838,9 @@ function new_expression_interactable($hex, $appendtext, $sid, $len): void
  * 
  * @return void
  * 
- * @global string $tbpref Database table prefix.
  */
 function new_expression_interactable2($hex, $appendtext, $wid, $len): void 
 {
-    global $tbpref;
     $showAll = (bool)getSettingZeroOrOne('showallwords', 1) ? "m" : "";
     
     $sql = "SELECT * FROM words WHERE WoID=$wid";
@@ -3999,11 +3899,9 @@ function new_expression_interactable2($hex, $appendtext, $wid, $len): void
  *
  * @return null|string If $mode == 2 return values to insert in textitems2, nothing otherwise.
  *
- * @global string $tbpref Table name prefix
  */
 function insertExpressions($textlc, $lid, $wid, $len, $mode): ?string 
 {
-    global $tbpref;
     $sql = "SELECT * FROM languages WHERE LgID=$lid";
     $res = do_mysqli_query($sql);
     $record = mysqli_fetch_assoc($res);
@@ -4068,7 +3966,6 @@ function insertExpressions($textlc, $lid, $wid, $len, $mode): ?string
  */
 function restore_file($handle, $title): string 
 {
-    global $tbpref;
     global $debug;
     global $dbname;
     $message = "";
@@ -4105,7 +4002,7 @@ function restore_file($handle, $title): string
             if (substr($sql_line, 0, 3) !== '-- ' ) {
                 $res = mysqli_query(
                     $GLOBALS['DBCONNECTION'], 
-                    insert_prefix_in_sql($sql_line)
+                    $sql_line
                 );
                 $lines++;
                 if ($res == false) { 
@@ -4126,7 +4023,7 @@ function restore_file($handle, $title): string
     gzclose($handle);
     if ($errors == 0) {
         runsql("DROP TABLE IF EXISTS textitems", '');
-        check_update_db($debug, $tbpref, $dbname);
+        check_update_db($debug, $dbname);
         reparse_all_texts();
         optimizedb();
         get_tags(1);
@@ -4148,7 +4045,6 @@ function restore_file($handle, $title): string
 
 function recreate_save_ann($textid, $oldann): string 
 {
-    global $tbpref;
     $newann = create_ann($textid);
     // Get the translations from $oldann:
     $oldtrans = array();
@@ -4199,7 +4095,6 @@ function recreate_save_ann($textid, $oldann): string
 
 function create_ann($textid): string 
 {
-    global $tbpref;
     $ann = '';
     $sql = 
     'SELECT 
@@ -4258,28 +4153,8 @@ function create_ann($textid): string
 
 // -------------------------------------------------------------
 
-function insert_prefix_in_sql($sql_line) 
-{
-    global $tbpref;
-    //                                 123456789012345678901
-    if (substr($sql_line, 0, 12) == "INSERT INTO ") {
-        return substr($sql_line, 0, 12) . $tbpref . substr($sql_line, 12); 
-    }
-    if (substr($sql_line, 0, 21) == "DROP TABLE IF EXISTS ") {
-        return substr($sql_line, 0, 21) . $tbpref . substr($sql_line, 21);
-    } if (substr($sql_line, 0, 14) == "CREATE TABLE `") {
-        return substr($sql_line, 0, 14) . $tbpref . substr($sql_line, 14);
-    } if (substr($sql_line, 0, 13) == "CREATE TABLE ") {
-        return substr($sql_line, 0, 13) . $tbpref . substr($sql_line, 13);
-    } 
-    return $sql_line; 
-}
-
-// -------------------------------------------------------------
-
 function create_save_ann($textid): string 
 {
-    global $tbpref;
     $ann = create_ann($textid);
     runsql(
         'update texts set ' .
@@ -4325,7 +4200,6 @@ function get_first_translation($trans): string
 
 function get_annotation_link($textid): string 
 {
-    global $tbpref;
     if (get_first_value('select length(TxAnnotatedText) as value from texts where TxID=' . $textid) > 0) { 
         return ' &nbsp;<a href="print_impr_text.php?text=' . $textid . 
         '" target="_top"><img src="icn/tick.png" title="Annotated Text" alt="Annotated Text" /></a>'; 
@@ -4357,7 +4231,6 @@ function trim_value(&$value): void
  */
 function phonetic_reading($text, $lang) 
 {
-    global $tbpref;
     // Many languages are already phonetic
     if ($lang != 'ja' && $lang != 'jp-JP' && $lang != 'jp' ) {
         return $text;
@@ -4398,7 +4271,6 @@ function phonetic_reading($text, $lang)
  */
 function refreshText($word,$tid): string 
 {
-    global $tbpref;
     // $word : only sentences with $word
     // $tid : textid
     // only to be used when $showAll = 0 !
@@ -4862,12 +4734,11 @@ function pagestart($title, $close): void
  * @param string $title  Title of the page
  * @param string $addcss Some CSS to be embed in a style tag
  *
- * @global string $tbpref The database table prefix if true
  * @global int    $debug  Show the requests if true
  */
 function pagestart_nobody($title, $addcss=''): void 
 {
-    global $tbpref, $debug;
+    global $debug;
     @header('Expires: Wed, 11 Jan 1984 05:00:00 GMT');
     @header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
     @header('Cache-Control: no-cache, must-revalidate, max-age=0');
@@ -4904,7 +4775,6 @@ function pagestart_nobody($title, $addcss=''): void
     <script type="text/javascript" src="js/tag-it.js" charset="utf-8"></script>
     <script type="text/javascript" src="js/overlib/overlib_mini.js" charset="utf-8"></script>
     <!-- URLBASE : "<?php echo tohtml(url_base()); ?>" -->
-    <!-- TBPREF  : "<?php echo tohtml($tbpref);  ?>" -->
     <script type="text/javascript">
         //<![CDATA[
         var STATUSES = <?php echo json_encode(get_statuses()); ?>;

@@ -75,33 +75,12 @@ require_once 'inc/session_utility.php';
  * Prepare the different SPAN opening tags
  *
  * @return string[] 3 different span levels
- *
- * @global string $tbpref       Database table prefix
- * @global string $fixed_tbpref Fixed database table prefix
- *
- * @psalm-return array{0: '<span title="Manage Table Sets" onclick="location.href='table_set_management.php';" class="click">'|'<span>', 1: string, 2: '<span title="Select Table Set" onclick="location.href='start.php';" class="click">'|'<span>'}
  */
 function get_span_groups(): array
 {
-    global $tbpref, $fixed_tbpref;
-
-    if ($tbpref == '') {
-        $span2 = "<i>Default</i> Table Set</span>";
-    } else {
-        $span2 = "Table Set: <i>" . tohtml(substr($tbpref, 0, -1)) . "</i></span>";
-    }
-
-    if ($fixed_tbpref) {
-        $span1 = '<span>';
-        $span3 = '<span>';
-    } else {
-        $span1 = '<span title="Manage Table Sets" onclick="location.href=\'table_set_management.php\';" class="click">';
-        if (count(getprefixes()) > 0) {
-            $span3 = '<span title="Select Table Set" onclick="location.href=\'start.php\';" class="click">'; 
-        } else {
-            $span3 = '<span>'; 
-        }    
-    }
+    $span2 = "<i>Default</i> Table Set</span>";
+    $span1 = '<span>';
+    $span3 = '<span>';
     return array($span1, $span2, $span3);
 }
 
@@ -109,12 +88,9 @@ function get_span_groups(): array
  * Display the current text options.
  * 
  * @return void
- * 
- * @global string $tbpref Database table prefix
  */
 function do_current_text_info($textid)
 {
-    global $tbpref;
     $txttit = get_first_value(
         'SELECT TxTitle AS value 
         FROM texts 
@@ -206,34 +182,32 @@ function wordpress_logout_link()
  * Table prefix, database size, server software, apache version, PHP version, MySQL 
  * version
  * 
- * @global string $tbpref Database table prefix
  * @global string $dbname Database name
  *
  * @psalm-return array{0: string, 1: float, 2: non-empty-list<string>, 3: string, 4: false|string, 5: string}
  */
 function get_server_data(): array 
 {
-    global $tbpref, $dbname;
-    $p = convert_string_to_sqlsyntax_nonull($tbpref);
+    global $dbname;
     $mb = (float)get_first_value(
         "SELECT round(sum(data_length+index_length)/1024/1024,1) AS value 
         FROM information_schema.TABLES 
         WHERE table_schema = " . convert_string_to_sqlsyntax($dbname) . " 
         AND table_name IN (" .
-            "CONCAT(" . $p . ",'archivedtexts')," .
-            "CONCAT(" . $p . ",'archtexttags')," .
-            "CONCAT(" . $p . ",'feedlinks')," .
-            "CONCAT(" . $p . ",'languages')," .
-            "CONCAT(" . $p . ",'newsfeeds')," .
-            "CONCAT(" . $p . ",'sentences')," .
-            "CONCAT(" . $p . ",'settings')," .
-            "CONCAT(" . $p . ",'tags')," .
-            "CONCAT(" . $p . ",'tags2')," .
-            "CONCAT(" . $p . ",'textitems2')," .
-            "CONCAT(" . $p . ",'texts')," .
-            "CONCAT(" . $p . ",'texttags')," .
-            "CONCAT(" . $p . ",'words')," .
-            "CONCAT(" . $p . ",'wordtags')
+            "'archivedtexts'," .
+            "'archtexttags'," .
+            "'feedlinks'," .
+            "'languages'," .
+            "'newsfeeds'," .
+            "'sentences'," .
+            "'settings'," .
+            "'tags'," .
+            "'tags2'," .
+            "'textitems2'," .
+            "'texts'," .
+            "'texttags'," .
+            "'words'," .
+            "'wordtags'
         )"
     );
     if (!isset($mb)) { 

@@ -10,8 +10,6 @@ require_once __DIR__ . '/session_utility.php';
 
 
 function update_existing_words($status, $terms) {
-    global $tbpref;
-
     $ids = [];
     foreach ($terms as $t) {
         array_push($ids, $t['wid']);
@@ -26,10 +24,9 @@ function update_existing_words($status, $terms) {
 }
 
 function update_new_words($status, $newterms) {
-    global $tbpref;
 
     // 1. Load all to temp table.
-    $tmpLoad = "{$tbpref}TMP_new_words_loading";
+    $tmpLoad = "TMP_new_words_loading";
     $sql = "DROP TABLE IF EXISTS {$tmpLoad}";
     runsql($sql, "");
 
@@ -48,7 +45,7 @@ function update_new_words($status, $newterms) {
     // 1b. Create final temp table with the unique terms
     // and all fields needed for the bulk insert.
     // 1. Load all to temp table.
-    $temptbl = "{$tbpref}TMP_new_words";
+    $temptbl = "TMP_new_words";
     $sql = "DROP TABLE IF EXISTS {$temptbl}";
     runsql($sql, "");
 

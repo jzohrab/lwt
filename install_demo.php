@@ -23,13 +23,6 @@ echo error_message_with_hide($message, 1);
 
 $langcnt = get_first_value('select count(*) as value from languages');
 
-if ($tbpref == '') { 
-    $prefinfo = "(Default Table Set)"; 
-}
-else {
-    $prefinfo = "(Table Set: <i>" . tohtml(substr($tbpref, 0, -1)) . "</i>)"; 
-}
-
 ?>
 <form enctype="multipart/form-data" action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post" onsubmit="return confirm('Are you sure?');">
 <table class="tab3" cellspacing="0" cellpadding="5">
@@ -37,7 +30,7 @@ else {
 <th class="th1 center">Install Database</th>
 <td class="td1">
 <p class="smallgray2">
-The database <i><?php echo tohtml($dbname); ?></i> <?php echo $prefinfo; ?> will be <b>replaced</b> with a new database.
+The database <i><?php echo tohtml($dbname); ?></i> will be <b>replaced</b> with a new database.
 
 <?php 
 if ($langcnt > 0 ) { 
