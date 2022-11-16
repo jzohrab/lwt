@@ -177,8 +177,6 @@ function edit_texts_mark_action($markaction, $marked, $actiondata): array
             "Texts deleted"
         );
         $message = $message1 . " / " . $message2 . " / " . $message3;
-        adjust_autoincr('texts', 'TxID');
-        adjust_autoincr('sentences', 'SeID');
         runsql(
             "DELETE " . $tbpref . "texttags 
             FROM (
@@ -233,8 +231,6 @@ function edit_texts_mark_action($markaction, $marked, $actiondata): array
             WHERE TxID IS NULL", 
             ''
         );
-        adjust_autoincr('texts', 'TxID');
-        adjust_autoincr('sentences', 'SeID');
     } elseif ($markaction == 'addtag' ) {
         $message = addtexttaglist($actiondata, $list);
     } elseif ($markaction == 'deltag' ) {
@@ -305,7 +301,6 @@ function edit_texts_mark_action($markaction, $marked, $actiondata): array
                 'delete from ' . $tbpref . 'textitems2 where Ti2TxID = ' . $id, 
                 "Text items deleted"
             );
-            adjust_autoincr('sentences', 'SeID');
             splitCheckText(
                 get_first_value(
                     'select TxText as value from ' . $tbpref . 'texts where TxID = ' . $id
@@ -351,8 +346,6 @@ function edit_texts_delete($txid): string
         "Texts deleted"
     );
     $message = $message1 . " / " . $message2 . " / " . $message3;
-    adjust_autoincr('texts', 'TxID');
-    adjust_autoincr('sentences', 'SeID');
     runsql(
         "DELETE {$tbpref}texttags 
         FROM (
@@ -408,8 +401,6 @@ function edit_texts_archive($txid): string
         "Texts deleted"
     );
     $message = $message4 . " / " . $message1 . " / " . $message2 . " / " . $message3;
-    adjust_autoincr('texts', 'TxID');
-    adjust_autoincr('sentences', 'SeID');
     runsql(
         "DELETE {$tbpref}texttags 
         FROM (
@@ -520,7 +511,6 @@ function edit_texts_do_operation($op, $message1, $no_pagestart): string
         'delete from ' . $tbpref . 'textitems2 where Ti2TxID = ' . $id,
         "Textitems deleted"
     );
-    adjust_autoincr('sentences', 'SeID');
 
     splitCheckText(
         get_first_value(

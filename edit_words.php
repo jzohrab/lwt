@@ -188,7 +188,6 @@ if (isset($_REQUEST['markaction'])) {
                         'delete from ' . $tbpref . 'textitems2 
                         where Ti2WoID in ' . $list
                     );
-                    adjust_autoincr('words', 'WoID');
                     runsql(
                         "DELETE " . $tbpref . "wordtags 
                         FROM (
@@ -498,7 +497,6 @@ if (isset($_REQUEST['allaction'])) {
             $message = "Tag added in $cnt Terms";
         } else if ($allaction == 'delall') {
             $message = "Deleted: $cnt Terms";
-            adjust_autoincr('words', 'WoID');
             runsql(
                 "DELETE " . $tbpref . "wordtags FROM (
                     " . $tbpref . "wordtags 
@@ -594,7 +592,6 @@ if (isset($_REQUEST['allaction'])) {
 } elseif (isset($_REQUEST['del'])) {
     // DEL
     $message = runsql('delete from ' . $tbpref . 'words where WoID = ' . $_REQUEST['del'], "Deleted");
-    adjust_autoincr('words', 'WoID');
     do_mysqli_query('update ' . $tbpref . 'textitems2 set Ti2WoID = 0 where Ti2WordCount = 1 and Ti2WoID = ' . $_REQUEST['del']);
     do_mysqli_query('delete from ' . $tbpref . 'textitems2 where Ti2WoID  = ' . $_REQUEST['del']);
     runsql("DELETE " . $tbpref . "wordtags FROM (" . $tbpref . "wordtags LEFT JOIN " . $tbpref . "words on WtWoID = WoID) WHERE WoID IS NULL", '');

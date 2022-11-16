@@ -466,7 +466,6 @@ function upload_words_import_terms($fields, $tabs, $file_upl, $col, $lang): void
             "DELETE FROM {$tbpref}textitems2 WHERE Ti2LgID = $lang", 
             "Text items deleted"
         );
-        adjust_autoincr('sentences', 'SeID');
         $sql = "SELECT TxID, TxText FROM {$tbpref}texts 
         WHERE TxLgID = $lang ORDER BY TxID";
         $res = do_mysqli_query($sql);

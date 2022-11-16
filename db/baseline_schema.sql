@@ -33,7 +33,7 @@ DROP TABLE IF EXISTS `archivedtexts`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `archivedtexts` (
-  `AtID` smallint(5) unsigned NOT NULL,
+  `AtID` smallint(5) unsigned NOT NULL AUTO_INCREMENT,
   `AtLgID` tinyint(3) unsigned NOT NULL,
   `AtTitle` varchar(200) NOT NULL,
   `AtText` text NOT NULL,

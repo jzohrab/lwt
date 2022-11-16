@@ -136,7 +136,6 @@ if (isset($_REQUEST['markaction'])) {
                         where AtID in ' . $list, 
                         "Archived Texts deleted"
                     );
-                    adjust_autoincr('archivedtexts', 'AtID');
                     runsql(
                         "DELETE " . $tbpref . "archtexttags 
                         FROM (
@@ -197,7 +196,6 @@ if (isset($_REQUEST['markaction'])) {
                         );
                     }
                     mysqli_free_result($res);
-                    adjust_autoincr('archivedtexts', 'AtID');
                     runsql(
                         "DELETE " . $tbpref . "archtexttags 
                         FROM (
@@ -223,7 +221,6 @@ if (isset($_REQUEST['del'])) {
         'delete from ' . $tbpref . 'archivedtexts where AtID = ' . $_REQUEST['del'], 
         "Archived Texts deleted"
     );
-    adjust_autoincr('archivedtexts', 'AtID');
     runsql(
         "DELETE " . $tbpref . "archtexttags 
         FROM (
@@ -274,7 +271,6 @@ if (isset($_REQUEST['del'])) {
         'select count(*) as value from ' . $tbpref . 'textitems2 
         where Ti2TxID = ' . $id
     );
-    adjust_autoincr('archivedtexts', 'AtID');
     runsql(
         "DELETE " . $tbpref . "archtexttags 
         FROM (" . $tbpref . "archtexttags 

@@ -273,8 +273,6 @@ if (isset($_REQUEST['marked_items'])) {
                         if (is_numeric($temp)) {
                             $message1 += (int) $temp;
                         }
-                        adjust_autoincr('texts', 'TxID');
-                        adjust_autoincr('sentences', 'SeID');
                         runsql(
                             "DELETE " . $tbpref . "texttags 
                             FROM (" 
