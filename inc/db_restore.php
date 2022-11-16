@@ -19,7 +19,7 @@ function finalize_restore() {
     global $debug;
     global $dbname;
 
-    runsql('DROP TABLE IF EXISTS ' . $tbpref . 'textitems', '');
+    runsql('DROP TABLE IF EXISTS textitems', '');
     check_update_db($debug, $tbpref, $dbname);
     reparse_all_texts();
     optimizedb();

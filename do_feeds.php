@@ -56,11 +56,11 @@ if (isset($_REQUEST['marked_items'])) {
     $marked_items = implode(',', $_REQUEST['marked_items']);
     $res = do_mysqli_query(
         "SELECT * FROM (
-            SELECT * FROM " . $tbpref . "feedlinks 
+            SELECT * FROM feedlinks 
             WHERE FlID IN ($marked_items) 
             ORDER BY FlNfID
         ) A 
-        left join " . $tbpref . "newsfeeds ON NfID=FlNfID"
+        left join newsfeeds ON NfID=FlNfID"
     );
     $count=$message1=$message2=$message3=$message4=0;
     while($row = mysqli_fetch_assoc($res)){
@@ -95,7 +95,7 @@ if (isset($_REQUEST['marked_items'])) {
             echo $texts['error']['message'];
             foreach($texts['error']['link'] as $err_links){
                 runsql(
-                    'UPDATE ' . $tbpref . 'feedlinks 
+                    'UPDATE feedlinks 
                     SET FlLink=CONCAT(" ",FlLink) 
                     where FlLink in ('.convert_string_to_sqlsyntax($err_links).')', 
                     ""
@@ -124,7 +124,7 @@ if (isset($_REQUEST['marked_items'])) {
             <select name="feed[<?php echo $count; ?>][TxLgID]" class="notempty setfocus">
                 <?php
                 $result = do_mysqli_query(
-                    "SELECT LgName,LgID FROM " . $tbpref . "languages 
+                    "SELECT LgName,LgID FROM languages 
                     where LgName<>'' ORDER BY LgName"
                 );
                 while($row_l = mysqli_fetch_assoc($result)){
@@ -174,7 +174,7 @@ if (isset($_REQUEST['marked_items'])) {
             }
         } else {
             do_mysqli_query(
-                'insert ignore into ' . $tbpref . 'tags2 (T2Text) 
+                'insert ignore into tags2 (T2Text) 
                 values("' . $nf_tag_name . '")'
             );
             foreach($texts as $text){
@@ -182,7 +182,7 @@ if (isset($_REQUEST['marked_items'])) {
                 <p class="hide_message">+++ "' . $text['TxTitle']. '" added! +++</p>
                 </div>';
                 do_mysqli_query(
-                    'INSERT INTO ' . $tbpref . 'texts (
+                    'INSERT INTO texts (
                         TxLgID,TxTitle,TxText,TxAudioURI,TxSourceURI
                     )
                     VALUES (
@@ -196,27 +196,27 @@ if (isset($_REQUEST['marked_items'])) {
                 $id = get_last_key();
                 splitCheckText(
                     get_first_value(
-                        'select TxText as value from ' . $tbpref . 'texts 
+                        'select TxText as value from texts 
                         where TxID = ' . $id
                     ), 
                     get_first_value(
-                        'select TxLgID as value from ' . $tbpref . 'texts 
+                        'select TxLgID as value from texts 
                         where TxID = ' . $id
                     ), 
                     $id 
                 );
                 runsql(
-                    'insert into ' . $tbpref . 'texttags (TtTxID, TtT2ID) 
+                    'insert into texttags (TtTxID, TtT2ID) 
                     select ' . $id . ', T2ID 
-                    from ' . $tbpref . 'tags2 
+                    from tags2 
                     where T2Text = "' . $nf_tag_name .'"', 
                     ""
                 );        
             }
             get_texttags(1);
             $result = do_mysqli_query(
-                "SELECT TtTxID FROM " . $tbpref . "texttags 
-                join " . $tbpref . "tags2 on TtT2ID=T2ID 
+                "SELECT TtTxID FROM texttags 
+                join tags2 on TtT2ID=T2ID 
                 WHERE T2Text='". $nf_tag_name ."'"
             );
             $text_count=0;
@@ -230,27 +230,27 @@ if (isset($_REQUEST['marked_items'])) {
                     $text_item=array_slice($text_item, 0, $text_count-$nf_max_texts);
                     foreach ($text_item as $text_ID) {
                         $temp = runsql(
-                            'delete from ' . $tbpref . 'textitems2 where Ti2TxID = ' . $text_ID, 
+                            'delete from textitems2 where Ti2TxID = ' . $text_ID, 
                             ""
                         );
                         if (is_numeric($temp)) {
                             $message3 += (int) $temp;
                         }
                         $temp = runsql(
-                            'delete from ' . $tbpref . 'sentences where SeTxID = ' . $text_ID, 
+                            'delete from sentences where SeTxID = ' . $text_ID, 
                             ""
                         );
                         if (is_numeric($temp)) {
                             $message2 += (int) $temp;
                         }
                         $temp = runsql(
-                            'INSERT INTO ' . $tbpref . 'archivedtexts (
+                            'INSERT INTO archivedtexts (
                                 AtLgID, AtTitle, AtText, 
                                 AtAnnotatedText, AtAudioURI, AtSourceURI
                             ) 
                             SELECT TxLgID, TxTitle, TxText, 
                             TxAnnotatedText, TxAudioURI, TxSourceURI 
-                            FROM ' . $tbpref . 'texts 
+                            FROM texts 
                             WHERE TxID = ' . $text_ID, 
                             ""
                         );
@@ -259,14 +259,14 @@ if (isset($_REQUEST['marked_items'])) {
                         }
                         $id = get_last_key();
                         runsql(
-                            'INSERT INTO ' . $tbpref . 'archtexttags (AgAtID, AgT2ID) 
+                            'INSERT INTO archtexttags (AgAtID, AgT2ID) 
                             SELECT ' . $id . ', TtT2ID 
-                            FROM ' . $tbpref . 'texttags 
+                            FROM texttags 
                             WHERE TtTxID = ' . $text_ID, 
                             ""
                         );    
                         $temp = runsql(
-                            'DELETE FROM ' . $tbpref . 'texts 
+                            'DELETE FROM texts 
                             WHERE TxID = ' . $text_ID, 
                             ""
                         );
@@ -274,10 +274,10 @@ if (isset($_REQUEST['marked_items'])) {
                             $message1 += (int) $temp;
                         }
                         runsql(
-                            "DELETE " . $tbpref . "texttags 
+                            "DELETE texttags 
                             FROM (" 
-                                . $tbpref . "texttags 
-                                LEFT JOIN " . $tbpref . "texts 
+                                . texttags 
+                                LEFT JOIN texts 
                                 ON TtTxID = TxID
                             ) 
                             WHERE TxID IS NULL", 
@@ -445,10 +445,10 @@ if($currentregexmode=='') {
 <tr>
     <td class="td1 center" colspan="2" style="width:70%;"><?php
 if(!empty($currentlang)) {
-    $result = do_mysqli_query("SELECT NfName,NfID,NfUpdate FROM " . $tbpref . "newsfeeds WHERE NfLgID=$currentlang ORDER BY NfUpdate DESC");
+    $result = do_mysqli_query("SELECT NfName,NfID,NfUpdate FROM newsfeeds WHERE NfLgID=$currentlang ORDER BY NfUpdate DESC");
 }
 else{
-    $result = do_mysqli_query("SELECT NfName,NfID,NfUpdate FROM " . $tbpref . "newsfeeds ORDER BY NfUpdate DESC");
+    $result = do_mysqli_query("SELECT NfName,NfID,NfUpdate FROM newsfeeds ORDER BY NfUpdate DESC");
 }
 if(!mysqli_data_seek($result, 0)) {
     echo ' no feed available</td><td class="td1"></td></tr></table></form>';
@@ -484,7 +484,7 @@ if(mysqli_data_seek($result, 0)) {
         print_last_feed_update($diff);
     }
     echo '</td></tr>';
-    $sql = 'SELECT count(*) AS value FROM ' . $tbpref . 'feedlinks 
+    $sql = 'SELECT count(*) AS value FROM feedlinks 
     WHERE FlNfID in ('.$currentfeed.')'. $wh_query;
     $recno = (int)get_first_value($sql);
     if ($debug) { 
@@ -537,7 +537,7 @@ if(mysqli_data_seek($result, 0)) {
   <th class="th1 clickable" style="min-width:90px;">Date</th>
   </tr>    
         <?php
-        $result = do_mysqli_query("SELECT FlID, FlTitle, FlLink, FlDescription, FlDate, FlAudio,TxID, AtID FROM " . $tbpref . "feedlinks left join " . $tbpref . "texts on TxSourceURI=trim(FlLink) left join " . $tbpref . "archivedtexts on AtSourceURI=trim(FlLink) WHERE FlNfID in ($currentfeed) ".$wh_query." ORDER BY " . $sorts[$currentsort-1] . " ". $limit);
+        $result = do_mysqli_query("SELECT FlID, FlTitle, FlLink, FlDescription, FlDate, FlAudio,TxID, AtID FROM feedlinks left join texts on TxSourceURI=trim(FlLink) left join archivedtexts on AtSourceURI=trim(FlLink) WHERE FlNfID in ($currentfeed) ".$wh_query." ORDER BY " . $sorts[$currentsort-1] . " ". $limit);
         while($row = mysqli_fetch_assoc($result)){
             echo  '<tr>';
             if ($row['TxID']) {

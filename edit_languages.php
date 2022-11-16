@@ -71,14 +71,14 @@ function edit_languages_refresh($lid): string
 {
     global $tbpref;
     $message2 = runsql(
-        'delete from ' . $tbpref . 'sentences where SeLgID = ' . $lid, 
+        'delete from sentences where SeLgID = ' . $lid, 
         "Sentences deleted"
     );
     $message3 = runsql(
-        'delete from ' . $tbpref . 'textitems2 where Ti2LgID = ' . $lid, 
+        'delete from textitems2 where Ti2LgID = ' . $lid, 
         "Text items deleted"
     );
-    $sql = "select TxID, TxText from " . $tbpref . "texts 
+    $sql = "select TxID, TxText from texts 
     where TxLgID = " . $lid . " 
     order by TxID";
     $res = do_mysqli_query($sql);
@@ -92,12 +92,12 @@ function edit_languages_refresh($lid): string
     " / " . $message3 . 
     " / Sentences added: " . get_first_value(
         'select count(*) as value 
-        from ' . $tbpref . 'sentences 
+        from sentences 
         where SeLgID = ' . $lid
     ) . 
     " / Text items added: " . get_first_value(
         'select count(*) as value 
-        from ' . $tbpref . 'textitems2 
+        from textitems2 
         where Ti2LgID = ' . $lid
     );
     return $message;
@@ -119,29 +119,29 @@ function edit_languages_delete($lid): string
     global $tbpref;
     $anztexts = get_first_value(
         'select count(TxID) as value 
-        from ' . $tbpref . 'texts 
+        from texts 
         where TxLgID = ' . $lid
     );
     $anzarchtexts = get_first_value(
         'select count(AtID) as value 
-        from ' . $tbpref . 'archivedtexts 
+        from archivedtexts 
         where AtLgID = ' . $lid
     );
     $anzwords = get_first_value(
         'select count(WoID) as value 
-        from ' . $tbpref . 'words 
+        from words 
         where WoLgID = ' . $lid
     );
     $anzfeeds = get_first_value(
         'select count(NfID) as value 
-        from ' . $tbpref . 'newsfeeds 
+        from newsfeeds 
         where NfLgID = ' . $lid
     );
     if ($anztexts > 0 || $anzarchtexts > 0 || $anzwords > 0 || $anzfeeds > 0) {
         $message = 'You must first delete texts, archived texts, newsfeeds and words with this language!';
     } else {
         $message = runsql(
-            'UPDATE ' . $tbpref . 'languages 
+            'UPDATE languages 
             SET LgName = "", LgDict1URI = "", LgDict2URI = "", 
             LgGoogleTranslateURI = "", LgExportTemplate = "", LgTextSize = DEFAULT, 
             LgCharacterSubstitutions = "", LgRegexpSplitSentences = "", 
@@ -167,12 +167,12 @@ function edit_languages_op_save(): string
     global $tbpref;
     $val = get_first_value(
         'select min(LgID) as value 
-        from ' . $tbpref . 'languages 
+        from languages 
         where LgName=""'
     );
     if (! isset($val)) {
         $message = runsql(
-            'insert into ' . $tbpref . 'languages (
+            'insert into languages (
                 LgName, LgDict1URI, LgDict2URI, LgGoogleTranslateURI, 
                 LgExportTemplate, LgTextSize, LgCharacterSubstitutions, 
                 LgRegexpSplitSentences, LgExceptionsSplitSentences, 
@@ -198,7 +198,7 @@ function edit_languages_op_save(): string
     }
     else {
         $message = runsql(
-            'update ' . $tbpref . 'languages set ' . 
+            'update languages set ' . 
             'LgName = ' . convert_string_to_sqlsyntax($_REQUEST["LgName"]) . ', ' . 
             'LgDict1URI = ' . convert_string_to_sqlsyntax($_REQUEST["LgDict1URI"]) . ', ' .
             'LgDict2URI = ' . convert_string_to_sqlsyntax($_REQUEST["LgDict2URI"]) . ', ' .
@@ -232,7 +232,7 @@ function edit_languages_op_change($lid): string
 {
     global $tbpref;
     // Get old values
-    $sql = "select * from " . $tbpref . "languages where LgID=" . $lid;
+    $sql = "select * from languages where LgID=" . $lid;
     $res = do_mysqli_query($sql);
     $record = mysqli_fetch_assoc($res);
     if ($record == false) { 
@@ -263,7 +263,7 @@ function edit_languages_op_change($lid): string
     
 
     $message = runsql(
-        'update ' . $tbpref . 'languages set ' . 
+        'update languages set ' . 
         'LgName = ' . convert_string_to_sqlsyntax($_REQUEST["LgName"]) . ', ' . 
         'LgDict1URI = ' . convert_string_to_sqlsyntax($_REQUEST["LgDict1URI"]) . ', ' .
         'LgDict2URI = ' . convert_string_to_sqlsyntax($_REQUEST["LgDict2URI"]) . ', ' .
@@ -283,22 +283,22 @@ function edit_languages_op_change($lid): string
     
     if ($needReParse) {
         runsql(
-            'delete from ' . $tbpref . 'sentences where SeLgID = ' . $lid, 
+            'delete from sentences where SeLgID = ' . $lid, 
             "Sentences deleted"
         );
         runsql(
-            'delete from ' . $tbpref . 'textitems2 where Ti2LgID = ' . $lid, 
+            'delete from textitems2 where Ti2LgID = ' . $lid, 
             "Text items deleted"
         );
         runsql(
-            "UPDATE  " . $tbpref . "words 
+            "UPDATE  words 
             SET WoWordCount  = 0 
             where WoLgID = " . $lid, 
             ''
         );
         init_word_count();
         $sql = "select TxID, TxText 
-        from " . $tbpref . "texts 
+        from texts 
         where TxLgID = " . $lid . " 
         order by TxID";
         $res = do_mysqli_query($sql);
@@ -450,7 +450,7 @@ function edit_languages_new()
 function edit_languages_change($lid)
 {
     global $tbpref;
-    $sql = 'select * from ' . $tbpref . 'languages where LgID = ' . $lid;
+    $sql = 'select * from languages where LgID = ' . $lid;
     $res = do_mysqli_query($sql);
     if ($record = mysqli_fetch_assoc($res)) {
     
@@ -582,7 +582,7 @@ function edit_languages_display($message)
     
     $recno = get_first_value(
         'SELECT COUNT(*) AS value 
-        FROM ' . $tbpref . 'languages 
+        FROM languages 
         WHERE LgName<>""'
     ); 
     
@@ -619,7 +619,7 @@ function edit_languages_display($message)
     <?php
 
     $sql = 'SELECT LgID, LgName, LgExportTemplate 
-    FROM ' . $tbpref . 'languages 
+    FROM languages 
     WHERE LgName<>"" ORDER BY LgName';
     if ($debug) { 
         echo $sql; 
@@ -627,7 +627,7 @@ function edit_languages_display($message)
     // May be refactored with KISS principle
     $res = do_mysqli_query(
         'select NfLgID, count(*) as value 
-        from ' . $tbpref . 'newsfeeds 
+        from newsfeeds 
         group by NfLgID'
     );
     $newsfeedcount = null;
@@ -637,7 +637,7 @@ function edit_languages_display($message)
     // May be refactored with KISS principle
     $res = do_mysqli_query(
         'SELECT NfLgID, count(*) AS value 
-        FROM ' . $tbpref . 'newsfeeds, ' . $tbpref . 'feedlinks 
+        FROM newsfeeds, feedlinks 
         WHERE NfID=FlNfID 
         GROUP BY NfLgID'
     );
@@ -650,19 +650,19 @@ function edit_languages_display($message)
         $lid = (int)$record['LgID'];
         $foo = get_first_value(
             'select count(TxID) as value 
-            from ' . $tbpref . 'texts 
+            from texts 
             where TxLgID=' . $lid
         );
         $textcount = is_numeric($foo) ? (int)$foo : 0;
         $foo = get_first_value(
             'select count(AtID) as value 
-            from ' . $tbpref . 'archivedtexts 
+            from archivedtexts 
             where AtLgID=' . $lid
         );
         $archtextcount = is_numeric($foo) ? (int)$foo : 0;
         $foo = get_first_value(
             'select count(WoID) as value 
-            from ' . $tbpref . 'words 
+            from words 
             where WoLgID=' . $lid
         );
         $wordcount = is_numeric($foo) ? (int)$foo : 0;

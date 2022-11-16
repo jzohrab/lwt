@@ -183,7 +183,7 @@ function long_text_save(): void
             $counter = makeCounterWithTotal($textcount, $i+1);
             $thistitle = $title . ($counter == '' ? '' : (' (' . $counter . ')')); 
             $imported += (int) runsql(
-                'insert into ' . $tbpref . 'texts (
+                'insert into texts (
                     TxLgID, TxTitle, TxText, TxAnnotatedText, TxAudioURI, 
                     TxSourceURI
                 ) values( ' . 

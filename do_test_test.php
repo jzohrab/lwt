@@ -42,9 +42,9 @@ function get_test_sql()
             exit();
         }
     } else if (isset($_REQUEST['lang'])) {
-        $testsql = " {$tbpref}words WHERE WoLgID = " . $_REQUEST['lang'] . " ";
+        $testsql = " words WHERE WoLgID = " . $_REQUEST['lang'] . " ";
     } else if (isset($_REQUEST['text'])) {
-        $testsql = " {$tbpref}words, {$tbpref}textitems2 
+        $testsql = " words, textitems2 
         WHERE Ti2LgID = WoLgID AND Ti2WoID = WoID AND Ti2TxID = " . 
         $_REQUEST['text'] . " ";
     } else {
@@ -145,16 +145,16 @@ function do_test_test_sentence($wid, $lang, $wordlc)
 
     // Select sentences where at least 70 % of words are known
     $sql = "SELECT DISTINCT ti.Ti2SeID AS SeID
-    FROM {$tbpref}textitems2 ti
+    FROM textitems2 ti
     JOIN (
       SELECT t.Ti2SeID, COUNT(*) AS c
-      FROM {$tbpref}textitems2 t
+      FROM textitems2 t
       WHERE t.Ti2WordCount = 1
       GROUP BY t.Ti2SeID
     ) AS sWordCount ON sWordCount.Ti2SeID = ti.Ti2SeID
     LEFT JOIN (
       SELECT t.Ti2SeID, COUNT(*) AS c
-      FROM {$tbpref}textitems2 t
+      FROM textitems2 t
       WHERE t.Ti2WordCount = 1 AND t.Ti2WoID = 0
       GROUP BY t.Ti2SeID
     ) AS sUnknownCount on sUnknownCount.Ti2SeID = ti.Ti2SeID
@@ -294,7 +294,7 @@ function prepare_test_area($testsql, $totaltests, $count, $testtype): int
     
     $sql = 'SELECT LgName, LgDict1URI, LgDict2URI, LgGoogleTranslateURI, LgTextSize, 
     LgRemoveSpaces, LgRegexpWordCharacters, LgRightToLeft 
-    FROM ' . $tbpref . 'languages WHERE LgID = ' . $lang;
+    FROM languages WHERE LgID = ' . $lang;
     $res = do_mysqli_query($sql);
     $record = mysqli_fetch_assoc($res);
     $wb1 = isset($record['LgDict1URI']) ? $record['LgDict1URI'] : "";
@@ -420,7 +420,7 @@ function do_test_test_javascript_interaction(
     $trans = repl_tab_nl($wo_record['WoTranslation']) . 
     getWordTagList($wid, ' ', 1, 0);
     $lang = get_first_value(
-        'SELECT LgName AS value FROM ' . $tbpref . 'languages
+        'SELECT LgName AS value FROM languages
         WHERE LgID = ' . $wo_record['WoLgID'] . '
         LIMIT 1'        
     );

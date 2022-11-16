@@ -17,7 +17,7 @@ function update_existing_words($status, $terms) {
         array_push($ids, $t['wid']);
     }
     $idlist = implode(', ', $ids);
-    $sql = "UPDATE {$tbpref}words
+    $sql = "UPDATE words
       SET WoStatus = {$status}
       WHERE WoID IN ({$idlist})";
 
@@ -60,7 +60,7 @@ function update_new_words($status, $newterms) {
     runsql($sql, "");
 
     // 2. Bulk insert any new words.
-    $sql = "SELECT StValue as value FROM {$tbpref}settings
+    $sql = "SELECT StValue as value FROM settings
 WHERE StKey = 'currentlanguage'";
     $lang = get_first_value($sql);
 
@@ -68,7 +68,7 @@ WHERE StKey = 'currentlanguage'";
     $scorefields = make_score_random_insert_update('iv');
     $scorevals = make_score_random_insert_update('id');
 
-    $sql = "INSERT INTO {$tbpref}words (
+    $sql = "INSERT INTO words (
 WoLgID, WoTextLC, WoText, WoStatus, WoStatusChanged,
 WoTranslation, WoSentence, WoRomanization,
 {$scorefields})
@@ -78,14 +78,14 @@ SELECT
 {$scorevals}
 FROM {$temptbl} AS tt
 WHERE WoTextLC NOT IN (
-  SELECT WoTextLC FROM {$tbpref}words
+  SELECT WoTextLC FROM words
   WHERE WoLgID = {$lang} )
 ";
     $count = runsql($sql, "");
 
     // 3. Update all texts that have new terms.
-    $sql = "UPDATE {$tbpref}textitems2 AS ti2
-JOIN {$tbpref}words as w
+    $sql = "UPDATE textitems2 AS ti2
+JOIN words as w
 ON (LOWER(ti2.Ti2Text) = w.WoTextLC AND ti2.Ti2LgID = w.WoLgID)
 SET ti2.Ti2WoID = w.WoID
 WHERE ti2.Ti2WoID = 0

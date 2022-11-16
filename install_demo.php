@@ -21,7 +21,7 @@ pagestart('Install LWT Database', true);
 
 echo error_message_with_hide($message, 1);
 
-$langcnt = get_first_value('select count(*) as value from ' . $tbpref . 'languages');
+$langcnt = get_first_value('select count(*) as value from languages');
 
 if ($tbpref == '') { 
     $prefinfo = "(Default Table Set)"; 
