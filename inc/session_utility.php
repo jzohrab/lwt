@@ -212,14 +212,14 @@ function get_archivedtexttag_selectoptions($v,$l): string
     $r .= ">[Filter off]</option>";
     if ($l == '') {
         $sql = "select T2ID, T2Text 
-        from archivedtexts, " . 
+        from archivedtexts,
         tags2, archtexttags 
         where T2ID = AgT2ID and AgAtID = AtID 
         group by T2ID 
         order by UPPER(T2Text)"; 
     } else {
         $sql = "select T2ID, T2Text 
-        from archivedtexts, tags2, " . 
+        from archivedtexts, tags2,
         archtexttags 
         where T2ID = AgT2ID and AgAtID = AtID and AtLgID = " . $l . " 
         group by T2ID 
@@ -804,11 +804,7 @@ function write_rss_to_db($texts): string
                 );
                 // $message .= $message4 . " / " . $message1 . " / " . $message2 . " / " . $message3;
                 runsql(
-                    "DELETE texttags 
-                    FROM (" 
-                        . texttags 
-                        LEFT JOIN texts on TtTxID = TxID
-                    ) 
+                    "DELETE texttags FROM (texttags LEFT JOIN texts on TtTxID = TxID) 
                     WHERE TxID IS NULL", 
                     ''
                 );        
