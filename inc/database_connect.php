@@ -1132,94 +1132,6 @@ function check_text($sql, $rtlScript, $wl)
     <?php
 }
 
-/**
- * Check a text that contains expressions.
- *
- * @param int    $id     Text ID
- * @param int    $lid    Language ID
- * @param int[]  $wl     Word length
- * @param int    $wl_max Maximum word length
- * @param string $mw_sql SQL-formatted string
- *
- * @return string SQL-formatted query string
- */
-function check_text_with_expressions($id, $lid, $wl, $wl_max, $mw_sql): string
-{
-    $set_wo_sql = $set_wo_sql_2 = $del_wo_sql = $init_var = '';
-    do_mysqli_query('SET GLOBAL max_heap_table_size = 1024 * 1024 * 1024 * 2');
-    do_mysqli_query('SET GLOBAL tmp_table_size = 1024 * 1024 * 1024 * 2');
-    for ($i=$wl_max*2 -1; $i>1; $i--) {
-        $set_wo_sql = 'WHEN (@a' . strval($i) . ':=@a' . strval($i-1) . ') IS NULL THEN NULL ';
-        $set_wo_sql_2 = 'WHEN (@a' . strval($i) . ':=@a' . strval($i-2) . ') IS NULL THEN NULL ';
-        $del_wo_sql = 'WHEN (@a' . strval($i) . ':=@a0) IS NULL THEN NULL ';
-        $init_var = '@a' . strval($i) . '=0,';
-    }
-    do_mysqli_query('set ' . $init_var . '@a1=0,@a0=0,@b=0,@c="",@d=0,@e=0,@f="",@h=0;');
-    do_mysqli_query(
-        'CREATE TEMPORARY TABLE IF NOT EXISTS numbers( n  tinyint(3) unsigned NOT NULL);'
-    );
-    do_mysqli_query('TRUNCATE TABLE numbers');
-    do_mysqli_query('INSERT IGNORE INTO numbers(n) VALUES (' . implode('),(', $wl) . ');');
-    if ($id>0) {
-        $sql = 'SELECT straight_join ' . $lid . ', ' . $id . ', WoID, sent, TiOrder - (2*(n-1)) TiOrder, n TiWordCount,word';
-    } else {
-        $sql = 'SELECT straight_join count(WoID) cnt, n as len, lower(WoText) as word, WoTranslation';
-    }
-    $sql .= 
-    ' FROM (
-        SELECT straight_join 
-        if(@b=TiSeID and @h=TiOrder,
-            if((@h:=TiOrder+@a0) is null,TiSeID,TiSeID),
-            if(
-                @b=TiSeID, 
-                IF(
-                    (@d=1) and (0<>TiWordCount), 
-                    CASE ' . $set_wo_sql_2 . ' 
-                        WHEN (@a1:=TiCount+@a0) IS NULL THEN NULL 
-                        WHEN (@b:=TiSeID+@a0) IS NULL THEN NULL 
-                        WHEN (@h:=TiOrder+@a0) IS NULL THEN NULL 
-                        WHEN (@c:=concat(@c,TiText)) IS NULL THEN NULL 
-                        WHEN (@d:=(0<>TiWordCount)+@a0) IS NULL THEN NULL 
-                        ELSE TiSeID 
-                    END, 
-                    CASE ' . $set_wo_sql . ' 
-                        WHEN (@a1:=TiCount+@a0) IS NULL THEN NULL 
-                        WHEN (@b:=TiSeID+@a0) IS NULL THEN NULL 
-                        WHEN (@h:=TiOrder+@a0) IS NULL THEN NULL 
-                        WHEN (@c:=concat(@c,TiText)) IS NULL THEN NULL 
-                        WHEN (@d:=(0<>TiWordCount)+@a0) IS NULL THEN NULL 
-                        ELSE TiSeID 
-                    END
-                ), 
-                CASE '  . $del_wo_sql . ' 
-                    WHEN (@a1:=TiCount+@a0) IS NULL THEN NULL 
-                    WHEN (@b:=TiSeID+@a0) IS NULL THEN NULL 
-                    WHEN (@h:=TiOrder+@a0) IS NULL THEN NULL 
-                    WHEN (@c:=concat(TiText,@f)) IS NULL THEN NULL 
-                    WHEN (@d:=(0<>TiWordCount)+@a0) IS NULL THEN NULL 
-                    ELSE TiSeID 
-                END
-            )
-        ) sent, 
-        if(
-            @d=0, 
-            NULL, 
-            if(
-                CRC32(@z:=substr(@c,case n' . $mw_sql . ' end))<>CRC32(lower(@z)),
-                @z,
-                ""
-            )
-        ) word,
-        if(@d=0 or ""=@z, NULL, lower(@z)) lword, 
-        TiOrder,
-        n FROM numbers , temptextitems
-    ) ti, 
-    words 
-    WHERE lword IS NOT NULL AND WoLgID=' . $lid . ' AND 
-    WoTextLC=lword AND WoWordCount=n';
-    $sql .= ($id>0) ? ' UNION ALL ' : ' GROUP BY WoID ORDER BY WoTextLC';
-    return $sql;
-}
 
 /**
  * Parse the input text.
@@ -1267,30 +1179,6 @@ function splitCheckText($text, $lid, $id)
     if ($id == -1) {
         check_text_valid($lid);
     }
-
-/*
-// DISABLING THIS as it doesn't work.
-    $res = do_mysqli_query(
-        "SELECT WoWordCount AS word_count, count(WoWordCount) AS cnt 
-        FROM words 
-        WHERE WoLgID = $lid AND WoWordCount > 1 
-        GROUP BY WoWordCount"
-    );
-    while ($record = mysqli_fetch_assoc($res)){
-        if ($wl_max < $record['word_count']) { 
-            $wl_max = $record['word_count'];
-        }
-        $wl[] = (string)$record['word_count'];
-        $mw_sql .= ' WHEN ' . $record['word_count'] . 
-        ' THEN @a' . (intval($record['word_count']) * 2 - 1);
-    }
-    mysqli_free_result($res);
-    $sql = '';
-    // Text has multi-words
-    if (!empty($wl)) {
-        $sql = check_text_with_expressions($id, $lid, $wl, $wl_max, $mw_sql);
-    }
-*/
 
     if ($id > 0) {
         update_default_values($id, $lid);
