@@ -225,7 +225,7 @@ function main_word_loop($textid, $showAll): void
      CASE WHEN `Ti2WordCount`>0 THEN Ti2WordCount ELSE 1 END AS Code,
      CASE WHEN CHAR_LENGTH(Ti2Text)>0 THEN Ti2Text ELSE `WoText` END AS TiText,
      CASE WHEN CHAR_LENGTH(Ti2Text)>0 THEN LOWER(Ti2Text) ELSE `WoTextLC` END AS TiTextLC,
-     Ti2Order, Ti2SeID, 
+     Ti2Order, Ti2SeID, Ti2WordCount,
      CASE WHEN `Ti2WordCount`>0 THEN 0 ELSE 1 END AS TiIsNotWord,
      CASE 
         WHEN CHAR_LENGTH(Ti2Text)>0 
@@ -256,7 +256,24 @@ function main_word_loop($textid, $showAll): void
         } else {
             $hide = $record['Ti2Order'] <= $last;
         }
-    
+
+        // Always show multi-word terms.
+        // This prevents mword terms from getting hidden
+        // if two terms happen to overlap in the text.
+        // For example, if the text contained
+        // "Hello there friend of mine",
+        // and there were two defined terms "Hello there"
+        // and "there friend", the two terms overlap.  Without
+        // the below change to $hide, the resulting highlighted
+        // text would have been "*Hello there* of mine".
+        // With this fix, the code outputs both terms:
+        // "*Hello there* *there friend* of mine",
+        // which is not great, but it is better than hiding
+        // text.
+        if ($record['Ti2WordCount'] > 1) {
+            $hide = false;
+        }
+
         item_parser($record, $showAll, $currcharcount, $hide);
         if ((int)$record['Code'] == 1) { 
             $currcharcount += $record['TiTextLength']; 

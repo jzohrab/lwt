@@ -3609,14 +3609,21 @@ function getScriptDirectionTag($lid): string
  *
  * @psalm-return array{0: array<int, string>, 1: list<string>}
  */
-function insert_expression_from_mecab($text, $lid, $wid, $len): array
+function insert_expression_from_mecab($text, $lid, $wid, $len, $sentenceIDRange): array
 {
     $db_to_mecab = tempnam(sys_get_temp_dir(), "db_to_mecab");
     $mecab_args = " -F %m\\t%t\\t%h\\n -U %m\\t%t\\t%h\\n -E EOS\\t3\\t7\\n ";
 
     $mecab = get_mecab_path($mecab_args);
+
+    $whereSeIDRange = '';
+    if (! is_null($sentenceIDRange)) {
+        [ $lower, $upper ] = $sentenceIDRange;
+        $whereSeIDRange = "(SeID >= {$lower} AND SeID <= {$upper}) AND";
+    }
+
     $sql = "SELECT SeID, SeTxID, SeFirstPos, SeText FROM sentences 
-    WHERE SeText LIKE " . convert_string_to_sqlsyntax_notrim_nonull("%$text%");
+    WHERE {$whereSeIDRange} SeText LIKE " . convert_string_to_sqlsyntax_notrim_nonull("%$text%");
     $res = do_mysqli_query($sql);
 
 
@@ -3704,6 +3711,7 @@ function insertExpressionFromMeCab($textlc, $lid, $wid, $len, $mode): array
  * @param string $lid    Language ID
  * @param string $wid    Word ID
  * @param mixed  $mode   Unnused
+ * @param array  $sentenceIDRange
  *
  * @return array{string[], empty[], string[]} Append text, empty and sentence id
  *
@@ -3712,7 +3720,7 @@ function insertExpressionFromMeCab($textlc, $lid, $wid, $len, $mode): array
  *
  * @psalm-return array{0: array<int, mixed|string>, 1: array<empty, empty>, 2: list<string>}
  */
-function insert_standard_expression($textlc, $lid, $wid, $len, $mode): array
+function insert_standard_expression($textlc, $lid, $wid, $len, $mode, $sentenceIDRange): array
 {
     $appendtext = array();
     $sqlarr = array();
@@ -3722,18 +3730,24 @@ function insert_standard_expression($textlc, $lid, $wid, $len, $mode): array
     $splitEachChar = $record['LgSplitEachChar'];
     $termchar = $record['LgRegexpWordCharacters'];
     mysqli_free_result($res);
+
+    $whereSeIDRange = '';
+    if (! is_null($sentenceIDRange)) {
+        [ $lower, $upper ] = $sentenceIDRange;
+        $whereSeIDRange = "(SeID >= {$lower} AND SeID <= {$upper}) AND";
+    }
     if ($removeSpaces == 1 && $splitEachChar == 0) {
         $sql = "SELECT 
         group_concat(Ti2Text ORDER BY Ti2Order SEPARATOR ' ') AS SeText, SeID, 
         SeTxID, SeFirstPos 
         FROM textitems2, sentences 
-        WHERE SeID=Ti2SeID AND SeLgID = $lid AND Ti2LgID = $lid 
+        WHERE {$whereSeIDRange} SeID=Ti2SeID AND SeLgID = $lid AND Ti2LgID = $lid 
         AND SeText LIKE " . convert_string_to_sqlsyntax_notrim_nonull("%$textlc%") . " 
         AND Ti2WordCount < 2 
         GROUP BY SeID";
     } else {
         $sql = "SELECT * FROM sentences 
-        WHERE SeLgID = $lid AND SeText LIKE " . 
+        WHERE {$whereSeIDRange} SeLgID = $lid AND SeText LIKE " . 
         convert_string_to_sqlsyntax_notrim_nonull("%$textlc%");
     }
     $wis = $textlc;
@@ -3769,8 +3783,8 @@ function insert_standard_expression($textlc, $lid, $wid, $len, $mode): array
                     $_
                 );
                 $pos = 2 * $cnt + (int) $record['SeFirstPos'];
-                $txt = '';
-                if ($matches[1] != $textlc) { 
+                $txt = $matches[1];
+                if ($txt != $textlc) {
                     $txt = $splitEachChar ? $wis : $matches[1]; 
                 }
                 $sqlarr[] = "($wid, $lid, {$record['SeTxID']},
@@ -3892,11 +3906,12 @@ function new_expression_interactable2($hex, $appendtext, $wid, $len): void
  *                       - 0: Default mode, do nothing special
  *                       - 1: Runs an expresion inserter interactable 
  *                       - 2: Return the sql output
+ * @param array  $sentenceIDRange   [ lower SeID, upper SeID ] to consider.
  *
  * @return null|string If $mode == 2 return values to insert in textitems2, nothing otherwise.
  *
  */
-function insertExpressions($textlc, $lid, $wid, $len, $mode): ?string 
+function insertExpressions($textlc, $lid, $wid, $len, $mode, $sentenceIDRange = NULL): ?string 
 {
     $sql = "SELECT * FROM languages WHERE LgID=$lid";
     $res = do_mysqli_query($sql);
@@ -3910,11 +3925,11 @@ function insertExpressions($textlc, $lid, $wid, $len, $mode): ?string
 
     if ($mecab) {
         list($appendtext, $sqlarr) = insert_expression_from_mecab(
-            $textlc, $lid, $wid, $len
+            $textlc, $lid, $wid, $len, $sentenceIDRange
         );
     } else {
         list($appendtext, $_, $sqlarr) = insert_standard_expression(
-            $textlc, $lid, $wid, $len, null
+            $textlc, $lid, $wid, $len, null, $sentenceIDRange
         );
     }
     $sqltext = null;
