@@ -3769,8 +3769,8 @@ function insert_standard_expression($textlc, $lid, $wid, $len, $mode): array
                     $_
                 );
                 $pos = 2 * $cnt + (int) $record['SeFirstPos'];
-                $txt = '';
-                if ($matches[1] != $textlc) { 
+                $txt = $matches[1];
+                if ($txt != $textlc) {
                     $txt = $splitEachChar ? $wis : $matches[1]; 
                 }
                 $sqlarr[] = "($wid, $lid, {$record['SeTxID']},
