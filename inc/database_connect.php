@@ -1023,14 +1023,14 @@ function check_text_valid($lid)
 
 
 /**
- * Change the default values for default language, default text, etc...
+ * Move data from temptextitems to final tables.
  * 
  * @param int    $id  New default text ID
  * @param int    $lid New default language ID
  * 
  * @return void
  */
-function update_default_values($id, $lid)
+function import_temptextitems($id, $lid)
 {
     do_mysqli_query(
         'INSERT INTO sentences (
@@ -1181,7 +1181,7 @@ function splitCheckText($text, $lid, $id)
     }
 
     if ($id > 0) {
-        update_default_values($id, $lid);
+        import_temptextitems($id, $lid);
     }
     // Check text
     if ($id == -1) {
