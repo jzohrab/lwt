@@ -685,12 +685,7 @@ function parse_japanese_text($text, $id): ?array
     // security restrictions
     if (get_first_value("SELECT @@GLOBAL.local_infile as value")) {
         do_mysqli_query(
-            "SET @order:=0, @term_type:=0,
-            @sid:=" . (
-                $id>0 ?
-                "(SELECT ifnull(max(`SeID`)+1,1) FROM `sentences`)" 
-                : 1 
-            ) . ", @count:=0,@last_term_type:=0;"
+            "SET @order:=0, @term_type:=0,@sid=0, @count:=0,@last_term_type:=0;"
         );
         
         $sql = 
@@ -733,10 +728,7 @@ function parse_japanese_text($text, $id): ?array
         $order = 0;
         $sid = 1;
         if ($id > 0) {
-            $sid = (int)get_first_value(
-                "SELECT IFNULL(MAX(`SeID`)+1,1) as value 
-                FROM sentences"
-            );
+            $sid = 0;
         }
         $term_type = 0;
         $count = 0;
@@ -884,14 +876,12 @@ function parse_standard_text($text, $id, $lid): ?array
     // security restrictions
     if (get_first_value("SELECT @@GLOBAL.local_infile as value")) {
         $file_name = sys_get_temp_dir() . DIRECTORY_SEPARATOR . "tmpti.txt";
+        // $file_name = '/Applications/MAMP/htdocs/lwt_testing/dummy.txt';
         $fp = fopen($file_name, 'w');
         fwrite($fp, $text);
         fclose($fp);
         do_mysqli_query(
-            "SET @order=0, 
-            @sid=" . (
-                $id>0?"(SELECT ifnull(max(`SeID`)+1,1) FROM `sentences`)" : 1) . 
-            ", @count = 0;"
+            "SET @order=0, @sid=0, @count=0;"
         );
         $sql = "LOAD DATA LOCAL INFILE " . convert_string_to_sqlsyntax($file_name) . "
         INTO TABLE temptextitems 
@@ -911,6 +901,7 @@ function parse_standard_text($text, $id, $lid): ?array
             ), 
             TiText = @term,
             TiWordCount = @word_count";
+
         do_mysqli_query($sql);
         mysqli_free_result($res);
         unlink($file_name);
@@ -919,10 +910,7 @@ function parse_standard_text($text, $id, $lid): ?array
         $order = 0;
         $sid = 1;
         if ($id > 0) {
-            $sid = (int)get_first_value(
-                "SELECT IFNULL(MAX(`SeID`)+1,1) as value 
-                FROM sentences"
-            );
+            $sid = 0;
         }
         $count = 0;
         $row = array(0, 0, 0, "", 0);
@@ -972,6 +960,7 @@ function prepare_text_parsing($text, $id, $lid): ?array
     mysqli_free_result($res);
     $text = prepare_textdata($text);
     //if(is_callable('normalizer_normalize')) $s = normalizer_normalize($s);
+
     do_mysqli_query('TRUNCATE TABLE temptextitems');
 
     // because of sentence special characters
@@ -1038,33 +1027,52 @@ function check_text_valid($lid)
  * 
  * @param int    $id  New default text ID
  * @param int    $lid New default language ID
- * @param string $sql 
  * 
  * @return void
  */
-function update_default_values($id, $lid, $sql)
+function update_default_values($id, $lid)
 {
-    do_mysqli_query(
-        'INSERT INTO textitems2 (
-            Ti2LgID, Ti2TxID, Ti2WoID, Ti2SeID, Ti2Order, Ti2WordCount, Ti2Text
-        ) ' . $sql . '
-        select  ' . $lid . ', ' . $id . ', WoID, TiSeID, TiOrder, TiWordCount, TiText 
-        FROM temptextitems 
-        left join words 
-        on lower(TiText) = WoTextLC and TiWordCount=1 and WoLgID = ' . $lid . ' 
-        order by TiOrder,TiWordCount'
-    );
-    do_mysqli_query('set @a=0;');
     do_mysqli_query(
         'INSERT INTO sentences (
             SeLgID, SeTxID, SeOrder, SeFirstPos, SeText
         ) SELECT ' . $lid . ', ' . $id . ',
-        @a:=@a+1, 
+        TiSeID, 
         min(if(TiWordCount=0,TiOrder+1,TiOrder)),
         GROUP_CONCAT(TiText order by TiOrder SEPARATOR "") 
         FROM temptextitems 
         group by TiSeID'
     );
+
+    $firstsql = "SELECT MIN(SeID) as value FROM sentences WHERE SeTxID = {$id}";
+    $firstSeID = (int) get_first_value($firstsql);
+    $lastsql = "SELECT MAX(SeID) as value FROM sentences WHERE SeTxID = {$id}";
+    $lastSeID = (int) get_first_value($lastsql);
+
+    $addti2 = "INSERT INTO textitems2 (
+            Ti2LgID, Ti2TxID, Ti2WoID, Ti2SeID, Ti2Order, Ti2WordCount, Ti2Text
+        )
+        select {$lid}, {$id}, WoID, TiSeID + {$firstSeID}, TiOrder, TiWordCount, TiText 
+        FROM temptextitems 
+        left join words 
+        on lower(TiText) = WoTextLC and TiWordCount>0 and WoLgID = {$lid} 
+        order by TiOrder,TiWordCount";
+    do_mysqli_query($addti2);
+
+    // For each expession in the language, add expressions for the sentence range.
+    // Inefficient, but for now I don't care -- will see how slow it is.
+    $sentenceRange = [ $firstSeID, $lastSeID ];
+    $mwordsql = "SELECT * FROM words WHERE WoLgID = $lid AND WoWordCount > 1";
+    $res = do_mysqli_query($mwordsql);
+    while ($record = mysqli_fetch_assoc($res)) {
+        insertExpressions(
+            $record['WoTextLC'],
+            $lid,
+            $record['WoID'],
+            $record['WoWordCount'],
+            1,
+            $sentenceRange);
+    }
+    mysqli_free_result($res);
 }
 
 /**
@@ -1260,6 +1268,8 @@ function splitCheckText($text, $lid, $id)
         check_text_valid($lid);
     }
 
+/*
+// DISABLING THIS as it doesn't work.
     $res = do_mysqli_query(
         "SELECT WoWordCount AS word_count, count(WoWordCount) AS cnt 
         FROM words 
@@ -1280,8 +1290,10 @@ function splitCheckText($text, $lid, $id)
     if (!empty($wl)) {
         $sql = check_text_with_expressions($id, $lid, $wl, $wl_max, $mw_sql);
     }
+*/
+
     if ($id > 0) {
-        update_default_values($id, $lid, $sql);
+        update_default_values($id, $lid);
     }
     // Check text
     if ($id == -1) {
