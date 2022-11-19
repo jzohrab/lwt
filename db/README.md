@@ -12,7 +12,7 @@ The main class `mysql_migrator.php` is lifted from https://github.com/jzohrab/ph
 ## Applying the migrations
 
 ```
-$ php db/apply_migrations.php 
+$ php db/migrate.php
 ```
 
 ## Creating new migration scripts
