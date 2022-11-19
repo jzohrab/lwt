@@ -9,6 +9,7 @@
 
 require_once __DIR__ . "/kernel_utility.php";
 require __DIR__ . "/../connect.inc.php";
+require_once __DIR__ . "/db_restore.php";
 
 /**
  * Do a SQL query to the database. 
@@ -1271,12 +1272,16 @@ function check_update_db($debug, $dbname): void
 {
     $tables = array();
     
-    $res = do_mysqli_query(str_replace('_', "\\_", "SHOW TABLES LIKE " . convert_string_to_sqlsyntax_nonull('%')));
+    $res = do_mysqli_query("SHOW TABLES");
     while ($row = mysqli_fetch_row($res)) {
         $tables[] = $row[0]; 
     }
     mysqli_free_result($res);
-    
+
+    if (count($tables) == 0) {
+        install_new_db();
+    }
+
     // Update the database
     update_database($dbname);
 
