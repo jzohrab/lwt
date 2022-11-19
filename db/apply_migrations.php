@@ -4,7 +4,7 @@
  */
 
 require __DIR__ . '/../connect.inc.php';
-require __DIR__ . '/mysql_migrator.php';
+require __DIR__ . '/lib/mysql_migrator.php';
 
 $dir = __DIR__ . '/migrations';
 
