@@ -1337,8 +1337,11 @@ global $DBCONNECTION;
 $DBCONNECTION = connect_to_database($server, $userid, $passwd, $dbname);
 
 
-// check/update db
+// check/update db - only once per session.
 global $debug;
-check_update_db($debug, $dbname);
+if (!isset($_SESSION['DBUPDATED'])) {
+    check_update_db($debug, $dbname);
+    $_SESSION['DBUPDATED'] = true;
+}
 
 ?>

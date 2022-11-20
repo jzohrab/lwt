@@ -4,18 +4,22 @@ This folder contains simple db scripts and and migrations for db schema manageme
 
 The schema is managed following the ideas outlined at https://github.com/jzohrab/DbMigrator/blob/master/docs/managing_database_changes.md.
 
-All migrations are stored in the `migrations` folder, and are applied once only, in filename-sorted order.
+* All migrations are stored in the `migrations` folder, and are applied once only, in filename-sorted order.
+* The main class `mysql_migrator.php` is lifted from https://github.com/jzohrab/php-migration.
 
-The main class `mysql_migrator.php` is lifted from https://github.com/jzohrab/php-migration.
+## Changes are automatically applied once per user session!
 
+The DB migrations are applied automatically during LWT operation (see the end of the file `inc/database_connect.php`), but are only applied _once_ per user session!  So, if you're developing or merge in changes and you've already run the code, that session var is set, and you'll need to apply new changes manually (see below).
 
-## Applying the migrations
+## Usage
+
+### Applying the migrations manually
 
 ```
 $ php db/migrate.php
 ```
 
-## Creating new migration scripts
+### Creating new migration scripts
 
 ```
 $ php db/create_migration_script.php <some_name_here>
