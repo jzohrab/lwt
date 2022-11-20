@@ -3143,8 +3143,8 @@ function textwordcount($textID): void
 {
     $total = $total_unique = $expr = $expr_unique = $stat = $stat_unique = array();
     $res = do_mysqli_query(
-        "SELECT Ti2TxID AS text, COUNT(DISTINCT LOWER(Ti2Text)) AS value, 
-        COUNT(LOWER(Ti2Text)) AS total
+        "SELECT Ti2TxID AS text, COUNT(DISTINCT Ti2TextLC) AS value, 
+        COUNT(Ti2TextLC) AS total
 		FROM textitems2
 		WHERE Ti2WordCount = 1 AND Ti2TxID IN($textID)
 		GROUP BY Ti2TxID"
@@ -3191,7 +3191,7 @@ function texttodocount($text): string
 {
     return '<span title="To Do" class="status0">&nbsp;' . 
     (get_first_value(
-        'SELECT count(DISTINCT LOWER(Ti2Text)) as value 
+        'SELECT count(DISTINCT Ti2TextLC) as value 
         FROM textitems2 
         WHERE Ti2WordCount=1 and Ti2WoID=0 and Ti2TxID=' . $text
     )
@@ -3211,7 +3211,7 @@ function texttodocount2($textid): string
         $textid = (int) $textid;
     }
     $c = get_first_value(
-        "SELECT COUNT(DISTINCT LOWER(Ti2Text)) AS value 
+        "SELECT COUNT(DISTINCT Ti2TextLC) AS value 
         FROM textitems2 
         WHERE Ti2WordCount=1 AND Ti2WoID=0 AND Ti2TxID=$textid"
     );
@@ -3427,7 +3427,7 @@ function get20Sentences($lang, $wordlc, $wid, $jsctlname, $mode): string
     if (empty($wid)) {
         $sql = "SELECT DISTINCT SeID, SeText 
         FROM sentences, textitems2 
-        WHERE LOWER(Ti2Text) = " . convert_string_to_sqlsyntax($wordlc) . " 
+        WHERE Ti2TextLC = " . convert_string_to_sqlsyntax($wordlc) . " 
         AND Ti2WoID = 0 AND SeID = Ti2SeID AND SeLgID = $lang 
         ORDER BY CHAR_LENGTH(SeText), SeText 
         LIMIT 0,20";

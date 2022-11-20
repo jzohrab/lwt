@@ -55,7 +55,7 @@ function insert_new_word($textlc, $translation)
     $wid = get_last_key();
     do_mysqli_query(
         'UPDATE textitems2 SET Ti2WoID = ' . $wid . ' 
-        WHERE Ti2LgID = ' . $_REQUEST["WoLgID"] . ' AND LOWER(Ti2Text) =' . 
+        WHERE Ti2LgID = ' . $_REQUEST["WoLgID"] . ' AND Ti2TextLC =' . 
         convert_string_to_sqlsyntax_notrim_nonull($textlc)
     );
     return array($wid, $message);

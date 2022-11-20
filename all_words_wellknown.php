@@ -28,11 +28,11 @@ require_once 'inc/session_utility.php';
 function all_words_wellknown_get_words($txid)
 {
 
-    $sql = "SELECT DISTINCT Ti2Text, LOWER(Ti2Text) AS Ti2TextLC
+    $sql = "SELECT DISTINCT Ti2Text, Ti2TextLC
     FROM ( 
         textitems2 
         LEFT JOIN words 
-        ON LOWER(Ti2Text) = WoTextLC AND Ti2LgID = WoLgID
+        ON Ti2TextLC = WoTextLC AND Ti2LgID = WoLgID
     ) 
     WHERE WoID IS NULL AND Ti2WordCount = 1 AND Ti2TxID = $txid 
     ORDER BY Ti2Order";
@@ -140,7 +140,7 @@ function all_words_wellknown_main_loop($txid, $status): array
     runsql(
         "UPDATE words 
         JOIN textitems2 
-        ON Ti2WoID = 0 AND LOWER(Ti2Text) = WoTextLC AND Ti2LgID = WoLgID 
+        ON Ti2WoID = 0 AND Ti2TextLC = WoTextLC AND Ti2LgID = WoLgID 
         SET Ti2WoID = WoID", 
         ''
     );

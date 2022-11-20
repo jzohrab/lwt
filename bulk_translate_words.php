@@ -81,7 +81,7 @@ if (isset($_REQUEST['term'])) {
     do_mysqli_query(
         "UPDATE textitems2 
         JOIN words 
-        ON lower(Ti2Text)=WoTextLC AND Ti2WordCount=1 AND Ti2LgID=WoLgID AND WoID>$max 
+        ON Ti2TextLC=WoTextLC AND Ti2WordCount=1 AND Ti2LgID=WoLgID AND WoID>$max 
         SET Ti2WoID = WoID"
     );
     echo "<script type=\"text/javascript\">
@@ -365,7 +365,7 @@ function googleTranslateElementInit() {
         'select Ti2Text as word,Ti2LgID,min(Ti2Order) as pos 
         from textitems2 
         where Ti2WoID = 0 and Ti2TxID = ' . $tid . ' AND Ti2WordCount =1 
-        group by LOWER(Ti2Text) 
+        group by Ti2TextLC 
         order by pos 
         limit ' . $pos . ',' . $limit
     );

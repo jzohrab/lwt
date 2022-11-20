@@ -69,7 +69,7 @@ function insert_word_wellknown_to_database($textid, $word)
     do_mysqli_query(
         "UPDATE  textitems2
         SET Ti2WoID  = " . $wid . " 
-        WHERE Ti2LgID = " . $langid . " AND lower(Ti2Text) = " . convert_string_to_sqlsyntax($wordlc)
+        WHERE Ti2LgID = " . $langid . " AND Ti2TextLC = " . convert_string_to_sqlsyntax($wordlc)
     );
     return $wid;
 }

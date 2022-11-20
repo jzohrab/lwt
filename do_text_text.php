@@ -224,7 +224,7 @@ function main_word_loop($textid, $showAll): void
     "SELECT
      CASE WHEN `Ti2WordCount`>0 THEN Ti2WordCount ELSE 1 END AS Code,
      CASE WHEN CHAR_LENGTH(Ti2Text)>0 THEN Ti2Text ELSE `WoText` END AS TiText,
-     CASE WHEN CHAR_LENGTH(Ti2Text)>0 THEN LOWER(Ti2Text) ELSE `WoTextLC` END AS TiTextLC,
+     CASE WHEN CHAR_LENGTH(Ti2Text)>0 THEN Ti2TextLC ELSE `WoTextLC` END AS TiTextLC,
      Ti2Order, Ti2SeID, Ti2WordCount,
      CASE WHEN `Ti2WordCount`>0 THEN 0 ELSE 1 END AS TiIsNotWord,
      CASE 
