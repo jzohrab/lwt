@@ -3,9 +3,11 @@
 class MysqlMigrator {
   var $dbname;
   var $db;
+  var $showlogging;
 
-  function __construct() {
+  function __construct($showlogging = false) {
     date_default_timezone_set('UTC');
+    $this->showlogging = $showlogging;
   }
 
   function process($location, $host, $db, $user, $pass) {
@@ -21,7 +23,9 @@ class MysqlMigrator {
   }
 
   private function log($message) {
-    // echo "$message\n";
+    if ($this->showlogging) {
+      echo "$message\n";
+    }
   }
 
   private function create_connection($host, $db, $user, $pass) {
