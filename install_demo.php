@@ -6,7 +6,7 @@ Install LWT Demo Database
  ***************************************************************/
 
 require_once 'inc/session_utility.php';
-require 'inc/db_restore.php';
+require_once 'inc/db_restore.php';
 
 $message = '';
 

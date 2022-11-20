@@ -105,7 +105,7 @@ function install_new_db(): string
  */
 function install_demo_db(): string 
 {
-    return install_db_fileset([ 'baseline_schema.sql', 'reference_data.sql', 'demo_data.sql' ], "New database and demo data");
+    return install_db_fileset([ 'baseline_schema.sql', 'reference_data.sql', 'demo/data.sql' ], "New database and demo data");
 }
 
 

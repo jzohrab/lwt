@@ -223,7 +223,7 @@ function get_server_data(): array
     // }
     $php = phpversion();
     $mysql = (string)get_first_value("SELECT VERSION() as value");
-    return array($p, $mb, $serversoft, $apache, $php, $mysql);
+    return array('$p?', $mb, $serversoft, $apache, $php, $mysql);
 }
 
 

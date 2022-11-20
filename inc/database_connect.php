@@ -1,4 +1,4 @@
-<?php
+<?php session_start();
 
 /**
  * \file
@@ -9,6 +9,8 @@
 
 require_once __DIR__ . "/kernel_utility.php";
 require __DIR__ . "/../connect.inc.php";
+require_once __DIR__ . "/db_restore.php";
+require_once __DIR__ . "/../db/lib/apply_migrations.php";
 
 /**
  * Do a SQL query to the database. 
@@ -1217,49 +1219,10 @@ function reparse_all_texts(): void
 
 /**
  * Update the database if it is using an outdate version.
- *
- * @param string $dbname Name of the database
- *
- * @global 0|1    $debug  Output debug messages.
- * 
- * @return void
  */
-function update_database($dbname)
+function update_database()
 {
-    global $debug;
-
-    // TODO: replace this with database migrations.
-
-    // DB Version
-    $currversion = get_version_number();
-    
-    $res = mysqli_query(
-        $GLOBALS['DBCONNECTION'], 
-        "select StValue as value 
-        from settings 
-        where StKey = 'dbversion'"
-    );
-    if (mysqli_errno($GLOBALS['DBCONNECTION']) != 0) { 
-        my_die(
-            'There is something wrong with your database ' . $dbname . 
-            '. Please reinstall.'
-        ); 
-    }
-    $record = mysqli_fetch_assoc($res);
-    if ($record) {
-        $dbversion = $record["value"];
-    } else {
-        $dbversion = 'v001000000';
-    }
-    mysqli_free_result($res);
-    
-    // Do DB Updates if tables seem to be old versions
-    
-    if ($dbversion < $currversion) {
-        // set to current.
-        saveSetting('dbversion', $currversion);
-        saveSetting('lastscorecalc', '');  // do next section, too
-    }
+    apply_migrations();
 }
 
 /**
@@ -1271,14 +1234,18 @@ function check_update_db($debug, $dbname): void
 {
     $tables = array();
     
-    $res = do_mysqli_query(str_replace('_', "\\_", "SHOW TABLES LIKE " . convert_string_to_sqlsyntax_nonull('%')));
+    $res = do_mysqli_query("SHOW TABLES");
     while ($row = mysqli_fetch_row($res)) {
         $tables[] = $row[0]; 
     }
     mysqli_free_result($res);
-    
+
+    if (count($tables) == 0) {
+        install_new_db();
+    }
+
     // Update the database
-    update_database($dbname);
+    update_database();
 
     // Do Scoring once per day, clean Word/Texttags, and optimize db
     $lastscorecalc = getSetting('lastscorecalc');
@@ -1370,8 +1337,11 @@ global $DBCONNECTION;
 $DBCONNECTION = connect_to_database($server, $userid, $passwd, $dbname);
 
 
-// check/update db
+// check/update db - only once per session.
 global $debug;
-check_update_db($debug, $dbname);
+if (!isset($_SESSION['DBUPDATED'])) {
+    check_update_db($debug, $dbname);
+    $_SESSION['DBUPDATED'] = true;
+}
 
 ?>
