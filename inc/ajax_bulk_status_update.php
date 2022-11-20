@@ -83,11 +83,11 @@ WHERE WoTextLC NOT IN (
     // 3. Update all texts that have new terms.
     $sql = "UPDATE textitems2 AS ti2
 JOIN words as w
-ON (LOWER(ti2.Ti2Text) = w.WoTextLC AND ti2.Ti2LgID = w.WoLgID)
+ON (Ti2TextLC = w.WoTextLC AND ti2.Ti2LgID = w.WoLgID)
 SET ti2.Ti2WoID = w.WoID
 WHERE ti2.Ti2WoID = 0
   AND ti2.Ti2WordCount > 0
-  AND LOWER(ti2.Ti2Text) IN (SELECT WoTextLC FROM {$temptbl})
+  AND ti2.Ti2TextLC IN (SELECT WoTextLC FROM {$temptbl})
   AND ti2.Ti2LgID = {$lang}
   AND w.WoLgID = {$lang}";
     runsql($sql, "");
