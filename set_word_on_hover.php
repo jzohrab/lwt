@@ -37,7 +37,7 @@ $langid = get_first_value("select TxLgID as value from texts where TxID = " . $_
                 make_score_random_insert_update('id') . ')', "Term saved"
             );
             $wid = get_last_key();
-            do_mysqli_query('UPDATE textitems2 SET Ti2WoID = ' . $wid . ' WHERE Ti2LgID = ' . $langid . ' AND LOWER(Ti2Text) =' . $wordlc);
+            do_mysqli_query('UPDATE textitems2 SET Ti2WoID = ' . $wid . ' WHERE Ti2LgID = ' . $langid . ' AND Ti2TextLC =' . $wordlc);
             $hex = strToClassName(prepare_textdata(mb_strtolower($_REQUEST['text'], 'UTF-8')));
 
 

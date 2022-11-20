@@ -448,7 +448,7 @@ function upload_words_import_terms($fields, $tabs, $file_upl, $col, $lang): void
     runsql(
         "UPDATE words 
         JOIN textitems2 
-        ON WoWordCount=1 AND Ti2WoID=0 AND lower(Ti2Text)=WoTextLC AND Ti2LgID = WoLgID 
+        ON WoWordCount=1 AND Ti2WoID=0 AND Ti2TextLC=WoTextLC AND Ti2LgID = WoLgID 
         SET Ti2WoID=WoID", 
         ''
     );
