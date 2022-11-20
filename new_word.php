@@ -38,6 +38,18 @@ $(document).ready(ask_before_exiting);
 $(window).on('beforeunload',function() {
   setTimeout(function() {window.parent.frames['ru'].location.href = 'empty.html';}, 0);
 });
+
+// Set focus to correct field.
+$(window).on('load', function() {
+  const wordfield = $('#wordfield');
+  const transfield = $('#translationfield');
+  if (wordfield.val()) {
+    transfield.focus();
+  }
+  else {
+    wordfield.focus();
+  }
+ });
 </script>
 
 <form name="wordform" class="validate" action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
@@ -61,7 +73,7 @@ $(window).on('beforeunload',function() {
   <tr>
     <td class="td1 right">Translation:</td>
     <td class="td1">
-      <textarea name="WoTranslation" class="setfocus textarea-noreturn checklength checkoutsidebmp" data_maxlength="500" data_info="Translation" cols="35" rows="3"><?php echo tohtml($formdata->translation); ?></textarea>
+      <textarea name="WoTranslation" id="translationfield" class="textarea-noreturn checklength checkoutsidebmp" data_maxlength="500" data_info="Translation" cols="35" rows="3"><?php echo tohtml($formdata->translation); ?></textarea>
     </td>
   </tr>
   <tr>
