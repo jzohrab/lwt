@@ -21,7 +21,7 @@ class MysqlMigrator {
   }
 
   private function log($message) {
-    echo "$message\n";
+    // echo "$message\n";
   }
 
   private function create_connection($host, $db, $user, $pass) {
