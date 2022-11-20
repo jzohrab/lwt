@@ -28,12 +28,6 @@ require_once 'inc/simterms.php';
  */
 function insert_new_word($textlc, $translation)
 {
-
-
-    $titletext = "New Term: " . tohtml(prepare_textdata($_REQUEST["WoTextLC"]));
-    pagestart_nobody($titletext);
-    echo '<h4><span class="bigger">' . $titletext . '</span></h4>';
-
     $message = runsql(
         'INSERT INTO words 
         (
@@ -70,12 +64,6 @@ function insert_new_word($textlc, $translation)
  */
 function edit_term($translation)
 {
-
-
-    $titletext = "Edit Term: " . tohtml(prepare_textdata($_REQUEST["WoTextLC"]));
-    pagestart_nobody($titletext);
-    echo '<h4><span class="bigger">' . $titletext . '</span></h4>';
-    
     $oldstatus = $_REQUEST["WoOldStatus"];
     $newstatus = $_REQUEST["WoStatus"];
     $xx = '';
@@ -83,14 +71,13 @@ function edit_term($translation)
         $xx = ', WoStatus = ' .    $newstatus . ', WoStatusChanged = NOW()'; 
     }
 
-    $message = runsql(
-        'update words set WoText = ' . 
+    $sql = 'update words set WoText = ' . 
         convert_string_to_sqlsyntax($_REQUEST["WoText"]) . ', WoTranslation = ' . 
         convert_string_to_sqlsyntax($translation) . ', WoSentence = ' . 
         convert_string_to_sqlsyntax(repl_tab_nl($_REQUEST["WoSentence"])) . ', WoRomanization = ' .
         convert_string_to_sqlsyntax($_REQUEST["WoRomanization"]) . $xx . ',' . 
-        make_score_random_insert_update('u') . ' where WoID = ' . $_REQUEST["WoID"], "Updated"
-    );
+      make_score_random_insert_update('u') . ' where WoID = ' . $_REQUEST["WoID"];
+    $message = runsql($sql, "Updated");
     $wid = $_REQUEST["WoID"];
     return array($wid, $message);
 }
@@ -103,9 +90,6 @@ function edit_term($translation)
  */
 function lowercase_term_not_equal($textlc): void
 {
-    $titletext = "New/Edit Term: " . tohtml(prepare_textdata($_REQUEST["WoTextLC"]));
-    pagestart_nobody($titletext);
-    echo '<h4><span class="bigger">' . $titletext . '</span></h4>';        
     $message = 
     'Error: Term in lowercase must be exactly = "' . 
     $textlc . '", please go back and correct this!'; 
@@ -167,278 +151,267 @@ function change_term_display($wid, $translation, $hex): void
 }
 
 
-$translation_raw = repl_tab_nl(getreq("WoTranslation"));
-if ($translation_raw == '' ) { 
-    $translation = '*'; 
-}
-else { 
-    $translation = $translation_raw; 
-}
-
-$fromAnn = getreq("fromAnn"); // from-recno or empty
-
-// INS/UPD
-
-$hex = null;
-$lang = null;
-$term = null;
-if (isset($_REQUEST['op'])) {
-    
+/**
+ * Add new term or edit existing one, display result.
+ */
+function handle_save_or_update(): void
+{
     $textlc = trim(prepare_textdata($_REQUEST["WoTextLC"]));
     $text = trim(prepare_textdata($_REQUEST["WoText"]));
-    
-    if (mb_strtolower($text, 'UTF-8') == $textlc) {
-    
-        // INSERT
-        
-        if ($_REQUEST['op'] == 'Save') {
-            $output = insert_new_word($textlc, $translation);
-            $wid = $output[0];
-            $message = $output[1];
-            $hex = strToClassName(prepare_textdata($_REQUEST["WoTextLC"]));
-            
-        } // $_REQUEST['op'] == 'Save'
-        
-        // UPDATE
-        
-        else {  // $_REQUEST['op'] != 'Save'
-            $output = edit_term($translation);
-            $wid = $output[0];
-            $message = $output[1];
-            
-        }  // $_REQUEST['op'] != 'Save'
-        
-        saveWordTags($wid);
+    $hex = strToClassName(prepare_textdata($_REQUEST["WoTextLC"]));
+    $translation = repl_tab_nl(getreq("WoTranslation"));
+    if ($translation == '' ) {
+      $translation = '*';
+    }
 
-    } // (mb_strtolower($text, 'UTF-8') == $textlc)
-    
-    else { // (mb_strtolower($text, 'UTF-8') != $textlc)
+    $titlestart = "Edit Term: ";
+    if ($_REQUEST['op'] == 'Save') {
+      $titlestart = "New Term: ";
+    }
+    $titletext = $titlestart . tohtml($textlc);
+    pagestart_nobody($titletext);
+    echo '<h4><span class="bigger">' . $titletext . '</span></h4>';
+
+    if (mb_strtolower($text, 'UTF-8') != $textlc) {
         lowercase_term_not_equal($textlc);
         pageend();
         exit();
-    
     }
     
+    if ($_REQUEST['op'] == 'Save') {
+        [ $wid, $message ] = insert_new_word($textlc, $translation);
+    }
+    else {
+        [ $wid, $message ] = edit_term($translation);
+    }
+    saveWordTags($wid);
 
     echo '<p>OK: ' . tohtml($message) . '</p>';
-    
-    if ($fromAnn !== '') {
-        ?>
-<script type="text/javascript">
-//<![CDATA[
-    window.opener.do_ajax_edit_impr_text(
-        <?php echo $fromAnn; ?>, <?php echo prepare_textdata_js($textlc); ?>
-        );
-//]]>
-</script>
-        <?php
+
+    $fa = getreq("fromAnn"); // from-recno or empty
+    if ($fa !== '') {
+        $textlc_js = prepare_textdata_js($textlc);
+        echo "<script>window.opener.do_ajax_edit_impr_text({$fa}, {$textlc_js});</script>";
     } else {
         change_term_display($wid, $translation, $hex);
     }
-    // if (isset($_REQUEST['op']))
-} else {  
-    // FORM
-    // if (! isset($_REQUEST['op']))
 
-    // edit_word.php?tid=..&ord=..&wid=..
-    
-    $wid = getreq('wid');
-    
-    if ($wid == '') {    
-        $sql = 
-        'SELECT Ti2Text, Ti2LgID FROM textitems2 
-        WHERE Ti2TxID = ' . $_REQUEST['tid'] . ' AND Ti2WordCount = 1 AND Ti2Order = ' . $_REQUEST['ord'];
-        $res = do_mysqli_query($sql);
-        $record = mysqli_fetch_assoc($res);
-        if ($record) {
-            $term = $record['Ti2Text'];
-            $lang = $record['Ti2LgID'];
-        } else {
-            my_die("Cannot access Term and Language in edit_word.php");
-        }
-        mysqli_free_result($res);
-        
-        $termlc = mb_strtolower($term, 'UTF-8');
-        
-        $wid = get_first_value(
-            "SELECT WoID AS value 
-            FROM words 
-            WHERE WoLgID = " . $lang . " AND WoTextLC = " . convert_string_to_sqlsyntax($termlc)
-        ); 
-        
-    } else {
+    pageend();
+}
 
-        $sql = 'SELECT WoText, WoLgID FROM words WHERE WoID = ' . $wid;
-        $res = do_mysqli_query($sql);
-        $record = mysqli_fetch_assoc($res);
-        if ($record ) {
-            $term = $record['WoText'];
-            $lang = $record['WoLgID'];
-        } else {
-            my_die("Cannot access Term and Language in edit_word.php");
-        }
-        mysqli_free_result($res);
-        $termlc =    mb_strtolower($term, 'UTF-8');
-        
+
+function get_term_and_lang($wid)
+{
+  $sql = "SELECT WoText AS t, WoLgID AS lid FROM words WHERE WoID = {$wid}";
+    if ($wid == '') {
+        $tid = $_REQUEST["tid"];
+        $ord = $_REQUEST["ord"];
+        $sql =  "SELECT Ti2Text AS t, Ti2LgID AS lid
+        FROM textitems2 
+        WHERE Ti2TxID = {$tid} AND Ti2WordCount = 1 AND Ti2Order = {$ord};";
     }
-    
+    $res = do_mysqli_query($sql);
+    $record = mysqli_fetch_assoc($res);
+    mysqli_free_result($res);
+    if ($record) {
+      $term = $record['t'];
+      $lang = $record['lid'];
+    } else {
+      my_die("Cannot access Term and Language in edit_word.php");
+    }
+    return [ $term, $lang ];
+}
+
+
+function get_sentence_for_termlc($termlc) {
+  $tid = $_REQUEST['tid'];
+  $ord = $_REQUEST['ord'];
+  $sql = "select Ti2SeID as value from textitems2
+  where Ti2TxID = {$tid} and Ti2WordCount = 1 and Ti2Order = {$ord}";
+  $seid = get_first_value($sql);
+  $sent = getSentence($seid, $termlc, (int) getSettingWithDefault('set-term-sentence-count'));
+  return repl_tab_nl($sent[1]);
+}
+
+
+class FormData
+{
+  public $fromAnn = '';
+  public $lang;
+  public $wid = 0;
+  public $term;
+  public $termlc;
+  public $scrdir;
+  public $translation = '';
+  public $tags;
+  public $romanization = '';
+  public $sentence = '';
+  public $status = 1;
+  public $status_old = 1;
+  public $status_radiooptions;
+}
+
+
+function show_form($formdata, $title = "New Term:", $operation = "Save")
+{
+?>
+<script type="text/javascript">
+$(document).ready(ask_before_exiting);
+$(window).on('beforeunload',function() {
+  setTimeout(function() {window.parent.frames['ru'].location.href = 'empty.html';}, 0);
+});
+</script>
+
+<form name="wordform" class="validate" action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
+<input type="hidden" name="WoID" id="langfield" value="<?php echo $formdata->wid; ?>" />
+<input type="hidden" name="WoLgID" id="langfield" value="<?php echo $formdata->lang; ?>" />
+<input type="hidden" name="fromAnn" value="<?php echo $formdata->fromAnn; ?>" />
+<input type="hidden" name="WoOldStatus" value="<?php echo $formdata->status_old; ?>" />
+<input type="hidden" name="WoTextLC" value="<?php echo tohtml($formdata->termlc); ?>" />
+<input type="hidden" name="tid" value="<?php echo getreq('tid'); ?>" />
+<input type="hidden" name="ord" value="<?php echo getreq('ord'); ?>" />
+
+<table class="tab2" cellspacing="0" cellpadding="5">
+  <tr title="Only change uppercase/lowercase!">
+    <td class="td1 right"><b><?php echo $title; ?></b></td>
+    <td class="td1">
+      <input <?php echo $formdata->scrdir; ?> class="notempty checkoutsidebmp" data_info="New Term" type="text" name="WoText" id="wordfield" value="<?php echo tohtml($formdata->term); ?>" maxlength="250" size="35" />
+      <img src="icn/status-busy.png" title="Field must not be empty" alt="Field must not be empty" />
+    </td>
+  </tr>
+  <?php print_similar_terms_tabrow(); ?>
+  <tr>
+    <td class="td1 right">Translation:</td>
+    <td class="td1">
+      <textarea name="WoTranslation" class="setfocus textarea-noreturn checklength checkoutsidebmp" data_maxlength="500" data_info="Translation" cols="35" rows="3"><?php echo tohtml($formdata->translation); ?></textarea>
+    </td>
+  </tr>
+  <tr>
+    <td class="td1 right">Tags:</td>
+    <td class="td1">
+      <?php echo getWordTags($formdata->wid); ?>
+    </td>
+  </tr>
+  <tr>
+    <td class="td1 right">Romaniz.:</td>
+    <td class="td1">
+      <input type="text" class="checkoutsidebmp" data_info="Romanization" name="WoRomanization" value="<?php echo tohtml($formdata->romanization); ?>" maxlength="100" size="35" />
+    </td>
+  </tr>
+  <tr>
+    <td class="td1 right">Sentence<br />Term in {...}:</td>
+    <td class="td1">
+      <textarea <?php echo $formdata->scrdir; ?> name="WoSentence" class="textarea-noreturn checklength checkoutsidebmp" data_maxlength="1000" data_info="Sentence" cols="35" rows="3"><?php echo tohtml($formdata->sentence); ?></textarea>
+    </td>
+  </tr>
+  <tr>
+    <td class="td1 right">Status:</td>
+    <td class="td1">
+       <?php echo get_wordstatus_radiooptions($formdata->status); ?>
+    </td>
+  </tr>
+  <tr>
+    <td class="td1 right" colspan="2">
+       <?php echo createDictLinksInEditWin($formdata->lang, $formdata->term, 'document.forms[0].WoSentence', isset($_GET['nodict'])?0:1); ?>
+ &nbsp; &nbsp; &nbsp; <input type="submit" name="op" value="<?php echo $operation; ?>" />
+    </td>
+  </tr>
+</table>
+
+</form>
+
+<div id="exsent">
+  <span class="click" onclick="do_ajax_show_sentences(<?php echo $formdata->lang; ?>, <?php echo prepare_textdata_js($formdata->termlc) . ', ' . prepare_textdata_js("document.forms['wordform'].WoSentence") . ', 0'; ?>);">
+  <img src="icn/sticky-notes-stack.png" title="Show Sentences" alt="Show Sentences" /> Show Sentences</span>
+</div>
+
+     <?php
+}
+
+
+function augment_formdata_for_updates($wid, &$formdata)
+{
+    $sql = 'select WoTranslation, WoSentence, WoRomanization, WoStatus from words where WoID = ' . $wid;
+    $res = do_mysqli_query($sql);
+    $record = mysqli_fetch_assoc($res);
+    mysqli_free_result($res);
+    if (! $record) {
+      my_die("No matching record for {$wid} ??");
+    }
+
+    $status = $record['WoStatus'];
+    if ($formdata->fromAnn == '' && $status >= 98) {
+        $status = 1;
+    }
+    $sentence = repl_tab_nl($record['WoSentence']);
+    if ($sentence == '' && isset($_REQUEST['tid']) && isset($_REQUEST['ord'])) {
+        $sentence = get_sentence_for_termlc($formdata->termlc);
+    }
+    $transl = repl_tab_nl($record['WoTranslation']);
+    if($transl == '*') {
+        $transl='';
+    }
+
+    $formdata->wid = $wid;
+    $formdata->translation = $transl;
+    $formdata->tags = getWordTags($wid);
+    $formdata->sentence = $sentence;
+    $formdata->romanization = $record['WoRomanization'];
+    $formdata->status = $status;
+    $formdata->status_old = $record['WoStatus'];
+}
+
+
+function handle_display_form() {
+    // FORM
+    // edit_word.php?tid=..&ord=..&wid=..
+
+    $wid = getreq('wid');
+    [ $term, $lang ] = get_term_and_lang($wid);
+    $termlc = mb_strtolower($term, 'UTF-8');
+    $scrdir = getScriptDirectionTag($lang);
+
+    if ($wid == '') {
+        $wid = get_first_value(
+            "SELECT WoID AS value FROM words 
+            WHERE WoLgID = " . $lang . " AND WoTextLC = " . convert_string_to_sqlsyntax($termlc)
+        );
+    }
+
+    $formdata = new FormData();
+    $formdata->fromAnn = getreq("fromAnn");
+    $formdata->lang = $lang;
+    $formdata->term = $term;
+    $formdata->termlc = $termlc;
+    $formdata->scrdir = $scrdir;
+
     $new = (isset($wid) == false);
 
     $titletext = ($new ? "New Term" : "Edit Term") . ": " . tohtml($term);
     pagestart_nobody($titletext);
-    ?>
-<script type="text/javascript">
-    $(document).ready(ask_before_exiting);
-    $(window).on('beforeunload',function() {
-        setTimeout(function() {window.parent.frames['ru'].location.href = 'empty.html';}, 0);
-    });
-</script>
-    <?php
-    $scrdir = getScriptDirectionTag($lang);
 
-    // NEW
-    
     if ($new) {
-         
-        $seid = get_first_value(
-            "SELECT Ti2SeID AS value FROM textitems2 
-            WHERE Ti2TxID = " . $_REQUEST['tid'] . " AND Ti2WordCount = 1 AND Ti2Order = " . $_REQUEST['ord']
-        );
-        $sent = getSentence($seid, $termlc, (int) getSettingWithDefault('set-term-sentence-count'));
-            
-        ?>
-    
- <form name="newword" class="validate" action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
- <input type="hidden" name="fromAnn" value="<?php echo $fromAnn; ?>" />
- <input type="hidden" name="WoLgID" id="langfield" value="<?php echo $lang; ?>" />
- <input type="hidden" name="WoTextLC" value="<?php echo tohtml($termlc); ?>" />
- <input type="hidden" name="tid" value="<?php echo $_REQUEST['tid']; ?>" />
- <input type="hidden" name="ord" value="<?php echo $_REQUEST['ord']; ?>" />
- <table class="tab2" cellspacing="0" cellpadding="5">
- <tr title="Only change uppercase/lowercase!">
- <td class="td1 right"><b>New Term:</b></td>
- <td class="td1"><input <?php echo $scrdir; ?> class="notempty checkoutsidebmp" data_info="New Term" type="text" name="WoText" id="wordfield" value="<?php echo tohtml($term); ?>" maxlength="250" size="35" /> <img src="icn/status-busy.png" title="Field must not be empty" alt="Field must not be empty" />
- </td></tr>
-        <?php print_similar_terms_tabrow(); ?>
- <tr>
- <td class="td1 right">Translation:</td>
- <td class="td1"><textarea name="WoTranslation" class="setfocus textarea-noreturn checklength checkoutsidebmp" data_maxlength="500" data_info="Translation" cols="35" rows="3"></textarea></td>
- </tr>
- <tr>
- <td class="td1 right">Tags:</td>
- <td class="td1">
-        <?php echo getWordTags(0); ?>
- </td>
- </tr>
- <tr>
- <td class="td1 right">Romaniz.:</td>
- <td class="td1"><input type="text" class="checkoutsidebmp" data_info="Romanization" name="WoRomanization" value="" maxlength="100" size="35" /></td>
- </tr>
- <tr>
- <td class="td1 right">Sentence<br />Term in {...}:</td>
- <td class="td1"><textarea <?php echo $scrdir; ?> name="WoSentence" class="textarea-noreturn checklength checkoutsidebmp" data_maxlength="1000" data_info="Sentence" cols="35" rows="3"><?php echo tohtml(repl_tab_nl($sent[1])); ?></textarea></td>
- </tr>
-        <?php print_similar_terms_tabrow(); ?>
- <tr>
- <td class="td1 right">Status:</td>
- <td class="td1">
-        <?php echo get_wordstatus_radiooptions(1); ?>
- </td>
- </tr>
- <tr>
- <td class="td1 right" colspan="2">
-        <?php echo createDictLinksInEditWin($lang, $term, 'document.forms[0].WoSentence', isset($_GET['nodict'])?0:1); ?>
- &nbsp; &nbsp; &nbsp; 
- <input type="submit" name="op" value="Save" /></td>
- </tr>
- </table>
- </form>
- <div id="exsent"><span class="click" onclick="do_ajax_show_sentences(<?php echo $lang; ?>, <?php echo prepare_textdata_js($termlc) . ', ' . prepare_textdata_js("document.forms['newword'].WoSentence") . ', 0'; ?>);"><img src="icn/sticky-notes-stack.png" title="Show Sentences" alt="Show Sentences" /> Show Sentences</span></div>    
-        <?php
+        $formdata->tags = getWordTags(0);
+        $formdata->sentence = get_sentence_for_termlc($termlc);
+        $formdata->status = 1;
+        $formdata->status_old = 1;
+
+        show_form($formdata, "New Term", "Save");
         
     } else {
-        // CHG
-        $sql = 'select WoTranslation, WoSentence, WoRomanization, WoStatus from words where WoID = ' . $wid;
-        $res = do_mysqli_query($sql);
-        if ($record = mysqli_fetch_assoc($res)) {
-            
-            $status = $record['WoStatus'];
-            if ($fromAnn == '' ) {
-                if ($status >= 98) { 
-                    $status = 1; 
-                }
-            }
-            $sentence = repl_tab_nl($record['WoSentence']);
-            if ($sentence == '' && isset($_REQUEST['tid']) && isset($_REQUEST['ord'])) {
-                $seid = get_first_value("select Ti2SeID as value from textitems2 where Ti2TxID = " . $_REQUEST['tid'] . " and Ti2WordCount = 1 and Ti2Order = " . $_REQUEST['ord']);
-                $sent = getSentence($seid, $termlc, (int) getSettingWithDefault('set-term-sentence-count'));
-                $sentence = repl_tab_nl($sent[1]);
-            }
-            $transl = repl_tab_nl($record['WoTranslation']);
-            if($transl == '*') { 
-                $transl=''; 
-            }
-            ?>
-        
-     <form name="editword" class="validate" action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
-     <input type="hidden" name="WoLgID" id="langfield" value="<?php echo $lang; ?>" />
-     <input type="hidden" name="fromAnn" value="<?php echo $fromAnn; ?>" />
-     <input type="hidden" name="WoID" value="<?php echo $wid; ?>" />
-     <input type="hidden" name="WoOldStatus" value="<?php echo $record['WoStatus']; ?>" />
-     <input type="hidden" name="WoTextLC" value="<?php echo tohtml($termlc); ?>" />
-     <input type="hidden" name="tid" value="<?php echo getreq('tid'); ?>" />
-     <input type="hidden" name="ord" value="<?php echo getreq('ord'); ?>" />
-     <table class="tab2" cellspacing="0" cellpadding="5">
-     <tr title="Only change uppercase/lowercase!">
-     <td class="td1 right"><b>Edit Term:</b></td>
-     <td class="td1"><input <?php echo $scrdir; ?> class="notempty checkoutsidebmp" data_info="Term" type="text" name="WoText" id="wordfield" value="<?php echo tohtml($term); ?>" maxlength="250" size="35" /> <img src="icn/status-busy.png" title="Field must not be empty" alt="Field must not be empty" />
-     </td></tr>
-            <?php print_similar_terms_tabrow(); ?>
-     <tr>
-     <td class="td1 right">Translation:</td>
-     <td class="td1"><textarea name="WoTranslation" class="setfocus textarea-noreturn checklength checkoutsidebmp" data_maxlength="500" data_info="Translation" cols="35" rows="3"><?php echo tohtml($transl); ?></textarea></td>
-     </tr>
-     <tr>
-     <td class="td1 right">Tags:</td>
-     <td class="td1">
-            <?php echo getWordTags($wid); ?>
-     </td>
-     </tr>
-     <tr>
-     <td class="td1 right">Romaniz.:</td>
-     <td class="td1"><input type="text" class="checkoutsidebmp" data_info="Romanization" name="WoRomanization" maxlength="100" size="35" 
-     value="<?php echo tohtml($record['WoRomanization']); ?>" /></td>
-     </tr>
-     <tr>
-     <td class="td1 right">Sentence<br />Term in {...}:</td>
-     <td class="td1"><textarea <?php echo $scrdir; ?> name="WoSentence" class="textarea-noreturn checklength checkoutsidebmp" data_maxlength="1000" data_info="Sentence" cols="35" rows="3"><?php echo tohtml($sentence); ?></textarea></td>
-     </tr>
-     <tr>
-     <td class="td1 right">Status:</td>
-     <td class="td1">
-            <?php echo get_wordstatus_radiooptions($status); ?>
-     </td>
-     </tr>
-     <tr>
-     <td class="td1 right" colspan="2">  
-            <?php if ($fromAnn !== '') { 
-                echo createDictLinksInEditWin2($lang, 'document.forms[0].WoSentence', 'document.forms[0].WoText');
-            } else {
-                echo createDictLinksInEditWin($lang, $term, 'document.forms[0].WoSentence', isset($_GET['nodict'])?0:1);
-            } ?>
-     &nbsp; &nbsp; &nbsp; 
-     <input type="submit" name="op" value="Change" /></td>
-     </tr>
-     </table>
-     </form>
-     <div id="exsent"><span class="click" onclick="do_ajax_show_sentences(<?php echo $lang; ?>, <?php echo prepare_textdata_js($termlc) . ', ' . prepare_textdata_js("document.forms['editword'].WoSentence") . ', ' . $wid; ?>);"><img src="icn/sticky-notes-stack.png" title="Show Sentences" alt="Show Sentences" /> Show Sentences</span></div>    
-            <?php
-        }
-        mysqli_free_result($res);
+        augment_formdata_for_updates($wid, $formdata);
+        show_form($formdata, "Edit Term", "Change");
     }
 
+    pageend();
 }
 
-pageend();
+
+if (isset($_REQUEST['op'])) {
+  handle_save_or_update();
+} else {
+  handle_display_form();
+}
+
 
 ?>
