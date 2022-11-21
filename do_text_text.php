@@ -115,27 +115,30 @@ function echo_term($actcode, $showAll, $spanid, $hidetag, $currcharcount, $recor
 
         if (isset($record['WoID'])) {  
             // Word found status 1-5|98|99
-            echo '<span 
-            id="' . $spanid . '" 
-            class="' . $hidetag .
-            ' click word wsty word'. $record['WoID'] . 
-            ' status'. $record['WoStatus'] . 
-            ' TERM' . strToClassName($record['TiTextLC']) . '" 
+            $cname = strToClassName($record['TiTextLC']);
+            $clist = "{$hidetag} click word wsty word{$record['WoID']} status{$record['WoStatus']} TERM{$cname}";
+            $trans = repl_tab_nl($record['WoTranslation']);
+            $taglist = getWordTagList($record['WoID'], ' ', 1, 0);
+
+            $attrs = 'id="' . $spanid . '" 
+            class="' . $clist . '" 
             data_pos="' . $currcharcount . '" 
             data_order="' . $record['Ti2Order'] . '" 
             data_wid="' . $record['WoID'] . '" 
-            data_trans="' . tohtml(
-                repl_tab_nl(
-                    $record['WoTranslation']
-                ) . getWordTagList(
-                    $record['WoID'], 
-                    ' ', 1, 0
-                )
-            ) . '" 
+            data_trans="' . tohtml($trans . $taglist) . '" 
             data_rom="' . tohtml($record['WoRomanization']) . '" 
-            data_status="' . $record['WoStatus'] . '">' 
-            . tohtml($record['TiText']) . 
-            '</span>';
+            data_status="' . $record['WoStatus'] . '"';
+
+            if ($record['ParentWoID']) {
+              $ptrans = repl_tab_nl($record['ParentWoTranslation']);
+              $ptaglist = getWordTagList($record['ParentWoID'], ' ', 1, 0);
+              $attrs = $attrs . '
+              parent_text="' . tohtml($record['ParentWoTextLC']) . '"
+              parent_trans="' . tohtml($ptrans . $ptaglist) . '"';
+            };
+
+            $content = tohtml($record['TiText']);
+            echo "<span {$attrs}>{$content}</span>";
         } else {
             // Not registered word (status 0)
             echo '<span 
@@ -219,21 +222,23 @@ function item_parser($record, $showAll, $currcharcount, $hide): void
 function main_word_loop($textid, $showAll): void
 {
 
-    
-    $sql = 
-    "SELECT
-     CASE WHEN `Ti2WordCount`>0 THEN Ti2WordCount ELSE 1 END AS Code,
-     CASE WHEN CHAR_LENGTH(Ti2Text)>0 THEN Ti2Text ELSE `WoText` END AS TiText,
-     CASE WHEN CHAR_LENGTH(Ti2Text)>0 THEN Ti2TextLC ELSE `WoTextLC` END AS TiTextLC,
+    $sql = "SELECT
+     CASE WHEN Ti2WordCount>0 THEN Ti2WordCount ELSE 1 END AS Code,
+     CASE WHEN CHAR_LENGTH(Ti2Text)>0 THEN Ti2Text ELSE w.WoText END AS TiText,
+     CASE WHEN CHAR_LENGTH(Ti2Text)>0 THEN Ti2TextLC ELSE w.WoTextLC END AS TiTextLC,
      Ti2Order, Ti2SeID, Ti2WordCount,
-     CASE WHEN `Ti2WordCount`>0 THEN 0 ELSE 1 END AS TiIsNotWord,
+     CASE WHEN Ti2WordCount>0 THEN 0 ELSE 1 END AS TiIsNotWord,
      CASE 
         WHEN CHAR_LENGTH(Ti2Text)>0 
         THEN CHAR_LENGTH(Ti2Text) 
-        ELSE CHAR_LENGTH(`WoTextLC`) 
+        ELSE CHAR_LENGTH(w.WoTextLC)
      END AS TiTextLength, 
-     WoID, WoText, WoStatus, WoTranslation, WoRomanization
-     FROM textitems2 LEFT JOIN words ON Ti2WoID = WoID
+     w.WoID, w.WoText, w.WoStatus, w.WoTranslation, w.WoRomanization,
+     pw.WoID as ParentWoID, pw.WoTextLC as ParentWoTextLC, pw.WoTranslation as ParentWoTranslation
+     FROM textitems2
+     LEFT JOIN words AS w ON Ti2WoID = w.WoID
+     LEFT JOIN wordparents ON wordparents.WpWoID = w.WoID
+     LEFT JOIN words AS pw on pw.WoID = wordparents.WpParentWoID
      WHERE Ti2TxID = $textid
      ORDER BY Ti2Order asc, Ti2WordCount desc";
     

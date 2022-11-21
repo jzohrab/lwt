@@ -54,6 +54,13 @@ function insert_new_word($textlc, $translation)
         WHERE Ti2LgID = ' . $_REQUEST["WoLgID"] . ' AND Ti2TextLC =' . 
         convert_string_to_sqlsyntax_notrim_nonull($textlc)
     );
+
+    $pid = (int) $_REQUEST["WpParentWoID"];
+    if ($pid != 0) {
+      $parentsql = "INSERT INTO wordparents (WpWoID, WpParentWoID)
+VALUES ({$wid}, {$pid})";
+      do_mysqli_query($parentsql);
+    }
     return array($wid, $message);
 }
 
@@ -81,6 +88,16 @@ function edit_term($translation)
       make_score_random_insert_update('u') . ' where WoID = ' . $_REQUEST["WoID"];
     $message = runsql($sql, "Updated");
     $wid = $_REQUEST["WoID"];
+
+    $parentsql = "DELETE FROM wordparents WHERE WpWoID = {$wid}";
+    do_mysqli_query($parentsql);
+    $pid = (int) $_REQUEST["WpParentWoID"];
+    if ($pid != 0) {
+      $parentsql = "INSERT INTO wordparents (WpWoID, WpParentWoID)
+VALUES ({$wid}, {$pid})";
+      do_mysqli_query($parentsql);
+    }
+
     return array($wid, $message);
 }
 
@@ -238,7 +255,13 @@ function get_sentence_for_termlc($termlc) {
 
 function augment_formdata_for_updates($wid, &$formdata)
 {
-    $sql = 'select WoTranslation, WoSentence, WoRomanization, WoStatus from words where WoID = ' . $wid;
+    $sql = "SELECT words.*,
+ifnull(pw.WoID, 0) as ParentWoID,
+ifnull(pw.WoTextLC, '') as ParentWoTextLC
+FROM words
+LEFT OUTER JOIN wordparents on wordparents.WpWoID = words.WoID
+LEFT OUTER JOIN words AS pw on pw.WoID = wordparents.WpParentWoID
+where words.WoID = {$wid}";
     $res = do_mysqli_query($sql);
     $record = mysqli_fetch_assoc($res);
     mysqli_free_result($res);
@@ -266,6 +289,8 @@ function augment_formdata_for_updates($wid, &$formdata)
     $formdata->romanization = $record['WoRomanization'];
     $formdata->status = $status;
     $formdata->status_old = $record['WoStatus'];
+    $formdata->parent_id = $record['ParentWoID'];
+    $formdata->parent_text = $record['ParentWoTextLC'];
 }
 
 
