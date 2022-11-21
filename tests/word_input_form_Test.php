@@ -45,4 +45,14 @@ final class word_input_form_Test extends TestCase
         DbHelpers::assertTableContains('select * from wordparents', [], 'no parents');
     }
 
+    /** tests to do:
+- save new with existing parent, relationship made
+- save new with new parent -- complicated
+
+- save existing, no parent (existing removed)
+- save existing, parent, relationship changed
+- existing, parent, new parent
+- existing, new parent, complicated
+     */
+
 }
