@@ -9,6 +9,8 @@
 
 require_once __DIR__ . '/../inc/database_connect.php';
 
+use PHPUnit\Framework\TestCase;
+
 class DbHelpers {
 
     public static function ensure_using_test_db() {
@@ -61,6 +63,7 @@ you must use a dedicated test database when running tests.
             "texttags",
             "tts",
             "words",
+            "wordparents",
             "wordtags"
         ];
         foreach ($tables as $t) {
@@ -93,6 +96,16 @@ you must use a dedicated test database when running tests.
         };
     }
 
+    public static function assertTableContains($sql, $expected) {
+        $content = [];
+        $res = do_mysqli_query($sql);
+        while($row = mysqli_fetch_assoc($res)) {
+            $content[] = $row;
+        }
+        mysqli_free_result($res);
+
+        PHPUnit\Framework\Assert::assertEquals($expected, $content);
+    }
 }
 
 ?>
