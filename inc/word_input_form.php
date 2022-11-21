@@ -20,6 +20,8 @@ class FormData
   public $status = 1;
   public $status_old = 1;
   public $status_radiooptions;
+  public $parent_id = 0;
+  public $parent_text = '';
 }
 
 
@@ -27,7 +29,41 @@ function show_form($formdata, $title = "New Term:", $operation = "Save")
 {
 ?>
 <script type="text/javascript">
+function set_parent_fields(event, ui) {
+  $('#autocomplete_parent_text').val(ui.item.label);
+  $('#autocomplete_parent_id').val(ui.item.value);
+  return false;
+}
+  
+function set_up_parent_autocomplete() {
+  $("#autocomplete_parent_text").autocomplete({
+    source: function(request, response) {
+      $('#autocomplete_parent_id').val(0);
+      $.ajax({
+        url: 'inc/ajax_get_words_matching.php',
+        type: 'POST',
+        data: { word: request.term },
+        dataType: 'json',
+        success: function(data) {
+          const arr = [];
+          for (const [wordid, word] of Object.entries(data)) {
+            const obj = { label: word, value: wordid };
+            arr.push(obj);
+          };
+          response(arr, data);
+        }
+      })
+    },
+    select: set_parent_fields,
+    focus: set_parent_fields,
+    change: function(event,ui) {
+      if (!ui.item) { $(this).val(''); }
+    }
+  });
+}
+
 $(document).ready(ask_before_exiting);
+  
 $(window).on('beforeunload',function() {
   setTimeout(function() {window.parent.frames['ru'].location.href = 'empty.html';}, 0);
 });
@@ -42,7 +78,10 @@ $(window).on('load', function() {
   else {
     wordfield.focus();
   }
- });
+
+  set_up_parent_autocomplete();
+});
+
 </script>
 
 <form name="wordform" class="validate" action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
@@ -53,6 +92,7 @@ $(window).on('load', function() {
 <input type="hidden" name="WoTextLC" value="<?php echo tohtml($formdata->termlc); ?>" />
 <input type="hidden" name="tid" value="<?php echo getreq('tid'); ?>" />
 <input type="hidden" name="ord" value="<?php echo getreq('ord'); ?>" />
+<input type="hidden" id="autocomplete_parent_id" name="WpParentWoID" value="<?php echo $formdata->parent_id; ?>" />
 
 <table class="tab2" cellspacing="0" cellpadding="5">
   <tr title="Only change uppercase/lowercase!">
@@ -61,6 +101,12 @@ $(window).on('load', function() {
       <input <?php echo $formdata->scrdir; ?> class="notempty checkoutsidebmp" data_info="New Term" type="text" name="WoText" id="wordfield" value="<?php echo tohtml($formdata->term); ?>" maxlength="250" size="35" />
       <img src="icn/status-busy.png" title="Field must not be empty" alt="Field must not be empty" />
     </td>
+  <tr>
+    <td class="td1 right">Parent term:</td>
+    <td class="td1">
+      <input <?php echo $formdata->scrdir; ?> data_info="parent" type="text" name="ParentText" id="autocomplete_parent_text" value="<?php echo tohtml($formdata->parent_text); ?>" maxlength="250" size="35" />
+    </td>
+  </tr>
   </tr>
   <?php print_similar_terms_tabrow(); ?>
   <tr>
@@ -82,7 +128,7 @@ $(window).on('load', function() {
     </td>
   </tr>
   <tr>
-    <td class="td1 right">Sentence<br />Term in {...}:</td>
+    <td class="td1 right">Sentence:</td>
     <td class="td1">
       <textarea <?php echo $formdata->scrdir; ?> name="WoSentence" class="textarea-noreturn checklength checkoutsidebmp" data_maxlength="1000" data_info="Sentence" cols="35" rows="3"><?php echo tohtml($formdata->sentence); ?></textarea>
     </td>

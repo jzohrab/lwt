@@ -49,6 +49,13 @@ if (isset($_REQUEST['op'])) {
         
         $wid = get_last_key();
 
+        $pid = (int) $_REQUEST["WpParentWoID"];
+        if ($pid != 0) {
+          $parentsql = "INSERT INTO wordparents (WpWoID, WpParentWoID)
+VALUES ({$wid}, {$pid})";
+          do_mysqli_query($parentsql);
+        }
+
         saveWordTags($wid);
         init_word_count();
         //        $showAll = getSettingZeroOrOne('showallwords',1);

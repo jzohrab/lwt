@@ -686,6 +686,15 @@ jQuery.fn.extend({
       title += '<p><b>Transl.</b>: ' + trans + '</p>';
     }
     title += '<p><b>Status</b>: <span class="status' + status + '">' + statname + '</span></p>';
+
+    if ($(this).attr('parent_text')) {
+      title += '<hr />';
+      title += '<p><i>Parent term:</i></p>';
+      title += "<p><b style='font-size:120%'>" + $(this).attr('parent_text') + "</b></p>";
+      let ptrans = $(this).attr('parent_trans').replace(re, '$1 ');
+      title += '<p><b>Transl.</b>: ' + ptrans + '</p>';
+    }
+
     return title;
   }
 });
