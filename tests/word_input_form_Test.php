@@ -39,11 +39,10 @@ final class word_input_form_Test extends TestCase
     public function test_save_new_no_parent(): void
     {
         save_new_formdata($this->formdata);
-        $expected = [
-            array('WoID' => 1, 'WoText' => 'HELLO')
-        ];
+        $expected = [[ 'WoID' => 1, 'WoText' => 'HELLO' ]];
         $sql = 'select WoID, WoText from words';
         DbHelpers::assertTableContains($sql, $expected);
+        DbHelpers::assertTableContains('select * from wordparents', [], 'no parents');
     }
 
 }

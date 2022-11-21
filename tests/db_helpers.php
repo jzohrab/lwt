@@ -96,7 +96,7 @@ you must use a dedicated test database when running tests.
         };
     }
 
-    public static function assertTableContains($sql, $expected) {
+    public static function assertTableContains($sql, $expected, $message = '') {
         $content = [];
         $res = do_mysqli_query($sql);
         while($row = mysqli_fetch_assoc($res)) {
@@ -104,7 +104,7 @@ you must use a dedicated test database when running tests.
         }
         mysqli_free_result($res);
 
-        PHPUnit\Framework\Assert::assertEquals($expected, $content);
+        PHPUnit\Framework\Assert::assertEquals($expected, $content, $message);
     }
 }
 
