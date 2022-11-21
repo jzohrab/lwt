@@ -25,6 +25,56 @@ class FormData
 }
 
 
+/**
+ * Insert a new word to the database, or throw exception.
+ *
+ * @param FormData $formdata
+ *
+ * @return array{0: int, 1: string} Word id, message 
+ */
+function save_new_formdata($f) {
+
+  // Yuck.
+  $testfields = make_score_random_insert_update('iv');
+  $testscores = make_score_random_insert_update('id');
+
+  $sql = "INSERT INTO words
+(
+WoTextLC, WoText, WoTranslation, WoSentence, WoRomanization,
+WoLgID, WoStatus,
+WoStatusChanged, WoWordCount, {$testfields}
+)
+VALUES
+(
+?, ?, ?, ?, ?,
+?, ?,
+NOW(), 1, {$testscores}
+)";
+
+  global $DBCONNECTION;
+  $stmt = $DBCONNECTION->prepare($sql);
+  $stmt->bind_param("sssssii",
+                    $f->termlc,
+                    $f->term,
+                    $f->translation,
+                    $f->sentence,
+                    $f->romanization,
+                    $f->lang,
+                    $f->status
+                    );
+  if (!$stmt) {
+    throw new Exception($DBCONNECTION->error);
+  }
+  if (!$stmt->execute()) {
+    throw new Exception($stmt->error);
+  }
+
+  $newid = $stmt->insert_id;
+}
+
+/**
+ * Print HTML form with FormData.
+ */
 function show_form($formdata, $title = "New Term:", $operation = "Save")
 {
 ?>
