@@ -30,7 +30,7 @@ class FormData
  *
  * @param FormData $formdata
  *
- * @return array{0: int, 1: string} Word id, message 
+ * @return int  New WoID inserted
  */
 function save_new_formdata($f) {
 
@@ -70,6 +70,8 @@ NOW(), 1, {$testscores}
   }
 
   $newid = $stmt->insert_id;
+
+  return $newid;
 }
 
 /**
@@ -217,32 +219,32 @@ function cleanreq($s) {
  * Gets the data from posted shown_form
  */
 function load_formdata_from_request(): FormData {
-  $d = new FormData();
+  $f = new FormData();
 
   $translation = repl_tab_nl(getreq("WoTranslation"));
   if ($translation == '' ) {
     $translation = '*';
   }
 
-  $d->$_REQUEST["WoLgID"];
-  $d->wid = intval(getreq("WoID", 0));
-  $d->term = cleanreq("WoText");
-  $d->termlc = cleanreq("WoTextLC");
-  $d->translation = $translation;
-  $d->romanization = $_REQUEST["WoRomanization"];
-  $d->sentence = repl_tab_nl($_REQUEST["WoSentence"]);
-  $d->status = (int) $_REQUEST["WoStatus"];
-  $d->status_old = $_REQUEST["WoOldStatus"];
-  $d->parent_id = intval(getreq("WpParentWoID", 0));
-  $d->parent_text = cleanreq("ParentText");
+  $f->lang = $_REQUEST["WoLgID"];
+  $f->wid = intval(getreq("WoID", 0));
+  $f->term = cleanreq("WoText");
+  $f->termlc = cleanreq("WoTextLC");
+  $f->translation = $translation;
+  $f->romanization = $_REQUEST["WoRomanization"];
+  $f->sentence = repl_tab_nl($_REQUEST["WoSentence"]);
+  $f->status = (int) $_REQUEST["WoStatus"];
+  $f->status_old = $_REQUEST["WoOldStatus"];
+  $f->parent_id = intval(getreq("WpParentWoID", 0));
+  $f->parent_text = cleanreq("ParentText");
 
   // Not used during db updates:
-  // $d->fromAnn = '';
-  // $d->scrdir;
-  // $d->tags;
-  // $d->status_radiooptions;
+  // $f->fromAnn = '';
+  // $f->scrdir;
+  // $f->tags;
+  // $f->status_radiooptions;
 
-  return $d;
+  return $f;
 }
 
 
