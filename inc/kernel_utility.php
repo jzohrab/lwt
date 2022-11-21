@@ -462,17 +462,17 @@ function annotation_to_json($ann)
 }
 
 /**
- * Get a request when possible. Otherwise, return an empty string.
+ * Get a request when possible.
  * 
  * @param  string $s Request key
- * @return string Trimmed request or empty string
+ * @return string Trimmed request or $if_not_set
  */
-function getreq($s) 
+function getreq($s, $if_not_set = '')
 {
     if (isset($_REQUEST[$s]) ) {
         return trim($_REQUEST[$s]);
     } else {
-        return ''; 
+        return $if_not_set;
     }
 }
 
