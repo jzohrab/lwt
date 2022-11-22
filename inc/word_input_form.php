@@ -89,6 +89,70 @@ NOW(), 1, {$testscores}
 }
 
 /**
+ * Update existing word.
+ *
+ * @param FormData $formdata
+ *
+ * @return int  Updated WoID
+ */
+function update_formdata($f) {
+
+  // Yuck.
+  $testfields = make_score_random_insert_update('u');
+
+  $statusChanged = '';
+  if ($f->status != $f->status_old) {
+    $statusChanged = "WoStatusChanged = NOW(),";
+  }
+
+  $sql = "UPDATE words
+SET {$statusChanged}
+WoText = ?,
+WoTextLC = ?,
+WoTranslation = ?,
+WoSentence = ?,
+WoRomanization = ?,
+WoStatus = ?,
+{$testfields}
+WHERE WoID = ?";
+  
+  global $DBCONNECTION;
+  $stmt = $DBCONNECTION->prepare($sql);
+  $stmt->bind_param("sssssii",
+                    $f->term,
+                    $f->termlc,
+                    $f->translation,
+                    $f->sentence,
+                    $f->romanization,
+                    $f->status,
+                    $f->wid
+                    );
+  if (!$stmt) {
+    throw new Exception($DBCONNECTION->error);
+  }
+  if (!$stmt->execute()) {
+    throw new Exception($stmt->error);
+  }
+
+  $parentsql = "DELETE FROM wordparents WHERE WpWoID = {$f->wid}";
+  do_mysqli_query($parentsql);
+  if ($f->parent_id != 0) {
+    $sql = "INSERT INTO wordparents (WpWoID, WpParentWoID) VALUES (?, ?)";
+    $stmt = $DBCONNECTION->prepare($sql);
+    $stmt->bind_param("ii", $f->wid, $f->parent_id);
+    if (!$stmt) {
+      throw new Exception($DBCONNECTION->error);
+    }
+    if (!$stmt->execute()) {
+      throw new Exception($stmt->error);
+    }
+  }
+
+  return $f->wid;
+}
+
+
+/**
  * Print HTML form with FormData.
  */
 function show_form($formdata, $title = "New Term:", $operation = "Save")

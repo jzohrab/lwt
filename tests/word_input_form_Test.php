@@ -61,11 +61,13 @@ final class word_input_form_Test extends TestCase
         DbHelpers::assertTableContains('select * from wordparents', ['2; 1'], 'parent set');
     }
 
-    private function save_new_with_parent_and_child()
+    private function save_parent_and_child()
     {
         $pid = save_new_formdata($this->parent);
         $this->child->parent_id = $pid;
-        return save_new_formdata($this->child);
+        $wid = save_new_formdata($this->child);
+        $this->child->wid = $wid;
+        return $wid;
     }
 
     public function test_update_remove_parent()
