@@ -100,7 +100,7 @@ you must use a dedicated test database when running tests.
         $content = [];
         $res = do_mysqli_query($sql);
         while($row = mysqli_fetch_assoc($res)) {
-            $content[] = $row;
+            $content[] = implode('; ', $row);
         }
         mysqli_free_result($res);
 

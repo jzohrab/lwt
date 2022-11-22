@@ -39,9 +39,8 @@ final class word_input_form_Test extends TestCase
     public function test_save_new_no_parent()
     {
         save_new_formdata($this->formdata);
-        $expected = [[ 'WoID' => 1, 'WoText' => 'HELLO' ]];
         $sql = 'select WoID, WoText from words';
-        DbHelpers::assertTableContains($sql, $expected);
+        DbHelpers::assertTableContains($sql, [ '1; HELLO' ]);
         DbHelpers::assertTableContains('select * from wordparents', [], 'no parents');
     }
 
@@ -57,12 +56,11 @@ final class word_input_form_Test extends TestCase
 
         $pid = save_new_formdata($this->formdata);
 
-        $expected = [['WoID' => 1, 'WoText' => 'PARENT'], ['WoID' => 2, 'WoText' => 'CHILD']];
+        $expected = [ '1; PARENT', '2; CHILD'];
         $sql = 'select WoID, WoText from words';
         DbHelpers::assertTableContains($sql, $expected, 'both created');
 
-        $expected = [['WpWoID' => 2, 'WpParentWoID' => 1]];
-        DbHelpers::assertTableContains('select * from wordparents', $expected, 'parent set');
+        DbHelpers::assertTableContains('select * from wordparents', ['2; 1'], 'parent set');
     }
 
     /** tests to do:
