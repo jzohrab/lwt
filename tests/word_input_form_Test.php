@@ -36,7 +36,7 @@ final class word_input_form_Test extends TestCase
         // echo "tearing down ... \n";
     }
 
-    public function test_save_new_no_parent(): void
+    public function test_save_new_no_parent()
     {
         save_new_formdata($this->formdata);
         $expected = [[ 'WoID' => 1, 'WoText' => 'HELLO' ]];
@@ -45,8 +45,27 @@ final class word_input_form_Test extends TestCase
         DbHelpers::assertTableContains('select * from wordparents', [], 'no parents');
     }
 
+    public function test_save_new_with_existing_parent()
+    {
+        $this->formdata->term = 'PARENT';
+        $this->formdata->termlc = 'parent';
+        $pid = save_new_formdata($this->formdata);
+
+        $this->formdata->term = 'CHILD';
+        $this->formdata->termlc = 'child';
+        $this->formdata->parent_id = $pid;
+
+        $pid = save_new_formdata($this->formdata);
+
+        $expected = [['WoID' => 1, 'WoText' => 'PARENT'], ['WoID' => 2, 'WoText' => 'CHILD']];
+        $sql = 'select WoID, WoText from words';
+        DbHelpers::assertTableContains($sql, $expected, 'both created');
+
+        $expected = [['WpWoID' => 2, 'WpParentWoID' => 1]];
+        DbHelpers::assertTableContains('select * from wordparents', $expected, 'parent set');
+    }
+
     /** tests to do:
-- save new with existing parent, relationship made
 - save new with new parent -- complicated
 
 - save existing, no parent (existing removed)
