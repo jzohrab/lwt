@@ -133,7 +133,23 @@ final class word_input_form_Test extends TestCase
 
         $this->assert_wordparents_equals(["{$wid}; {$pid}"], "parent set");
     }
-    
+
+
+    public function test_save_new_with_parent_text_already_existing()
+    {
+        $pid = save_new_formdata($this->parent);
+        $wid = save_new_formdata($this->child);
+
+        $this->assert_wordparents_equals([], 'no parents');
+
+        $this->child->wid = $wid;
+        $this->child->parent_id = 0;
+        $this->child->parent_text = 'parent';
+
+        update_formdata($this->child);
+        $this->assert_wordparents_equals(["{$wid}; {$pid}"], "existing parent set");
+    }
+
     public function test_existing_term_new_parent_text()
     {
         $wid = $this->save_parent_and_child();

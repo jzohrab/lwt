@@ -55,8 +55,20 @@ function set_parent($f) {
  */
 function save_new_parent_derived_from($f)
 {
+  // Double-check that the parent text doesn't already exist.
+  // e.g. if the user enters text that exists, and then tabs
+  // out of the autocomplete without actually selecting one
+  // of the items, the ID field in the form might be zero,
+  // even though the word exists.
+  $termlc = strtolower($f->parent_text);
+  $sql = "SELECT WoID AS value FROM words where WoTextLC = '{$termlc}'";
+  $pid = (int) get_first_value($sql);
+  if ($pid != 0) {
+    return $pid;
+  }
+  
   $p = new FormData();
-  $p->termlc = strtolower($f->parent_text);
+  $p->termlc = $termlc;
   $p->term = $f->parent_text;
   $p->translation = $f->translation;
   $p->lang = $f->lang;
