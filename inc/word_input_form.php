@@ -73,6 +73,18 @@ NOW(), 1, {$testscores}
 
   $newid = $stmt->insert_id;
 
+  if ($f->parent_id != 0) {
+    $sql = "INSERT INTO wordparents (WpWoID, WpParentWoID) VALUES (?, ?)";
+    $stmt = $DBCONNECTION->prepare($sql);
+    $stmt->bind_param("ii", $newid, $f->parent_id);
+    if (!$stmt) {
+      throw new Exception($DBCONNECTION->error);
+    }
+    if (!$stmt->execute()) {
+      throw new Exception($stmt->error);
+    }
+  }
+
   return $newid;
 }
 
