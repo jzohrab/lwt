@@ -229,7 +229,9 @@ function set_up_parent_autocomplete() {
     select: set_parent_fields,
     focus: set_parent_fields,
     change: function(event,ui) {
-      if (!ui.item) { $(this).val(''); }
+      if (!ui.item) {
+        $('#autocomplete_parent_id').val(ui.item.value);
+      }
     }
   });
 }
