@@ -37,6 +37,18 @@ function exec_statement($stmt) {
 }
 
 
+function set_parent($f) {
+  if ($f->parent_id == 0) {
+    return;
+  }
+  $sql = "INSERT INTO wordparents (WpWoID, WpParentWoID) VALUES (?, ?)";
+  global $DBCONNECTION;
+  $stmt = $DBCONNECTION->prepare($sql);
+  $stmt->bind_param("ii", $f->wid, $f->parent_id);
+  exec_statement($stmt);
+}
+
+
 /**
  * Insert a new word to the database, or throw exception.
  *
@@ -76,16 +88,11 @@ NOW(), 1, {$testscores}
                     );
   exec_statement($stmt);
 
-  $newid = $stmt->insert_id;
+  $f->wid = $stmt->insert_id;
 
-  if ($f->parent_id != 0) {
-    $sql = "INSERT INTO wordparents (WpWoID, WpParentWoID) VALUES (?, ?)";
-    $stmt = $DBCONNECTION->prepare($sql);
-    $stmt->bind_param("ii", $newid, $f->parent_id);
-    exec_statement($stmt);
-  }
+  set_parent($f);
 
-  return $newid;
+  return $f->wid;
 }
 
 /**
@@ -131,12 +138,7 @@ WHERE WoID = ?";
 
   $parentsql = "DELETE FROM wordparents WHERE WpWoID = {$f->wid}";
   do_mysqli_query($parentsql);
-  if ($f->parent_id != 0) {
-    $sql = "INSERT INTO wordparents (WpWoID, WpParentWoID) VALUES (?, ?)";
-    $stmt = $DBCONNECTION->prepare($sql);
-    $stmt->bind_param("ii", $f->wid, $f->parent_id);
-    exec_statement($stmt);
-  }
+  set_parent($f);
 
   return $f->wid;
 }
