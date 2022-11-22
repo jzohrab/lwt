@@ -27,6 +27,16 @@ class FormData
 }
 
 
+function exec_statement($stmt) {
+  if (!$stmt) {
+    throw new Exception($DBCONNECTION->error);
+  }
+  if (!$stmt->execute()) {
+    throw new Exception($stmt->error);
+  }
+}
+
+
 /**
  * Insert a new word to the database, or throw exception.
  *
@@ -64,12 +74,7 @@ NOW(), 1, {$testscores}
                     $f->lang,
                     $f->status
                     );
-  if (!$stmt) {
-    throw new Exception($DBCONNECTION->error);
-  }
-  if (!$stmt->execute()) {
-    throw new Exception($stmt->error);
-  }
+  exec_statement($stmt);
 
   $newid = $stmt->insert_id;
 
@@ -77,12 +82,7 @@ NOW(), 1, {$testscores}
     $sql = "INSERT INTO wordparents (WpWoID, WpParentWoID) VALUES (?, ?)";
     $stmt = $DBCONNECTION->prepare($sql);
     $stmt->bind_param("ii", $newid, $f->parent_id);
-    if (!$stmt) {
-      throw new Exception($DBCONNECTION->error);
-    }
-    if (!$stmt->execute()) {
-      throw new Exception($stmt->error);
-    }
+    exec_statement($stmt);
   }
 
   return $newid;
@@ -127,12 +127,7 @@ WHERE WoID = ?";
                     $f->status,
                     $f->wid
                     );
-  if (!$stmt) {
-    throw new Exception($DBCONNECTION->error);
-  }
-  if (!$stmt->execute()) {
-    throw new Exception($stmt->error);
-  }
+  exec_statement($stmt);
 
   $parentsql = "DELETE FROM wordparents WHERE WpWoID = {$f->wid}";
   do_mysqli_query($parentsql);
@@ -140,12 +135,7 @@ WHERE WoID = ?";
     $sql = "INSERT INTO wordparents (WpWoID, WpParentWoID) VALUES (?, ?)";
     $stmt = $DBCONNECTION->prepare($sql);
     $stmt->bind_param("ii", $f->wid, $f->parent_id);
-    if (!$stmt) {
-      throw new Exception($DBCONNECTION->error);
-    }
-    if (!$stmt->execute()) {
-      throw new Exception($stmt->error);
-    }
+    exec_statement($stmt);
   }
 
   return $f->wid;
