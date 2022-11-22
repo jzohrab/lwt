@@ -68,21 +68,22 @@ final class word_input_form_Test extends TestCase
         return save_new_formdata($this->child);
     }
 
-    /*
     public function test_update_remove_parent()
     {
         $wid = $this->save_parent_and_child();
-        $this->formdata->wid = $wid;
-        $this->formdata->parent_id = 0;
-        $this->formdata->parent_text = '';
-        $this->formdata->translation = "new translation";
-        save_new_formdata($this->formdata);
+        DbHelpers::assertTableContains('select * from wordparents', ['2; 1'], 'parent set');
+
+        $this->child->parent_id = 0;
+        $this->child->parent_text = '';
+        $this->child->translation = "new translation";
+        update_formdata($this->child);
 
         $sql = "select WoTranslation from words where WoID = {$wid}";
         DbHelpers::assertTableContains($sql, [ 'new translation' ]);
         DbHelpers::assertTableContains('select * from wordparents', [], 'no parents');
     }
 
+    /*
     public function test_update_change_parent()
     {
         $wid = $this->save_parent_and_child();
