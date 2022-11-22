@@ -58,6 +58,20 @@ function set_parent($f) {
  */
 function save_new_formdata($f) {
 
+  if ($f->parent_id == 0 && $f->parent_text != '') {
+    $p = new FormData();
+    $p->termlc = strtolower($f->parent_text);
+    $p->term = $f->parent_text;
+    $p->translation = $f->translation;
+    $p->lang = $f->lang;
+    $p->status = $f->status;
+
+    $pid = save_new_formdata($p);
+
+    $f->translation = '*';
+    $f->parent_id = $pid;
+  }
+
   // Yuck.
   $testfields = make_score_random_insert_update('iv');
   $testscores = make_score_random_insert_update('id');
