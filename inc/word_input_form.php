@@ -106,7 +106,7 @@ VALUES
 (
 ?, ?, ?, ?, ?,
 ?, ?,
-NOW(), 1, {$testscores}
+NOW(), 0, {$testscores}
 )";
 
   global $DBCONNECTION;
@@ -123,6 +123,8 @@ NOW(), 1, {$testscores}
   exec_statement($stmt);
 
   $f->wid = $stmt->insert_id;
+
+  init_word_count($f->wid);
 
   set_parent($f);
 

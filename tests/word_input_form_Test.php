@@ -13,6 +13,7 @@ final class word_input_form_Test extends TestCase
         // Set up db.
         DbHelpers::ensure_using_test_db();
         DbHelpers::clean_db();
+        DbHelpers::load_language_spanish();
         do_mysqli_query("ALTER TABLE words AUTO_INCREMENT = 1");
 
         $this->child = $this->make_formdata("CHILD");
@@ -43,7 +44,7 @@ final class word_input_form_Test extends TestCase
         $sql = 'select WpWoID, WpParentWoID from wordparents';
         DbHelpers::assertTableContains($sql, $expected, $message);
     }
- 
+
     public function test_save_new_no_parent()
     {
         $this->child->parent_id = 0;
@@ -64,6 +65,16 @@ final class word_input_form_Test extends TestCase
         DbHelpers::assertTableContains($sql, $expected, 'both created');
 
         $this->assert_wordparents_equals(['2; 1'], 'parent set');
+    }
+
+    public function test_save_new_word_count_set_correctly()
+    {
+        $a = $this->make_formdata("HELLO");
+        save_new_formdata($a);
+        $b = $this->make_formdata("GOOD BYE THEN");
+        save_new_formdata($b);
+        $sql = 'select WoText, WoWordCount from words order by WoID';
+        DbHelpers::assertTableContains($sql, [ 'HELLO; 1', 'GOOD BYE THEN; 3' ]);
     }
 
     private function save_parent_and_child()
