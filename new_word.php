@@ -11,6 +11,28 @@ require_once 'inc/session_utility.php';
 require_once 'inc/simterms.php';
 require_once 'inc/word_input_form.php';
 
+
+function update_reading_highlights_for_terms_with_hex($hex) {
+    ?>
+    <script type="text/javascript">
+    //<![CDATA[
+    if($('.TERM<?php echo $hex; ?>', context).length) {
+        $('.TERM<?php echo $hex; ?>', context)
+        .removeClass('status0')
+        .addClass('word' + woid + ' ' + 'status' + status)
+        .attr('data_trans',trans)
+        .attr('data_rom',roman)
+        .attr('data_status',status)
+        .attr('data_wid',woid)
+        .attr('title',title);
+        $('#learnstatus', context).html('<?php echo addslashes(texttodocount2($_REQUEST['tid'])); ?>');
+    }
+    //]]>
+     </script>
+     <?php
+}
+
+
 // INSERT
 if (isset($_REQUEST['op'])) {
     
@@ -40,48 +62,34 @@ if (isset($_REQUEST['op'])) {
    <p><?php echo $message; ?></p>
 
         <?php
-        if (substr($message, 0, 5) != 'Error') {?>
+        if (substr($message, 0, 5) != 'Error') {
+?>
 <script type="text/javascript">
     //<![CDATA[
     var context = window.parent.document;
     var woid = <?php echo prepare_textdata_js($wid); ?>;
-    var status = <?php echo prepare_textdata_js($_REQUEST["WoStatus"]); ?>;
-    var trans = <?php echo prepare_textdata_js($translation . getWordTagList($wid, ' ', 1, 0)); ?>;
-    var roman = <?php echo prepare_textdata_js($_REQUEST["WoRomanization"]); ?>;
-    var title = window.parent.JQ_TOOLTIP?'':make_tooltip(<?php echo prepare_textdata_js($_REQUEST["WoText"]); ?>,trans,roman,status);
+    var status = <?php echo prepare_textdata_js($fd->status); ?>;
+    var trans = <?php echo prepare_textdata_js($fd->translation . getWordTagList($wid, ' ', 1, 0)); ?>;
+    var roman = <?php echo prepare_textdata_js($fd->romanization); ?>;
+    var title = window.parent.JQ_TOOLTIP?'':make_tooltip(<?php echo prepare_textdata_js($fd->term); ?>,trans,roman,status);
     //]]>
 </script>
-            <?php
+
+<?php
             $len = get_first_value('select WoWordCount as value from words where WoID = ' . $wid);
             if ($len > 1) {
                 insertExpressions($fd->termlc, $_REQUEST["WoLgID"], $wid, $len, 0);
             } else if ($len == 1) {
                 $hex = strToClassName(prepare_textdata($fd->termlc));
-
-                ?>
-<script type="text/javascript">
-    //<![CDATA[
-    if($('.TERM<?php echo $hex; ?>', context).length){
-        $('.TERM<?php echo $hex; ?>', context)
-        .removeClass('status0')
-        .addClass('word' + woid + ' ' + 'status' + status)
-        .attr('data_trans',trans)
-        .attr('data_rom',roman)
-        .attr('data_status',status)
-        .attr('data_wid',woid)
-        .attr('title',title);
-        $('#learnstatus', context).html('<?php echo addslashes(texttodocount2($_REQUEST['tid'])); ?>');
-    }
-    //]]>
-</script>
-                <?php
+                update_reading_highlights_for_terms_with_hex($hex);
                 flush();
-            } ?>
+            }
+?>
 <script type="text/javascript">
     window.parent.getElementById('frame-l').focus();
     window.parent.setTimeout('cClick()', 100);
 </script>
-            <?php
+<?php
         } // (substr($message,0,5) != 'Error')
 
     } // $_REQUEST['op'] == 'Save'
