@@ -350,6 +350,10 @@ function load_formdata_from_request(): FormData {
   $f->wid = intval(getreq("WoID", 0));
   $f->term = cleanreq("WoText");
   $f->termlc = cleanreq("WoTextLC");
+  if ($f->termlc == '') {
+    $f->termlc = strtolower($f->term);
+  }
+
   $f->translation = $translation;
   $f->romanization = $_REQUEST["WoRomanization"];
   $f->sentence = repl_tab_nl($_REQUEST["WoSentence"]);
