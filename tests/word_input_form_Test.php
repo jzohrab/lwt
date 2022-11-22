@@ -39,13 +39,18 @@ final class word_input_form_Test extends TestCase
         // echo "tearing down ... \n";
     }
 
+    private function assert_wordparents_equals($expected, $message) {
+        $sql = 'select WpWoID, WpParentWoID from wordparents';
+        DbHelpers::assertTableContains($sql, $expected, $message);
+    }
+ 
     public function test_save_new_no_parent()
     {
         $this->child->parent_id = 0;
         save_new_formdata($this->child);
         $sql = 'select WoID, WoText from words';
         DbHelpers::assertTableContains($sql, [ '1; CHILD' ]);
-        DbHelpers::assertTableContains('select * from wordparents', [], 'no parents');
+        $this->assert_wordparents_equals([], 'no parents');
     }
 
     public function test_save_new_with_existing_parent()
@@ -58,7 +63,7 @@ final class word_input_form_Test extends TestCase
         $sql = 'select WoID, WoText from words';
         DbHelpers::assertTableContains($sql, $expected, 'both created');
 
-        DbHelpers::assertTableContains('select * from wordparents', ['2; 1'], 'parent set');
+        $this->assert_wordparents_equals(['2; 1'], 'parent set');
     }
 
     private function save_parent_and_child()
@@ -73,7 +78,7 @@ final class word_input_form_Test extends TestCase
     public function test_update_remove_parent()
     {
         $wid = $this->save_parent_and_child();
-        DbHelpers::assertTableContains('select * from wordparents', ['2; 1'], 'parent set');
+        $this->assert_wordparents_equals(['2; 1'], 'parent set');
 
         $this->child->parent_id = 0;
         $this->child->parent_text = '';
@@ -82,23 +87,20 @@ final class word_input_form_Test extends TestCase
 
         $sql = "select WoTranslation from words where WoID = {$wid}";
         DbHelpers::assertTableContains($sql, [ 'new translation' ]);
-        DbHelpers::assertTableContains('select * from wordparents', [], 'no parents');
+        $this->assert_wordparents_equals([], 'parent removed');
     }
 
-    /*
     public function test_update_change_parent()
     {
-        $wid = $this->save_parent_and_child();
-        $this->formdata->wid = $wid;
-        $this->formdata->parent_id = 0;
-        $this->formdata->parent_text = '';
-        $this->formdata->translation = "new translation";
-        save_new_formdata($this->formdata);
+        $this->save_parent_and_child();
+        $this->assert_wordparents_equals(['2; 1'], 'parent set');
 
-        $sql = "select WoTranslation from words where WoID = {$wid}";
-        DbHelpers::assertTableContains($sql, [ 'new translation' ]);
-        DbHelpers::assertTableContains('select * from wordparents', [], 'no parents');
+        $pid = save_new_formdata($this->stepdad);
+        $this->child->parent_id = $pid;
+        update_formdata($this->child);
 
+        $sql = "select WoTranslation from words where WoID = {$this->child->wid}";
+        $this->assert_wordparents_equals(['2; 3'], 'parent changed');
     }
 
     /** tests to do:
