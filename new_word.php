@@ -15,50 +15,26 @@ require_once 'inc/word_input_form.php';
 if (isset($_REQUEST['op'])) {
     
     if ($_REQUEST['op'] == 'Save') {
+        $fd = load_formdata_from_request();
+        $wid = 0;
+        $message = '';
+        try {
+          $wid = save_new_formdata($fd);
+          $message = "Term saved";
+        }
+        catch (Exception $e) {
+          $message = $e->getMessage();
+        }
 
-        $text = trim(prepare_textdata($_REQUEST["WoText"]));
-        $textlc = mb_strtolower($text, 'UTF-8');
-        $translation_raw = repl_tab_nl(getreq("WoTranslation"));
-        if ($translation_raw == '' ) { 
-            $translation = '*'; 
-        }
-        else { 
-            $translation = $translation_raw; 
-        }
-    
-        $titletext = "New Term: " . tohtml($textlc);
+        $titletext = "New Term: " . tohtml($fd->termlc);
         pagestart_nobody($titletext);
         echo '<h4><span class="bigger">' . $titletext . '</span></h4>';
-    
-        $message = runsql(
-            'insert into words (WoLgID, WoTextLC, WoText, ' .
-            'WoStatus, WoTranslation, WoSentence, WoRomanization, WoStatusChanged,' .  make_score_random_insert_update('iv') . ') values( ' . 
-            $_REQUEST["WoLgID"] . ', ' .
-            convert_string_to_sqlsyntax($textlc) . ', ' .
-            convert_string_to_sqlsyntax($text) . ', ' .
-            $_REQUEST["WoStatus"] . ', ' .
-            convert_string_to_sqlsyntax($translation) . ', ' .
-            convert_string_to_sqlsyntax(repl_tab_nl($_REQUEST["WoSentence"])) . ', ' .
-            convert_string_to_sqlsyntax($_REQUEST["WoRomanization"]) . ', NOW(), ' .  
-            make_score_random_insert_update('id') . ')', "Term saved", $sqlerrdie = false
-        );
 
-        if (substr($message, 0, 22) == 'Error: Duplicate entry') {
-            $message = 'Error: <b>Duplicate entry for <i>' . $textlc . '</i></b><br /><br /><input type="button" value="&lt;&lt; Back" onclick="history.back();" />';
-        }
-        
-        $wid = get_last_key();
-
-        $pid = (int) $_REQUEST["WpParentWoID"];
-        if ($pid != 0) {
-          $parentsql = "INSERT INTO wordparents (WpWoID, WpParentWoID)
-VALUES ({$wid}, {$pid})";
-          do_mysqli_query($parentsql);
+        if (strpos($message, 'uplicate entry') == 1) {
+            $message = 'Error: <b>Duplicate entry for <i>' . $fd->termlc . '</i></b><br /><br /><input type="button" value="&lt;&lt; Back" onclick="history.back();" />';
         }
 
         saveWordTags($wid);
-        init_word_count();
-        //        $showAll = getSettingZeroOrOne('showallwords',1);
         ?>
 
    <p><?php echo $message; ?></p>
@@ -78,13 +54,10 @@ VALUES ({$wid}, {$pid})";
             <?php
             $len = get_first_value('select WoWordCount as value from words where WoID = ' . $wid);
             if ($len > 1) {
-                insertExpressions($textlc, $_REQUEST["WoLgID"], $wid, $len, 0);
+                insertExpressions($fd->termlc, $_REQUEST["WoLgID"], $wid, $len, 0);
             } else if ($len == 1) {
-                $hex = strToClassName(prepare_textdata($textlc));
-                do_mysqli_query(
-                    'UPDATE textitems2 SET Ti2WoID = ' . $wid . ' 
-                    WHERE Ti2LgID = ' . $_REQUEST["WoLgID"] . ' AND Ti2TextLC = ' . convert_string_to_sqlsyntax_notrim_nonull($textlc)
-                );
+                $hex = strToClassName(prepare_textdata($fd->termlc));
+
                 ?>
 <script type="text/javascript">
     //<![CDATA[
