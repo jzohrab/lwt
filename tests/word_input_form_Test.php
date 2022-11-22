@@ -111,9 +111,10 @@ final class word_input_form_Test extends TestCase
 
         $wid = save_new_formdata($f);
 
-        $psql = "SELECT WpParentWoID as value FROM wordparents WHERE WpWoID={$wid}";
+        $psql = "SELECT WoID as value FROM words WHERE WoText='MakeParent'";
         $pid = (int)get_first_value($psql);
-        $this->assertEquals($wid + 1, $pid, "parent ({$pid}) created immed. after child ({$wid})");
+        $this->assertTrue($pid > 0, "have parent");
+        $this->assertEquals($wid + 1, $pid, "parent ({$pid}) created immed. before child ({$wid})");
 
         $sql = "SELECT WoTranslation, WoSentence FROM words where WoID = ";
         $childsql = "{$sql} {$wid}";
