@@ -50,6 +50,22 @@ function set_parent($f) {
 
 
 /**
+ * If the user specifies a new parent "name" that doesn't exist,
+ * the new parent is created borrowing some of the fields from the term.
+ */
+function save_new_parent_derived_from($f)
+{
+  $p = new FormData();
+  $p->termlc = strtolower($f->parent_text);
+  $p->term = $f->parent_text;
+  $p->translation = $f->translation;
+  $p->lang = $f->lang;
+  $p->status = $f->status;
+  return save_new_formdata($p);
+}
+
+
+/**
  * Insert a new word to the database, or throw exception.
  *
  * @param FormData $formdata
@@ -59,15 +75,7 @@ function set_parent($f) {
 function save_new_formdata($f) {
 
   if ($f->parent_id == 0 && $f->parent_text != '') {
-    $p = new FormData();
-    $p->termlc = strtolower($f->parent_text);
-    $p->term = $f->parent_text;
-    $p->translation = $f->translation;
-    $p->lang = $f->lang;
-    $p->status = $f->status;
-
-    $pid = save_new_formdata($p);
-
+    $pid = save_new_parent_derived_from($f);
     $f->translation = '*';
     $f->parent_id = $pid;
   }
@@ -117,6 +125,11 @@ NOW(), 1, {$testscores}
  * @return int  Updated WoID
  */
 function update_formdata($f) {
+
+  if ($f->parent_id == 0 && $f->parent_text != '') {
+    $pid = save_new_parent_derived_from($f);
+    $f->parent_id = $pid;
+  }
 
   // Yuck.
   $testfields = make_score_random_insert_update('u');

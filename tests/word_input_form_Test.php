@@ -130,10 +130,41 @@ final class word_input_form_Test extends TestCase
           WHERE WoID = {$pid}";
         $expected_parent = [ "1; MakeParent; makeparent; 3" ];
         DbHelpers::assertTableContains($parentsql, $expected_parent);
+
+        $this->assert_wordparents_equals(["{$wid}; {$pid}"], "parent set");
     }
     
-    /** tests to do:
-- existing, new parent, complicated
-     */
+    public function test_existing_term_new_parent_text()
+    {
+        $wid = $this->save_parent_and_child();
+        $this->assert_wordparents_equals(['2; 1'], 'parent set');
+
+        $this->child->parent_id = 0;
+        $this->child->parent_text = 'MakeParent';
+        update_formdata($this->child);
+        $wid = $this->child->wid;
+
+        $psql = "SELECT WoID as value FROM words WHERE WoText='MakeParent'";
+        $pid = (int)get_first_value($psql);
+        $this->assertTrue($pid > 0, "have parent");
+
+        $sql = "SELECT WoTranslation, WoSentence FROM words where WoID = ";
+        $childsql = "{$sql} {$wid}";
+        $expected_child = [ "translation CHILD; sent CHILD" ];
+        $msg = "child keeps existing translation, child keeps sentence";
+        DbHelpers::assertTableContains($childsql, $expected_child, $msg);
+
+        $parentsql = "{$sql} {$pid}";
+        $expected_parent = [ "translation CHILD; " ];
+        $msg = "parent gets copy of translation";
+        DbHelpers::assertTableContains($parentsql, $expected_parent, $msg);
+
+        $parentsql = "SELECT WoLgID, WoText, WoTextLC, WoStatus FROM words
+          WHERE WoID = {$pid}";
+        $expected_parent = [ "1; MakeParent; makeparent; 3" ];
+        DbHelpers::assertTableContains($parentsql, $expected_parent);
+
+        $this->assert_wordparents_equals(["{$wid}; {$pid}"], "parent set");
+    }
 
 }
