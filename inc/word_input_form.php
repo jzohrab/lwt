@@ -126,6 +126,15 @@ NOW(), 1, {$testscores}
 
   set_parent($f);
 
+  $updateti2sql = "UPDATE textitems2
+SET Ti2WoID = ? WHERE Ti2LgID = ? AND Ti2TextLC = ?";
+  $stmt = $DBCONNECTION->prepare($updateti2sql);
+  $stmt->bind_param("iis",
+                    $f->wid,
+                    $f->lang,
+                    $f->termlc);
+  exec_statement($stmt);
+
   return $f->wid;
 }
 
