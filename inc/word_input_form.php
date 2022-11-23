@@ -73,6 +73,7 @@ function save_new_parent_derived_from($f)
   $p->translation = $f->translation;
   $p->lang = $f->lang;
   $p->status = $f->status;
+  $p->tags = $f->tags;
   return save_new_formdata($p);
 }
 
