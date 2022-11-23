@@ -177,6 +177,12 @@ SET Ti2WoID = ? WHERE Ti2LgID = ? AND Ti2TextLC = ?";
  */
 function update_formdata($f) {
 
+  $checkoldsql = "select WoTextLC as value from words where WoID = {$f->wid}";
+  $oldlcase = get_first_value($checkoldsql);
+  if ($f->termlc != $oldlcase) {
+    throw new Exception("cannot change term once WoTextLC is set");
+  }
+
   if ($f->parent_id == 0 && $f->parent_text != '') {
     $pid = save_new_parent_derived_from($f);
     $f->parent_id = $pid;

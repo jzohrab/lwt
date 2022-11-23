@@ -125,6 +125,46 @@ order by WtWoID, TgText";
         DbHelpers::assertTableContains($sql, [ 'HELLO; 1', 'GOOD BYE THEN; 3' ]);
     }
 
+
+    public function test_update_sanity_check()
+    {
+        $a = $this->make_formdata("HELLO");
+        $a->translation = 'old';
+        $wid = save_new_formdata($a);
+
+        $sql = "select WoTranslation from words";
+        DbHelpers::assertTableContains($sql, [ 'old' ]);
+
+        $a->wid = $wid;
+        $a->translation = 'new';
+        update_formdata($a);
+
+        DbHelpers::assertTableContains($sql, [ 'new' ]);
+    }
+
+
+    public function test_update_throws_if_term_lcase_changes()
+    {
+        $a = $this->make_formdata("HELLO");
+        $oldlcase = $a->termlc;
+        $wid = save_new_formdata($a);
+
+        $a->wid = $wid;
+        $a->term = $oldlcase . 'CHANGED';
+        $a->termlc = $oldlcase . 'changed';
+
+        $msg = 'ok';
+        try {
+            update_formdata($a);
+        }
+        catch (Exception $e) {
+            $msg = $e->getMessage();
+        }
+
+        $this->assertStringContainsString('cannot change', $msg, 'should have changed due to error');
+    }
+
+
     private function save_parent_and_child()
     {
         $pid = save_new_formdata($this->parent);
