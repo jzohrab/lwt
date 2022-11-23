@@ -77,6 +77,32 @@ function save_new_parent_derived_from($f)
 }
 
 
+function save_formdata_tags($f) {
+  runsql("DELETE from wordtags WHERE WtWoID = {$f->wid}", '');
+
+  if (!isset($f->tags)) {
+    return;
+  }
+
+  global $DBCONNECTION;
+  $sql = "INSERT IGNORE INTO tags(TgText) VALUES (?)";
+  $sqltagword = "INSERT wordtags (WtWoID, WtTgID)
+SELECT {$f->wid}, TgID FROM tags where TgText = ?";
+  $stmt = $DBCONNECTION->prepare($sql);
+  $stmt_add_tag = $DBCONNECTION->prepare($sqltagword);
+
+  foreach ($f->tags as $t) {
+    $stmt->bind_param("s", $t);
+    exec_statement($stmt);
+    $stmt_add_tag->bind_param("s", $t);
+    exec_statement($stmt_add_tag);
+  }
+
+  // Refresh tags cache.
+  get_tags(1);
+}
+
+
 /**
  * Insert a new word to the database, or throw exception.
  *
@@ -127,6 +153,7 @@ NOW(), 0, {$testscores}
   init_word_count($f->wid);
 
   set_parent($f);
+  save_formdata_tags($f);
 
   $updateti2sql = "UPDATE textitems2
 SET Ti2WoID = ? WHERE Ti2LgID = ? AND Ti2TextLC = ?";
@@ -189,6 +216,7 @@ WHERE WoID = ?";
   $parentsql = "DELETE FROM wordparents WHERE WpWoID = {$f->wid}";
   do_mysqli_query($parentsql);
   set_parent($f);
+  save_formdata_tags($f);
 
   return $f->wid;
 }
@@ -337,6 +365,16 @@ function cleanreq($s) {
 }
 
 
+function get_tags_from_request() {
+  $rtt = getreq('TermTags', []);
+  $tl = $rtt['TagList'];
+  if (!isset($tl) || !is_array($tl)) {
+    return [];
+  }
+  return $tl;
+}
+
+
 /**
  * Gets the data from posted shown_form
  */
@@ -363,11 +401,11 @@ function load_formdata_from_request(): FormData {
   $f->status_old = $_REQUEST["WoOldStatus"];
   $f->parent_id = intval(getreq("WpParentWoID", 0));
   $f->parent_text = cleanreq("ParentText");
+  $f->tags = get_tags_from_request();
 
   // Not used during db updates:
   // $f->fromAnn = '';
   // $f->scrdir;
-  // $f->tags;
   // $f->status_radiooptions;
 
   return $f;

@@ -54,6 +54,21 @@ final class word_input_form_Test extends TestCase
         $this->assert_wordparents_equals([], 'no parents');
     }
 
+    public function test_save_new_creates_tags()
+    {
+        DbHelpers::add_tags(['hi']);
+
+        $this->child->parent_id = 0;
+        $this->child->tags = ['hi', 'there'];
+        save_new_formdata($this->child);
+
+        $sql = 'select TgText from tags order by TgText';
+        DbHelpers::assertTableContains($sql, [ 'hi', 'there' ]);
+
+        $sql = "select TgText from tags inner join wordtags wt on wt.WtTgID = TgID";
+        DbHelpers::assertTableContains($sql, [ 'hi', 'there' ]);
+    }
+
     public function test_save_new_with_existing_parent()
     {
         $pid = save_new_formdata($this->parent);
@@ -85,6 +100,31 @@ final class word_input_form_Test extends TestCase
         $this->child->wid = $wid;
         return $wid;
     }
+
+
+    public function test_update_replaces_existing_tags()
+    {
+        DbHelpers::add_tags(['hi']);
+        $this->child->parent_id = 0;
+        $this->child->tags = ['hi', 'there'];
+        save_new_formdata($this->child);
+
+        $sql = 'select TgText from tags order by TgText';
+        DbHelpers::assertTableContains($sql, [ 'hi', 'there' ]);
+
+        $sql = "select TgText from tags inner join wordtags wt on wt.WtTgID = TgID";
+        DbHelpers::assertTableContains($sql, [ 'hi', 'there' ]);
+
+        $this->child->tags = ['new', 'stuff'];
+        update_formdata($this->child);
+
+        $sql = "select TgText from tags order by TgText";
+        DbHelpers::assertTableContains($sql, [ 'hi', 'new', 'stuff', 'there']);
+
+        $sql = "select TgText from tags inner join wordtags wt on wt.WtTgID = TgID";
+        DbHelpers::assertTableContains($sql, [ 'new', 'stuff' ], 'tags replaced');
+    }
+
 
     public function test_update_remove_parent()
     {

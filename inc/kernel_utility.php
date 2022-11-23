@@ -469,8 +469,12 @@ function annotation_to_json($ann)
  */
 function getreq($s, $if_not_set = '')
 {
-    if (isset($_REQUEST[$s]) ) {
-        return trim($_REQUEST[$s]);
+    $t = $_REQUEST[$s];
+    if (isset($t) ) {
+        if (is_string($t)) {
+            return trim($t);
+        }
+        return $t;
     } else {
         return $if_not_set;
     }
