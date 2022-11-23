@@ -367,9 +367,9 @@ function cleanreq($s) {
 
 
 function get_tags_from_request() {
-  $rtt = getreq('TermTags', []);
+  $rtt = getreq('TermTags', array('TagList' => []));
   $tl = $rtt['TagList'];
-  if (!isset($tl) || !is_array($tl)) {
+  if (!is_array($tl)) {
     return [];
   }
   return $tl;

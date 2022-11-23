@@ -23,15 +23,12 @@ require_once 'inc/word_input_form.php';
 /**
  * Insert a new word to the database
  * 
- * @param string $textlc      The word to insert, in lowercase
- * @param string $translation Translation of this term
+ * @param FormData $fd
  * 
  * @return array{0: int, 1: string} Word id, and then an insertion message 
  */
-function insert_new_word()
+function insert_new_word($fd)
 {
-    $fd = load_formdata_from_request();
-
     $wid = 0;
     $message = '';
     try {
@@ -48,14 +45,12 @@ function insert_new_word()
 /**
  * Edit an existing term.
  * 
- * @param string $translation New translation for this term
+ * @param FormData $fd
  * 
  * @return array{0: string, 1: string} Word id, and then an insertion message 
  */
-function edit_term()
+function edit_term($fd)
 {
-    $fd = load_formdata_from_request();
-
     $wid = 0;
     $message = '';
     try {
@@ -147,32 +142,37 @@ function handle_save_or_update(): void
     if ($_REQUEST['op'] == 'Save') {
       $titlestart = "New Term: ";
     }
-    $titletext = $titlestart . tohtml($textlc);
+
+    $fd = load_formdata_from_request();
+
+    $titletext = $titlestart . tohtml($fd->termlc);
     pagestart_nobody($titletext);
     echo '<h4><span class="bigger">' . $titletext . '</span></h4>';
 
-    if (mb_strtolower($text, 'UTF-8') != $textlc) {
-        lowercase_term_not_equal($textlc);
+    if (mb_strtolower($fd->term, 'UTF-8') != $fd->termlc) {
+        lowercase_term_not_equal($fd->termlc);
         pageend();
         exit();
     }
-    
+
+    $wid = 0;
+    $message = '';
     if ($_REQUEST['op'] == 'Save') {
-        [ $wid, $message ] = insert_new_word();
+        [ $wid, $message ] = insert_new_word($fd);
     }
     else {
-        [ $wid, $message ] = edit_term();
+        [ $wid, $message ] = edit_term($fd);
     }
 
     echo '<p>OK: ' . tohtml($message) . '</p>';
 
     $fa = getreq("fromAnn"); // from-recno or empty
     if ($fa !== '') {
-        $textlc_js = prepare_textdata_js($textlc);
+        $textlc_js = prepare_textdata_js($fd->textlc);
         echo "<script>window.opener.do_ajax_edit_impr_text({$fa}, {$textlc_js});</script>";
     } else {
         $hex = strToClassName(prepare_textdata($_REQUEST["WoTextLC"]));
-        change_term_display($wid, $translation, $hex);
+        change_term_display($wid, $fd->translation, $hex);
     }
 
     pageend();
