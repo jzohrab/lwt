@@ -82,6 +82,39 @@ final class word_input_form_Test extends TestCase
         $this->assert_wordparents_equals(['2; 1'], 'parent set');
     }
 
+
+    public function test_save_new_with_new_parent_parent_gets_same_tags()
+    {
+        $this->child->parent_id = 0;
+        $this->child->parent_text = "NEWPARENT";
+        $this->child->tags = ['t1', 't2'];
+        save_new_formdata($this->child);
+
+        $expected = [ '1; t1', '1; t2', '2; t1', '2; t2'];
+        $sql = "select WtWoID, TgText
+from wordtags inner join tags on WtTgID = TgID
+order by WtWoID, TgText";
+        DbHelpers::assertTableContains($sql, $expected, 'both have tags');
+    }
+
+
+    public function test_save_new_with_existing_parent_parent_keeps_own_tags()
+    {
+        $this->parent->tags = ['p1', 'p2'];
+        $pid = save_new_formdata($this->parent);
+
+        $this->child->parent_id = 0;
+        $this->child->parent_text = "PARENT";
+        $this->child->tags = ['c1', 'c2'];
+        save_new_formdata($this->child);
+
+        $expected = [ '1; p1', '1; p2', '2; c1', '2; c2'];
+        $sql = "select WtWoID, TgText
+from wordtags inner join tags on WtTgID = TgID
+order by WtWoID, TgText";
+        DbHelpers::assertTableContains($sql, $expected, 'both have their own tags');
+    }
+
     public function test_save_new_word_count_set_correctly()
     {
         $a = $this->make_formdata("HELLO");
