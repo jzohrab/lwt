@@ -163,7 +163,6 @@ function handle_save_or_update(): void
     else {
         [ $wid, $message ] = edit_term();
     }
-    saveWordTags($wid);
 
     echo '<p>OK: ' . tohtml($message) . '</p>';
 

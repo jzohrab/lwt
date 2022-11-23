@@ -56,7 +56,6 @@ if (isset($_REQUEST['op'])) {
             $message = 'Error: <b>Duplicate entry for <i>' . $fd->termlc . '</i></b><br /><br /><input type="button" value="&lt;&lt; Back" onclick="history.back();" />';
         }
 
-        saveWordTags($wid);
         ?>
 
    <p><?php echo $message; ?></p>
