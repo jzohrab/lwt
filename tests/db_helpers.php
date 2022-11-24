@@ -9,6 +9,8 @@
 
 require_once __DIR__ . '/../inc/database_connect.php';
 
+use PHPUnit\Framework\TestCase;
+
 class DbHelpers {
 
     public static function ensure_using_test_db() {
@@ -61,11 +63,29 @@ you must use a dedicated test database when running tests.
             "texttags",
             "tts",
             "words",
+            "wordparents",
             "wordtags"
         ];
         foreach ($tables as $t) {
             do_mysqli_query("truncate {$t}");
         }
+
+        $alters = [
+            "sentences",
+            "tags",
+            "textitems2",
+            "texts",
+            "words"
+        ];
+        foreach ($alters as $t) {
+            do_mysqli_query("ALTER TABLE {$t} AUTO_INCREMENT = 1");
+        }
+    }
+
+    public static function load_language_spanish() {
+        $url = "http://something.com/###";
+        $sql = "INSERT INTO `languages` (`LgID`, `LgName`, `LgDict1URI`, `LgDict2URI`, `LgGoogleTranslateURI`, `LgExportTemplate`, `LgTextSize`, `LgCharacterSubstitutions`, `LgRegexpSplitSentences`, `LgExceptionsSplitSentences`, `LgRegexpWordCharacters`, `LgRemoveSpaces`, `LgSplitEachChar`, `LgRightToLeft`) VALUES (1,'Spanish','{$url}','{$url}','{$url}','\$y\\t\$t\\n',150,'´=\'|`=\'|’=\'|‘=\'|...=…|..=‥','.!?:;','Mr.|Dr.|[A-Z].|Vd.|Vds.','a-zA-ZÀ-ÖØ-öø-ȳáéíóúÁÉÍÓÚñÑ',0,0,0)";
+        do_mysqli_query($sql);
     }
 
     /**
@@ -76,6 +96,23 @@ you must use a dedicated test database when running tests.
      * These are very hacky, not handling weird chars etc., and are
      * also very inefficient!  Will fix if tests get stupid slow.
      */
+
+    public static function exec_statement($stmt) {
+        if (!$stmt) {
+            throw new Exception($DBCONNECTION->error);
+        }
+        if (!$stmt->execute()) {
+            throw new Exception($stmt->error);
+        }
+    }
+
+    public static function add_text($text, $langid, $title = 'testing') {
+        global $DBCONNECTION;
+        $sql = "INSERT INTO texts (TxLgID, TxTitle, TxText) VALUES (?, ?, ?)";
+        $stmt = $DBCONNECTION->prepare($sql);
+        $stmt->bind_param("iss", $langid, $title, $text);
+        exec_statement($stmt);
+    }
 
     public static function add_tags($tags) {
         foreach ($tags as $t) {
@@ -93,6 +130,21 @@ you must use a dedicated test database when running tests.
         };
     }
 
+
+    /**
+     * Checks.
+     */
+
+    public static function assertTableContains($sql, $expected, $message = '') {
+        $content = [];
+        $res = do_mysqli_query($sql);
+        while($row = mysqli_fetch_assoc($res)) {
+            $content[] = implode('; ', $row);
+        }
+        mysqli_free_result($res);
+
+        PHPUnit\Framework\Assert::assertEquals($expected, $content, $message);
+    }
 }
 
 ?>

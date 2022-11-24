@@ -563,13 +563,14 @@ function update_japanese_word_count($japid)
 }
 
 /**
- * Initiate the number of words in terms for all languages.
+ * Initiate the number of words in terms for all languages,
+ * or for specific $wid if set.
  * 
  * Only terms with a word count set to 0 are changed.
  * 
  * @return void
  */
-function init_word_count(): void 
+function init_word_count($wid = 0): void 
 {
     $sqlarr = array();
     $i = 0;
@@ -586,9 +587,14 @@ function init_word_count(): void
     if ($japid) {
         update_japanese_word_count((int)$japid);
     }
+
+    $whereWoID = '';
+    if ($wid != 0) {
+        $whereWoID = " AND WoID = {$wid}";
+    }
     $sql = "SELECT WoID, WoTextLC, LgRegexpWordCharacters, LgSplitEachChar 
     FROM words, languages 
-    WHERE WoWordCount = 0 AND WoLgID = LgID 
+    WHERE WoWordCount = 0 AND WoLgID = LgID {$whereWoID}
     ORDER BY WoID";
     $result = do_mysqli_query($sql);
     while ($rec = mysqli_fetch_assoc($result)){

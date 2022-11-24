@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__ . '/database_connect.php';
+
 /**
  * Input form for words.
  */
@@ -22,9 +24,235 @@ class FormData
   public $status_radiooptions;
   public $parent_id = 0;
   public $parent_text = '';
+
+      /**
+     * Export word data as a JSON dictionnary.
+     * 
+     * @return string JSON dict.
+     */
+    public function export_js_dict()
+    {
+        return json_encode(
+            array(
+            "woid" => $this->wid,
+            "text" =>  $this->term,
+            "romanization" => $this->romanization,
+            "translation" => prepare_textdata_js(
+                $this->translation . getWordTagList($this->wid, ' ', 1, 0)
+            ),
+            "status" => $this->status
+            )
+        );
+    }
+
 }
 
 
+function exec_statement($stmt) {
+  if (!$stmt) {
+    throw new Exception($DBCONNECTION->error);
+  }
+  if (!$stmt->execute()) {
+    throw new Exception($stmt->error);
+  }
+}
+
+
+function set_parent($f) {
+  if ($f->parent_id == 0) {
+    return;
+  }
+  $sql = "INSERT INTO wordparents (WpWoID, WpParentWoID) VALUES (?, ?)";
+  global $DBCONNECTION;
+  $stmt = $DBCONNECTION->prepare($sql);
+  $stmt->bind_param("ii", $f->wid, $f->parent_id);
+  exec_statement($stmt);
+}
+
+
+/**
+ * If the user specifies a new parent "name" that doesn't exist,
+ * the new parent is created borrowing some of the fields from the term.
+ */
+function save_new_parent_derived_from($f)
+{
+  // Double-check that the parent text doesn't already exist.
+  // e.g. if the user enters text that exists, and then tabs
+  // out of the autocomplete without actually selecting one
+  // of the items, the ID field in the form might be zero,
+  // even though the word exists.
+  $termlc = strtolower($f->parent_text);
+  $sql = "SELECT WoID AS value FROM words where WoTextLC = '{$termlc}'";
+  $pid = (int) get_first_value($sql);
+  if ($pid != 0) {
+    return $pid;
+  }
+  
+  $p = new FormData();
+  $p->termlc = $termlc;
+  $p->term = $f->parent_text;
+  $p->translation = $f->translation;
+  $p->lang = $f->lang;
+  $p->status = $f->status;
+  $p->tags = $f->tags;
+  return save_new_formdata($p);
+}
+
+
+function save_formdata_tags($f) {
+  runsql("DELETE from wordtags WHERE WtWoID = {$f->wid}", '');
+
+  if (!isset($f->tags)) {
+    return;
+  }
+
+  global $DBCONNECTION;
+  $sql = "INSERT IGNORE INTO tags(TgText) VALUES (?)";
+  $sqltagword = "INSERT wordtags (WtWoID, WtTgID)
+SELECT {$f->wid}, TgID FROM tags where TgText = ?";
+  $stmt = $DBCONNECTION->prepare($sql);
+  $stmt_add_tag = $DBCONNECTION->prepare($sqltagword);
+
+  foreach ($f->tags as $t) {
+    $stmt->bind_param("s", $t);
+    exec_statement($stmt);
+    $stmt_add_tag->bind_param("s", $t);
+    exec_statement($stmt_add_tag);
+  }
+
+  // Refresh tags cache.
+  get_tags(1);
+}
+
+
+/**
+ * Insert a new word to the database, or throw exception.
+ *
+ * @param FormData $formdata
+ *
+ * @return int  New WoID inserted
+ */
+function save_new_formdata($f) {
+
+  if ($f->parent_id == 0 && $f->parent_text != '') {
+    $pid = save_new_parent_derived_from($f);
+    $f->translation = '*';
+    $f->parent_id = $pid;
+  }
+
+  // Yuck.
+  $testfields = make_score_random_insert_update('iv');
+  $testscores = make_score_random_insert_update('id');
+
+  $sql = "INSERT INTO words
+(
+WoTextLC, WoText, WoTranslation, WoSentence, WoRomanization,
+WoLgID, WoStatus,
+WoStatusChanged, WoWordCount, {$testfields}
+)
+VALUES
+(
+?, ?, ?, ?, ?,
+?, ?,
+NOW(), 0, {$testscores}
+)";
+
+  global $DBCONNECTION;
+  $stmt = $DBCONNECTION->prepare($sql);
+  $stmt->bind_param("sssssii",
+                    $f->termlc,
+                    $f->term,
+                    $f->translation,
+                    $f->sentence,
+                    $f->romanization,
+                    $f->lang,
+                    $f->status
+                    );
+  exec_statement($stmt);
+
+  $f->wid = $stmt->insert_id;
+
+  init_word_count($f->wid);
+
+  set_parent($f);
+  save_formdata_tags($f);
+
+  $updateti2sql = "UPDATE textitems2
+SET Ti2WoID = ? WHERE Ti2LgID = ? AND Ti2TextLC = ?";
+  $stmt = $DBCONNECTION->prepare($updateti2sql);
+  $stmt->bind_param("iis",
+                    $f->wid,
+                    $f->lang,
+                    $f->termlc);
+  exec_statement($stmt);
+
+  return $f->wid;
+}
+
+/**
+ * Update existing word.
+ *
+ * @param FormData $formdata
+ *
+ * @return int  Updated WoID
+ */
+function update_formdata($f) {
+
+  $checkoldsql = "select WoTextLC as value from words where WoID = {$f->wid}";
+  $oldlcase = get_first_value($checkoldsql);
+  if ($f->termlc != $oldlcase) {
+    throw new Exception("cannot change term once WoTextLC is set");
+  }
+
+  if ($f->parent_id == 0 && $f->parent_text != '') {
+    $pid = save_new_parent_derived_from($f);
+    $f->parent_id = $pid;
+  }
+
+  // Yuck.
+  $testfields = make_score_random_insert_update('u');
+
+  $statusChanged = '';
+  if ($f->status != $f->status_old) {
+    $statusChanged = "WoStatusChanged = NOW(),";
+  }
+
+  $sql = "UPDATE words
+SET {$statusChanged}
+WoText = ?,
+WoTextLC = ?,
+WoTranslation = ?,
+WoSentence = ?,
+WoRomanization = ?,
+WoStatus = ?,
+{$testfields}
+WHERE WoID = ?";
+  
+  global $DBCONNECTION;
+  $stmt = $DBCONNECTION->prepare($sql);
+  $stmt->bind_param("sssssii",
+                    $f->term,
+                    $f->termlc,
+                    $f->translation,
+                    $f->sentence,
+                    $f->romanization,
+                    $f->status,
+                    $f->wid
+                    );
+  exec_statement($stmt);
+
+  $parentsql = "DELETE FROM wordparents WHERE WpWoID = {$f->wid}";
+  do_mysqli_query($parentsql);
+  set_parent($f);
+  save_formdata_tags($f);
+
+  return $f->wid;
+}
+
+
+/**
+ * Print HTML form with FormData.
+ */
 function show_form($formdata, $title = "New Term:", $operation = "Save")
 {
 ?>
@@ -57,7 +285,9 @@ function set_up_parent_autocomplete() {
     select: set_parent_fields,
     focus: set_parent_fields,
     change: function(event,ui) {
-      if (!ui.item) { $(this).val(''); }
+      if (!ui.item) {
+        $('#autocomplete_parent_id').val(0);
+      }
     }
   });
 }
@@ -156,5 +386,58 @@ $(window).on('load', function() {
 
      <?php
 }
+
+
+function cleanreq($s) {
+  return trim(prepare_textdata($_REQUEST[$s]));
+}
+
+
+function get_tags_from_request() {
+  $rtt = getreq('TermTags', array('TagList' => []));
+  $tl = $rtt['TagList'];
+  if (!is_array($tl)) {
+    return [];
+  }
+  return $tl;
+}
+
+
+/**
+ * Gets the data from posted shown_form
+ */
+function load_formdata_from_request(): FormData {
+  $f = new FormData();
+
+  $translation = repl_tab_nl(getreq("WoTranslation"));
+  if ($translation == '' ) {
+    $translation = '*';
+  }
+
+  $f->lang = $_REQUEST["WoLgID"];
+  $f->wid = intval(getreq("WoID", 0));
+  $f->term = cleanreq("WoText");
+  $f->termlc = cleanreq("WoTextLC");
+  if ($f->termlc == '') {
+    $f->termlc = strtolower($f->term);
+  }
+
+  $f->translation = $translation;
+  $f->romanization = $_REQUEST["WoRomanization"];
+  $f->sentence = repl_tab_nl($_REQUEST["WoSentence"]);
+  $f->status = (int) $_REQUEST["WoStatus"];
+  $f->status_old = $_REQUEST["WoOldStatus"];
+  $f->parent_id = intval(getreq("WpParentWoID", 0));
+  $f->parent_text = cleanreq("ParentText");
+  $f->tags = get_tags_from_request();
+
+  // Not used during db updates:
+  // $f->fromAnn = '';
+  // $f->scrdir;
+  // $f->status_radiooptions;
+
+  return $f;
+}
+
 
 ?>

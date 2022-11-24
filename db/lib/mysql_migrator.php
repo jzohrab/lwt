@@ -32,8 +32,8 @@ class MysqlMigrator {
     $this->log("connecting to db: mysqli($host, $user, $pass, $db)");
     $this->db = new mysqli($host, $user, $pass, $db);
     if ($this->db->connect_errno) {
-        $n = $mysqli->connect_errno;
-        $e = $mysqli->connect_error;
+        $n = $this->db->connect_errno;
+        $e = $this->db->connect_error;
         $this->log("Failed to connect to MySQL: ({$n}) {$e}\n");
         die;
     }

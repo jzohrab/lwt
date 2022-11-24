@@ -23,79 +23,42 @@ require_once 'inc/word_input_form.php';
 /**
  * Insert a new word to the database
  * 
- * @param string $textlc      The word to insert, in lowercase
- * @param string $translation Translation of this term
+ * @param FormData $fd
  * 
  * @return array{0: int, 1: string} Word id, and then an insertion message 
  */
-function insert_new_word($textlc, $translation)
+function insert_new_word($fd)
 {
-    $message = runsql(
-        'INSERT INTO words 
-        (
-            WoLgID, WoTextLC, WoText, WoStatus, WoTranslation, 
-            WoSentence, WoWordCount, WoRomanization, WoStatusChanged,' 
-            .  make_score_random_insert_update('iv') . '
-        ) VALUES( 
-            ' . $_REQUEST["WoLgID"] . ', ' .
-            convert_string_to_sqlsyntax($_REQUEST["WoTextLC"]) . ', ' .
-            convert_string_to_sqlsyntax($_REQUEST["WoText"]) . ', ' .
-            $_REQUEST["WoStatus"] . ', ' .
-            convert_string_to_sqlsyntax($translation) . ', ' .
-            convert_string_to_sqlsyntax(repl_tab_nl($_REQUEST["WoSentence"])) . ', 1, ' .
-            convert_string_to_sqlsyntax($_REQUEST["WoRomanization"]) . ', NOW(), ' .  
-            make_score_random_insert_update('id') . 
-        ')', 
-        "Term saved"
-    );
-    $wid = get_last_key();
-    do_mysqli_query(
-        'UPDATE textitems2 SET Ti2WoID = ' . $wid . ' 
-        WHERE Ti2LgID = ' . $_REQUEST["WoLgID"] . ' AND Ti2TextLC =' . 
-        convert_string_to_sqlsyntax_notrim_nonull($textlc)
-    );
-
-    $pid = (int) $_REQUEST["WpParentWoID"];
-    if ($pid != 0) {
-      $parentsql = "INSERT INTO wordparents (WpWoID, WpParentWoID)
-VALUES ({$wid}, {$pid})";
-      do_mysqli_query($parentsql);
+    $wid = 0;
+    $message = '';
+    try {
+        $wid = save_new_formdata($fd);
+        $message = "Term saved";
     }
+    catch (Exception $e) {
+        $message = $e->getMessage();
+    }
+
     return array($wid, $message);
 }
 
 /**
  * Edit an existing term.
  * 
- * @param string $translation New translation for this term
+ * @param FormData $fd
  * 
  * @return array{0: string, 1: string} Word id, and then an insertion message 
  */
-function edit_term($translation)
+function edit_term($fd)
 {
-    $oldstatus = $_REQUEST["WoOldStatus"];
-    $newstatus = $_REQUEST["WoStatus"];
-    $xx = '';
-    if ($oldstatus != $newstatus) { 
-        $xx = ', WoStatus = ' .    $newstatus . ', WoStatusChanged = NOW()'; 
+    $wid = 0;
+    $message = '';
+    try {
+        $wid = update_formdata($fd);
+        $message = "Updated";
     }
-
-    $sql = 'update words set WoText = ' . 
-        convert_string_to_sqlsyntax($_REQUEST["WoText"]) . ', WoTranslation = ' . 
-        convert_string_to_sqlsyntax($translation) . ', WoSentence = ' . 
-        convert_string_to_sqlsyntax(repl_tab_nl($_REQUEST["WoSentence"])) . ', WoRomanization = ' .
-        convert_string_to_sqlsyntax($_REQUEST["WoRomanization"]) . $xx . ',' . 
-      make_score_random_insert_update('u') . ' where WoID = ' . $_REQUEST["WoID"];
-    $message = runsql($sql, "Updated");
-    $wid = $_REQUEST["WoID"];
-
-    $parentsql = "DELETE FROM wordparents WHERE WpWoID = {$wid}";
-    do_mysqli_query($parentsql);
-    $pid = (int) $_REQUEST["WpParentWoID"];
-    if ($pid != 0) {
-      $parentsql = "INSERT INTO wordparents (WpWoID, WpParentWoID)
-VALUES ({$wid}, {$pid})";
-      do_mysqli_query($parentsql);
+    catch (Exception $e) {
+        $message = $e->getMessage();
     }
 
     return array($wid, $message);
@@ -175,44 +138,41 @@ function change_term_display($wid, $translation, $hex): void
  */
 function handle_save_or_update(): void
 {
-    $textlc = trim(prepare_textdata($_REQUEST["WoTextLC"]));
-    $text = trim(prepare_textdata($_REQUEST["WoText"]));
-    $hex = strToClassName(prepare_textdata($_REQUEST["WoTextLC"]));
-    $translation = repl_tab_nl(getreq("WoTranslation"));
-    if ($translation == '' ) {
-      $translation = '*';
-    }
-
     $titlestart = "Edit Term: ";
     if ($_REQUEST['op'] == 'Save') {
       $titlestart = "New Term: ";
     }
-    $titletext = $titlestart . tohtml($textlc);
+
+    $fd = load_formdata_from_request();
+
+    $titletext = $titlestart . tohtml($fd->termlc);
     pagestart_nobody($titletext);
     echo '<h4><span class="bigger">' . $titletext . '</span></h4>';
 
-    if (mb_strtolower($text, 'UTF-8') != $textlc) {
-        lowercase_term_not_equal($textlc);
+    if (mb_strtolower($fd->term, 'UTF-8') != $fd->termlc) {
+        lowercase_term_not_equal($fd->termlc);
         pageend();
         exit();
     }
-    
+
+    $wid = 0;
+    $message = '';
     if ($_REQUEST['op'] == 'Save') {
-        [ $wid, $message ] = insert_new_word($textlc, $translation);
+        [ $wid, $message ] = insert_new_word($fd);
     }
     else {
-        [ $wid, $message ] = edit_term($translation);
+        [ $wid, $message ] = edit_term($fd);
     }
-    saveWordTags($wid);
 
     echo '<p>OK: ' . tohtml($message) . '</p>';
 
     $fa = getreq("fromAnn"); // from-recno or empty
     if ($fa !== '') {
-        $textlc_js = prepare_textdata_js($textlc);
+        $textlc_js = prepare_textdata_js($fd->textlc);
         echo "<script>window.opener.do_ajax_edit_impr_text({$fa}, {$textlc_js});</script>";
     } else {
-        change_term_display($wid, $translation, $hex);
+        $hex = strToClassName(prepare_textdata($_REQUEST["WoTextLC"]));
+        change_term_display($wid, $fd->translation, $hex);
     }
 
     pageend();
