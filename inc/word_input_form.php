@@ -79,6 +79,11 @@ class FormDataDbLoader {
    * @return formadata
    */
   public function load_formdata_from_db($wid, $tid, $ord) {
+
+    if (intval($tid) == 0 || intval($ord) == 0) {
+      throw new Exception("Missing tid or ord");
+    }
+
     $ret = null;
     if ($wid != '' && $wid > 0) {
       $ret = $this->load_formdata_from_wid($wid);

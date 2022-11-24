@@ -101,9 +101,16 @@ where ti2order = 25";
         }
     }
 
-
-    /** tests to do
-     * missing params cases:
-     * - missing wid = must have tid and ord
-     */
+    public function test_missing_tid_or_ord_throws() {
+        $msg = '';
+        try { load_formdata_from_db('', 0, 0); }
+        catch (Exception $e) { $msg .= '1'; }
+        try { load_formdata_from_db('', 0, 1); }
+        catch (Exception $e) { $msg .= '2'; }
+        try { load_formdata_from_db('', 1, 0); }
+        catch (Exception $e) { $msg .= '3'; }
+        try { load_formdata_from_db(1, 1, null); }
+        catch (Exception $e) { $msg .= '4'; }
+        $this->assertEquals('1234', $msg, 'all failed :-P');
+    }
 }
