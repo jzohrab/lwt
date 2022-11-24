@@ -283,7 +283,7 @@ function handle_display_form() {
     pagestart_nobody($titletext);
 
     if ($new) {
-        $formdata->tags = getWordTags(0);
+        $formdata->tags = [];
         $formdata->sentence = get_sentence_for_termlc($termlc);
         $formdata->status = 1;
         $formdata->status_old = 1;
