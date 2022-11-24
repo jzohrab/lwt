@@ -5,7 +5,7 @@ require_once __DIR__ . '/db_helpers.php';
 
 use PHPUnit\Framework\TestCase;
 
-class word_input_form_TestBase extends TestCase
+abstract class word_input_form_TestBase extends TestCase
 {
 
     public function setUp(): void
