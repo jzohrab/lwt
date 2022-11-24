@@ -61,17 +61,8 @@ class FormData
 
 }
 
-/**
- * Get fully populated formdata from database.
- *
- * @param wid  string  WoID or ''
- * @param tid  int     TxID
- * @param ord  int     Ti2Order
- *
- * @return formadata
- */
-function load_formdata_from_db($wid, $tid, $ord) {
 
+function load_formdata_from_wid($wid) {
   $sql = "SELECT words.*,
 ifnull(pw.WoID, 0) as ParentWoID,
 ifnull(pw.WoTextLC, '') as ParentWoTextLC
@@ -115,6 +106,52 @@ where words.WoID = {$wid}";
   $f->parent_text = $record['ParentWoTextLC'];
 
   return $f;
+}
+
+
+/**
+ * Get baseline data from tid and ord,
+ * if $wid is not known in load_formdata_from_wid.
+ *
+ * @return [ term, langid, woid ]
+ */
+function get_data_from_tid_ord($tid, $ord) {
+  $sql = "SELECT ifnull(WoID, 0) as WoID,
+Ti2Text AS t,
+Ti2LgID AS lid
+FROM textitems2
+LEFT OUTER JOIN words on WoTextLC = Ti2TextLC
+WHERE Ti2TxID = {$tid} AND Ti2WordCount = 1 AND Ti2Order = {$ord}";
+  $res = do_mysqli_query($sql);
+  $r = mysqli_fetch_assoc($res);
+  mysqli_free_result($res);
+  if (! $r) {
+    throw new Exception("no matching ti2");
+  }
+
+  return [ $r['t'], (int) $r['lid'], (int) $r['WoID'] ];
+}
+
+/**
+ * Get fully populated formdata from database.
+ *
+ * @param wid  string  WoID or ''
+ * @param tid  int     TxID
+ * @param ord  int     Ti2Order
+ *
+ * @return formadata
+ */
+function load_formdata_from_db($wid, $tid, $ord) {
+  $ret = null;
+  if ($wid != '' && $wid > 0) {
+    $ret = load_formdata_from_wid($wid);
+  }
+
+  [ $term, $langid, $wid ] = get_data_from_tid_ord($tid, $ord);
+  if ($wid > 0) {
+    $ret = load_formdata_from_wid($wid);
+  }
+  return $ret;
 }
 
 
