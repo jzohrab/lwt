@@ -364,6 +364,25 @@ function saveArchivedTextTags($tid): void
 
 // -------------------------------------------------------------
 
+function getWordTagsText($wid): array
+{
+    if ($wid == '' || $wid == 0) {
+        return array();
+    }
+    $r = array();
+    $sql = 'select TgText
+    from wordtags, tags
+    where TgID = WtTgID and WtWoID = ' . $wid . ' 
+    order by TgText';
+    $res = do_mysqli_query($sql);
+    while ($record = mysqli_fetch_assoc($res)) {
+        $r[] = $record["TgText"];
+    }
+    mysqli_free_result($res);
+    return $r;
+}
+
+
 function getWordTags($wid): string 
 {
     $r = '<ul id="termtags">';

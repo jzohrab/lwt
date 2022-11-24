@@ -119,4 +119,26 @@ final class session_utility_Test extends TestCase
         $this->assertEquals($_SESSION['TBPREF_TEXTTAGS'], 'http://localhost/dummyuri/');
     }
 
+    /** Word tags */
+
+    public function test_getWordTags_empty()
+    {
+        $expected = '<ul id="termtags"></ul>';
+        $this->assertEquals(getWordTags(42), $expected);
+    }
+
+    public function test_getWordTags_with_tags()
+    {
+        DbHelpers::add_tags(['a', 'b']);
+        $sql = "select TgID, TgText from tags";
+        DbHelpers::assertTableContains($sql, ['1; a', '2; b']);
+
+        do_mysqli_query("insert into wordtags (WtWoID, WtTgID)
+VALUES (42, 1), (42, 2), (42,99999)");
+        $expected = '<ul id="termtags"><li>a</li><li>b</li></ul>';
+        $this->assertEquals(getWordTags(42), $expected);
+
+        $this->assertEquals(getWordTagsText(42), ['a', 'b']);
+    }
+
 }
