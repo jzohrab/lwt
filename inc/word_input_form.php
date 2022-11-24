@@ -15,14 +15,13 @@ class FormData
   public $wid = 0;
   public $term;
   public $termlc;
-  public $scrdir;
+  public $scrdir = '';
   public $translation = '';
-  public $tags;
+  public $tags = [];
   public $romanization = '';
   public $sentence = '';
   public $status = 1;
   public $status_old = 1;
-  public $status_radiooptions;
   public $parent_id = 0;
   public $parent_text = '';
 
