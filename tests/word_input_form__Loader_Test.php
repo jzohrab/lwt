@@ -41,7 +41,7 @@ where ti2order = 25";
             'lang' => 1,
             'term' => 'BEBIDA',
             'termlc' => 'bebida',
-            'scrdir' => 0,
+            'scrdir' => '',
             'translation' => 'translation BEBIDA',
             'tags' => [],
             'romanization' => 'rom BEBIDA',
@@ -56,10 +56,32 @@ where ti2order = 25";
         }
     }
 
+
+    public function test_no_wid_load_by_tid_and_ord_matches_existing_word() {
+        $fd = load_formdata_from_db('', 1, 25);
+        $expected = array(
+            'wid' => ($this->wid),
+            'lang' => 1,
+            'term' => 'bebida',
+            'termlc' => 'bebida',
+            'scrdir' => '',
+            'translation' => 'translation BEBIDA',
+            'tags' => [],
+            'romanization' => 'rom BEBIDA',
+            'sentence' => 'sent BEBIDA',
+            'status' => 3,
+            'status_old' => 3,
+            'parent_id' => 0,
+            'parent_text' => ''
+        );
+        foreach ($expected as $prop => $value) {
+            $this->assertEquals($value, $fd->$prop, $prop);
+        }
+    }
+
+
     /** tests to do
      * normal cases:
-     * - wid in db (existing word) - gets all of its data
-     * - wid blank/not given, tid and ord given
      * - wid not given, tid and ord given, but word already exists in db
 
      * missing params cases:

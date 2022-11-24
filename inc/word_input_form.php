@@ -104,6 +104,7 @@ where words.WoID = {$wid}";
   $f->term = $record['WoText'];
   $f->termlc = $record['WoTextLC'];
   $f->lang = (int) $record['WoLgID'];
+  $f->scrdir = getScriptDirectionTag($f->lang);
   $f->translation = $transl;
   $f->tags = getWordTagsText($wid);
   $f->sentence = $sentence;
