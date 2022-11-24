@@ -45,6 +45,12 @@ final class word_input_form_Test extends TestCase
         DbHelpers::assertTableContains($sql, $expected, $message);
     }
 
+    public function test_smoke_export_js_dict()
+    {
+        $s = $this->child->export_js_dict();
+        $this->assertTrue(is_string($s), "got string");
+    }
+
     public function test_save_new_no_parent()
     {
         $this->child->parent_id = 0;

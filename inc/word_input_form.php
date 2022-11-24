@@ -24,6 +24,27 @@ class FormData
   public $status_radiooptions;
   public $parent_id = 0;
   public $parent_text = '';
+
+      /**
+     * Export word data as a JSON dictionnary.
+     * 
+     * @return string JSON dict.
+     */
+    public function export_js_dict()
+    {
+        return json_encode(
+            array(
+            "woid" => $this->wid,
+            "text" =>  $this->term,
+            "romanization" => $this->romanization,
+            "translation" => prepare_textdata_js(
+                $this->translation . getWordTagList($this->wid, ' ', 1, 0)
+            ),
+            "status" => $this->status
+            )
+        );
+    }
+
 }
 
 
