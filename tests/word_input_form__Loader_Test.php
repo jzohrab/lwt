@@ -14,7 +14,7 @@ final class word_input_form__Loader_Test extends word_input_form_TestBase {
         DbHelpers::add_text($this->text, $this->langid);
 
         splitCheckText($this->text, $this->langid, 1);
-        $spot_check_sql = " select ti2woid, ti2seid, ti2order, ti2text from textitems2
+        $spot_check_sql = "select ti2woid, ti2seid, ti2order, ti2text from textitems2
 where ti2order in (1, 10, 25) order by ti2order";
         $expected = [
             "0; 1; 1; Hola",
@@ -22,11 +22,38 @@ where ti2order in (1, 10, 25) order by ti2order";
             "0; 3; 25; bebida"
         ];
         DbHelpers::assertTableContains($spot_check_sql, $expected);
+
+        $a = $this->make_formdata("BEBIDA");
+        $this->wid = save_new_formdata($a);
+
+        $spot_check_sql = "select ti2woid, Ti2TxID, Ti2Order, ti2seid, ti2text from textitems2
+where ti2order = 25";
+        $expected = [
+            "{$this->wid}; 1; 25; 3; bebida"
+        ];
+        DbHelpers::assertTableContains($spot_check_sql, $expected);
     }
 
-    public function test_dummy() {
-        // TODO!
-        $this->assertTrue(true);
+    public function test_load_existing_wid() {
+        $fd = load_formdata_from_db($this->wid, 1, 25);
+        $expected = array(
+            'wid' => ($this->wid),
+            'lang' => 1,
+            'term' => 'BEBIDA',
+            'termlc' => 'bebida',
+            'scrdir' => 0,
+            'translation' => 'translation BEBIDA',
+            'tags' => [],
+            'romanization' => 'rom BEBIDA',
+            'sentence' => 'sent BEBIDA',
+            'status' => 3,
+            'status_old' => 3,
+            'parent_id' => 0,
+            'parent_text' => ''
+        );
+        foreach ($expected as $prop => $value) {
+            $this->assertEquals($value, $fd->$prop, $prop);
+        }
     }
 
     /** tests to do

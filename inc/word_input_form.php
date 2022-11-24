@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/database_connect.php';
+require_once __DIR__ . '/session_utility.php';
 
 /**
  * Input form for words.
@@ -38,6 +39,81 @@ class FormData
     return $r . '</ul>';
   }
 
+
+  /**
+   * Export word data as a JSON dictionnary.
+   * 
+   * @return string JSON dict.
+   */
+  public function export_js_dict()
+  {
+    $tl = getWordTagList($this->wid, ' ', 1, 0);
+    $trans = $this->translation . $tl;
+    $ret = array
+      ( "woid" => $this->wid,
+        "text" =>  $this->term,
+        "romanization" => $this->romanization,
+        "translation" => prepare_textdata_js($trans),
+        "status" => $this->status
+        );
+    return json_encode($ret);
+  }
+
+}
+
+/**
+ * Get fully populated formdata from database.
+ *
+ * @param wid  string  WoID or ''
+ * @param tid  int     TxID
+ * @param ord  int     Ti2Order
+ *
+ * @return formadata
+ */
+function load_formdata_from_db($wid, $tid, $ord) {
+
+  $sql = "SELECT words.*,
+ifnull(pw.WoID, 0) as ParentWoID,
+ifnull(pw.WoTextLC, '') as ParentWoTextLC
+FROM words
+INNER JOIN languages on LgID = words.WoLgID
+LEFT OUTER JOIN wordparents on wordparents.WpWoID = words.WoID
+LEFT OUTER JOIN words AS pw on pw.WoID = wordparents.WpParentWoID
+where words.WoID = {$wid}";
+  $res = do_mysqli_query($sql);
+  $record = mysqli_fetch_assoc($res);
+  mysqli_free_result($res);
+  if (! $record) {
+    throw new Exception("No matching record for {$wid}");
+  }
+
+  $status = $record['WoStatus'];
+  $sentence = $record['WoSentence'];
+  /*
+  if ($sentence == '' && isset($_REQUEST['tid']) && isset($_REQUEST['ord'])) {
+    $sentence = get_sentence_for_termlc($formdata->termlc);
+  }
+  */
+  $transl = $record['WoTranslation'];
+  if($transl == '*') {
+    $transl='';
+  }
+
+  $f = new FormData();
+  $f->wid = $wid;
+  $f->term = $record['WoText'];
+  $f->termlc = $record['WoTextLC'];
+  $f->lang = (int) $record['WoLgID'];
+  $f->translation = $transl;
+  $f->tags = getWordTagsText($wid);
+  $f->sentence = $sentence;
+  $f->romanization = $record['WoRomanization'];
+  $f->status = $status;
+  $f->status_old = $status;
+  $f->parent_id = $record['ParentWoID'];
+  $f->parent_text = $record['ParentWoTextLC'];
+
+  return $f;
 }
 
 
