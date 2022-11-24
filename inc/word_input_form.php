@@ -112,9 +112,9 @@ where words.WoID = {$wid}";
  * Get baseline data from tid and ord,
  * if $wid is not known in load_formdata_from_wid.
  *
- * @return [ term, langid, woid ]
+ * @return FormData, with wid set if a matching word is found.
  */
-function get_data_from_tid_ord($tid, $ord) {
+function load_formdata_from_tid_ord($tid, $ord) {
   $sql = "SELECT ifnull(WoID, 0) as WoID,
 Ti2Text AS t,
 Ti2LgID AS lid
@@ -122,13 +122,20 @@ FROM textitems2
 LEFT OUTER JOIN words on WoTextLC = Ti2TextLC
 WHERE Ti2TxID = {$tid} AND Ti2WordCount = 1 AND Ti2Order = {$ord}";
   $res = do_mysqli_query($sql);
-  $r = mysqli_fetch_assoc($res);
+  $record = mysqli_fetch_assoc($res);
   mysqli_free_result($res);
-  if (! $r) {
-    throw new Exception("no matching ti2");
+  if (! $record) {
+    throw new Exception("no matching textitems2 for tid = $tid , ord = $ord");
   }
 
-  return [ $r['t'], (int) $r['lid'], (int) $r['WoID'] ];
+  $f = new FormData();
+  $f->wid = (int) $record['WoID'];
+  $f->term = $record['t'];
+  $f->termlc = mb_strtolower($record['t']);
+  $f->lang = (int) $record['lid'];
+  $f->scrdir = getScriptDirectionTag($f->lang);
+
+  return $f;
 }
 
 /**
@@ -145,10 +152,12 @@ function load_formdata_from_db($wid, $tid, $ord) {
   if ($wid != '' && $wid > 0) {
     $ret = load_formdata_from_wid($wid);
   }
-
-  [ $term, $langid, $wid ] = get_data_from_tid_ord($tid, $ord);
-  if ($wid > 0) {
-    $ret = load_formdata_from_wid($wid);
+  else {
+    $ret = load_formdata_from_tid_ord($tid, $ord);
+    if ($ret->wid > 0) {
+      // A real word match was found.
+      $ret = load_formdata_from_wid($ret->wid);
+    }
   }
   return $ret;
 }

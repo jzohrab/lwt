@@ -20,6 +20,10 @@ abstract class word_input_form_TestBase extends TestCase
         $this->parent = $this->make_formdata("PARENT");
         $this->stepdad = $this->make_formdata("STEPDAD");
 
+        // Fake session and server info.
+        $_SERVER['HTTP_HOST'] = 'localhost';
+        $_SERVER['REQUEST_URI'] = '/dummyuri';
+
         $this->childSetUp();
     }
 

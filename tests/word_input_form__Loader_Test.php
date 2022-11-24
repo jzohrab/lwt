@@ -96,8 +96,8 @@ where ti2order = 25";
             'parent_id' => 0,
             'parent_text' => ''
         );
-        foreach ($expected as $prop => $value) {
-            $this->assertEquals($value, $fd->$prop, $prop);
+        foreach ($expected as $k => $v) {
+            $this->assertEquals($v, $fd->$k, "checking $k");
         }
     }
 
