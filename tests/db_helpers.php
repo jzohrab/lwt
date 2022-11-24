@@ -69,6 +69,17 @@ you must use a dedicated test database when running tests.
         foreach ($tables as $t) {
             do_mysqli_query("truncate {$t}");
         }
+
+        $alters = [
+            "sentences",
+            "tags",
+            "textitems2",
+            "texts",
+            "words"
+        ];
+        foreach ($alters as $t) {
+            do_mysqli_query("ALTER TABLE {$t} AUTO_INCREMENT = 1");
+        }
     }
 
     public static function load_language_spanish() {
@@ -86,6 +97,23 @@ you must use a dedicated test database when running tests.
      * also very inefficient!  Will fix if tests get stupid slow.
      */
 
+    public static function exec_statement($stmt) {
+        if (!$stmt) {
+            throw new Exception($DBCONNECTION->error);
+        }
+        if (!$stmt->execute()) {
+            throw new Exception($stmt->error);
+        }
+    }
+
+    public static function add_text($text, $langid, $title = 'testing') {
+        global $DBCONNECTION;
+        $sql = "INSERT INTO texts (TxLgID, TxTitle, TxText) VALUES (?, ?, ?)";
+        $stmt = $DBCONNECTION->prepare($sql);
+        $stmt->bind_param("iss", $langid, $title, $text);
+        exec_statement($stmt);
+    }
+
     public static function add_tags($tags) {
         foreach ($tags as $t) {
             $sql = "insert into tags (TgText, TgComment)
@@ -101,6 +129,11 @@ you must use a dedicated test database when running tests.
             do_mysqli_query($sql);
         };
     }
+
+
+    /**
+     * Checks.
+     */
 
     public static function assertTableContains($sql, $expected, $message = '') {
         $content = [];

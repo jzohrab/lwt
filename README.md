@@ -26,6 +26,17 @@ For installation from this fork, `git clone` this repo and use the master branch
 * **master**: the main branch I use for my own LWT work.
 * other branches: features I'm working on.
 
+## Tests
+
+```
+# Run a single file
+./vendor/bin/phpunit tests/splitCheckText_Test.php
+
+# Run everything
+./vendor/bin/phpunit tests
+```
+
+Some tests require 'load local infile' to be set to On, so you'll need to set that in your php.ini.  For me, for example, the file I changed was at `/usr/local/etc/php/8.1/php.ini`.
 
 ## Contribution
 
