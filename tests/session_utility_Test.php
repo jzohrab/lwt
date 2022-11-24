@@ -125,6 +125,7 @@ final class session_utility_Test extends TestCase
     {
         $expected = '<ul id="termtags"></ul>';
         $this->assertEquals(getWordTags(42), $expected);
+        $this->assertEquals(getWordTagsText(42), []);
     }
 
     public function test_getWordTags_with_tags()

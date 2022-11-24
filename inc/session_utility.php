@@ -386,16 +386,9 @@ function getWordTagsText($wid): array
 function getWordTags($wid): string 
 {
     $r = '<ul id="termtags">';
-    if ($wid > 0) {
-        $sql = 'select TgText 
-        from wordtags, tags 
-        where TgID = WtTgID and WtWoID = ' . $wid . ' 
-        order by TgText';
-        $res = do_mysqli_query($sql);
-        while ($record = mysqli_fetch_assoc($res)) {
-            $r .= '<li>' . tohtml($record["TgText"]) . '</li>';
-        }
-        mysqli_free_result($res);
+    $arr = getWordTagsText($wid);
+    foreach ($arr as $t) {
+        $r .= '<li>' . tohtml($t) . '</li>';
     }
     $r .= '</ul>';
     return $r;
