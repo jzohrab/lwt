@@ -79,6 +79,28 @@ where ti2order = 25";
         }
     }
 
+    public function test_no_wid_load_by_tid_and_ord_new_word() {
+        $fd = load_formdata_from_db('', 1, 12);
+        $expected = array(
+            'wid' => 0,  // New word!
+            'lang' => 1,
+            'term' => 'TENGO',
+            'termlc' => 'tengo',
+            'scrdir' => '',
+            'translation' => '',
+            'tags' => [],
+            'romanization' => '',
+            'sentence' => 'No TENGO una lista.',
+            'status' => 1,
+            'status_old' => 1,
+            'parent_id' => 0,
+            'parent_text' => ''
+        );
+        foreach ($expected as $prop => $value) {
+            $this->assertEquals($value, $fd->$prop, $prop);
+        }
+    }
+
 
     /** tests to do
      * normal cases:
