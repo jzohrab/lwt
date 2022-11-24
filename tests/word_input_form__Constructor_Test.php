@@ -7,6 +7,10 @@ use PHPUnit\Framework\TestCase;
 
 final class new_formdata__Constructor_Test extends word_input_form_TestBase {
 
+    public function childSetUp() {
+        // set up the text
+    }
+
     public function test_dummy() {
         // TODO!
         $this->assertTrue(true);

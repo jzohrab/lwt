@@ -19,6 +19,12 @@ abstract class word_input_form_TestBase extends TestCase
         $this->child = $this->make_formdata("CHILD");
         $this->parent = $this->make_formdata("PARENT");
         $this->stepdad = $this->make_formdata("STEPDAD");
+
+        $this->childSetUp();
+    }
+
+    public function childSetUp() {
+        // no-op, child tests can override this to set up stuff.
     }
 
     public function make_formdata($term) {
