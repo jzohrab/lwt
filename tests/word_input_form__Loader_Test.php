@@ -90,7 +90,7 @@ where ti2order = 25";
             'translation' => '',
             'tags' => [],
             'romanization' => '',
-            'sentence' => 'No TENGO una lista.',
+            'sentence' => 'No {TENGO} una lista.',
             'status' => 1,
             'status_old' => 1,
             'parent_id' => 0,
@@ -103,9 +103,6 @@ where ti2order = 25";
 
 
     /** tests to do
-     * normal cases:
-     * - wid not given, tid and ord given, new word
-
      * missing params cases:
      * - missing wid = must have tid and ord
      */

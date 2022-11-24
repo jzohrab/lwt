@@ -138,6 +138,17 @@ WHERE Ti2TxID = {$tid} AND Ti2WordCount = 1 AND Ti2Order = {$ord}";
   return $f;
 }
 
+
+function get_sentence($termlc, $tid, $ord) {
+  $sql = "select Ti2SeID as value from textitems2
+  where Ti2WordCount = 1 and
+  Ti2TxID = {$tid} and Ti2Order = {$ord}";
+  $seid = get_first_value($sql);
+  $sentcount = (int) getSettingWithDefault('set-term-sentence-count');
+  $sent = getSentence($seid, $termlc, $sentcount);
+  return repl_tab_nl($sent[1]);
+}
+
 /**
  * Get fully populated formdata from database.
  *
@@ -159,6 +170,14 @@ function load_formdata_from_db($wid, $tid, $ord) {
       $ret = load_formdata_from_wid($ret->wid);
     }
   }
+
+  if ($ret->translation == '*') {
+    $ret->translation = '';
+  }
+  if ($ret->sentence == '') {
+    $ret->sentence = get_sentence($ret->termlc, $tid, $ord);
+  }
+
   return $ret;
 }
 
