@@ -5,7 +5,7 @@ require_once __DIR__ . '/db_helpers.php';
 
 use PHPUnit\Framework\TestCase;
 
-final class new_formdata__Constructor_Test extends word_input_form_TestBase {
+final class word_input_form__Loader_Test extends word_input_form_TestBase {
 
     public function childSetUp() {
         // set up the text
