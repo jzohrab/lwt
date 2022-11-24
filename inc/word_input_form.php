@@ -61,8 +61,50 @@ class FormData
 }
 
 
-function load_formdata_from_wid($wid) {
-  $sql = "SELECT words.*,
+/**
+ * Load FormData from the database.
+ *
+ * Class just created to hide functions,
+ * clarifying API.
+ */
+class FormDataDbLoader {
+
+  /**
+   * Get fully populated formdata from database.
+   *
+   * @param wid  string  WoID or ''
+   * @param tid  int     TxID
+   * @param ord  int     Ti2Order
+   *
+   * @return formadata
+   */
+  public function load_formdata_from_db($wid, $tid, $ord) {
+    $ret = null;
+    if ($wid != '' && $wid > 0) {
+      $ret = $this->load_formdata_from_wid($wid);
+    }
+    else {
+      $ret = $this->load_formdata_from_tid_ord($tid, $ord);
+      if ($ret->wid > 0) {
+        // A real word match was found.
+        $ret = $this->load_formdata_from_wid($ret->wid);
+      }
+    }
+
+    if ($ret->translation == '*') {
+      $ret->translation = '';
+    }
+    if ($ret->sentence == '') {
+      $ret->sentence = $this->get_sentence($ret->termlc, $tid, $ord);
+    }
+
+    return $ret;
+  }
+
+  /** Private methods *************/
+
+  private function load_formdata_from_wid($wid) {
+    $sql = "SELECT words.*,
 ifnull(pw.WoID, 0) as ParentWoID,
 ifnull(pw.WoTextLC, '') as ParentWoTextLC
 FROM words
@@ -70,115 +112,87 @@ INNER JOIN languages on LgID = words.WoLgID
 LEFT OUTER JOIN wordparents on wordparents.WpWoID = words.WoID
 LEFT OUTER JOIN words AS pw on pw.WoID = wordparents.WpParentWoID
 where words.WoID = {$wid}";
-  $res = do_mysqli_query($sql);
-  $record = mysqli_fetch_assoc($res);
-  mysqli_free_result($res);
-  if (! $record) {
-    throw new Exception("No matching record for {$wid}");
+    $res = do_mysqli_query($sql);
+    $record = mysqli_fetch_assoc($res);
+    mysqli_free_result($res);
+    if (! $record) {
+      throw new Exception("No matching record for {$wid}");
+    }
+
+    $status = $record['WoStatus'];
+    $sentence = $record['WoSentence'];
+    $transl = $record['WoTranslation'];
+    if($transl == '*') {
+      $transl='';
+    }
+
+    $f = new FormData();
+    $f->wid = $wid;
+    $f->term = $record['WoText'];
+    $f->termlc = $record['WoTextLC'];
+    $f->lang = (int) $record['WoLgID'];
+    $f->scrdir = getScriptDirectionTag($f->lang);
+    $f->translation = $transl;
+    $f->tags = getWordTagsText($wid);
+    $f->sentence = $sentence;
+    $f->romanization = $record['WoRomanization'];
+    $f->status = $status;
+    $f->status_old = $status;
+    $f->parent_id = $record['ParentWoID'];
+    $f->parent_text = $record['ParentWoTextLC'];
+
+    return $f;
   }
 
-  $status = $record['WoStatus'];
-  $sentence = $record['WoSentence'];
-  /*
-  if ($sentence == '' && isset($_REQUEST['tid']) && isset($_REQUEST['ord'])) {
-    $sentence = get_sentence_for_termlc($formdata->termlc);
-  }
-  */
-  $transl = $record['WoTranslation'];
-  if($transl == '*') {
-    $transl='';
-  }
 
-  $f = new FormData();
-  $f->wid = $wid;
-  $f->term = $record['WoText'];
-  $f->termlc = $record['WoTextLC'];
-  $f->lang = (int) $record['WoLgID'];
-  $f->scrdir = getScriptDirectionTag($f->lang);
-  $f->translation = $transl;
-  $f->tags = getWordTagsText($wid);
-  $f->sentence = $sentence;
-  $f->romanization = $record['WoRomanization'];
-  $f->status = $status;
-  $f->status_old = $status;
-  $f->parent_id = $record['ParentWoID'];
-  $f->parent_text = $record['ParentWoTextLC'];
-
-  return $f;
-}
-
-
-/**
- * Get baseline data from tid and ord,
- * if $wid is not known in load_formdata_from_wid.
- *
- * @return FormData, with wid set if a matching word is found.
- */
-function load_formdata_from_tid_ord($tid, $ord) {
-  $sql = "SELECT ifnull(WoID, 0) as WoID,
+  /**
+   * Get baseline data from tid and ord,
+   * if $wid is not known in load_formdata_from_wid.
+   *
+   * @return FormData, with wid set if a matching word is found.
+   */
+  private function load_formdata_from_tid_ord($tid, $ord) {
+    $sql = "SELECT ifnull(WoID, 0) as WoID,
 Ti2Text AS t,
 Ti2LgID AS lid
 FROM textitems2
 LEFT OUTER JOIN words on WoTextLC = Ti2TextLC
 WHERE Ti2TxID = {$tid} AND Ti2WordCount = 1 AND Ti2Order = {$ord}";
-  $res = do_mysqli_query($sql);
-  $record = mysqli_fetch_assoc($res);
-  mysqli_free_result($res);
-  if (! $record) {
-    throw new Exception("no matching textitems2 for tid = $tid , ord = $ord");
+    $res = do_mysqli_query($sql);
+    $record = mysqli_fetch_assoc($res);
+    mysqli_free_result($res);
+    if (! $record) {
+      throw new Exception("no matching textitems2 for tid = $tid , ord = $ord");
+    }
+
+    $f = new FormData();
+    $f->wid = (int) $record['WoID'];
+    $f->term = $record['t'];
+    $f->termlc = mb_strtolower($record['t']);
+    $f->lang = (int) $record['lid'];
+    $f->scrdir = getScriptDirectionTag($f->lang);
+
+    return $f;
   }
 
-  $f = new FormData();
-  $f->wid = (int) $record['WoID'];
-  $f->term = $record['t'];
-  $f->termlc = mb_strtolower($record['t']);
-  $f->lang = (int) $record['lid'];
-  $f->scrdir = getScriptDirectionTag($f->lang);
 
-  return $f;
-}
-
-
-function get_sentence($termlc, $tid, $ord) {
-  $sql = "select Ti2SeID as value from textitems2
+  private function get_sentence($termlc, $tid, $ord) {
+    $sql = "select Ti2SeID as value from textitems2
   where Ti2WordCount = 1 and
   Ti2TxID = {$tid} and Ti2Order = {$ord}";
-  $seid = get_first_value($sql);
-  $sentcount = (int) getSettingWithDefault('set-term-sentence-count');
-  $sent = getSentence($seid, $termlc, $sentcount);
-  return repl_tab_nl($sent[1]);
-}
+    $seid = get_first_value($sql);
+    $sentcount = (int) getSettingWithDefault('set-term-sentence-count');
+    $sent = getSentence($seid, $termlc, $sentcount);
+    return repl_tab_nl($sent[1]);
+  }
 
-/**
- * Get fully populated formdata from database.
- *
- * @param wid  string  WoID or ''
- * @param tid  int     TxID
- * @param ord  int     Ti2Order
- *
- * @return formadata
- */
+
+}  // end FormDataLoader
+
+
 function load_formdata_from_db($wid, $tid, $ord) {
-  $ret = null;
-  if ($wid != '' && $wid > 0) {
-    $ret = load_formdata_from_wid($wid);
-  }
-  else {
-    $ret = load_formdata_from_tid_ord($tid, $ord);
-    if ($ret->wid > 0) {
-      // A real word match was found.
-      $ret = load_formdata_from_wid($ret->wid);
-    }
-  }
-
-  if ($ret->translation == '*') {
-    $ret->translation = '';
-  }
-  if ($ret->sentence == '') {
-    $ret->sentence = get_sentence($ret->termlc, $tid, $ord);
-  }
-
-  return $ret;
+  $loader = new FormDataDbLoader();
+  return $loader->load_formdata_from_db($wid, $tid, $ord);
 }
 
 
