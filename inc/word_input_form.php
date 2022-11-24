@@ -25,25 +25,18 @@ class FormData
   public $parent_id = 0;
   public $parent_text = '';
 
-      /**
-     * Export word data as a JSON dictionnary.
-     * 
-     * @return string JSON dict.
-     */
-    public function export_js_dict()
-    {
-        return json_encode(
-            array(
-            "woid" => $this->wid,
-            "text" =>  $this->term,
-            "romanization" => $this->romanization,
-            "translation" => prepare_textdata_js(
-                $this->translation . getWordTagList($this->wid, ' ', 1, 0)
-            ),
-            "status" => $this->status
-            )
-        );
+
+  /**
+   * Convert tags to list required by tagit.
+   */
+  public function tags_to_list(): string 
+  {
+    $r = '<ul id="termtags">';
+    foreach ($this->tags as $t) {
+      $r .= '<li>' . tohtml($t) . '</li>';
     }
+    return $r . '</ul>';
+  }
 
 }
 
@@ -348,7 +341,7 @@ $(window).on('load', function() {
   <tr>
     <td class="td1 right">Tags:</td>
     <td class="td1">
-      <?php echo getWordTags($formdata->wid); ?>
+      <?php echo $formdata->tags_to_list(); ?>
     </td>
   </tr>
   <tr>
