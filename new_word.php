@@ -106,8 +106,7 @@ else {
     $formdata->scrdir = $scrdir;
 
     pagestart_nobody('');
-    show_form($formdata, "New Term:", "Save");
-
+    show_form($formdata);
 }
 
 pageend();

@@ -182,23 +182,13 @@ function handle_save_or_update(): void
 function handle_display_form() {
     // FORM
     // edit_word.php?tid=..&ord=..&wid=..
-
     $wid = getreq('wid', 0);
     $tid = getreq('tid', 0);
     $ord = getreq('ord', 0);
     $formdata = load_formdata_from_db($wid, $tid, $ord);
 
-    $new = ($formdata->wid == 0);
-
     pagestart_nobody("Term: " . tohtml($term));
-
-    if ($new) {
-        show_form($formdata, "New Term", "Save");
-        
-    } else {
-        show_form($formdata, "Edit Term", "Change");
-    }
-
+    show_form($formdata);
     pageend();
 }
 

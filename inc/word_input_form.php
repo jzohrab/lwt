@@ -406,8 +406,15 @@ WHERE WoID = ?";
 /**
  * Print HTML form with FormData.
  */
-function show_form($formdata, $title = "New Term:", $operation = "Save")
+function show_form($formdata)
 {
+  $title = "New Term";
+  $operation = "Save";
+  if ($formdata->wid > 0) {
+    $title = "Edit Term";
+    $operation = "Change";
+  }
+
 ?>
 <script type="text/javascript">
 function set_parent_fields(event, ui) {
