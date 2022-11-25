@@ -83,18 +83,32 @@ function get_language_settings($langid)
  */
 function echo_term($actcode, $showAll, $spanid, $hidetag, $currcharcount, $record)
 {
+
+    $to_attr_string = function($arr) {
+        $ret = [];
+        foreach ($arr as $k => $v) {
+            $ret[] = "{$k}=\"{$v}\"";
+        }
+        return implode("\n", $ret);
+    };
+
     $actcode = (int)$record['Code'];
+    $content = tohtml($record['TiText']);
+
     $termclass = 'TERM' . strToClassName($record['TiTextLC']);
     if ($actcode <= 1 && !isset($record['WoID'])) {
         // Not registered word (status 0)
-        echo '<span 
-            id="' . $spanid . '" 
-            class="' . $hidetag . ' click word wsty status0 ' . 
-            $termclass . '" 
-            data_pos="' . $currcharcount . '" 
-            data_order="' . $record['Ti2Order'] . '" 
-            data_trans="" data_rom="" data_status="0" 
-            data_wid="">' . tohtml($record['TiText']) . '</span>';
+        $attrs = [
+            'id' => $spanid,
+            'class' => "{$hidetag} click word wsty status0 {$termclass}",
+            'data_pos' => $currcharcount,
+            'data_order' => $record['Ti2Order'],
+            'data_trans' => '',
+            'data_rom' => '',
+            'data_status' => 0,
+            'data_wid' => ''
+        ];
+        echo "<span {$to_attr_string($attrs)}>{$content}</span>";
         return;
     }
 
