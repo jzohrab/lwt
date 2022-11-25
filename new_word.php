@@ -33,10 +33,7 @@ function update_reading_highlights_for_terms_with_hex($hex) {
 }
 
 
-// INSERT
-if (isset($_REQUEST['op'])) {
-    
-    if ($_REQUEST['op'] == 'Save') {
+function save_form() {
         $fd = load_formdata_from_request();
         $wid = 0;
         $message = '';
@@ -91,11 +88,14 @@ if (isset($_REQUEST['op'])) {
 <?php
         } // (substr($message,0,5) != 'Error')
 
-    } // $_REQUEST['op'] == 'Save'
-
-} // if (isset($_REQUEST['op']))
+    }
 
 
+/* MAIN ****************************/
+
+if (getreq('op') == 'Save') {
+  save_form();
+}
 else {
     // Show form
     $lang = (int)getreq('lang');
