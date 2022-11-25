@@ -117,10 +117,9 @@ function echo_term($actcode, $showAll, $spanid, $hidetag, $currcharcount, $recor
     $trans = tohtml($trans . $taglist);
 
     if ($actcode > 1 && isset($record['WoID'])) {
-        echo '<span id="' . $spanid . '" class="' . $hidetag . ' click mword ' . 
-            ($showAll ? 'mwsty' : 'wsty') . ' order' . $record['Ti2Order'] .
-            ' word' . $record['WoID'] . ' status' . $record['WoStatus'] . ' ' .
-            $termclass . '" ' .
+        $showsty = ($showAll ? 'mwsty' : 'wsty');
+        $clist = "{$hidetag} click mword {$showsty} order{$record['Ti2Order']} word{$record['WoID']} status{$record['WoStatus']} {$termclass}";
+        echo '<span id="' . $spanid . '" class="' . $clist . '" ' .
             ' data_pos="' . $currcharcount . '" 
             data_order="' . $record['Ti2Order'] . '" 
             data_wid="' . $record['WoID'] . '" 
