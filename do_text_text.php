@@ -84,13 +84,13 @@ function get_language_settings($langid)
 function echo_term($actcode, $showAll, $spanid, $hidetag, $currcharcount, $record)
 {
     $actcode = (int)$record['Code'];
-
+    $termclass = 'TERM' . strToClassName($record['TiTextLC']);
     if ($actcode <= 1 && !isset($record['WoID'])) {
         // Not registered word (status 0)
         echo '<span 
             id="' . $spanid . '" 
-            class="' . $hidetag . ' click word wsty status0 TERM' . 
-            strToClassName($record['TiTextLC']) . '" 
+            class="' . $hidetag . ' click word wsty status0 ' . 
+            $termclass . '" 
             data_pos="' . $currcharcount . '" 
             data_order="' . $record['Ti2Order'] . '" 
             data_trans="" data_rom="" data_status="0" 
@@ -101,8 +101,8 @@ function echo_term($actcode, $showAll, $spanid, $hidetag, $currcharcount, $recor
     if ($actcode > 1 && isset($record['WoID'])) {
         echo '<span id="' . $spanid . '" class="' . $hidetag . ' click mword ' . 
             ($showAll ? 'mwsty' : 'wsty') . ' order' . $record['Ti2Order'] .
-            ' word' . $record['WoID'] . ' status' . $record['WoStatus'] . 
-            ' TERM' . strToClassName($record['TiTextLC']) . '" ' .
+            ' word' . $record['WoID'] . ' status' . $record['WoStatus'] . ' ' .
+            $termclass . '" ' .
             ' data_pos="' . $currcharcount . '" 
             data_order="' . $record['Ti2Order'] . '" 
             data_wid="' . $record['WoID'] . '" 
@@ -126,8 +126,7 @@ function echo_term($actcode, $showAll, $spanid, $hidetag, $currcharcount, $recor
     // Single word
     if (isset($record['WoID'])) {  
         // Word found status 1-5|98|99
-        $cname = strToClassName($record['TiTextLC']);
-        $clist = "{$hidetag} click word wsty word{$record['WoID']} status{$record['WoStatus']} TERM{$cname}";
+        $clist = "{$hidetag} click word wsty word{$record['WoID']} status{$record['WoStatus']} {$termclass}";
         $trans = repl_tab_nl($record['WoTranslation']);
         $taglist = getWordTagList($record['WoID'], ' ', 1, 0);
 

@@ -150,6 +150,7 @@ final class do_text_text_Test extends TestCase
         // Remove whitespace nonsense
         function clean($s) {
             $array = preg_split("/\r\n|\n|\r/", $s);
+            return $array;
             $tf = function($t) { return trim($t); };
             return implode(' ', array_map($tf, $array));
         }
