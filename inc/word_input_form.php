@@ -82,8 +82,8 @@ class FormDataDbLoader {
    */
   public function load_formdata_from_db($wid, $tid, $ord, $mword_text = '') {
 
-    if (intval($tid) == 0 || intval($ord) == 0) {
-      throw new Exception("Missing tid or ord");
+    if (($wid == '' || $wid == 0) && $tid == 0 && $ord == 0) {
+      throw new Exception("Missing all wid tid or ord");
     }
 
     $ret = null;
@@ -91,6 +91,9 @@ class FormDataDbLoader {
       $ret = $this->load_formdata_from_wid($wid);
     }
     else {
+      if (intval($tid) == 0 || intval($ord) == 0) {
+        throw new Exception("Missing tid or ord");
+      }
       $ret = $this->load_formdata_from_tid_ord($tid, $ord);
       if ($ret->wid > 0) {
         // A real word match was found.
@@ -105,7 +108,7 @@ class FormDataDbLoader {
     if ($ret->translation == '*') {
       $ret->translation = '';
     }
-    if ($ret->sentence == '') {
+    if ($ret->sentence == '' && $tid != 0 && $wid != 0) {
       $ret->sentence = $this->get_sentence($ret->termlc, $tid, $ord);
     }
 
@@ -433,6 +436,12 @@ function show_form($formdata)
 function set_parent_fields(event, ui) {
   $('#autocomplete_parent_text').val(ui.item.label);
   $('#autocomplete_parent_id').val(ui.item.value);
+  if (parseInt(ui.item.value) == 0) {
+    $('#gotoParentID').addClass('hide');
+  }
+  else {
+    $('#gotoParentID').removeClass('hide');
+  }
   return false;
 }
   
@@ -460,9 +469,23 @@ function set_up_parent_autocomplete() {
     change: function(event,ui) {
       if (!ui.item) {
         $('#autocomplete_parent_id').val(0);
+        $('#gotoParentID').addClass('hide');
+      }
+      else {
+        $('#gotoParentID').removeClass('hide');
       }
     }
   });
+}
+
+function go_to_parent() {
+  var pid = parseInt($('#autocomplete_parent_id').val());
+  if (pid == 0) {
+    return;
+  }
+  else {
+    window.location = `edit_word.php?wid=${pid}`;
+  }
 }
 
 $(document).ready(ask_before_exiting);
@@ -483,7 +506,11 @@ $(window).on('load', function() {
   }
 
   set_up_parent_autocomplete();
-  $('#gotoParentID').removeClass('hide');
+
+  if ($('#autocomplete_parent_id').val() > 0) {
+    $('#gotoParentID').removeClass('hide');
+  }
+
 });
 
 </script>
@@ -510,7 +537,7 @@ $(window).on('load', function() {
     <td class="td1 right">Parent term:</td>
     <td class="td1">
       <input <?php echo $formdata->scrdir; ?> data_info="parent" type="text" name="ParentText" id="autocomplete_parent_text" value="<?php echo tohtml($formdata->parent_text); ?>" maxlength="250" size="35" />
-      <a id="gotoParentID" class="hide" style="color: blue;" href="#">&#9654;</a>
+      <span id="gotoParentID" class="hide" style="color: blue; cursor: pointer;" onclick="go_to_parent();">&#9654;</span>
     </td>
   </tr>
   </tr>

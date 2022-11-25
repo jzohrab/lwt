@@ -133,8 +133,11 @@ where ti2order = 25";
         catch (Exception $e) { $msg .= '2'; }
         try { load_formdata_from_db('', 1, 0); }
         catch (Exception $e) { $msg .= '3'; }
+
+        try { load_formdata_from_db('', 1, 1); }
+        catch (Exception $e) { $msg .= 'this does not throw, the tid and ord are sufficient'; }
         try { load_formdata_from_db(1, 1, null); }
-        catch (Exception $e) { $msg .= '4'; }
-        $this->assertEquals('1234', $msg, 'all failed :-P');
+        catch (Exception $e) { $msg .= 'this does not throw, the wid is sufficient'; }
+        $this->assertEquals('123', $msg, 'all failed :-P');
     }
 }
