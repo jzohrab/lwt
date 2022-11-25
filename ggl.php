@@ -1,7 +1,6 @@
 <?php
 
 require_once 'inc/session_utility.php';
-require_once 'googleTimeToken.php' ;
 require_once 'googleTranslateClass.php' ;
 
 $tl=$_GET["tl"];
@@ -12,7 +11,7 @@ header('Pragma: no-cache');
 header('Expires: 0');
 
 if(trim($text)!='') {
-    $file = GoogleTranslate::staticTranslate($text, $sl, $tl, getGoogleTimeToken());
+    $file = GoogleTranslate::staticTranslate($text, $sl, $tl);
 
     $gglink = makeOpenDictStr(createTheDictLink('*http://translate.google.com/#' . $sl . '/' . $tl . '/', $text), " more...");
 

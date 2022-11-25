@@ -12,20 +12,6 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `_lwtgeneral`
---
-
-DROP TABLE IF EXISTS `_lwtgeneral`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `_lwtgeneral` (
-  `LWTKey` varchar(40) NOT NULL,
-  `LWTValue` varchar(40) DEFAULT NULL,
-  PRIMARY KEY (`LWTKey`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Table structure for table `archivedtexts`
 --
 
