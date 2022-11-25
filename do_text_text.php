@@ -112,6 +112,10 @@ function echo_term($actcode, $showAll, $spanid, $hidetag, $currcharcount, $recor
         return;
     }
 
+    $trans = repl_tab_nl($record['WoTranslation']);
+    $taglist = getWordTagList($record['WoID'], ' ', 1, 0);
+    $trans = tohtml($trans . $taglist);
+
     if ($actcode > 1 && isset($record['WoID'])) {
         echo '<span id="' . $spanid . '" class="' . $hidetag . ' click mword ' . 
             ($showAll ? 'mwsty' : 'wsty') . ' order' . $record['Ti2Order'] .
@@ -120,10 +124,7 @@ function echo_term($actcode, $showAll, $spanid, $hidetag, $currcharcount, $recor
             ' data_pos="' . $currcharcount . '" 
             data_order="' . $record['Ti2Order'] . '" 
             data_wid="' . $record['WoID'] . '" 
-            data_trans="' . tohtml(
-                repl_tab_nl($record['WoTranslation']) 
-                . getWordTagList($record['WoID'], ' ', 1, 0)
-            ) . '" 
+            data_trans="' . $trans . '" 
             data_rom="' . tohtml($record['WoRomanization']) . '" 
             data_status="' . $record['WoStatus'] . '"  
             data_code="' . $actcode . '" 
@@ -141,15 +142,13 @@ function echo_term($actcode, $showAll, $spanid, $hidetag, $currcharcount, $recor
     if (isset($record['WoID'])) {  
         // Word found status 1-5|98|99
         $clist = "{$hidetag} click word wsty word{$record['WoID']} status{$record['WoStatus']} {$termclass}";
-        $trans = repl_tab_nl($record['WoTranslation']);
-        $taglist = getWordTagList($record['WoID'], ' ', 1, 0);
 
         $attrs = 'id="' . $spanid . '" 
             class="' . $clist . '" 
             data_pos="' . $currcharcount . '" 
             data_order="' . $record['Ti2Order'] . '" 
             data_wid="' . $record['WoID'] . '" 
-            data_trans="' . tohtml($trans . $taglist) . '" 
+            data_trans="' . $trans . '" 
             data_rom="' . tohtml($record['WoRomanization']) . '" 
             data_status="' . $record['WoStatus'] . '"';
 
