@@ -3797,38 +3797,6 @@ function insert_standard_expression($textlc, $lid, $wid, $len, $mode, $sentenceI
 
 
 /**
- * Prepare a JavaScript dialog to insert a new expression. Use elements in
- * global JavaScript scope.
- * 
- * @deprecated Use new_expression_interactable2 instead. The new function does not
- * use global JS variables.
- * 
- * @return void 
- */
-function new_expression_interactable($hex, $appendtext, $sid, $len): void 
-{
-    $showAll = getSettingZeroOrOne('showallwords', 1) ? "m" : "";
-
-    ?>
-<script type="text/javascript">
-    newExpressionInteractable(
-        <?php echo json_encode($appendtext); ?>, 
-        ' class="click mword <?php echo $showAll; ?>wsty TERM<?php echo $hex; ?> word' + 
-    woid + ' status' + status + '" data_trans="' + trans + '" data_rom="' + 
-    roman + '" data_code="<?php echo $len; ?>" data_status="' + 
-    status + '" data_wid="' + woid + 
-    '" title="' + title + '"' ,
-        <?php echo json_encode($len); ?>, 
-        <?php echo json_encode($hex); ?>,
-        <?php echo json_encode(!$showAll); ?>
-    );
- </script>
-    <?php
-    flush();
-}
-
-
-/**
  * Prepare a JavaScript dialog to insert a new expression.
  * 
  * @param string   $hex        Lowercase text, formatted version of the text.
@@ -3937,7 +3905,6 @@ function insertExpressions($textlc, $lid, $wid, $len, $mode, $sentenceIDRange = 
 
     if ($mode == 0) {
         $hex = strToClassName(prepare_textdata($textlc)); 
-        //new_expression_interactable($hex, $appendtext, $sid, $len);
         new_expression_interactable2($hex, $appendtext, $wid, $len);
     }
     if ($mode == 2) { 
