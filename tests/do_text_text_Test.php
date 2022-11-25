@@ -147,7 +147,14 @@ final class do_text_text_Test extends TestCase
             data_trans="" data_rom="" data_status="0" 
             data_wid="">bebida</span><span id="ID-26-1" class="">.</span><span id="totalcharcount" class="hide">62</span>';
 
-        $this->assertEquals($content, $expected);
+        // Remove whitespace nonsense
+        function clean($s) {
+            $array = preg_split("/\r\n|\n|\r/", $s);
+            $tf = function($t) { return trim($t); };
+            return implode(' ', array_map($tf, $array));
+        }
+
+        $this->assertEquals(clean($content), clean($expected));
     }
 
 }
