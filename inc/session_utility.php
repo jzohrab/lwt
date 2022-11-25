@@ -3693,28 +3693,6 @@ function insert_expression_from_mecab($text, $lid, $wid, $len, $sentenceIDRange)
     return array($appendtext, $sqlarray);
 }
 
-/**
- * Insert an expression to the database using MeCab.
- *
- * @param string $textlc Text to insert in lower case
- * @param string $lid    Language ID
- * @param string $wid    Word ID
- * @param int    $mode   If equal to 0, add data in the output
- *
- * @return array{string[], string[]} Append text and SQL array.
- * 
- * @since 2.5.0-fork Function deprecated. 
- *                   $mode is unnused, data are always returned.
- *                   The second return argument is always empty array.
- *
- * @deprecated Use insert_expression_from_mecab instead.
- *
- * @psalm-return array{0: array<int, string>, 1: list<string>}
- */
-function insertExpressionFromMeCab($textlc, $lid, $wid, $len, $mode): array
-{
-    return insert_expression_from_mecab($textlc, $lid, $wid, $len);
-}
 
 /**
  * Insert an expression without using a tool like MeCab.
