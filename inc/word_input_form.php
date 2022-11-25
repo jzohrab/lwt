@@ -483,6 +483,7 @@ $(window).on('load', function() {
   }
 
   set_up_parent_autocomplete();
+  $('#gotoParentID').removeClass('hide');
 });
 
 </script>
@@ -509,6 +510,7 @@ $(window).on('load', function() {
     <td class="td1 right">Parent term:</td>
     <td class="td1">
       <input <?php echo $formdata->scrdir; ?> data_info="parent" type="text" name="ParentText" id="autocomplete_parent_text" value="<?php echo tohtml($formdata->parent_text); ?>" maxlength="250" size="35" />
+      <a id="gotoParentID" class="hide" style="color: blue;" href="#">&#9654;</a>
     </td>
   </tr>
   </tr>
