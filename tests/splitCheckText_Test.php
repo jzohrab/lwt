@@ -28,37 +28,86 @@ final class splitCheckText_Test extends TestCase
         // echo "tearing down ... \n";
     }
 
-    public function test_smoke_test()
+    public function test_split_check_no_words_defined()
     {
         splitCheckText($this->text, $this->langid, 1);
-        $sql = " select ti2woid, ti2seid, ti2order, ti2text from textitems2 order by ti2order";
+        $sql = "select ti2seid, ti2order, ti2text from textitems2 where ti2woid = 0 order by ti2order";
         $expected = [
-            "0; 1; 1; Hola",
-            "0; 1; 2;  ",
-            "0; 1; 3; tengo",
-            "0; 1; 4;  ",
-            "0; 1; 5; un",
-            "0; 1; 6;  ",
-            "0; 1; 7; gato",
-            "0; 1; 8; .",
-            "0; 2; 9;  ",
-            "0; 2; 10; No",
-            "0; 2; 11;  ",
-            "0; 2; 12; tengo",
-            "0; 2; 13;  ",
-            "0; 2; 14; una",
-            "0; 2; 15;  ",
-            "0; 2; 16; lista",
-            "0; 2; 17; .",
-            "0; 3; 18;  ",
-            "0; 3; 19; Ella",
-            "0; 3; 20;  ",
-            "0; 3; 21; tiene",
-            "0; 3; 22;  ",
-            "0; 3; 23; una",
-            "0; 3; 24;  ",
-            "0; 3; 25; bebida",
-            "0; 3; 26; ."
+            "1; 1; Hola",
+            "1; 2;  ",
+            "1; 3; tengo",
+            "1; 4;  ",
+            "1; 5; un",
+            "1; 6;  ",
+            "1; 7; gato",
+            "1; 8; .",
+            "2; 9;  ",
+            "2; 10; No",
+            "2; 11;  ",
+            "2; 12; tengo",
+            "2; 13;  ",
+            "2; 14; una",
+            "2; 15;  ",
+            "2; 16; lista",
+            "2; 17; .",
+            "3; 18;  ",
+            "3; 19; Ella",
+            "3; 20;  ",
+            "3; 21; tiene",
+            "3; 22;  ",
+            "3; 23; una",
+            "3; 24;  ",
+            "3; 25; bebida",
+            "3; 26; ."
+        ];
+        DbHelpers::assertTableContains($sql, $expected);
+    }
+
+    public function test_split_check_words_defined()
+    {
+        $lid = $this->langid;
+        DbHelpers::add_word($lid, "Un gato", "un gato", 1, 2);
+        DbHelpers::add_word($lid, "lista", "lista", 1, 1);
+        DbHelpers::add_word($lid, "tiene una", "tiene una", 1, 2);
+
+
+        splitCheckText($this->text, $this->langid, 1);
+        $sql = "select ti2seid, ti2order, ti2text from textitems2 where ti2woid = 0 order by ti2order";
+        $expected = [
+            "1; 1; Hola",
+            "1; 2;  ",
+            "1; 3; tengo",
+            "1; 4;  ",
+            "1; 5; un",
+            "1; 6;  ",
+            "1; 7; gato",
+            "1; 8; .",
+            "2; 9;  ",
+            "2; 10; No",
+            "2; 11;  ",
+            "2; 12; tengo",
+            "2; 13;  ",
+            "2; 14; una",
+            "2; 15;  ",
+            // "2; 16; lista",  // Now is a word
+            "2; 17; .",
+            "3; 18;  ",
+            "3; 19; Ella",
+            "3; 20;  ",
+            "3; 21; tiene",
+            "3; 22;  ",
+            "3; 23; una",
+            "3; 24;  ",
+            "3; 25; bebida",
+            "3; 26; ."
+        ];
+        DbHelpers::assertTableContains($sql, $expected);
+
+        $sql = "select ti2woid, ti2seid, ti2order, ti2text from textitems2 where ti2woid > 0 order by ti2order";
+        $expected = [
+            "1; 1; 5; un gato",
+            "2; 2; 16; lista",
+            "3; 3; 21; tiene una"
         ];
         DbHelpers::assertTableContains($sql, $expected);
     }

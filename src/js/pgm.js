@@ -502,7 +502,7 @@ function make_overlib_link_new_word (txid, torder, wid) {
  * @returns {string}
  */
 function make_overlib_link_edit_multiword (txid, torder, wid) {
-  return ' <a href="edit_mword.php?tid=' + txid +
+  return ' <a href="edit_word.php?tid=' + txid +
 		'&amp;ord=' + torder +
 		'&amp;wid=' + wid + '" target="ro" onclick="showRightFrames();">Edit term</a> ';
 }
@@ -517,7 +517,7 @@ function make_overlib_link_edit_multiword (txid, torder, wid) {
  * @returns {string}
  */
 function make_overlib_link_edit_multiword_title (text, txid, torder, wid) {
-  return '<a style="color:yellow" href="edit_mword.php?tid=' + txid +
+  return '<a style="color:yellow" href="edit_word.php?tid=' + txid +
 		'&amp;ord=' + torder +
 		'&amp;wid=' + wid + '" target="ro" onclick="showRightFrames();">' + 
     text + '</a>';
@@ -533,7 +533,7 @@ function make_overlib_link_edit_multiword_title (text, txid, torder, wid) {
  * @returns {string}
  */
 function make_overlib_link_create_edit_multiword (len, txid, torder, txt) {
-  return ' <a href="edit_mword.php?tid=' + txid +
+  return ' <a href="edit_word.php?tid=' + txid +
 		'&amp;ord=' + torder +
 		'&amp;txt=' + txt +
 		'" target="ro" onclick="showRightFrames();">' + 
@@ -550,7 +550,7 @@ function make_overlib_link_create_edit_multiword (len, txid, torder, txt) {
  * @returns {string}
  */
 function make_overlib_link_create_edit_multiword_rtl (len, txid, torder, txt) {
-  return ' <a dir="rtl" href="edit_mword.php?tid=' + txid +
+  return ' <a dir="rtl" href="edit_word.php?tid=' + txid +
 		'&amp;ord=' + torder +
 		'&amp;txt=' + txt +
 		'" target="ro" onclick="showRightFrames();">' + 

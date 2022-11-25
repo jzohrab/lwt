@@ -111,7 +111,16 @@ you must use a dedicated test database when running tests.
         $sql = "INSERT INTO texts (TxLgID, TxTitle, TxText) VALUES (?, ?, ?)";
         $stmt = $DBCONNECTION->prepare($sql);
         $stmt->bind_param("iss", $langid, $title, $text);
-        exec_statement($stmt);
+        DbHelpers::exec_statement($stmt);
+    }
+
+    // This just hacks directly into the table, it doesn't update textitems2 etc.
+    public static function add_word($WoLgID, $WoText, $WoTextLC, $WoStatus, $WoWordCount) {
+        global $DBCONNECTION;
+        $sql = "insert into words (WoLgID, WoText, WoTextLC, WoStatus, WoWordCount) values (?, ?, ?, ?, ?);";
+        $stmt = $DBCONNECTION->prepare($sql);
+        $stmt->bind_param("issii", $WoLgID, $WoText, $WoTextLC, $WoStatus, $WoWordCount);
+        DbHelpers::exec_statement($stmt);
     }
 
     public static function add_tags($tags) {

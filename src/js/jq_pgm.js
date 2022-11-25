@@ -606,7 +606,7 @@ function mword_drag_n_drop_select (event) {
               if (text.length > 250) {
                 alert('selected text is too long!!!');
               } else {
-                showRightFrames('edit_mword.php?tid=' + TID + '&len=' + len + '&ord=' + g + '&txt=' + text);
+                showRightFrames('edit_word.php?tid=' + TID + '&len=' + len + '&ord=' + g + '&txt=' + text);
               }
             } else {
               showRightFrames('edit_word.php?tid=' + TID + '&ord=' + g + '&txt=' + $('#ID-' + g + '-1').text());
@@ -908,7 +908,7 @@ function keydown_event_do_text_text (e) {
   if (e.which == 69 || e.which == 71) { //  E / G: edit term
     let url = '';
     if (curr.hasClass('mword')) {
-      url = 'edit_mword.php?wid=' + wid + '&len=' + curr.attr('data_code') + '&tid=' + TID + '&ord=' + ord + dict;
+      url = 'edit_word.php?wid=' + wid + '&len=' + curr.attr('data_code') + '&tid=' + TID + '&ord=' + ord + dict;
     } else if (stat == '0') {
 			url =	'edit_word.php?wid=&tid=' + TID + '&ord=' + ord + dict;
     } else {
