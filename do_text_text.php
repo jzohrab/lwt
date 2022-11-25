@@ -84,10 +84,21 @@ function get_language_settings($langid)
 function echo_term($actcode, $showAll, $spanid, $hidetag, $currcharcount, $record)
 {
     $actcode = (int)$record['Code'];
-    if ($actcode > 1) {   
-        // A multiword
 
-        if (isset($record['WoID'])) {
+    if ($actcode <= 1 && !isset($record['WoID'])) {
+        // Not registered word (status 0)
+        echo '<span 
+            id="' . $spanid . '" 
+            class="' . $hidetag . ' click word wsty status0 TERM' . 
+            strToClassName($record['TiTextLC']) . '" 
+            data_pos="' . $currcharcount . '" 
+            data_order="' . $record['Ti2Order'] . '" 
+            data_trans="" data_rom="" data_status="0" 
+            data_wid="">' . tohtml($record['TiText']) . '</span>';
+        return;
+    }
+
+    if ($actcode > 1 && isset($record['WoID'])) {
             echo '<span id="' . $spanid . '" class="' . $hidetag . ' click mword ' . 
             ($showAll ? 'mwsty' : 'wsty') . ' order' . $record['Ti2Order'] .
             ' word' . $record['WoID'] . ' status' . $record['WoStatus'] . 
@@ -109,10 +120,10 @@ function echo_term($actcode, $showAll, $spanid, $hidetag, $currcharcount, $recor
                 echo tohtml($record['TiText']);
             }
             echo '</span>';
-        }
-    } else {  
-        // Single word
+            return;
+    }
 
+        // Single word
         if (isset($record['WoID'])) {  
             // Word found status 1-5|98|99
             $cname = strToClassName($record['TiTextLC']);
@@ -139,17 +150,6 @@ function echo_term($actcode, $showAll, $spanid, $hidetag, $currcharcount, $recor
 
             $content = tohtml($record['TiText']);
             echo "<span {$attrs}>{$content}</span>";
-        } else {
-            // Not registered word (status 0)
-            echo '<span 
-            id="' . $spanid . '" 
-            class="' . $hidetag . ' click word wsty status0 TERM' . 
-            strToClassName($record['TiTextLC']) . '" 
-            data_pos="' . $currcharcount . '" 
-            data_order="' . $record['Ti2Order'] . '" 
-            data_trans="" data_rom="" data_status="0" 
-            data_wid="">' . tohtml($record['TiText']) . '</span>';
-        }
     }
 }
 
