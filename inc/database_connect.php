@@ -627,20 +627,6 @@ function init_word_count($wid = 0): void
     }
 }
 
-/**
- * Initiate the number of words in terms for all languages
- * 
- * Only terms with a word count set to 0 are changed.
- * 
- * @return void
- * 
- * @deprecated Use init_word_count: same effect, but more logical name. Will be 
- * removed in version 3.0.0.
- */
-function set_word_count()
-{
-    init_word_count();
-}
 
 /**
  * Parse a Japanese text using MeCab and add it to the database.

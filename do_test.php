@@ -92,39 +92,6 @@ function get_test_property()
     return '';
 }
 
-/**
- * Make the content of the mobile page.
- * 
- * @param string $property URL property
- * 
- * @return void
- * 
- * @deprecated Use do_frameset_mobile_page_content instead
- */
-function do_test_mobile_page_content($property) 
-{
-    do_frameset_mobile_page_content(
-        "do_test_header.php?$property", "empty.html", true
-    );
-}
-
-/**
- * Make the mobile test page.
- * 
- * @param string $property URL property for HEADER
- * 
- * @return void
- * 
- * @deprecated Use do_test_desktop_page instead
- */
-function do_test_mobile_page($property) 
-{
-    do_frameset_mobile_css();
-    do_frameset_mobile_js();
-    do_frameset_mobile_page_content(
-        "do_test_header.php?$property", "empty.html", true
-    );
-}
 
 /**
  * Make the desktop test page

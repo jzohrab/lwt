@@ -3693,28 +3693,6 @@ function insert_expression_from_mecab($text, $lid, $wid, $len, $sentenceIDRange)
     return array($appendtext, $sqlarray);
 }
 
-/**
- * Insert an expression to the database using MeCab.
- *
- * @param string $textlc Text to insert in lower case
- * @param string $lid    Language ID
- * @param string $wid    Word ID
- * @param int    $mode   If equal to 0, add data in the output
- *
- * @return array{string[], string[]} Append text and SQL array.
- * 
- * @since 2.5.0-fork Function deprecated. 
- *                   $mode is unnused, data are always returned.
- *                   The second return argument is always empty array.
- *
- * @deprecated Use insert_expression_from_mecab instead.
- *
- * @psalm-return array{0: array<int, string>, 1: list<string>}
- */
-function insertExpressionFromMeCab($textlc, $lid, $wid, $len, $mode): array
-{
-    return insert_expression_from_mecab($textlc, $lid, $wid, $len);
-}
 
 /**
  * Insert an expression without using a tool like MeCab.
@@ -3815,38 +3793,6 @@ function insert_standard_expression($textlc, $lid, $wid, $len, $mode, $sentenceI
     }
     mysqli_free_result($res);
     return array($appendtext, array(), $sqlarr);
-}
-
-
-/**
- * Prepare a JavaScript dialog to insert a new expression. Use elements in
- * global JavaScript scope.
- * 
- * @deprecated Use new_expression_interactable2 instead. The new function does not
- * use global JS variables.
- * 
- * @return void 
- */
-function new_expression_interactable($hex, $appendtext, $sid, $len): void 
-{
-    $showAll = getSettingZeroOrOne('showallwords', 1) ? "m" : "";
-
-    ?>
-<script type="text/javascript">
-    newExpressionInteractable(
-        <?php echo json_encode($appendtext); ?>, 
-        ' class="click mword <?php echo $showAll; ?>wsty TERM<?php echo $hex; ?> word' + 
-    woid + ' status' + status + '" data_trans="' + trans + '" data_rom="' + 
-    roman + '" data_code="<?php echo $len; ?>" data_status="' + 
-    status + '" data_wid="' + woid + 
-    '" title="' + title + '"' ,
-        <?php echo json_encode($len); ?>, 
-        <?php echo json_encode($hex); ?>,
-        <?php echo json_encode(!$showAll); ?>
-    );
- </script>
-    <?php
-    flush();
 }
 
 
@@ -3959,7 +3905,6 @@ function insertExpressions($textlc, $lid, $wid, $len, $mode, $sentenceIDRange = 
 
     if ($mode == 0) {
         $hex = strToClassName(prepare_textdata($textlc)); 
-        //new_expression_interactable($hex, $appendtext, $sid, $len);
         new_expression_interactable2($hex, $appendtext, $wid, $len);
     }
     if ($mode == 2) { 
@@ -4285,91 +4230,6 @@ function phonetic_reading($text, $lang)
     return $mecab_str;
 }
 
-
-/**
- * Refresh a text.
- * 
- * @deprecated No longer used, incompatible with new database system.
- * @since      1.6.25-fork Not compatible with the database
- */
-function refreshText($word,$tid): string 
-{
-    // $word : only sentences with $word
-    // $tid : textid
-    // only to be used when $showAll = 0 !
-    $out = '';
-    $wordlc = trim(mb_strtolower($word, 'UTF-8'));
-    if ($wordlc == '') { 
-        return ''; 
-    }
-    $sql = 
-    'SELECT distinct TiSeID FROM textitems 
-    WHERE TiIsNotWord = 0 AND TiTextLC = ' . convert_string_to_sqlsyntax($wordlc) . ' 
-    AND TiTxID = ' . $tid . ' 
-    ORDER BY TiSeID';
-    $res = do_mysqli_query($sql);
-    $inlist = '(';
-    while ($record = mysqli_fetch_assoc($res)) { 
-        if ($inlist == '(') { 
-            $inlist .= $record['TiSeID']; 
-        } else {
-            $inlist .= ',' . $record['TiSeID']; 
-        }
-    }
-    mysqli_free_result($res);
-    if ($inlist == '(') { 
-        return ''; 
-    } else {
-        $inlist =  ' WHERE TiSeID in ' . $inlist . ') '; 
-    }
-    $sql = 
-    'SELECT TiWordCount AS Code, TiOrder, TiIsNotWord, WoID 
-    FROM (textitems 
-        LEFT JOIN words ON (TiTextLC = WoTextLC) AND (TiLgID = WoLgID)
-    ) ' . $inlist . ' 
-    ORDER BY TiOrder asc, TiWordCount desc';
-
-    $res = do_mysqli_query($sql);        
-
-    $hideuntil = -1;
-    $hidetag = "removeClass('hide');";
-
-    while ($record = mysqli_fetch_assoc($res)) {  // MAIN LOOP
-        $actcode = (int)$record['Code'];
-        $order = (int)$record['TiOrder'];
-        $notword = (int)$record['TiIsNotWord'];
-        $termex = isset($record['WoID']);
-        $spanid = 'ID-' . $order . '-' . $actcode;
-
-        if ($hideuntil > 0 ) {
-            if ($order <= $hideuntil ) {
-                $hidetag = "addClass('hide');"; 
-            } else {
-                $hideuntil = -1;
-                $hidetag = "removeClass('hide');";
-            }
-        }
-
-        if ($notword != 0) {  // NOT A TERM
-            $out .= "$('#" . $spanid . "',context)." . $hidetag . "\n";
-        } else {   // A TERM
-            if ($actcode > 1) {   // A MULTIWORD FOUND
-                if ($termex) {  // MULTIWORD FOUND - DISPLAY 
-                    if ($hideuntil == -1) { $hideuntil = $order + ($actcode - 1) * 2; 
-                    }
-                    $out .= "$('#" . $spanid . "',context)." . $hidetag . "\n";
-                } else {  // MULTIWORD PLACEHOLDER - NO DISPLAY 
-                    $out .= "$('#" . $spanid . "',context).addClass('hide');\n";
-                }  
-            } // ($actcode > 1) -- A MULTIWORD FOUND
-            else {  // ($actcode == 1)  -- A WORD FOUND
-                $out .= "$('#" . $spanid . "',context)." . $hidetag . "\n";
-            }  
-        }
-    } //  MAIN LOOP
-    mysqli_free_result($res);
-    return $out;
-}
 
 /**
  * Create an HTML media player, audio or video.
