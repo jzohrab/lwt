@@ -46,7 +46,6 @@ you must use a dedicated test database when running tests.
 
     public static function clean_db() {
         $tables = [
-            "_lwtgeneral",
             "archivedtexts",
             "archtexttags",
             "feedlinks",
