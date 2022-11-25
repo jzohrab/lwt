@@ -135,6 +135,13 @@ function echo_term($actcode, $showAll, $spanid, $hidetag, $currcharcount, $recor
             'data_text' => tohtml($r['TiText'])
         ];
 
+        if ($r['ParentWoID']) {
+            $ptrans = repl_tab_nl($r['ParentWoTranslation']);
+            $ptaglist = getWordTagList($r['ParentWoID'], ' ', 1, 0);
+            $attrs['parent_text'] = tohtml($r['ParentWoTextLC']);
+            $attrs['parent_trans'] = tohtml($ptrans . $ptaglist);
+        };
+
         echo "<span {$to_attr_string($attrs)}>";
         if ($showAll) {
             echo '&nbsp;' . $actcode . '&nbsp;';
