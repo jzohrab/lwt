@@ -18,8 +18,7 @@ WHERE StKey = 'currentlanguage'";
     $w = $w . '%';
 
     $sql = "SELECT WoID, WoTextLC FROM words
-WHERE WoLgID = {$lang} AND WoTextLC LIKE ?
-LIMIT 10";
+    WHERE WoLgID = {$lang} AND WoTextLC LIKE ? LIMIT 10";
     global $DBCONNECTION;
     $stmt = mysqli_prepare($DBCONNECTION, $sql);
     mysqli_stmt_bind_param($stmt, "s", $w);
