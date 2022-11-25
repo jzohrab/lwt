@@ -76,10 +76,11 @@ class FormDataDbLoader {
    * @param wid  string  WoID or ''
    * @param tid  int     TxID
    * @param ord  int     Ti2Order
+   * @param mword_text  string  Multiword text (overrides tid/ord text)
    *
    * @return formadata
    */
-  public function load_formdata_from_db($wid, $tid, $ord) {
+  public function load_formdata_from_db($wid, $tid, $ord, $mword_text = '') {
 
     if (intval($tid) == 0 || intval($ord) == 0) {
       throw new Exception("Missing tid or ord");
@@ -97,6 +98,10 @@ class FormDataDbLoader {
       }
     }
 
+    if ($mword_text != '') {
+      $ret->term = $mword_text;
+      $ret->termlc = mb_strtolower($mword_text);
+    }
     if ($ret->translation == '*') {
       $ret->translation = '';
     }
@@ -196,9 +201,9 @@ WHERE Ti2TxID = {$tid} AND Ti2WordCount = 1 AND Ti2Order = {$ord}";
 }  // end FormDataLoader
 
 
-function load_formdata_from_db($wid, $tid, $ord) {
+function load_formdata_from_db($wid, $tid, $ord, $mword_text = '') {
   $loader = new FormDataDbLoader();
-  return $loader->load_formdata_from_db($wid, $tid, $ord);
+  return $loader->load_formdata_from_db($wid, $tid, $ord, $mword_text);
 }
 
 
@@ -327,6 +332,13 @@ NOW(), 0, {$testscores}
   $f->wid = $stmt->insert_id;
 
   init_word_count($f->wid);
+
+  $sql = "SELECT WoWordCount as value from words
+where WoID={$f->wid}";
+  $wcount = intval(get_first_value($sql));
+  if ($wcount > 1) {
+    insertExpressions($f->termlc, $f->lang, $f->wid, $wcount, 0);
+  }
 
   set_parent($f);
   save_formdata_tags($f);

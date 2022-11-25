@@ -8,7 +8,8 @@
  *  ... op=Save ... do insert new
  *  ... op=Change ... do update
  *  ... fromAnn=recno ... calling from impr. annotation editing
- *  ... tid=[textid]&ord=[textpos]&wid= ... new word  
+ *  ... tid=[textid]&ord=[textpos]&wid= ... new word
+ *  ... tid=[textid]&ord=[textpos]&wid=&txt=[text] ... new multi-word term (overrides text at tid and ord)
  *  ... tid=[textid]&ord=[textpos]&wid=[wordid] ... edit word 
  * 
  * @since  1.0.3
@@ -181,13 +182,14 @@ function handle_save_or_update(): void
 
 function handle_display_form() {
     // FORM
-    // edit_word.php?tid=..&ord=..&wid=..
+    // edit_word.php?tid=..&ord=..&wid=..&txt=..
     $wid = getreq('wid', 0);
     $tid = getreq('tid', 0);
     $ord = getreq('ord', 0);
-    $formdata = load_formdata_from_db($wid, $tid, $ord);
+    $txt = getreq('txt', '');
+    $formdata = load_formdata_from_db($wid, $tid, $ord, $txt);
 
-    pagestart_nobody("Term: " . tohtml($term));
+    pagestart_nobody("Term: " . tohtml($formdata->term));
     show_form($formdata);
     pageend();
 }
