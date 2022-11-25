@@ -14,4 +14,12 @@ class word_input_form__Smoke_Test extends word_input_form_TestBase
         $this->assertTrue(is_string($s), "got string");
     }
 
+    public function test_tags_to_list() {
+        $f = $this->child;
+        $f->tags = [];
+        $this->assertEquals('<ul id="termtags"></ul>', $f->tags_to_list(), "list");
+        $f->tags = ['hi', 'there'];
+        $this->assertEquals('<ul id="termtags"><li>hi</li><li>there</li></ul>', $f->tags_to_list(), "list");
+    }
+
 }

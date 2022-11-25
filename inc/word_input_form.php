@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/database_connect.php';
+require_once __DIR__ . '/session_utility.php';
 
 /**
  * Input form for words.
@@ -14,37 +15,190 @@ class FormData
   public $wid = 0;
   public $term;
   public $termlc;
-  public $scrdir;
+  public $scrdir = '';
   public $translation = '';
-  public $tags;
+  public $tags = [];
   public $romanization = '';
   public $sentence = '';
   public $status = 1;
   public $status_old = 1;
-  public $status_radiooptions;
   public $parent_id = 0;
   public $parent_text = '';
+  public $textid = 0;  // For "new_word.php"
 
-      /**
-     * Export word data as a JSON dictionnary.
-     * 
-     * @return string JSON dict.
-     */
-    public function export_js_dict()
-    {
-        return json_encode(
-            array(
-            "woid" => $this->wid,
-            "text" =>  $this->term,
-            "romanization" => $this->romanization,
-            "translation" => prepare_textdata_js(
-                $this->translation . getWordTagList($this->wid, ' ', 1, 0)
-            ),
-            "status" => $this->status
-            )
+
+  /**
+   * Convert tags to list required by tagit.
+   */
+  public function tags_to_list(): string 
+  {
+    $r = '<ul id="termtags">';
+    foreach ($this->tags as $t) {
+      $r .= '<li>' . tohtml($t) . '</li>';
+    }
+    return $r . '</ul>';
+  }
+
+
+  /**
+   * Export word data as a JSON dictionnary.
+   * 
+   * @return string JSON dict.
+   */
+  public function export_js_dict()
+  {
+    $tl = getWordTagList($this->wid, ' ', 1, 0);
+    $trans = $this->translation . $tl;
+    $ret = array
+      ( "woid" => $this->wid,
+        "text" =>  $this->term,
+        "romanization" => $this->romanization,
+        "translation" => prepare_textdata_js($trans),
+        "status" => $this->status
         );
+    return json_encode($ret);
+  }
+
+}
+
+
+/**
+ * Load FormData from the database.
+ *
+ * Class just created to hide functions,
+ * clarifying API.
+ */
+class FormDataDbLoader {
+
+  /**
+   * Get fully populated formdata from database.
+   *
+   * @param wid  string  WoID or ''
+   * @param tid  int     TxID
+   * @param ord  int     Ti2Order
+   *
+   * @return formadata
+   */
+  public function load_formdata_from_db($wid, $tid, $ord) {
+
+    if (intval($tid) == 0 || intval($ord) == 0) {
+      throw new Exception("Missing tid or ord");
     }
 
+    $ret = null;
+    if ($wid != '' && $wid > 0) {
+      $ret = $this->load_formdata_from_wid($wid);
+    }
+    else {
+      $ret = $this->load_formdata_from_tid_ord($tid, $ord);
+      if ($ret->wid > 0) {
+        // A real word match was found.
+        $ret = $this->load_formdata_from_wid($ret->wid);
+      }
+    }
+
+    if ($ret->translation == '*') {
+      $ret->translation = '';
+    }
+    if ($ret->sentence == '') {
+      $ret->sentence = $this->get_sentence($ret->termlc, $tid, $ord);
+    }
+
+    return $ret;
+  }
+
+  /** Private methods *************/
+
+  private function load_formdata_from_wid($wid) {
+    $sql = "SELECT words.*,
+ifnull(pw.WoID, 0) as ParentWoID,
+ifnull(pw.WoTextLC, '') as ParentWoTextLC
+FROM words
+INNER JOIN languages on LgID = words.WoLgID
+LEFT OUTER JOIN wordparents on wordparents.WpWoID = words.WoID
+LEFT OUTER JOIN words AS pw on pw.WoID = wordparents.WpParentWoID
+where words.WoID = {$wid}";
+    $res = do_mysqli_query($sql);
+    $record = mysqli_fetch_assoc($res);
+    mysqli_free_result($res);
+    if (! $record) {
+      throw new Exception("No matching record for {$wid}");
+    }
+
+    $status = $record['WoStatus'];
+    $sentence = $record['WoSentence'];
+    $transl = $record['WoTranslation'];
+    if($transl == '*') {
+      $transl='';
+    }
+
+    $f = new FormData();
+    $f->wid = $wid;
+    $f->term = $record['WoText'];
+    $f->termlc = $record['WoTextLC'];
+    $f->lang = (int) $record['WoLgID'];
+    $f->scrdir = getScriptDirectionTag($f->lang);
+    $f->translation = $transl;
+    $f->tags = getWordTagsText($wid);
+    $f->sentence = $sentence;
+    $f->romanization = $record['WoRomanization'];
+    $f->status = $status;
+    $f->status_old = $status;
+    $f->parent_id = $record['ParentWoID'];
+    $f->parent_text = $record['ParentWoTextLC'];
+
+    return $f;
+  }
+
+
+  /**
+   * Get baseline data from tid and ord,
+   * if $wid is not known in load_formdata_from_wid.
+   *
+   * @return FormData, with wid set if a matching word is found.
+   */
+  private function load_formdata_from_tid_ord($tid, $ord) {
+    $sql = "SELECT ifnull(WoID, 0) as WoID,
+Ti2Text AS t,
+Ti2LgID AS lid
+FROM textitems2
+LEFT OUTER JOIN words on WoTextLC = Ti2TextLC
+WHERE Ti2TxID = {$tid} AND Ti2WordCount = 1 AND Ti2Order = {$ord}";
+    $res = do_mysqli_query($sql);
+    $record = mysqli_fetch_assoc($res);
+    mysqli_free_result($res);
+    if (! $record) {
+      throw new Exception("no matching textitems2 for tid = $tid , ord = $ord");
+    }
+
+    $f = new FormData();
+    $f->wid = (int) $record['WoID'];
+    $f->term = $record['t'];
+    $f->termlc = mb_strtolower($record['t']);
+    $f->lang = (int) $record['lid'];
+    $f->scrdir = getScriptDirectionTag($f->lang);
+
+    return $f;
+  }
+
+
+  private function get_sentence($termlc, $tid, $ord) {
+    $sql = "select Ti2SeID as value from textitems2
+  where Ti2WordCount = 1 and
+  Ti2TxID = {$tid} and Ti2Order = {$ord}";
+    $seid = get_first_value($sql);
+    $sentcount = (int) getSettingWithDefault('set-term-sentence-count');
+    $sent = getSentence($seid, $termlc, $sentcount);
+    return repl_tab_nl($sent[1]);
+  }
+
+
+}  // end FormDataLoader
+
+
+function load_formdata_from_db($wid, $tid, $ord) {
+  $loader = new FormDataDbLoader();
+  return $loader->load_formdata_from_db($wid, $tid, $ord);
 }
 
 
@@ -253,8 +407,15 @@ WHERE WoID = ?";
 /**
  * Print HTML form with FormData.
  */
-function show_form($formdata, $title = "New Term:", $operation = "Save")
+function show_form($formdata)
 {
+  $title = "New Term";
+  $operation = "Save";
+  if ($formdata->wid > 0) {
+    $title = "Edit Term";
+    $operation = "Change";
+  }
+
 ?>
 <script type="text/javascript">
 function set_parent_fields(event, ui) {
@@ -322,6 +483,7 @@ $(window).on('load', function() {
 <input type="hidden" name="WoTextLC" value="<?php echo tohtml($formdata->termlc); ?>" />
 <input type="hidden" name="tid" value="<?php echo getreq('tid'); ?>" />
 <input type="hidden" name="ord" value="<?php echo getreq('ord'); ?>" />
+<input type="hidden" name="textid" value="<?php echo $formdata->textid; ?>" />
 <input type="hidden" id="autocomplete_parent_id" name="WpParentWoID" value="<?php echo $formdata->parent_id; ?>" />
 
 <table class="tab2" cellspacing="0" cellpadding="5">
@@ -348,7 +510,7 @@ $(window).on('load', function() {
   <tr>
     <td class="td1 right">Tags:</td>
     <td class="td1">
-      <?php echo getWordTags($formdata->wid); ?>
+      <?php echo $formdata->tags_to_list(); ?>
     </td>
   </tr>
   <tr>
@@ -431,6 +593,7 @@ function load_formdata_from_request(): FormData {
   $f->parent_text = cleanreq("ParentText");
   $f->tags = get_tags_from_request();
 
+  $f->textid = intval(getreq("textid", 0));
   // Not used during db updates:
   // $f->fromAnn = '';
   // $f->scrdir;

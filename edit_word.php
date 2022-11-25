@@ -179,122 +179,16 @@ function handle_save_or_update(): void
 }
 
 
-function get_term_and_lang($wid)
-{
-  $sql = "SELECT WoText AS t, WoLgID AS lid FROM words WHERE WoID = {$wid}";
-    if ($wid == '') {
-        $tid = $_REQUEST["tid"];
-        $ord = $_REQUEST["ord"];
-        $sql =  "SELECT Ti2Text AS t, Ti2LgID AS lid
-        FROM textitems2 
-        WHERE Ti2TxID = {$tid} AND Ti2WordCount = 1 AND Ti2Order = {$ord};";
-    }
-    $res = do_mysqli_query($sql);
-    $record = mysqli_fetch_assoc($res);
-    mysqli_free_result($res);
-    if ($record) {
-      $term = $record['t'];
-      $lang = $record['lid'];
-    } else {
-      my_die("Cannot access Term and Language in edit_word.php");
-    }
-    return [ $term, $lang ];
-}
-
-
-function get_sentence_for_termlc($termlc) {
-  $tid = $_REQUEST['tid'];
-  $ord = $_REQUEST['ord'];
-  $sql = "select Ti2SeID as value from textitems2
-  where Ti2TxID = {$tid} and Ti2WordCount = 1 and Ti2Order = {$ord}";
-  $seid = get_first_value($sql);
-  $sent = getSentence($seid, $termlc, (int) getSettingWithDefault('set-term-sentence-count'));
-  return repl_tab_nl($sent[1]);
-}
-
-
-function augment_formdata_for_updates($wid, &$formdata)
-{
-    $sql = "SELECT words.*,
-ifnull(pw.WoID, 0) as ParentWoID,
-ifnull(pw.WoTextLC, '') as ParentWoTextLC
-FROM words
-LEFT OUTER JOIN wordparents on wordparents.WpWoID = words.WoID
-LEFT OUTER JOIN words AS pw on pw.WoID = wordparents.WpParentWoID
-where words.WoID = {$wid}";
-    $res = do_mysqli_query($sql);
-    $record = mysqli_fetch_assoc($res);
-    mysqli_free_result($res);
-    if (! $record) {
-      my_die("No matching record for {$wid} ??");
-    }
-
-    $status = $record['WoStatus'];
-    if ($formdata->fromAnn == '' && $status >= 98) {
-        $status = 1;
-    }
-    $sentence = repl_tab_nl($record['WoSentence']);
-    if ($sentence == '' && isset($_REQUEST['tid']) && isset($_REQUEST['ord'])) {
-        $sentence = get_sentence_for_termlc($formdata->termlc);
-    }
-    $transl = repl_tab_nl($record['WoTranslation']);
-    if($transl == '*') {
-        $transl='';
-    }
-
-    $formdata->wid = $wid;
-    $formdata->translation = $transl;
-    $formdata->tags = getWordTags($wid);
-    $formdata->sentence = $sentence;
-    $formdata->romanization = $record['WoRomanization'];
-    $formdata->status = $status;
-    $formdata->status_old = $record['WoStatus'];
-    $formdata->parent_id = $record['ParentWoID'];
-    $formdata->parent_text = $record['ParentWoTextLC'];
-}
-
-
 function handle_display_form() {
     // FORM
     // edit_word.php?tid=..&ord=..&wid=..
+    $wid = getreq('wid', 0);
+    $tid = getreq('tid', 0);
+    $ord = getreq('ord', 0);
+    $formdata = load_formdata_from_db($wid, $tid, $ord);
 
-    $wid = getreq('wid');
-    [ $term, $lang ] = get_term_and_lang($wid);
-    $termlc = mb_strtolower($term, 'UTF-8');
-    $scrdir = getScriptDirectionTag($lang);
-
-    if ($wid == '') {
-        $wid = get_first_value(
-            "SELECT WoID AS value FROM words 
-            WHERE WoLgID = " . $lang . " AND WoTextLC = " . convert_string_to_sqlsyntax($termlc)
-        );
-    }
-
-    $formdata = new FormData();
-    $formdata->fromAnn = getreq("fromAnn");
-    $formdata->lang = $lang;
-    $formdata->term = $term;
-    $formdata->termlc = $termlc;
-    $formdata->scrdir = $scrdir;
-
-    $new = (isset($wid) == false);
-
-    $titletext = ($new ? "New Term" : "Edit Term") . ": " . tohtml($term);
-    pagestart_nobody($titletext);
-
-    if ($new) {
-        $formdata->tags = getWordTags(0);
-        $formdata->sentence = get_sentence_for_termlc($termlc);
-        $formdata->status = 1;
-        $formdata->status_old = 1;
-
-        show_form($formdata, "New Term", "Save");
-        
-    } else {
-        augment_formdata_for_updates($wid, $formdata);
-        show_form($formdata, "Edit Term", "Change");
-    }
-
+    pagestart_nobody("Term: " . tohtml($term));
+    show_form($formdata);
     pageend();
 }
 
