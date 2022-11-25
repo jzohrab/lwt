@@ -93,11 +93,11 @@ function change_term_display($wid, $translation, $hex): void
     var status = <?php echo prepare_textdata_js($_REQUEST["WoStatus"]); ?>;
     var trans = <?php echo prepare_textdata_js($translation . getWordTagList($wid, ' ', 1, 0)); ?>;
     var roman = <?php echo prepare_textdata_js($_REQUEST["WoRomanization"]); ?>;
-    var title;
+    var tooltiptitle;
     if (window.parent.document.getElementById('frame-l').JQ_TOOLTIP) {
-        title = '';
+        tooltiptitle = '';
     } else {
-        title = make_tooltip(
+        tooltiptitle = make_tooltip(
             <?php echo prepare_textdata_js($_REQUEST["WoText"]); ?>, trans, roman, status
         );
     }
@@ -110,7 +110,7 @@ function change_term_display($wid, $translation, $hex): void
         .attr('data_trans', trans)
         .attr('data_rom', roman)
         .attr('data_status', status)
-        .attr('title', title)
+        .attr('title', tooltiptitle)
         .attr('data_wid', woid);
         <?php
     } else {
@@ -121,7 +121,7 @@ function change_term_display($wid, $translation, $hex): void
         .attr('data_trans', trans)
         .attr('data_rom', roman)
         .attr('data_status', status)
-        .attr('title', title);
+        .attr('title', tooltiptitle);
         <?php
     }
     ?>
