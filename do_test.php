@@ -94,24 +94,6 @@ function get_test_property()
 
 
 /**
- * Make the mobile test page.
- * 
- * @param string $property URL property for HEADER
- * 
- * @return void
- * 
- * @deprecated Use do_test_desktop_page instead
- */
-function do_test_mobile_page($property) 
-{
-    do_frameset_mobile_css();
-    do_frameset_mobile_js();
-    do_frameset_mobile_page_content(
-        "do_test_header.php?$property", "empty.html", true
-    );
-}
-
-/**
  * Make the desktop test page
  * 
  * @param string $property URL property for HEADER
