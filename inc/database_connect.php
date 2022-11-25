@@ -444,29 +444,6 @@ function saveSetting($k, $v)
 
 // -------------------------------------------------------------
 
-function LWTTableSet($key, $val): void
-{
-    runsql(
-        "INSERT INTO _lwtgeneral (LWTKey, LWTValue) VALUES (
-            " . convert_string_to_sqlsyntax($key) . ", 
-            " . convert_string_to_sqlsyntax($val) . "
-        ) ON DUPLICATE KEY UPDATE LWTValue = " . convert_string_to_sqlsyntax($val), 
-        ''
-    );
-}
-
-// -------------------------------------------------------------
-
-function LWTTableGet($key): string
-{
-    return (string)get_first_value(
-        "SELECT LWTValue as value 
-        FROM _lwtgeneral 
-        WHERE LWTKey = " . convert_string_to_sqlsyntax($key)
-    );
-}
-
-
 /**
  * Optimize the database.
  *
