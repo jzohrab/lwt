@@ -65,7 +65,6 @@ final class splitCheckText_Test extends TestCase
 
     public function test_split_check_words_defined()
     {
-        $words = [ 'Un gato', 'lista', 'tiene una' ];
         $lid = $this->langid;
         DbHelpers::add_word($lid, "Un gato", "un gato", 1, 2);
         DbHelpers::add_word($lid, "lista", "lista", 1, 1);
