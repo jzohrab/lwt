@@ -95,20 +95,26 @@ class FormDataDbLoader {
         throw new Exception("Missing tid or ord");
       }
       $ret = $this->load_formdata_from_tid_ord($tid, $ord);
-      if ($ret->wid > 0) {
-        // A real word match was found.
+
+      // The tid and ord might lead to a saved word,
+      // and if the override mword_text is blank, just use
+      // that saved word as-is.
+      if ($ret->wid && $mword_text == '') {
         $ret = $this->load_formdata_from_wid($ret->wid);
       }
     }
 
     if ($mword_text != '') {
+      // The override text was set, so it's a new term.
+      $ret->wid = 0;
       $ret->term = $mword_text;
       $ret->termlc = mb_strtolower($mword_text);
     }
+
     if ($ret->translation == '*') {
       $ret->translation = '';
     }
-    if ($ret->sentence == '' && $tid != 0 && $wid != 0) {
+    if ($ret->sentence == '' && $tid != 0 && $ord != 0) {
       $ret->sentence = $this->get_sentence($ret->termlc, $tid, $ord);
     }
 
@@ -367,10 +373,15 @@ SET Ti2WoID = ? WHERE Ti2LgID = ? AND Ti2TextLC = ?";
  */
 function update_formdata($f) {
 
+  if ($f->wid == 0) {
+    throw new Exception("logic error, tried to update term '{$f->term}' but ID was 0.");
+  }
+
   $checkoldsql = "select WoTextLC as value from words where WoID = {$f->wid}";
   $oldlcase = get_first_value($checkoldsql);
   if ($f->termlc != $oldlcase) {
-    throw new Exception("cannot change term once WoTextLC is set");
+    $detail = "'{$oldlcase}' -> '{$f->termlc}' (id = {$f->wid})";
+    throw new Exception("cannot change term once WoTextLC is set ({$detail})");
   }
 
   if ($f->parent_id == 0 && $f->parent_text != '') {
