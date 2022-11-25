@@ -121,23 +121,29 @@ function echo_term($actcode, $showAll, $spanid, $hidetag, $currcharcount, $recor
     if ($actcode > 1 && isset($r['WoID'])) {
         $showsty = ($showAll ? 'mwsty' : 'wsty');
         $clist = "{$hidetag} click mword {$showsty} order{$r['Ti2Order']} word{$r['WoID']} status{$r['WoStatus']} {$termclass}";
-        echo '<span id="' . $spanid . '"
-            class="' . $clist . '" ' .
-            ' data_pos="' . $currcharcount . '" 
-            data_order="' . $r['Ti2Order'] . '" 
-            data_wid="' . $r['WoID'] . '" 
-            data_trans="' . $trans . '" 
-            data_rom="' . tohtml($r['WoRomanization']) . '" 
-            data_status="' . $r['WoStatus'] . '"  
-            data_code="' . $actcode . '" 
-            data_text="' . tohtml($r['TiText']) . '">'; 
-            if ($showAll) {
-                echo '&nbsp;' . $actcode . '&nbsp;';
-            } else {
-                echo tohtml($r['TiText']);
-            }
-            echo '</span>';
-            return;
+
+        $attrs = [
+            'id' => $spanid,
+            'class' => $clist,
+            'data_pos' => $currcharcount,
+            'data_order' => $r['Ti2Order'],
+            'data_wid' => $r['WoID'],
+            'data_trans' => $trans,
+            'data_rom' => tohtml($r['WoRomanization']),
+            'data_status' => $r['WoStatus'],
+            'data_code' => $actcode,
+            'data_text' => tohtml($r['TiText'])
+        ];
+
+        echo "<span {$to_attr_string($attrs)}>";
+        if ($showAll) {
+            echo '&nbsp;' . $actcode . '&nbsp;';
+        }
+        else {
+            echo tohtml($r['TiText']);
+        }
+        echo '</span>';
+        return;
     }
 
     // Single word
