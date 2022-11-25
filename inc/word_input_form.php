@@ -24,6 +24,7 @@ class FormData
   public $status_old = 1;
   public $parent_id = 0;
   public $parent_text = '';
+  public $textid = 0;  // For "new_word.php"
 
 
   /**
@@ -482,6 +483,7 @@ $(window).on('load', function() {
 <input type="hidden" name="WoTextLC" value="<?php echo tohtml($formdata->termlc); ?>" />
 <input type="hidden" name="tid" value="<?php echo getreq('tid'); ?>" />
 <input type="hidden" name="ord" value="<?php echo getreq('ord'); ?>" />
+<input type="hidden" name="textid" value="<?php echo $formdata->textid; ?>" />
 <input type="hidden" id="autocomplete_parent_id" name="WpParentWoID" value="<?php echo $formdata->parent_id; ?>" />
 
 <table class="tab2" cellspacing="0" cellpadding="5">
@@ -591,6 +593,7 @@ function load_formdata_from_request(): FormData {
   $f->parent_text = cleanreq("ParentText");
   $f->tags = get_tags_from_request();
 
+  $f->textid = intval(getreq("textid", 0));
   // Not used during db updates:
   // $f->fromAnn = '';
   // $f->scrdir;
