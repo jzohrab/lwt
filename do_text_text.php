@@ -99,7 +99,7 @@ function echo_term($actcode, $showAll, $spanid, $hidetag, $currcharcount, $recor
     }
 
     if ($actcode > 1 && isset($record['WoID'])) {
-            echo '<span id="' . $spanid . '" class="' . $hidetag . ' click mword ' . 
+        echo '<span id="' . $spanid . '" class="' . $hidetag . ' click mword ' . 
             ($showAll ? 'mwsty' : 'wsty') . ' order' . $record['Ti2Order'] .
             ' word' . $record['WoID'] . ' status' . $record['WoStatus'] . 
             ' TERM' . strToClassName($record['TiTextLC']) . '" ' .
@@ -123,15 +123,15 @@ function echo_term($actcode, $showAll, $spanid, $hidetag, $currcharcount, $recor
             return;
     }
 
-        // Single word
-        if (isset($record['WoID'])) {  
-            // Word found status 1-5|98|99
-            $cname = strToClassName($record['TiTextLC']);
-            $clist = "{$hidetag} click word wsty word{$record['WoID']} status{$record['WoStatus']} TERM{$cname}";
-            $trans = repl_tab_nl($record['WoTranslation']);
-            $taglist = getWordTagList($record['WoID'], ' ', 1, 0);
+    // Single word
+    if (isset($record['WoID'])) {  
+        // Word found status 1-5|98|99
+        $cname = strToClassName($record['TiTextLC']);
+        $clist = "{$hidetag} click word wsty word{$record['WoID']} status{$record['WoStatus']} TERM{$cname}";
+        $trans = repl_tab_nl($record['WoTranslation']);
+        $taglist = getWordTagList($record['WoID'], ' ', 1, 0);
 
-            $attrs = 'id="' . $spanid . '" 
+        $attrs = 'id="' . $spanid . '" 
             class="' . $clist . '" 
             data_pos="' . $currcharcount . '" 
             data_order="' . $record['Ti2Order'] . '" 
@@ -140,16 +140,16 @@ function echo_term($actcode, $showAll, $spanid, $hidetag, $currcharcount, $recor
             data_rom="' . tohtml($record['WoRomanization']) . '" 
             data_status="' . $record['WoStatus'] . '"';
 
-            if ($record['ParentWoID']) {
-              $ptrans = repl_tab_nl($record['ParentWoTranslation']);
-              $ptaglist = getWordTagList($record['ParentWoID'], ' ', 1, 0);
-              $attrs = $attrs . '
+        if ($record['ParentWoID']) {
+            $ptrans = repl_tab_nl($record['ParentWoTranslation']);
+            $ptaglist = getWordTagList($record['ParentWoID'], ' ', 1, 0);
+            $attrs = $attrs . '
               parent_text="' . tohtml($record['ParentWoTextLC']) . '"
               parent_trans="' . tohtml($ptrans . $ptaglist) . '"';
-            };
+        };
 
-            $content = tohtml($record['TiText']);
-            echo "<span {$attrs}>{$content}</span>";
+        $content = tohtml($record['TiText']);
+        echo "<span {$attrs}>{$content}</span>";
     }
 }
 
