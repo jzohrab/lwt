@@ -151,25 +151,28 @@ function echo_term($actcode, $showAll, $spanid, $hidetag, $currcharcount, $recor
         // Word found status 1-5|98|99
         $clist = "{$hidetag} click word wsty word{$r['WoID']} status{$r['WoStatus']} {$termclass}";
 
-        $attrs = 'id="' . $spanid . '" 
-            class="' . $clist . '" 
-            data_pos="' . $currcharcount . '" 
-            data_order="' . $r['Ti2Order'] . '" 
-            data_wid="' . $r['WoID'] . '" 
-            data_trans="' . $trans . '" 
-            data_rom="' . tohtml($r['WoRomanization']) . '" 
-            data_status="' . $r['WoStatus'] . '"';
+        $attrs = [
+            'id' => $spanid,
+            'class' => $clist,
+            'data_pos' => $currcharcount,
+            'data_order' => $r['Ti2Order'],
+            'data_wid' => $r['WoID'],
+            'data_trans' => $trans,
+            'data_rom' => tohtml($r['WoRomanization']),
+            'data_status' => $r['WoStatus']
+        ];
 
         if ($r['ParentWoID']) {
             $ptrans = repl_tab_nl($r['ParentWoTranslation']);
             $ptaglist = getWordTagList($r['ParentWoID'], ' ', 1, 0);
-            $attrs = $attrs . '
-              parent_text="' . tohtml($r['ParentWoTextLC']) . '"
-              parent_trans="' . tohtml($ptrans . $ptaglist) . '"';
+            $attrs['parent_text'] = tohtml($r['ParentWoTextLC']);
+            $attrs['parent_trans'] = tohtml($ptrans . $ptaglist);
         };
 
         $content = tohtml($r['TiText']);
-        echo "<span {$attrs}>{$content}</span>";
+        echo "<span {$to_attr_string($attrs)}>{$content}</span>";
+        return;
+
     }
 }
 

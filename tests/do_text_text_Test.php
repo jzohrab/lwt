@@ -19,7 +19,7 @@ final class do_text_text_Test extends TestCase
         DbHelpers::load_language_spanish();
         $this->langid = (int) get_first_value("select LgID as value from languages");
 
-        $words = [ 'Un gato', 'una lista', 'tiene una' ];
+        $words = [ 'Un gato', 'lista', 'tiene una' ];
         foreach ($words as $w) {
             DbHelpers::add_word($this->langid, $w, strtolower($w), 1, 2);
         }
