@@ -1251,7 +1251,8 @@ function edit_texts_display($message)
             (texts LEFT JOIN texttags ON TxID = TtTxID) 
             LEFT JOIN tags2 ON T2ID = TtT2ID
         ), languages
-        WHERE LgID=TxLgID {$wh_lang}{$wh_query} 
+        WHERE TxArchived is false
+        AND LgID=TxLgID {$wh_lang}{$wh_query} 
         GROUP BY TxID $wh_tag
         ORDER BY {$sorts[$currentsort-1]} 
         {$limit}";
