@@ -78,7 +78,6 @@ final class session_utility_Test extends TestCase
 
         $_SESSION['TEXTTAGS'] = ['aoeuaoeu'];
         $_REQUEST = array('TextTags' => array('TagList' => ['a']));
-        saveArchivedTextTags(42);
 
         getWordTags(42);
 

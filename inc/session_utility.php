@@ -285,44 +285,6 @@ function saveTextTags($tid): void
 }
 
 
-/**
- * Save the tags for archived texts.
- * 
- * @return void
- */
-function saveArchivedTextTags($tid): void 
-{
-    runsql("DELETE from archtexttags WHERE AgAtID =" . $tid, '');
-    if (!isset($_REQUEST['TextTags']) 
-        || !is_array($_REQUEST['TextTags']) 
-        || !isset($_REQUEST['TextTags']['TagList']) 
-        || !is_array($_REQUEST['TextTags']['TagList'])
-    ) {
-        return;
-    }
-    $cnt = count($_REQUEST['TextTags']['TagList']);
-    get_texttags(1);
-    for ($i = 0; $i < $cnt; $i++) {
-        $tag = $_REQUEST['TextTags']['TagList'][$i];
-        if (!in_array($tag, $_SESSION['TEXTTAGS'])) {
-            runsql(
-                'INSERT INTO tags2 (T2Text) 
-                VALUES(' . convert_string_to_sqlsyntax($tag) . ')', 
-                ""
-            );
-        }
-        runsql(
-            "INSERT INTO archtexttags (AgAtID, AgT2ID) 
-            SELECT $tid, T2ID 
-            FROM tags2 
-            WHERE T2Text = " . convert_string_to_sqlsyntax($tag), 
-            ""
-        );
-        // refresh tags cache
-        get_texttags(1);
-    }
-}
-
 // -------------------------------------------------------------
 
 function getWordTagsText($wid): array
