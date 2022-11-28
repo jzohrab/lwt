@@ -1695,20 +1695,6 @@ function replace_supp_unicode_planes_char($s): ?string
     /* U+2588 = UTF8: E2 96 88 = FULL BLOCK = ⬛︎  */ 
 }
 
-// -------------------------------------------------------------
-
-function makeCounterWithTotal($max, $num): string 
-{
-    if ($max == 1) { return ''; 
-    }
-    if ($max < 10) { return $num . "/" . $max; 
-    }
-    return substr(
-        str_repeat("0", strlen($max)) . $num,
-        -strlen($max)
-    )  . 
-    "/" . $max;
-}
 
 // -------------------------------------------------------------
 
