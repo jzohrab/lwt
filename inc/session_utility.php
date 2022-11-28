@@ -1678,18 +1678,6 @@ function error_message_with_hide($msg,$noback): string
     }
 }
 
-// -------------------------------------------------------------
-
-function errorbutton($msg): string 
-{
-    if (substr($msg, 0, 5) == "Error" ) {
-        return '<input type="button" value="&lt;&lt; Back" onclick="history.back();" />'; 
-    }
-    else {
-        return ''; 
-    }
-} 
-
 
 // -------------------------------------------------------------
 
