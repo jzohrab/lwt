@@ -3132,17 +3132,6 @@ function textwordcount($textID): void
 
 // -------------------------------------------------------------
 
-function texttodocount($text): string 
-{
-    return '<span title="To Do" class="status0">&nbsp;' . 
-    (get_first_value(
-        'SELECT count(DISTINCT Ti2TextLC) as value 
-        FROM textitems2 
-        WHERE Ti2WordCount=1 and Ti2WoID=0 and Ti2TxID=' . $text
-    )
-    ) . '&nbsp;</span>';
-}
-
 /**
  * Print the number of words left to do in this text.
  *
