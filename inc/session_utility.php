@@ -451,33 +451,6 @@ function removetaglist($item, $list): string
 
 // -------------------------------------------------------------
 
-function removearchtexttaglist($item, $list): string 
-{
-    $tagid = get_first_value(
-        'select T2ID as value 
-        from tags2 
-        where T2Text = ' . convert_string_to_sqlsyntax($item)
-    );
-    if (!isset($tagid)) { 
-        return "Tag " . $item . " not found"; 
-    }
-    $sql = 'select AtID from archivedtexts where AtID in ' . $list;
-    $res = do_mysqli_query($sql);
-    $cnt = 0;
-    while ($record = mysqli_fetch_assoc($res)) {
-        $cnt++;
-        runsql(
-            'delete from archtexttags 
-            where AgAtID = ' . $record['AtID'] . ' and AgT2ID = ' . $tagid, 
-            ""
-        );
-    }
-    mysqli_free_result($res);
-    return "Tag removed in $cnt Texts";
-}
-
-// -------------------------------------------------------------
-
 function removetexttaglist($item, $list): string 
 {
     $tagid = get_first_value(
