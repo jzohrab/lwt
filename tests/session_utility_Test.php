@@ -83,8 +83,6 @@ final class session_utility_Test extends TestCase
 
         getTextTags(42);
 
-        getArchivedTextTags(42);
-
         addtaglist('cat', '(1,2)');
         addarchtexttaglist('cat', '(1,2)');
         addtexttaglist('cat', '(1,2)');

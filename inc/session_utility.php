@@ -343,31 +343,6 @@ function getTextTags($tid): string
 }
 
 
-/**
- * Return a HTML-formatted list of the text tags for an archived text.
- *
- * @param int $tid Text ID. Can be below 1 to create an empty list.
- *
- * @return string UL list of text tags
- */
-function getArchivedTextTags($tid): string 
-{
-    $r = '<ul id="texttags">';
-    if ($tid > 0) {
-        $sql = 'SELECT T2Text 
-        FROM archtexttags, tags2 
-        WHERE T2ID = AgT2ID AND AgAtID = ' . $tid . ' 
-        ORDER BY T2Text';
-        $res = do_mysqli_query($sql);
-        while ($record = mysqli_fetch_assoc($res)) {
-            $r .= '<li>' . tohtml($record["T2Text"]) . '</li>';
-        }
-        mysqli_free_result($res);
-    }
-    $r .= '</ul>';
-    return $r;
-}
-
 // -------------------------------------------------------------
 
 function addtaglist($item, $list): string 
