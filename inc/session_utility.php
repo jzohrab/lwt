@@ -1686,15 +1686,6 @@ function remove_soft_hyphens($str): string
     return str_replace('­', '', $str);  // first '..' contains Softhyphen 0xC2 0xAD
 }
 
-// -------------------------------------------------------------
-
-function limitlength($s, $l) 
-{
-    if (mb_strlen($s, 'UTF-8') <= $l) { return $s; 
-    }
-    return mb_substr($s, 0, $l, 'UTF-8');
-}
-
 
 // -------------------------------------------------------------
 
