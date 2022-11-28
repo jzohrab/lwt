@@ -4477,34 +4477,6 @@ function makeAudioPlayer($audio, $offset=0)
 }
 
 
-
-/** 
- * Echo a HEAD tag for using with frames
- * 
- * @param string $title Title to use
- * 
- * @return void
- */
-function framesetheader($title): void 
-{
-    @header('Expires: Wed, 11 Jan 1984 05:00:00 GMT');
-    @header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
-    @header('Cache-Control: no-cache, must-revalidate, max-age=0');
-    @header('Pragma: no-cache');
-    ?><!DOCTYPE html>
-    <?php echo '<html lang="en">'; ?>
-<head>
-    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-    <link rel="stylesheet" type="text/css" href="<?php print_file_path('css/styles.css');?>" />
-    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"/>
-    <!-- 
-        <?php echo file_get_contents("UNLICENSE.md");?> 
-    -->
-    <title>LWT :: <?php echo tohtml($title); ?></title>
-</head>
-    <?php
-}
-
 /**
  * Write a page header and start writing its body.
  *
