@@ -8,6 +8,101 @@ Preferences / Settings
  ***************************************************************/
 
 require_once 'inc/session_utility.php';
+
+
+/**
+ * Prepare options for mobile.
+ *
+ * @param "0"|"1"|"2" $v Current mobile type
+ */
+function get_mobile_display_mode_selectoptions($v): string 
+{
+    if (!isset($v)) { 
+        $v = "0"; 
+    }
+    $r  = "<option value=\"0\"" . get_selected($v, "0");
+    $r .= ">Auto</option>";
+    $r .= "<option value=\"1\"" . get_selected($v, "1");
+    $r .= ">Force Non-Mobile</option>";
+    $r .= "<option value=\"2\"" . get_selected($v, "2");
+    $r .= ">Force Mobile</option>";
+    return $r;
+}
+
+
+function get_sentence_count_selectoptions($v): string 
+{
+    if (!isset($v)) {
+        $v = 1; 
+    }
+    $r  = "<option value=\"1\"" . get_selected($v, 1);
+    $r .= ">Just ONE</option>";
+    $r .= "<option value=\"2\"" . get_selected($v, 2);
+    $r .= ">TWO (+previous)</option>";
+    $r .= "<option value=\"3\"" . get_selected($v, 3);
+    $r .= ">THREE (+previous,+next)</option>";
+    return $r;
+}
+
+
+function get_regex_selectoptions($v): string 
+{
+    if (!isset($v)) {
+        $v = ""; 
+    }
+    $r  = "<option value=\"\"" . get_selected($v, "");
+    $r .= ">Default</option>";
+    $r .= "<option value=\"r\"" . get_selected($v, "r");
+    $r .= ">RegEx</option>";
+    $r .= "<option value=\"COLLATE 'utf8_bin' r\"" . get_selected($v, "COLLATE 'utf8_bin' r");
+    $r .= ">RegEx CaseSensitive</option>";
+    return $r;
+}
+
+
+function get_tooltip_selectoptions($v): string 
+{
+    if (!isset($v)) {
+        $v = 1; 
+    }
+    $r  = "<option value=\"1\"" . get_selected($v, 1);
+    $r .= ">Native</option>";
+    $r .= "<option value=\"2\"" . get_selected($v, 2);
+    $r .= ">JqueryUI</option>";
+    return $r;
+}
+
+
+function get_themes_selectoptions($v): string
+{
+    $themes = glob('themes/*', GLOB_ONLYDIR);
+    $r = '<option value="themes/Default/">Default</option>';
+    foreach($themes as $theme){
+        if($theme!='themes/Default') {
+            $r.= '<option value="'.$theme.'/" '. get_selected($v, $theme.'/');
+            $r .= ">". str_replace(array('themes/','_'), array('',' '), $theme) ."</option>";
+        }
+    }
+    return $r;
+}
+
+
+function get_words_to_do_buttons_selectoptions($v): string 
+{
+    if (!isset($v)) {
+        $v = "1"; 
+    }
+    $r  = "<option value=\"0\"" . get_selected($v, "0");
+    $r .= ">I Know All &amp; Ignore All</option>";
+    $r .= "<option value=\"1\"" . get_selected($v, "1");
+    $r .= ">I Know All</option>";
+    $r .= "<option value=\"2\"" . get_selected($v, "2");
+    $r .= ">Ignore All</option>";
+    return $r;
+}
+
+
+
 if (isset($_REQUEST['op'])) {
 
     if ($_REQUEST['op'] == 'Save') {
