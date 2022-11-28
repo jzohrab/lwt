@@ -257,43 +257,6 @@ function validateTag($currenttag,$currentlang)
 
 // -------------------------------------------------------------
 
-function validateArchTextTag($currenttag,$currentlang) 
-{
-    if ($currenttag != '' && $currenttag != -1) {
-        if ($currentlang == '') {
-            $sql = "select (
-                " . $currenttag . " in (
-                    select T2ID 
-                    from archivedtexts, 
-                    tags2, 
-                    archtexttags 
-                    where T2ID = AgT2ID and AgAtID = AtID 
-                    group by T2ID order by T2Text
-                )
-            ) as value"; 
-        }
-        else {
-            $sql = "select (
-                " . $currenttag . " in (
-                    select T2ID 
-                    from archivedtexts, 
-                    tags2, 
-                    archtexttags 
-                    where T2ID = AgT2ID and AgAtID = AtID and AtLgID = " . $currentlang . " 
-                    group by T2ID order by T2Text
-                )
-            ) as value"; 
-        }
-        $r = get_first_value($sql);
-        if ($r == 0 ) { 
-            $currenttag = ''; 
-        } 
-    }
-    return $currenttag;
-}
-
-// -------------------------------------------------------------
-
 function validateTextTag($currenttag,$currentlang) 
 {
     if ($currenttag != '' && $currenttag != -1) {
