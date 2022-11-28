@@ -13,6 +13,7 @@ This is a fork of [Hugo Fara's fork](https://github.com/hugofara) of the origina
 * Backup/restore removed from the UI: use `sqldump` from the command line, instead of verbose/error-prone PHP code.
 * Added simple automatic database migrations.  See [db/README.md](./db/README.md).
 * Added "parent term" for things like verb declensions etc.
+* Removed most text archiving/unarchiving functions.  See [docs/archivingchanges.md](./docs/archivingchanges.md).
 
 ## Installation, usage, etc.
 
