@@ -1,1 +1,1 @@
-alter table texts add column (archived BOOLEAN not null default 0);
+alter table texts add column (TxArchived BOOLEAN not null default 0);

@@ -1,11 +1,6 @@
 -- Migrate the existing arch texts and tags back to active tables and mark as archived.
 
 
--- DELETE EXISTING ARCHIVED TEXTS (useful during dev ... Nothing should have been moved yet!)
-DELETE from texttags where TtTxID in (select txid from texts where archived is true);
-DELETE from texts where archived is true;
-
-
 -- Create mapping of arch text IDs to new IDs.
 SET @baseid := (select ifnull(max(txid), 0) from texts);
 SET @currid := @baseid;
@@ -30,7 +25,7 @@ TxAudioURI,
 TxSourceURI,
 TxPosition,
 TxAudioPosition,
-archived
+TxArchived
 )
 SELECT
 TxID,
