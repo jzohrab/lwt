@@ -63,6 +63,7 @@ if (isset($_REQUEST['marked_items'])) {
         left join newsfeeds ON NfID=FlNfID"
     );
     $count=$message1=$message2=$message3=$message4=0;
+    $archivedcount = 0;
     while($row = mysqli_fetch_assoc($res)){
         if(get_nf_option($row['NfOptions'], 'edit_text')==1) {
             if ($edit_text==1) { 
@@ -229,69 +230,16 @@ if (isset($_REQUEST['marked_items'])) {
                 if($text_count>$nf_max_texts) {
                     $text_item=array_slice($text_item, 0, $text_count-$nf_max_texts);
                     foreach ($text_item as $text_ID) {
-                        $temp = runsql(
-                            'delete from textitems2 where Ti2TxID = ' . $text_ID, 
-                            ""
-                        );
-                        if (is_numeric($temp)) {
-                            $message3 += (int) $temp;
-                        }
-                        $temp = runsql(
-                            'delete from sentences where SeTxID = ' . $text_ID, 
-                            ""
-                        );
-                        if (is_numeric($temp)) {
-                            $message2 += (int) $temp;
-                        }
-                        $temp = runsql(
-                            'INSERT INTO archivedtexts (
-                                AtLgID, AtTitle, AtText, 
-                                AtAnnotatedText, AtAudioURI, AtSourceURI
-                            ) 
-                            SELECT TxLgID, TxTitle, TxText, 
-                            TxAnnotatedText, TxAudioURI, TxSourceURI 
-                            FROM texts 
-                            WHERE TxID = ' . $text_ID, 
-                            ""
-                        );
-                        if (is_numeric($temp)) {
-                            $message4 += (int) $temp;
-                        }
-                        $id = get_last_key();
-                        runsql(
-                            'INSERT INTO archtexttags (AgAtID, AgT2ID) 
-                            SELECT ' . $id . ', TtT2ID 
-                            FROM texttags 
-                            WHERE TtTxID = ' . $text_ID, 
-                            ""
-                        );    
-                        $temp = runsql(
-                            'DELETE FROM texts 
-                            WHERE TxID = ' . $text_ID, 
-                            ""
-                        );
-                        if (is_numeric($temp)) {
-                            $message1 += (int) $temp;
-                        }
-                        runsql(
-                            "DELETE texttags 
-                            FROM (" 
-                                . texttags 
-                                LEFT JOIN texts 
-                                ON TtTxID = TxID
-                            ) 
-                            WHERE TxID IS NULL", 
-                            ''
-                        );        
+                        $archivedcount = $archivedcount + 1;
+                        archive_text_id($text_ID);
                     }
                 }
             }
         }
     }
     mysqli_free_result($res);
-    if ($message4>0 || $message1>0) { 
-        $message = "Texts archived: $message1 / Sentences deleted: $message2" . 
-        " / Text items deleted: $message3"; 
+    if ($archivedcount>0) { 
+        $message = "Texts archived: $archivecount";
     }
     if($edit_text==1) {
         ?>
