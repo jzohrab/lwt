@@ -68,9 +68,6 @@ final class session_utility_Test extends TestCase
         get_txtag_selectoptions('', 'cat');
         get_txtag_selectoptions(42, 'cat');
 
-        get_archivedtexttag_selectoptions('cat', '');
-        get_archivedtexttag_selectoptions('cat', 42);
-
         $_SESSION['TAGS'] = ['cat'];
         $_REQUEST = array('TermTags' => array('TagList' => ['a']));
         saveWordTags(42);

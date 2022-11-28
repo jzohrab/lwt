@@ -201,45 +201,6 @@ function get_txtag_selectoptions($l,$v): string
     return $r.$u;
 }
 
-// -------------------------------------------------------------
-
-function get_archivedtexttag_selectoptions($v,$l): string 
-{
-    if (!isset($v)) { 
-        $v = ''; 
-    }
-    $r = "<option value=\"\"" . get_selected($v, '');
-    $r .= ">[Filter off]</option>";
-    if ($l == '') {
-        $sql = "select T2ID, T2Text 
-        from archivedtexts,
-        tags2, archtexttags 
-        where T2ID = AgT2ID and AgAtID = AtID 
-        group by T2ID 
-        order by UPPER(T2Text)"; 
-    } else {
-        $sql = "select T2ID, T2Text 
-        from archivedtexts, tags2,
-        archtexttags 
-        where T2ID = AgT2ID and AgAtID = AtID and AtLgID = " . $l . " 
-        group by T2ID 
-        order by UPPER(T2Text)"; 
-    }
-    $res = do_mysqli_query($sql);
-    $cnt = 0;
-    while ($record = mysqli_fetch_assoc($res)) {
-        $d = $record["T2Text"];
-        $cnt++;
-        $r .= "<option value=\"" . $record["T2ID"] . "\"" . 
-        get_selected($v, $record["T2ID"]) . ">" . tohtml($d) . "</option>";
-    }
-    mysqli_free_result($res);
-    if ($cnt > 0) {
-        $r .= "<option disabled=\"disabled\">--------</option>";
-        $r .= "<option value=\"-1\"" . get_selected($v, -1) . ">UNTAGGED</option>";
-    }
-    return $r;
-}
 
 
 /**
