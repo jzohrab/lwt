@@ -300,7 +300,7 @@ echo '<div>' .
 
     <div class="menu">
         <a href="edit_texts.php">Texts</a>
-        <a href="edit_archivedtexts.php">Text Archive</a>
+        <a href="archivedtexts.php">Text Archive</a>
         
         <a href="edit_texttags.php">Text Tags</a>
         <a href="check_text.php">Check a Text</a>
