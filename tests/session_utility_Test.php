@@ -13,6 +13,7 @@ final class session_utility_Test extends TestCase
         // Set up db.
         DbHelpers::ensure_using_test_db();
         DbHelpers::clean_db();
+        DbHelpers::load_language_spanish();
 
         // Fake session and server info.
         $_SERVER['HTTP_HOST'] = 'localhost';
@@ -68,9 +69,6 @@ final class session_utility_Test extends TestCase
         get_txtag_selectoptions('', 'cat');
         get_txtag_selectoptions(42, 'cat');
 
-        get_archivedtexttag_selectoptions('cat', '');
-        get_archivedtexttag_selectoptions('cat', 42);
-
         $_SESSION['TAGS'] = ['cat'];
         $_REQUEST = array('TermTags' => array('TagList' => ['a']));
         saveWordTags(42);
@@ -81,16 +79,12 @@ final class session_utility_Test extends TestCase
 
         $_SESSION['TEXTTAGS'] = ['aoeuaoeu'];
         $_REQUEST = array('TextTags' => array('TagList' => ['a']));
-        saveArchivedTextTags(42);
 
         getWordTags(42);
 
         getTextTags(42);
 
-        getArchivedTextTags(42);
-
         addtaglist('cat', '(1,2)');
-        addarchtexttaglist('cat', '(1,2)');
         addtexttaglist('cat', '(1,2)');
     }
 
@@ -142,4 +136,24 @@ VALUES (42, 1), (42, 2), (42,99999)");
         $this->assertEquals(getWordTagsText(42), ['a', 'b']);
     }
 
+    /** Texts */
+
+    public function test_archive_text_id() {
+        $newid = get_first_value("select ifnull(max(txid), 0) + 1 as value from texts");
+        $text = 'Hola, tengo un gato.';
+        DbHelpers::add_text($text, $newid, 'mytesting');
+        splitCheckText($text, 1, $newid);
+
+        $sentencesql = "select * from sentences where SeTxID = $newid";
+        $ti2sql = "select Ti2Order, Ti2Text from textitems2 where Ti2TxID = $newid";
+        $txsql = "select TxID, TxTitle from texts where TxID = $newid and TxArchived = 0";
+        DbHelpers::assertRecordcountEquals($sentencesql, 1, "sentences pre");
+        DbHelpers::assertRecordcountEquals($ti2sql, 8, "ti2 pre");
+        DbHelpers::assertRecordcountEquals($txsql, 1, "tx pre");
+
+        archive_text_id($newid);
+        DbHelpers::assertRecordcountEquals($sentencesql, 0, "sentences post");
+        DbHelpers::assertRecordcountEquals($ti2sql, 0, "ti2 post");
+        DbHelpers::assertRecordcountEquals($txsql, 0, "tx post");
+    }
 }

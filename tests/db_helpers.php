@@ -46,8 +46,6 @@ you must use a dedicated test database when running tests.
 
     public static function clean_db() {
         $tables = [
-            "archivedtexts",
-            "archtexttags",
             "feedlinks",
             "languages",
             "newsfeeds",
@@ -153,6 +151,23 @@ you must use a dedicated test database when running tests.
 
         PHPUnit\Framework\Assert::assertEquals($expected, $content, $message);
     }
+
+    public static function assertRecordcountEquals($sql, $expected, $message = '') {
+        $c = get_first_value("select count(*) as value from ({$sql}) src");
+
+        if ($c != $expected) {
+            $content = [];
+            $res = do_mysqli_query($sql);
+            while($row = mysqli_fetch_assoc($res)) {
+                $content[] = implode('; ', $row);
+            }
+            mysqli_free_result($res);
+            $content = implode("\n", $content);
+            $message = "{$message} ... got data:\n\n{$content}\n";
+        }
+        PHPUnit\Framework\Assert::assertEquals($expected, $c, $message);
+    }
+
 }
 
 ?>

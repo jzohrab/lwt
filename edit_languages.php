@@ -123,9 +123,7 @@ function edit_languages_delete($lid): string
         where TxLgID = ' . $lid
     );
     $anzarchtexts = get_first_value(
-        'select count(AtID) as value 
-        from archivedtexts 
-        where AtLgID = ' . $lid
+        "select count(TxID) as value from texts where TxArchived = true and TxLgID = {$lid}"
     );
     $anzwords = get_first_value(
         'select count(WoID) as value 
@@ -655,9 +653,7 @@ function edit_languages_display($message)
         );
         $textcount = is_numeric($foo) ? (int)$foo : 0;
         $foo = get_first_value(
-            'select count(AtID) as value 
-            from archivedtexts 
-            where AtLgID=' . $lid
+            "select count(TxID) as value from texts where TxArchived = true and TxLgID = {$lid}"
         );
         $archtextcount = is_numeric($foo) ? (int)$foo : 0;
         $foo = get_first_value(
@@ -718,7 +714,7 @@ function edit_languages_display($message)
         }
         echo '</' . $tdth . '>';
         echo '<' . $tdth . ' class="' . $tdth . '1 center">' . 
-        ($archtextcount > 0 ? '<a href="edit_archivedtexts.php?page=1&amp;query=&amp;filterlang=' . $lid . '">' . 
+        ($archtextcount > 0 ? '<a href="archivedtexts.php?filterlang=' . $lid . '">' . 
         $archtextcount . '</a>' : '0' ) . '</' . $tdth . '>';
         echo '<' . $tdth . ' class="' . $tdth . '1 center">' . 
         ($nfcount > 0 ? '<a href="do_feeds.php?query=&amp;selected_feed=&amp;check_autoupdate=1&amp;filterlang=' . $lid . '">' . 

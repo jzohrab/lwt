@@ -201,45 +201,6 @@ function get_txtag_selectoptions($l,$v): string
     return $r.$u;
 }
 
-// -------------------------------------------------------------
-
-function get_archivedtexttag_selectoptions($v,$l): string 
-{
-    if (!isset($v)) { 
-        $v = ''; 
-    }
-    $r = "<option value=\"\"" . get_selected($v, '');
-    $r .= ">[Filter off]</option>";
-    if ($l == '') {
-        $sql = "select T2ID, T2Text 
-        from archivedtexts,
-        tags2, archtexttags 
-        where T2ID = AgT2ID and AgAtID = AtID 
-        group by T2ID 
-        order by UPPER(T2Text)"; 
-    } else {
-        $sql = "select T2ID, T2Text 
-        from archivedtexts, tags2,
-        archtexttags 
-        where T2ID = AgT2ID and AgAtID = AtID and AtLgID = " . $l . " 
-        group by T2ID 
-        order by UPPER(T2Text)"; 
-    }
-    $res = do_mysqli_query($sql);
-    $cnt = 0;
-    while ($record = mysqli_fetch_assoc($res)) {
-        $d = $record["T2Text"];
-        $cnt++;
-        $r .= "<option value=\"" . $record["T2ID"] . "\"" . 
-        get_selected($v, $record["T2ID"]) . ">" . tohtml($d) . "</option>";
-    }
-    mysqli_free_result($res);
-    if ($cnt > 0) {
-        $r .= "<option disabled=\"disabled\">--------</option>";
-        $r .= "<option value=\"-1\"" . get_selected($v, -1) . ">UNTAGGED</option>";
-    }
-    return $r;
-}
 
 
 /**
@@ -324,44 +285,6 @@ function saveTextTags($tid): void
 }
 
 
-/**
- * Save the tags for archived texts.
- * 
- * @return void
- */
-function saveArchivedTextTags($tid): void 
-{
-    runsql("DELETE from archtexttags WHERE AgAtID =" . $tid, '');
-    if (!isset($_REQUEST['TextTags']) 
-        || !is_array($_REQUEST['TextTags']) 
-        || !isset($_REQUEST['TextTags']['TagList']) 
-        || !is_array($_REQUEST['TextTags']['TagList'])
-    ) {
-        return;
-    }
-    $cnt = count($_REQUEST['TextTags']['TagList']);
-    get_texttags(1);
-    for ($i = 0; $i < $cnt; $i++) {
-        $tag = $_REQUEST['TextTags']['TagList'][$i];
-        if (!in_array($tag, $_SESSION['TEXTTAGS'])) {
-            runsql(
-                'INSERT INTO tags2 (T2Text) 
-                VALUES(' . convert_string_to_sqlsyntax($tag) . ')', 
-                ""
-            );
-        }
-        runsql(
-            "INSERT INTO archtexttags (AgAtID, AgT2ID) 
-            SELECT $tid, T2ID 
-            FROM tags2 
-            WHERE T2Text = " . convert_string_to_sqlsyntax($tag), 
-            ""
-        );
-        // refresh tags cache
-        get_texttags(1);
-    }
-}
-
 // -------------------------------------------------------------
 
 function getWordTagsText($wid): array
@@ -420,31 +343,6 @@ function getTextTags($tid): string
 }
 
 
-/**
- * Return a HTML-formatted list of the text tags for an archived text.
- *
- * @param int $tid Text ID. Can be below 1 to create an empty list.
- *
- * @return string UL list of text tags
- */
-function getArchivedTextTags($tid): string 
-{
-    $r = '<ul id="texttags">';
-    if ($tid > 0) {
-        $sql = 'SELECT T2Text 
-        FROM archtexttags, tags2 
-        WHERE T2ID = AgT2ID AND AgAtID = ' . $tid . ' 
-        ORDER BY T2Text';
-        $res = do_mysqli_query($sql);
-        while ($record = mysqli_fetch_assoc($res)) {
-            $r .= '<li>' . tohtml($record["T2Text"]) . '</li>';
-        }
-        mysqli_free_result($res);
-    }
-    $r .= '</ul>';
-    return $r;
-}
-
 // -------------------------------------------------------------
 
 function addtaglist($item, $list): string 
@@ -483,44 +381,6 @@ function addtaglist($item, $list): string
     mysqli_free_result($res);
     get_tags($refresh = 1);
     return "Tag added in $cnt Terms";
-}
-
-// -------------------------------------------------------------
-
-function addarchtexttaglist($item, $list): string 
-{
-    $tagid = get_first_value(
-        'select T2ID as value from tags2 
-        where T2Text = ' . convert_string_to_sqlsyntax($item)
-    );
-    if (!isset($tagid)) {
-        runsql(
-            'insert into tags2 (T2Text) 
-            values(' . convert_string_to_sqlsyntax($item) . ')', 
-            ""
-        );
-        $tagid = get_first_value(
-            'select T2ID as value 
-            from tags2 
-            where T2Text = ' . convert_string_to_sqlsyntax($item)
-        );
-    }
-    $sql = 'select AtID from archivedtexts 
-    LEFT JOIN archtexttags 
-    ON AtID = AgAtID AND AgT2ID = ' . $tagid . ' 
-    WHERE AgT2ID IS NULL AND AtID in ' . $list;
-    $res = do_mysqli_query($sql);
-    $cnt = 0;
-    while ($record = mysqli_fetch_assoc($res)) {
-        $cnt += (int) runsql(
-            'insert ignore into archtexttags (AgAtID, AgT2ID) 
-            values(' . $record['AtID'] . ', ' . $tagid . ')', 
-            ""
-        );
-    }
-    mysqli_free_result($res);
-    get_texttags($refresh = 1);
-    return "Tag added in $cnt Texts";
 }
 
 // -------------------------------------------------------------
@@ -587,33 +447,6 @@ function removetaglist($item, $list): string
     }
     mysqli_free_result($res);
     return "Tag removed in $cnt Terms";
-}
-
-// -------------------------------------------------------------
-
-function removearchtexttaglist($item, $list): string 
-{
-    $tagid = get_first_value(
-        'select T2ID as value 
-        from tags2 
-        where T2Text = ' . convert_string_to_sqlsyntax($item)
-    );
-    if (!isset($tagid)) { 
-        return "Tag " . $item . " not found"; 
-    }
-    $sql = 'select AtID from archivedtexts where AtID in ' . $list;
-    $res = do_mysqli_query($sql);
-    $cnt = 0;
-    while ($record = mysqli_fetch_assoc($res)) {
-        $cnt++;
-        runsql(
-            'delete from archtexttags 
-            where AgAtID = ' . $record['AtID'] . ' and AgT2ID = ' . $tagid, 
-            ""
-        );
-    }
-    mysqli_free_result($res);
-    return "Tag removed in $cnt Texts";
 }
 
 // -------------------------------------------------------------
@@ -706,13 +539,28 @@ function load_feeds($currentfeed): void
     echo "<div class=\"center\"><button onclick='window.location.replace(\"",$_SERVER['PHP_SELF'],"\");'>Continue</button></div>";
 }
 
+
+// -------------------------------------------------------------
+
+function archive_text_id($textid) {
+  $archives = [
+    "delete from textitems2 where Ti2TxID = {$textid}",
+    "delete from sentences where SeTxID = {$textid}", 
+    "update texts set TxArchived = true where TxID = {$textid}"
+  ];
+  foreach ($archives as $sql) {
+    runsql($sql, "");
+  }
+}
+
+
 // -------------------------------------------------------------
 
 
 function write_rss_to_db($texts): string
 {
+    $archivedcount = 0;
     $texts=array_reverse($texts);
-    $message1=$message2=$message3=$message4=0;
     $Nf_ID = null;
     foreach($texts as $text){
         $Nf_ID[]=$text['Nf_ID'];
@@ -781,55 +629,17 @@ function write_rss_to_db($texts): string
         if($text_count>$nf_max_texts) {
             sort($text_item, SORT_NUMERIC);
             $text_item=array_slice($text_item, 0, $text_count-$nf_max_texts);
-            foreach ($text_item as $text_ID){
-                $message3 += (int) runsql(
-                    'delete from textitems2 
-                    where Ti2TxID = ' . $text_ID, 
-                    ""
-                );
-                $message2 += (int) runsql(
-                    'delete from sentences 
-                    where SeTxID = ' . $text_ID, 
-                    ""
-                );
-                $message4 += (int) runsql(
-                    'insert into archivedtexts (
-                        AtLgID, AtTitle, AtText, AtAnnotatedText, 
-                        AtAudioURI, AtSourceURI
-                    ) select TxLgID, TxTitle, TxText, TxAnnotatedText, 
-                    TxAudioURI, TxSourceURI 
-                    from texts 
-                    where TxID = ' . $text_ID, 
-                    ""
-                );
-                $id = get_last_key();
-                runsql(
-                    'insert into archtexttags (AgAtID, AgT2ID) 
-                    select ' . $id . ', TtT2ID from texttags 
-                    where TtTxID = ' . $text_ID, 
-                    ""
-                );    
-                $message1 += (int) runsql(
-                    'delete from texts 
-                    where TxID = ' . $text_ID, 
-                    ""
-                );
-                // $message .= $message4 . " / " . $message1 . " / " . $message2 . " / " . $message3;
-                runsql(
-                    "DELETE texttags FROM (texttags LEFT JOIN texts on TtTxID = TxID) 
-                    WHERE TxID IS NULL", 
-                    ''
-                );        
+            foreach ($text_item as $text_ID) {
+                $archivedcount = $archivedcount + 1;
+                archive_text_id($text_ID);
             }
         }
     }
-    if ($message4>0 || $message1>0) { 
-        return "Texts archived: " . $message1 . 
-        " / Sentences deleted: " . $message2 . " / Text items deleted: " . $message3; 
+
+    if ($archivedcount == 0) {
+        return '';
     }
-    else { 
-        return ''; 
-    }
+    return "Texts archived: " . $archivedcount;
 }
 
 // -------------------------------------------------------------

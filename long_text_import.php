@@ -255,7 +255,7 @@ function long_text_display($max_input_vars)
             </a>
         </div>
         <div>
-            <a href="edit_archivedtexts.php?query=&amp;page=1">
+            <a href="archivedtexts.php">
                 <img src="icn/drawer--minus.png">
                 Archived Texts
             </a>

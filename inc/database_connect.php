@@ -257,43 +257,6 @@ function validateTag($currenttag,$currentlang)
 
 // -------------------------------------------------------------
 
-function validateArchTextTag($currenttag,$currentlang) 
-{
-    if ($currenttag != '' && $currenttag != -1) {
-        if ($currentlang == '') {
-            $sql = "select (
-                " . $currenttag . " in (
-                    select T2ID 
-                    from archivedtexts, 
-                    tags2, 
-                    archtexttags 
-                    where T2ID = AgT2ID and AgAtID = AtID 
-                    group by T2ID order by T2Text
-                )
-            ) as value"; 
-        }
-        else {
-            $sql = "select (
-                " . $currenttag . " in (
-                    select T2ID 
-                    from archivedtexts, 
-                    tags2, 
-                    archtexttags 
-                    where T2ID = AgT2ID and AgAtID = AtID and AtLgID = " . $currentlang . " 
-                    group by T2ID order by T2Text
-                )
-            ) as value"; 
-        }
-        $r = get_first_value($sql);
-        if ($r == 0 ) { 
-            $currenttag = ''; 
-        } 
-    }
-    return $currenttag;
-}
-
-// -------------------------------------------------------------
-
 function validateTextTag($currenttag,$currentlang) 
 {
     if ($currenttag != '' && $currenttag != -1) {
@@ -1228,8 +1191,6 @@ function check_update_db($debug, $dbname): void
         runsql("DELETE wordtags FROM (wordtags LEFT JOIN words on WtWoID = WoID) WHERE WoID IS NULL", '');
         runsql("DELETE texttags FROM (texttags LEFT JOIN tags2 on TtT2ID = T2ID) WHERE T2ID IS NULL", '');
         runsql("DELETE texttags FROM (texttags LEFT JOIN texts on TtTxID = TxID) WHERE TxID IS NULL", '');
-        runsql("DELETE archtexttags FROM (archtexttags LEFT JOIN tags2 on AgT2ID = T2ID) WHERE T2ID IS NULL", '');
-        runsql("DELETE archtexttags FROM (archtexttags LEFT JOIN archivedtexts on AgAtID = AtID) WHERE AtID IS NULL", '');
         optimizedb();
         saveSetting('lastscorecalc', $today);
     }

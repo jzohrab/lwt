@@ -63,6 +63,7 @@ if (isset($_REQUEST['marked_items'])) {
         left join newsfeeds ON NfID=FlNfID"
     );
     $count=$message1=$message2=$message3=$message4=0;
+    $archivedcount = 0;
     while($row = mysqli_fetch_assoc($res)){
         if(get_nf_option($row['NfOptions'], 'edit_text')==1) {
             if ($edit_text==1) { 
@@ -229,69 +230,16 @@ if (isset($_REQUEST['marked_items'])) {
                 if($text_count>$nf_max_texts) {
                     $text_item=array_slice($text_item, 0, $text_count-$nf_max_texts);
                     foreach ($text_item as $text_ID) {
-                        $temp = runsql(
-                            'delete from textitems2 where Ti2TxID = ' . $text_ID, 
-                            ""
-                        );
-                        if (is_numeric($temp)) {
-                            $message3 += (int) $temp;
-                        }
-                        $temp = runsql(
-                            'delete from sentences where SeTxID = ' . $text_ID, 
-                            ""
-                        );
-                        if (is_numeric($temp)) {
-                            $message2 += (int) $temp;
-                        }
-                        $temp = runsql(
-                            'INSERT INTO archivedtexts (
-                                AtLgID, AtTitle, AtText, 
-                                AtAnnotatedText, AtAudioURI, AtSourceURI
-                            ) 
-                            SELECT TxLgID, TxTitle, TxText, 
-                            TxAnnotatedText, TxAudioURI, TxSourceURI 
-                            FROM texts 
-                            WHERE TxID = ' . $text_ID, 
-                            ""
-                        );
-                        if (is_numeric($temp)) {
-                            $message4 += (int) $temp;
-                        }
-                        $id = get_last_key();
-                        runsql(
-                            'INSERT INTO archtexttags (AgAtID, AgT2ID) 
-                            SELECT ' . $id . ', TtT2ID 
-                            FROM texttags 
-                            WHERE TtTxID = ' . $text_ID, 
-                            ""
-                        );    
-                        $temp = runsql(
-                            'DELETE FROM texts 
-                            WHERE TxID = ' . $text_ID, 
-                            ""
-                        );
-                        if (is_numeric($temp)) {
-                            $message1 += (int) $temp;
-                        }
-                        runsql(
-                            "DELETE texttags 
-                            FROM (" 
-                                . texttags 
-                                LEFT JOIN texts 
-                                ON TtTxID = TxID
-                            ) 
-                            WHERE TxID IS NULL", 
-                            ''
-                        );        
+                        $archivedcount = $archivedcount + 1;
+                        archive_text_id($text_ID);
                     }
                 }
             }
         }
     }
     mysqli_free_result($res);
-    if ($message4>0 || $message1>0) { 
-        $message = "Texts archived: $message1 / Sentences deleted: $message2" . 
-        " / Text items deleted: $message3"; 
+    if ($archivedcount>0) { 
+        $message = "Texts archived: $archivecount";
     }
     if($edit_text==1) {
         ?>
@@ -398,7 +346,7 @@ if (
         </a>
     </div>
     <div>
-        <a href="edit_archivedtexts.php?query=&amp;page=1">
+        <a href="archivedtexts.php">
             <img src="icn/drawer--minus.png">
             Archived Texts
         </a>
@@ -537,13 +485,13 @@ if(mysqli_data_seek($result, 0)) {
   <th class="th1 clickable" style="min-width:90px;">Date</th>
   </tr>    
         <?php
-        $result = do_mysqli_query("SELECT FlID, FlTitle, FlLink, FlDescription, FlDate, FlAudio,TxID, AtID FROM feedlinks left join texts on TxSourceURI=trim(FlLink) left join archivedtexts on AtSourceURI=trim(FlLink) WHERE FlNfID in ($currentfeed) ".$wh_query." ORDER BY " . $sorts[$currentsort-1] . " ". $limit);
+        $result = do_mysqli_query("SELECT FlID, FlTitle, FlLink, FlDescription, FlDate, FlAudio, ifnull(TxID, 0) as TxID, ifnull(TxArchived, 0) as TxArchived FROM feedlinks left join texts on TxSourceURI=trim(FlLink) WHERE FlNfID in ($currentfeed) ".$wh_query." ORDER BY " . $sorts[$currentsort-1] . " ". $limit);
         while($row = mysqli_fetch_assoc($result)){
             echo  '<tr>';
-            if ($row['TxID']) {
+            if ((int) $row['TxID'] != 0 && (int) $row['TxArchived'] == 0) {
                 echo '<td class="td1 center"><a href="do_text.php?start=' . $row['TxID'] . '" ><img src="icn/book-open-bookmark.png" title="Read" alt="-" /></a>'; 
             }
-            elseif ($row['AtID']) {
+            elseif ((int) $row['TxID'] != 0 && (int) $row['TxArchived'] == 1) {
                 echo '<td class="td1 center"><span title="archived"><img src="icn/status-busy.png" alt="-" /></span>';
             } elseif(!empty($row['FlLink']) && str_starts_with($row['FlLink'], ' ')) {
                 echo '<td class="td1 center"><img class="not_found" name="' . $row['FlID'] . '" title="download error" src="icn/exclamation-button.png" alt="-" />';
