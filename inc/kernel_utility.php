@@ -334,7 +334,7 @@ function quickMenu(): void
     <option value="index">Home</option>
     <optgroup label="Texts">
         <option value="edit_texts">Texts</option>
-        <option value="edit_archivedtexts">Text Archive</option>
+        <option value="archivedtexts">Text Archive</option>
         <option value="edit_texttags">Text Tags</option>
         <option value="check_text">Text Check</option>
         <option value="long_text_import">Long Text Import</option>
