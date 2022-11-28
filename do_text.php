@@ -132,8 +132,6 @@ width: <?php echo 97 - $frame_l_width; ?>%;">
 function do_text_page($textid)
 {
 
-
-    //framesetheader('Read');
     pagestart_nobody('Read');
     
     $audio = get_first_value(

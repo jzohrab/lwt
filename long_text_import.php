@@ -155,6 +155,16 @@ function long_text_check($max_input_vars): void
 
 }
 
+
+function makeCounterWithTotal($max, $num): string 
+{
+    if ($max == 1) { return ''; }
+    if ($max < 10) { return $num . "/" . $max; }
+    $m = strlen($max);
+    return substr(str_repeat("0", $m) . $num, -$m)  . "/" . $max;
+}
+
+
 /*
  * Save a long text to the database.
  * 

@@ -1678,33 +1678,12 @@ function error_message_with_hide($msg,$noback): string
     }
 }
 
-// -------------------------------------------------------------
-
-function errorbutton($msg): string 
-{
-    if (substr($msg, 0, 5) == "Error" ) {
-        return '<input type="button" value="&lt;&lt; Back" onclick="history.back();" />'; 
-    }
-    else {
-        return ''; 
-    }
-} 
-
 
 // -------------------------------------------------------------
 
 function remove_soft_hyphens($str): string 
 {
     return str_replace('­', '', $str);  // first '..' contains Softhyphen 0xC2 0xAD
-}
-
-// -------------------------------------------------------------
-
-function limitlength($s, $l) 
-{
-    if (mb_strlen($s, 'UTF-8') <= $l) { return $s; 
-    }
-    return mb_substr($s, 0, $l, 'UTF-8');
 }
 
 
@@ -1716,20 +1695,6 @@ function replace_supp_unicode_planes_char($s): ?string
     /* U+2588 = UTF8: E2 96 88 = FULL BLOCK = ⬛︎  */ 
 }
 
-// -------------------------------------------------------------
-
-function makeCounterWithTotal($max, $num): string 
-{
-    if ($max == 1) { return ''; 
-    }
-    if ($max < 10) { return $num . "/" . $max; 
-    }
-    return substr(
-        str_repeat("0", strlen($max)) . $num,
-        -strlen($max)
-    )  . 
-    "/" . $max;
-}
 
 // -------------------------------------------------------------
 
@@ -1803,101 +1768,7 @@ function get_first_sepa()
 }
 
 
-/**
- * Prepare options for mobile.
- *
- * @param "0"|"1"|"2" $v Current mobile type
- */
-function get_mobile_display_mode_selectoptions($v): string 
-{
-    if (!isset($v)) { 
-        $v = "0"; 
-    }
-    $r  = "<option value=\"0\"" . get_selected($v, "0");
-    $r .= ">Auto</option>";
-    $r .= "<option value=\"1\"" . get_selected($v, "1");
-    $r .= ">Force Non-Mobile</option>";
-    $r .= "<option value=\"2\"" . get_selected($v, "2");
-    $r .= ">Force Mobile</option>";
-    return $r;
-}
-
 // -------------------------------------------------------------
-
-function get_sentence_count_selectoptions($v): string 
-{
-    if (!isset($v)) {
-        $v = 1; 
-    }
-    $r  = "<option value=\"1\"" . get_selected($v, 1);
-    $r .= ">Just ONE</option>";
-    $r .= "<option value=\"2\"" . get_selected($v, 2);
-    $r .= ">TWO (+previous)</option>";
-    $r .= "<option value=\"3\"" . get_selected($v, 3);
-    $r .= ">THREE (+previous,+next)</option>";
-    return $r;
-}
-
-// -------------------------------------------------------------
-
-function get_words_to_do_buttons_selectoptions($v): string 
-{
-    if (!isset($v)) {
-        $v = "1"; 
-    }
-    $r  = "<option value=\"0\"" . get_selected($v, "0");
-    $r .= ">I Know All &amp; Ignore All</option>";
-    $r .= "<option value=\"1\"" . get_selected($v, "1");
-    $r .= ">I Know All</option>";
-    $r .= "<option value=\"2\"" . get_selected($v, "2");
-    $r .= ">Ignore All</option>";
-    return $r;
-}
-
-// -------------------------------------------------------------
-
-function get_regex_selectoptions($v): string 
-{
-    if (!isset($v)) {
-        $v = ""; 
-    }
-    $r  = "<option value=\"\"" . get_selected($v, "");
-    $r .= ">Default</option>";
-    $r .= "<option value=\"r\"" . get_selected($v, "r");
-    $r .= ">RegEx</option>";
-    $r .= "<option value=\"COLLATE 'utf8_bin' r\"" . get_selected($v, "COLLATE 'utf8_bin' r");
-    $r .= ">RegEx CaseSensitive</option>";
-    return $r;
-}
-
-// -------------------------------------------------------------
-
-function get_tooltip_selectoptions($v): string 
-{
-    if (!isset($v)) {
-        $v = 1; 
-    }
-    $r  = "<option value=\"1\"" . get_selected($v, 1);
-    $r .= ">Native</option>";
-    $r .= "<option value=\"2\"" . get_selected($v, 2);
-    $r .= ">JqueryUI</option>";
-    return $r;
-}
-
-// -------------------------------------------------------------
-
-function get_themes_selectoptions($v): string
-{
-    $themes = glob('themes/*', GLOB_ONLYDIR);
-    $r = '<option value="themes/Default/">Default</option>';
-    foreach($themes as $theme){
-        if($theme!='themes/Default') {
-            $r.= '<option value="'.$theme.'/" '. get_selected($v, $theme.'/');
-            $r .= ">". str_replace(array('themes/','_'), array('',' '), $theme) ."</option>";
-        }
-    }
-    return $r;
-}
 
 
 /**
@@ -2817,52 +2688,6 @@ function makeDictLinks($lang,$wordctljs): string
     return $r;
 }
 
-// -------------------------------------------------------------
-
-function createDictLinksInEditWin3($lang,$sentctljs,$wordctljs): string 
-{
-    $sql = 'SELECT LgDict1URI, LgDict2URI, LgGoogleTranslateURI 
-    FROM languages WHERE LgID = ' . $lang;
-    $res = do_mysqli_query($sql);
-    $record = mysqli_fetch_assoc($res);
-    
-    $wb1 = isset($record['LgDict1URI']) ? $record['LgDict1URI'] : "";
-    if(substr($wb1, 0, 1) == '*') { 
-        $f1 = 'translateWord2(' . prepare_textdata_js(substr($wb1, 1)); 
-    }
-    else { 
-        $f1 = 'translateWord(' . prepare_textdata_js($wb1); 
-    }
-        
-    $wb2 = isset($record['LgDict2URI']) ? $record['LgDict2URI'] : "";
-    if(substr($wb2, 0, 1) == '*') { 
-        $f2 = 'translateWord2(' . prepare_textdata_js(substr($wb2, 1)); 
-    }
-    else { 
-        $f2 = 'translateWord(' . prepare_textdata_js($wb2); 
-    }
-
-    $wb3 = isset($record['LgGoogleTranslateURI']) ? $record['LgGoogleTranslateURI'] : "";
-    if(substr($wb3, 0, 1) == '*') {
-        $f3 = 'translateWord2(' . prepare_textdata_js(substr($wb3, 1));
-        $f4 = 'translateSentence2(' . prepare_textdata_js(substr($wb3, 1));
-    } else {
-        $f3 = 'translateWord(' . prepare_textdata_js($wb3);
-        $f4 = 'translateSentence(' . prepare_textdata_js((substr($wb3, 0, 7) == 'ggl.php')?str_replace('?', '?sent=1&', $wb3):$wb3);
-    }
-
-    mysqli_free_result($res);
-    $r ='';
-    $r .= 'Lookup Term: ';
-    $r .= '<span class="click" onclick="' . $f1 . ',' . $wordctljs . ');">Dict1</span> ';
-    if ($wb2 != "") { 
-        $r .= '<span class="click" onclick="' . $f2 . ',' . $wordctljs . ');">Dict2</span> '; 
-    }
-    if ($wb3 != "") { 
-        $r .= '<span class="click" onclick="' . $f3 . ',' . $wordctljs . ');">GTr</span> | Sent.: <span class="click" onclick="' . $f4 . ',' . $sentctljs . ');">GTr</span>'; 
-    } 
-    return $r;
-}
 
 // -------------------------------------------------------------
 
@@ -3198,17 +3023,6 @@ function textwordcount($textID): void
 }
 
 // -------------------------------------------------------------
-
-function texttodocount($text): string 
-{
-    return '<span title="To Do" class="status0">&nbsp;' . 
-    (get_first_value(
-        'SELECT count(DISTINCT Ti2TextLC) as value 
-        FROM textitems2 
-        WHERE Ti2WordCount=1 and Ti2WoID=0 and Ti2TxID=' . $text
-    )
-    ) . '&nbsp;</span>';
-}
 
 /**
  * Print the number of words left to do in this text.
@@ -4177,15 +3991,6 @@ function get_annotation_link($textid): string
     }
 }
 
-/**
- * Like trim, but in place (modify variable)
- *
- * @param string $value Value to be trimmed
- */
-function trim_value(&$value): void 
-{ 
-    $value = trim($value); 
-}
 
 /** 
  * Parses text be read by an automatic audio player.
@@ -4554,34 +4359,6 @@ function makeAudioPlayer($audio, $offset=0)
     <?php
 }
 
-
-
-/** 
- * Echo a HEAD tag for using with frames
- * 
- * @param string $title Title to use
- * 
- * @return void
- */
-function framesetheader($title): void 
-{
-    @header('Expires: Wed, 11 Jan 1984 05:00:00 GMT');
-    @header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
-    @header('Cache-Control: no-cache, must-revalidate, max-age=0');
-    @header('Pragma: no-cache');
-    ?><!DOCTYPE html>
-    <?php echo '<html lang="en">'; ?>
-<head>
-    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-    <link rel="stylesheet" type="text/css" href="<?php print_file_path('css/styles.css');?>" />
-    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"/>
-    <!-- 
-        <?php echo file_get_contents("UNLICENSE.md");?> 
-    -->
-    <title>LWT :: <?php echo tohtml($title); ?></title>
-</head>
-    <?php
-}
 
 /**
  * Write a page header and start writing its body.
