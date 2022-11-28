@@ -385,44 +385,6 @@ function addtaglist($item, $list): string
 
 // -------------------------------------------------------------
 
-function addarchtexttaglist($item, $list): string 
-{
-    $tagid = get_first_value(
-        'select T2ID as value from tags2 
-        where T2Text = ' . convert_string_to_sqlsyntax($item)
-    );
-    if (!isset($tagid)) {
-        runsql(
-            'insert into tags2 (T2Text) 
-            values(' . convert_string_to_sqlsyntax($item) . ')', 
-            ""
-        );
-        $tagid = get_first_value(
-            'select T2ID as value 
-            from tags2 
-            where T2Text = ' . convert_string_to_sqlsyntax($item)
-        );
-    }
-    $sql = 'select AtID from archivedtexts 
-    LEFT JOIN archtexttags 
-    ON AtID = AgAtID AND AgT2ID = ' . $tagid . ' 
-    WHERE AgT2ID IS NULL AND AtID in ' . $list;
-    $res = do_mysqli_query($sql);
-    $cnt = 0;
-    while ($record = mysqli_fetch_assoc($res)) {
-        $cnt += (int) runsql(
-            'insert ignore into archtexttags (AgAtID, AgT2ID) 
-            values(' . $record['AtID'] . ', ' . $tagid . ')', 
-            ""
-        );
-    }
-    mysqli_free_result($res);
-    get_texttags($refresh = 1);
-    return "Tag added in $cnt Texts";
-}
-
-// -------------------------------------------------------------
-
 function addtexttaglist($item, $list): string 
 {
     $tagid = get_first_value(
