@@ -539,13 +539,28 @@ function load_feeds($currentfeed): void
     echo "<div class=\"center\"><button onclick='window.location.replace(\"",$_SERVER['PHP_SELF'],"\");'>Continue</button></div>";
 }
 
+
+// -------------------------------------------------------------
+
+function archive_text_id($textid) {
+  $archives = [
+    "delete from textitems2 where Ti2TxID = {$textid}",
+    "delete from sentences where SeTxID = {$textid}", 
+    "update texts set TxArchived = true where TxID = {$textid}"
+  ];
+  foreach ($archives as $sql) {
+    runsql($sql, "");
+  }
+}
+
+
 // -------------------------------------------------------------
 
 
 function write_rss_to_db($texts): string
 {
+    $archivedcount = 0;
     $texts=array_reverse($texts);
-    $message1=$message2=$message3=$message4=0;
     $Nf_ID = null;
     foreach($texts as $text){
         $Nf_ID[]=$text['Nf_ID'];
@@ -614,55 +629,17 @@ function write_rss_to_db($texts): string
         if($text_count>$nf_max_texts) {
             sort($text_item, SORT_NUMERIC);
             $text_item=array_slice($text_item, 0, $text_count-$nf_max_texts);
-            foreach ($text_item as $text_ID){
-                $message3 += (int) runsql(
-                    'delete from textitems2 
-                    where Ti2TxID = ' . $text_ID, 
-                    ""
-                );
-                $message2 += (int) runsql(
-                    'delete from sentences 
-                    where SeTxID = ' . $text_ID, 
-                    ""
-                );
-                $message4 += (int) runsql(
-                    'insert into archivedtexts (
-                        AtLgID, AtTitle, AtText, AtAnnotatedText, 
-                        AtAudioURI, AtSourceURI
-                    ) select TxLgID, TxTitle, TxText, TxAnnotatedText, 
-                    TxAudioURI, TxSourceURI 
-                    from texts 
-                    where TxID = ' . $text_ID, 
-                    ""
-                );
-                $id = get_last_key();
-                runsql(
-                    'insert into archtexttags (AgAtID, AgT2ID) 
-                    select ' . $id . ', TtT2ID from texttags 
-                    where TtTxID = ' . $text_ID, 
-                    ""
-                );    
-                $message1 += (int) runsql(
-                    'delete from texts 
-                    where TxID = ' . $text_ID, 
-                    ""
-                );
-                // $message .= $message4 . " / " . $message1 . " / " . $message2 . " / " . $message3;
-                runsql(
-                    "DELETE texttags FROM (texttags LEFT JOIN texts on TtTxID = TxID) 
-                    WHERE TxID IS NULL", 
-                    ''
-                );        
+            foreach ($text_item as $text_ID) {
+                $archivedcount = $archivedcount + 1;
+                archive_text_id($text_ID);
             }
         }
     }
-    if ($message4>0 || $message1>0) { 
-        return "Texts archived: " . $message1 . 
-        " / Sentences deleted: " . $message2 . " / Text items deleted: " . $message3; 
+
+    if ($archivedcount == 0) {
+        return '';
     }
-    else { 
-        return ''; 
-    }
+    return "Texts archived: " . $archivedcount;
 }
 
 // -------------------------------------------------------------
