@@ -3991,15 +3991,6 @@ function get_annotation_link($textid): string
     }
 }
 
-/**
- * Like trim, but in place (modify variable)
- *
- * @param string $value Value to be trimmed
- */
-function trim_value(&$value): void 
-{ 
-    $value = trim($value); 
-}
 
 /** 
  * Parses text be read by an automatic audio player.

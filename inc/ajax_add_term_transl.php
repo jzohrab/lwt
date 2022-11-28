@@ -75,7 +75,8 @@ function edit_term_transl($wid, $new_trans)
     );
     
     $oldtransarr = preg_split('/[' . get_sepas()  . ']/u', $oldtrans);
-    array_walk($oldtransarr, 'trim_value');
+    $trim = function($s) { return trim($s); };
+    $oldtransarr = array_map($trim, $oldtransarr);
     
     if (!in_array($new_trans, $oldtransarr)) {
         if (trim($oldtrans) == '' || trim($oldtrans) == '*') {
