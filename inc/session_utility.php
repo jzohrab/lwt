@@ -2796,52 +2796,6 @@ function makeDictLinks($lang,$wordctljs): string
     return $r;
 }
 
-// -------------------------------------------------------------
-
-function createDictLinksInEditWin3($lang,$sentctljs,$wordctljs): string 
-{
-    $sql = 'SELECT LgDict1URI, LgDict2URI, LgGoogleTranslateURI 
-    FROM languages WHERE LgID = ' . $lang;
-    $res = do_mysqli_query($sql);
-    $record = mysqli_fetch_assoc($res);
-    
-    $wb1 = isset($record['LgDict1URI']) ? $record['LgDict1URI'] : "";
-    if(substr($wb1, 0, 1) == '*') { 
-        $f1 = 'translateWord2(' . prepare_textdata_js(substr($wb1, 1)); 
-    }
-    else { 
-        $f1 = 'translateWord(' . prepare_textdata_js($wb1); 
-    }
-        
-    $wb2 = isset($record['LgDict2URI']) ? $record['LgDict2URI'] : "";
-    if(substr($wb2, 0, 1) == '*') { 
-        $f2 = 'translateWord2(' . prepare_textdata_js(substr($wb2, 1)); 
-    }
-    else { 
-        $f2 = 'translateWord(' . prepare_textdata_js($wb2); 
-    }
-
-    $wb3 = isset($record['LgGoogleTranslateURI']) ? $record['LgGoogleTranslateURI'] : "";
-    if(substr($wb3, 0, 1) == '*') {
-        $f3 = 'translateWord2(' . prepare_textdata_js(substr($wb3, 1));
-        $f4 = 'translateSentence2(' . prepare_textdata_js(substr($wb3, 1));
-    } else {
-        $f3 = 'translateWord(' . prepare_textdata_js($wb3);
-        $f4 = 'translateSentence(' . prepare_textdata_js((substr($wb3, 0, 7) == 'ggl.php')?str_replace('?', '?sent=1&', $wb3):$wb3);
-    }
-
-    mysqli_free_result($res);
-    $r ='';
-    $r .= 'Lookup Term: ';
-    $r .= '<span class="click" onclick="' . $f1 . ',' . $wordctljs . ');">Dict1</span> ';
-    if ($wb2 != "") { 
-        $r .= '<span class="click" onclick="' . $f2 . ',' . $wordctljs . ');">Dict2</span> '; 
-    }
-    if ($wb3 != "") { 
-        $r .= '<span class="click" onclick="' . $f3 . ',' . $wordctljs . ');">GTr</span> | Sent.: <span class="click" onclick="' . $f4 . ',' . $sentctljs . ');">GTr</span>'; 
-    } 
-    return $r;
-}
 
 // -------------------------------------------------------------
 
