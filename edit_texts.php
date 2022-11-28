@@ -188,49 +188,16 @@ function edit_texts_mark_action($markaction, $marked, $actiondata): array
             ''
         );
     } elseif ($markaction == 'arch') {
-        runsql(
-            'delete from textitems2 where Ti2TxID in ' . $list, 
-            ""
-        );
-        runsql(
-            'delete from sentences where SeTxID in ' . $list, 
-            ""
-        );
         $count = 0;
         $sql = "select TxID from texts where TxID in " . $list;
         $res = do_mysqli_query($sql);
         while ($record = mysqli_fetch_assoc($res)) {
-            $id = $record['TxID'];
-            $count += (int)runsql(
-                'insert into archivedtexts (
-                    AtLgID, AtTitle, AtText, AtAnnotatedText, AtAudioURI, AtSourceURI
-                ) 
-                select TxLgID, TxTitle, TxText, TxAnnotatedText, TxAudioURI, TxSourceURI 
-                from texts where TxID = ' . $id, 
-                ""
-            );
-            $aid = get_last_key();
-            runsql(
-                'insert into archtexttags (AgAtID, AgT2ID) 
-                select ' . $aid . ', TtT2ID 
-                from texttags 
-                where TtTxID = ' . $id, 
-                ""
-            );
+          $count += 1;
+          $id = $record['TxID'];
+          archive_text_id($id);
         }
         mysqli_free_result($res);
         $message = 'Text(s) archived: ' . $count;
-        runsql('delete from texts where TxID in ' . $list, "");
-        runsql(
-            "DELETE texttags 
-            FROM (
-                texttags 
-                LEFT JOIN texts 
-                on TtTxID = TxID
-            ) 
-            WHERE TxID IS NULL", 
-            ''
-        );
     } elseif ($markaction == 'addtag' ) {
         $message = addtexttaglist($actiondata, $list);
     } elseif ($markaction == 'deltag' ) {
@@ -371,48 +338,10 @@ function edit_texts_delete($txid): string
  */
 function edit_texts_archive($txid): string
 {
-
-    $message3 = runsql(
-        "DELETE FROM textitems2 WHERE Ti2TxID = $txid",
-        "Text items deleted"
-    );
-    $message2 = runsql(
-        "DELETE FROM sentences WHERE SeTxID = $txid",
-        "Sentences deleted"
-    );
-    $message4 = runsql(
-        "INSERT INTO archivedtexts (
-            AtLgID, AtTitle, AtText, AtAnnotatedText, AtAudioURI, AtSourceURI
-        ) SELECT TxLgID, TxTitle, TxText, TxAnnotatedText, TxAudioURI, TxSourceURI 
-        FROM texts 
-        WHERE TxID = $txid", 
-        "Archived Texts saved"
-    );
-    $id = get_last_key();
-    runsql(
-        "INSERT INTO archtexttags (AgAtID, AgT2ID) 
-        SELECT $id, TtT2ID 
-        FROM texttags 
-        WHERE TtTxID = $txid", 
-        ""
-    );
-    $message1 = runsql(
-        "DELETE FROM texts WHERE TxID = $txid", 
-        "Texts deleted"
-    );
-    $message = $message4 . " / " . $message1 . " / " . $message2 . " / " . $message3;
-    runsql(
-        "DELETE texttags 
-        FROM (
-            texttags 
-            LEFT JOIN texts 
-            ON TtTxID = TxID
-        ) 
-        WHERE TxID IS NULL", 
-        ''
-    );
-    return $message;
+  archive_text_id($txid);
+  return "1 text archived";
 }
+
 
 /**
  * Do an operation on texts.

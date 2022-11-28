@@ -485,13 +485,13 @@ if(mysqli_data_seek($result, 0)) {
   <th class="th1 clickable" style="min-width:90px;">Date</th>
   </tr>    
         <?php
-        $result = do_mysqli_query("SELECT FlID, FlTitle, FlLink, FlDescription, FlDate, FlAudio,TxID, AtID FROM feedlinks left join texts on TxSourceURI=trim(FlLink) left join archivedtexts on AtSourceURI=trim(FlLink) WHERE FlNfID in ($currentfeed) ".$wh_query." ORDER BY " . $sorts[$currentsort-1] . " ". $limit);
+        $result = do_mysqli_query("SELECT FlID, FlTitle, FlLink, FlDescription, FlDate, FlAudio, ifnull(TxID, 0) as TxID, ifnull(TxArchived, 0) as TxArchived FROM feedlinks left join texts on TxSourceURI=trim(FlLink) WHERE FlNfID in ($currentfeed) ".$wh_query." ORDER BY " . $sorts[$currentsort-1] . " ". $limit);
         while($row = mysqli_fetch_assoc($result)){
             echo  '<tr>';
-            if ($row['TxID']) {
+            if ((int) $row['TxID'] != 0 && (int) $row['TxArchived'] == 0) {
                 echo '<td class="td1 center"><a href="do_text.php?start=' . $row['TxID'] . '" ><img src="icn/book-open-bookmark.png" title="Read" alt="-" /></a>'; 
             }
-            elseif ($row['AtID']) {
+            elseif ((int) $row['TxID'] != 0 && (int) $row['TxArchived'] == 1) {
                 echo '<td class="td1 center"><span title="archived"><img src="icn/status-busy.png" alt="-" /></span>';
             } elseif(!empty($row['FlLink']) && str_starts_with($row['FlLink'], ' ')) {
                 echo '<td class="td1 center"><img class="not_found" name="' . $row['FlID'] . '" title="download error" src="icn/exclamation-button.png" alt="-" />';
