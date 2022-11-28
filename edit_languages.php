@@ -718,7 +718,7 @@ function edit_languages_display($message)
         }
         echo '</' . $tdth . '>';
         echo '<' . $tdth . ' class="' . $tdth . '1 center">' . 
-        ($archtextcount > 0 ? '<a href="edit_archivedtexts.php?page=1&amp;query=&amp;filterlang=' . $lid . '">' . 
+        ($archtextcount > 0 ? '<a href="archivedtexts.php?filterlang=' . $lid . '">' . 
         $archtextcount . '</a>' : '0' ) . '</' . $tdth . '>';
         echo '<' . $tdth . ' class="' . $tdth . '1 center">' . 
         ($nfcount > 0 ? '<a href="do_feeds.php?query=&amp;selected_feed=&amp;check_autoupdate=1&amp;filterlang=' . $lid . '">' . 

@@ -1220,7 +1220,7 @@ function edit_texts_display($message)
         </a>
     </div>
     <div>
-        <a href="edit_archivedtexts.php?query=&amp;page=1">
+        <a href="archivedtexts.php">
             <img src="icn/drawer--minus.png">
             Archived Texts
         </a>
