@@ -10,6 +10,7 @@
  */
 
 require_once 'inc/session_utility.php';
+require_once 'src/php/Text/TextDb.php';
 
 $currentlang = validateLang(processDBParam("filterlang", 'currentlanguage', '', 0));
 $currentsort = processDBParam("sort", 'currentrsssort', '2', 1);
@@ -231,7 +232,7 @@ if (isset($_REQUEST['marked_items'])) {
                     $text_item=array_slice($text_item, 0, $text_count-$nf_max_texts);
                     foreach ($text_item as $text_ID) {
                         $archivedcount = $archivedcount + 1;
-                        archive_text_id($text_ID);
+                        LwtTextDatabase::archive($text_ID);
                     }
                 }
             }

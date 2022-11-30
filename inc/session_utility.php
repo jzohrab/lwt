@@ -15,7 +15,7 @@
  */
 
 require_once 'database_connect.php';
-
+require_once '../src/php/Text/TextDb.php';
 
 /**
  * Return the list of all tags.
@@ -542,20 +542,6 @@ function load_feeds($currentfeed): void
 
 // -------------------------------------------------------------
 
-function archive_text_id($textid) {
-  $archives = [
-    "delete from textitems2 where Ti2TxID = {$textid}",
-    "delete from sentences where SeTxID = {$textid}", 
-    "update texts set TxArchived = true where TxID = {$textid}"
-  ];
-  foreach ($archives as $sql) {
-    runsql($sql, "");
-  }
-}
-
-
-// -------------------------------------------------------------
-
 
 function write_rss_to_db($texts): string
 {
@@ -631,7 +617,7 @@ function write_rss_to_db($texts): string
             $text_item=array_slice($text_item, 0, $text_count-$nf_max_texts);
             foreach ($text_item as $text_ID) {
                 $archivedcount = $archivedcount + 1;
-                archive_text_id($text_ID);
+                LwtTextDatabase::archive($text_ID);
             }
         }
     }

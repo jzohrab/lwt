@@ -29,6 +29,7 @@
 
 require_once 'inc/session_utility.php';
 require_once 'inc/start_session.php';
+require_once 'src/php/Text/TextDb.php';
 
 /**
  * Get the value of $wh_query.
@@ -194,7 +195,7 @@ function edit_texts_mark_action($markaction, $marked, $actiondata): array
         while ($record = mysqli_fetch_assoc($res)) {
           $count += 1;
           $id = $record['TxID'];
-          archive_text_id($id);
+          LwtTextDatabase::archive($id);
         }
         mysqli_free_result($res);
         $message = 'Text(s) archived: ' . $count;
@@ -338,7 +339,7 @@ function edit_texts_delete($txid): string
  */
 function edit_texts_archive($txid): string
 {
-  archive_text_id($txid);
+  LwtTextDatabase::archive($id);
   return "1 text archived";
 }
 
