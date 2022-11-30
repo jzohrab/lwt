@@ -23,6 +23,15 @@ final class TextDb_Test extends TestCase
 
         $this->text = "Hola tengo un gato.";
         $this->newid = DbHelpers::add_text($this->text, $this->langid);
+
+        splitCheckText($this->text, $this->langid, $this->newid);
+
+        $sentencesql = "select * from sentences";
+        $ti2sql = "select * from textitems2";
+        $txsql = "select * from texts";
+        DbHelpers::assertRecordcountEquals($sentencesql, 1, "sentences pre");
+        DbHelpers::assertRecordcountEquals($ti2sql, 8, "ti2 pre");
+        DbHelpers::assertRecordcountEquals($txsql, 1, "tx pre");
     }
 
     public function tearDown(): void
@@ -30,23 +39,49 @@ final class TextDb_Test extends TestCase
         // echo "tearing down ... \n";
     }
 
-    public function test_delete_text_works()
+    public function test_delete()
     {
-        splitCheckText($this->text, $this->langid, 1);
+        LwtTextDatabase::delete($this->newid);
+        $tables = [ "sentences", "textitems2", "texts" ];
+        foreach ($tables as $t) {
+            $sql = "select * from $t";
+            DbHelpers::assertRecordcountEquals($sql, 0, "$t after delete");
+        }
+    }
 
-        $newid = $this->newid;
-        $sentencesql = "select * from sentences where SeTxID = $newid";
-        $ti2sql = "select Ti2Order, Ti2Text from textitems2 where Ti2TxID = $newid";
-        $txsql = "select TxID, TxTitle from texts where TxID = $newid";
-        DbHelpers::assertRecordcountEquals($sentencesql, 1, "sentences pre");
-        DbHelpers::assertRecordcountEquals($ti2sql, 8, "ti2 pre");
-        DbHelpers::assertRecordcountEquals($txsql, 1, "tx pre");
+    public function test_archive()
+    {
+        $sql = "select * from texts where TxArchived = 1";
+        DbHelpers::assertRecordcountEquals($sql, 0, "texts before archive");
 
-        LwtTextDatabase::delete($newid);
+        LwtTextDatabase::archive($this->newid);
+        $tables = [ "sentences", "textitems2" ];
+        foreach ($tables as $t) {
+            $sql = "select * from $t";
+            DbHelpers::assertRecordcountEquals($sql, 0, "$t after archive");
+        }
 
-        DbHelpers::assertRecordcountEquals($sentencesql, 0, "sentences post");
-        DbHelpers::assertRecordcountEquals($ti2sql, 0, "ti2 post");
-        DbHelpers::assertRecordcountEquals($txsql, 0, "tx post");
+        $sql = "select * from texts where TxArchived = 1";
+        DbHelpers::assertRecordcountEquals($sql, 1, "texts after archive");
+    }
+
+    public function test_unarchive()
+    {
+        $sql = "select * from texts where TxArchived = 1";
+        DbHelpers::assertRecordcountEquals($sql, 0, "texts before archive");
+
+        LwtTextDatabase::archive($this->newid);
+        $sql = "select * from texts where TxArchived = 1";
+        DbHelpers::assertRecordcountEquals($sql, 1, "texts after archive");
+
+        LwtTextDatabase::unarchive($this->newid);
+        $sql = "select * from texts where TxArchived = 1";
+        DbHelpers::assertRecordcountEquals($sql, 0, "texts after unarchive");
+
+        $sentencesql = "select * from sentences";
+        $ti2sql = "select * from textitems2";
+        DbHelpers::assertRecordcountEquals($sentencesql, 1, "sentences restored");
+        DbHelpers::assertRecordcountEquals($ti2sql, 8, "ti2 restored");
     }
 
 }
