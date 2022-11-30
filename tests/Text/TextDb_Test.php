@@ -42,7 +42,8 @@ final class TextDb_Test extends TestCase
         DbHelpers::assertRecordcountEquals($ti2sql, 8, "ti2 pre");
         DbHelpers::assertRecordcountEquals($txsql, 1, "tx pre");
 
-        \LWT\Text\Database\delete_text_id($newid);
+        LwtTextDatabase::delete($newid);
+
         DbHelpers::assertRecordcountEquals($sentencesql, 0, "sentences post");
         DbHelpers::assertRecordcountEquals($ti2sql, 0, "ti2 post");
         DbHelpers::assertRecordcountEquals($txsql, 0, "tx post");
