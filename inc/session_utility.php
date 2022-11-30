@@ -2127,21 +2127,6 @@ function get_multipletextactions_selectoptions(): string
 
 // -------------------------------------------------------------
 
-function get_multiplearchivedtextactions_selectoptions(): string 
-{
-    $r = "<option value=\"\" selected=\"selected\">[Choose...]</option>";
-    $r .= "<option disabled=\"disabled\">------------</option>";
-    $r .= "<option value=\"addtag\">Add Tag</option>";
-    $r .= "<option value=\"deltag\">Remove Tag</option>";
-    $r .= "<option disabled=\"disabled\">------------</option>";
-    $r .= "<option value=\"unarch\">Unarchive Marked Texts</option>";
-    $r .= "<option disabled=\"disabled\">------------</option>";
-    $r .= "<option value=\"del\">Delete Marked Texts</option>";
-    return $r;
-}
-
-// -------------------------------------------------------------
-
 function get_texts_selectoptions($lang, $v): string 
 {
     if (! isset($v) ) { $v = ''; 
