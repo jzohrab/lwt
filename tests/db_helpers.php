@@ -109,6 +109,7 @@ you must use a dedicated test database when running tests.
         $stmt = $DBCONNECTION->prepare($sql);
         $stmt->bind_param("iss", $langid, $title, $text);
         DbHelpers::exec_statement($stmt);
+        return $stmt->insert_id;
     }
 
     // This just hacks directly into the table, it doesn't update textitems2 etc.
@@ -118,22 +119,29 @@ you must use a dedicated test database when running tests.
         $stmt = $DBCONNECTION->prepare($sql);
         $stmt->bind_param("issii", $WoLgID, $WoText, $WoTextLC, $WoStatus, $WoWordCount);
         DbHelpers::exec_statement($stmt);
+        return $stmt->insert_id;
     }
 
     public static function add_tags($tags) {
+        $ids = [];
         foreach ($tags as $t) {
             $sql = "insert into tags (TgText, TgComment)
             values ('{$t}', '{$t} comment')";
             do_mysqli_query($sql);
+            $ids[] = $stmt->insert_id;
         };
+        return $ids;
     }
 
     public static function add_texttags($tags) {
+        $ids = [];
         foreach ($tags as $t) {
             $sql = "insert into tags2 (T2Text, T2Comment)
             values ('{$t}', '{$t} comment')";
             do_mysqli_query($sql);
+            $ids[] = $stmt->insert_id;
         };
+        return $ids;
     }
 
 
