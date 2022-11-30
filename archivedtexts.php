@@ -31,6 +31,9 @@ function get_multiplearchivedtextactions_selectoptions(): string
 
 
 $currentlang = validateLang(processDBParam("filterlang", 'currentlanguage', '', 0));
+
+pagestart('My ' . getLanguage($currentlang) . ' Text Archive', true);
+
 $currentsort = processDBParam("sort", 'currentarchivesort', '1', 1);
 
 $currentpage = processSessParam("page", "currentarchivepage", '1', 1);
@@ -119,11 +122,6 @@ if ($currenttag1 == '' && $currenttag2 == '') {
     }
 }
 
-$no_pagestart = 
-    (getreq('markaction') == 'deltag');
-if (!$no_pagestart) {
-    pagestart('My ' . getLanguage($currentlang) . ' Text Archive', true);
-}
 
 $message = '';
 
