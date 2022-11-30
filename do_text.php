@@ -53,7 +53,7 @@ function do_text_mobile_content($textid, $audio)
     ?>
 <div style="width: 95%; height: 100%;">
     <div id="frame-h">
-        <?php do_text_header_content($textid, true); ?>
+        <?php do_text_header_content($textid); ?>
     </div>
     <hr />
     <div id="frame-l">
@@ -93,7 +93,7 @@ function do_text_desktop_content($textid, $audio)
     ?>
 <div style="width: <?php echo $frame_l_width; ?>%;" id="frames-l">
     <div id="frame-h">
-        <?php do_text_header_content($textid, true); ?>
+        <?php do_text_header_content($textid); ?>
     </div>
     <hr />
     <div id="frame-l">

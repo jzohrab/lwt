@@ -281,13 +281,9 @@ function save_audio_position($textid): void
 /**
  * Main function for displaying header. It will print HTML content.
  *
- * @param string $textid    ID of the requiered text
- * @param bool   $only_body If true, only show the inner body. If false, create a 
- *                          complete HTML document.
- *
- * @since 2.0.3-fork
+ * @param string $textid    ID of the required text
  */
-function do_text_header_content($textid, $only_body=true): void
+function do_text_header_content($textid): void
 {
     $record = getData($textid);
     $title = $record['TxTitle'];
@@ -297,21 +293,14 @@ function do_text_header_content($textid, $only_body=true): void
     }
     $media = trim($media);
     
-    
     saveSetting('currenttext', $textid);
 
-    if (!$only_body) {
-        pagestart_nobody($title, 'html, body {margin-bottom:0;}');
-    }
     save_audio_position($textid);
     do_header_row((int) $textid, $record['TxLgID']);
     do_title($title, $record['TxSourceURI']);
     do_settings($textid);
     makeMediaPlayer($media, $record['TxAudioPosition']);
     browser_tts($record["TxText"], $record["LgName"]);
-    if (!$only_body) {
-        pageend();
-    }
 }
 
 ?>
