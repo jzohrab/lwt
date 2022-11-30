@@ -58,31 +58,56 @@ function do_header_row($textid, $langid): void
     ?>
 <h4>
     <a href="edit_texts.php" target="_top">
-        <?php echo_lwt_logo(); ?> LWT
+        <?php echo_lwt_logo(); ?>
     </a>
-    &nbsp; | &nbsp;
     <?php 
     quickMenu();
     echo getPreviousAndNextTextLinks(
         $textid, 'do_text.php?start=', false, '&nbsp; | &nbsp;'
     );
-    ?>&nbsp; | &nbsp;
+    ?>|
     <a href="do_test.php?text=<?php echo $textid; ?>" target="_top">
         <img src="icn/question-balloon.png" title="Test" alt="Test" />
-    </a>&nbsp;
+    </a>
     <a href="print_text.php?text=<?php echo $textid; ?>" target="_top">
         <img src="icn/printer.png" title="Print" alt="Print" />
     </a>
-    <?php echo get_annotation_link($textid); ?>&nbsp;
+    <?php echo get_annotation_link($textid); ?>
     <a target="_top" href="edit_texts.php?chg=<?php echo $textid; ?>">
         <img src="icn/document--pencil.png" title="Edit Text" alt="Edit Text" />
-    </a>&nbsp; | &nbsp;
+    </a>|
     <a 
         href="new_word.php?text=<?php echo $textid; ?>&amp;lang=<?php echo $langid; ?>" 
         target="ro" onclick="showRightFrames();"
     >
         <img src="icn/sticky-note--plus.png" title="New Term" alt="New Term" />
     </a>
+
+    <ul class="nav">
+        <li><a href="">Text</a>
+            <ul>
+                <li><a href="">Test</a></li>
+                <li><a href="">Print</a></li>
+                <li><a href="">Edit</a></li>
+                <li><a href="">Read in browser</a></li>
+            </ul>
+        </li>
+        <li><a href="">Terms</a>
+            <ul>
+                <li><a href="">Set all to Well Known</a></li>
+                <li><a href="">Bulk edit status</a></li>
+                <li><a href="">Add new term</a></li>
+                <li><a href="">Lookup new terms</a></li>
+            </ul>
+        </li>
+        <li><a href="">Display</a>
+            <ul>
+                <li><a href="">Show all</a></li>
+                <li><a href="">Show Learning translations</a></li>
+            </ul>
+        </li>
+    </ul>
+        
 </h4>
     <?php
 }
@@ -299,6 +324,7 @@ function do_text_header_content($textid): void
     do_header_row((int) $textid, $record['TxLgID']);
     do_title($title, $record['TxSourceURI']);
     do_settings($textid);
+    do_dropdowns();
     makeMediaPlayer($media, $record['TxAudioPosition']);
     browser_tts($record["TxText"], $record["LgName"]);
 }
