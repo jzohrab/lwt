@@ -17,7 +17,7 @@ Call: edit_archivedtexts.php?....
  */
 
 require_once 'inc/session_utility.php';
-
+require_once 'src/php/Text/TextDb.php';
 
 function get_multiplearchivedtextactions_selectoptions(): string 
 {
@@ -128,39 +128,34 @@ $message = '';
 // MARK ACTIONS
 
 $id = null;
-if (isset($_REQUEST['markaction'])) {
-    $markaction = $_REQUEST['markaction'];
-    $actiondata = getreq('data');
-    $message = "Multiple Actions: 0";
-    if (isset($_REQUEST['marked'])) {
-        if (is_array($_REQUEST['marked'])) {
-            $l = count($_REQUEST['marked']);
-            if ($l > 0) {
-                $list = "(" . $_REQUEST['marked'][0];
-                for ($i=1; $i<$l; $i++) { 
-                    $list .= "," . $_REQUEST['marked'][$i]; 
-                }
-                $list .= ")";
-                
-                if ($markaction == 'del') {
-                    // handle deleting texts.
-                    // TODO
-                } elseif ($markaction == 'unarch') {
-                    $count = 0;
-                    // handle unarchiving for $list.
-                    // TODO
-                    $message = 'Unarchived Text(s): ' . $count;
-                } 
-                                                
-            }
-        }
+$markaction = getreq('markaction', null);
+$marked = getreq('marked', null);
+$callfunc = null;
+$message = null;
+
+if ($markaction == 'unarch') {
+    $callfunc = 'unarchive';
+    $message = 'Unarchived: ';
+}
+if ($markaction == 'del') {
+    $callfunc = 'delete';
+    $message = 'Deleted: ';
+}
+
+if ($markaction && is_array($marked)) {
+    for ($i = 0; $i < count($marked); $i++) {
+        $textid = (int) $marked[$i];
+        call_user_func_array(array('LwtTextDatabase', $callfunc), array($textid));
     }
+    $message .= count($marked);
 }  // end markactions
 
 
     // DISPLAY
 
+if ($message) {
     echo error_message_with_hide($message, 0);
+}
 
     $sql = 'select count(*) as value from texts where TxArchived is true';
     $recno = (int)get_first_value($sql);

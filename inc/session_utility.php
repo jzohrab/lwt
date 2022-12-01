@@ -15,7 +15,7 @@
  */
 
 require_once 'database_connect.php';
-require_once '../src/php/Text/TextDb.php';
+require_once __DIR__ . '/../src/php/Text/TextDb.php';
 
 /**
  * Return the list of all tags.
