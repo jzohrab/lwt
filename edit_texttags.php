@@ -45,7 +45,6 @@ if (isset($_REQUEST['markaction'])) {
                 if ($markaction == 'del') {
                     $message = runsql('delete from tags2 where T2ID in ' . $list, "Deleted");
                     runsql("DELETE texttags FROM (texttags LEFT JOIN tags2 on TtT2ID = T2ID) WHERE T2ID IS NULL", '');
-                    runsql("DELETE archtexttags FROM (archtexttags LEFT JOIN tags2 on AgT2ID = T2ID) WHERE T2ID IS NULL", '');
                 }
             }
         }
@@ -60,7 +59,6 @@ if (isset($_REQUEST['allaction'])) {
     if ($allaction == 'delall') {
         $message = runsql('delete from tags2 where (1=1) ' . $wh_query, "Deleted");
         runsql("DELETE texttags FROM (texttags LEFT JOIN tags2 on TtT2ID = T2ID) WHERE T2ID IS NULL", '');
-        runsql("DELETE archtexttags FROM (archtexttags LEFT JOIN tags2 on AgT2ID = T2ID) WHERE T2ID IS NULL", '');
     }
 }
 
@@ -69,7 +67,6 @@ if (isset($_REQUEST['allaction'])) {
 elseif (isset($_REQUEST['del'])) {
     $message = runsql('delete from tags2 where T2ID = ' . $_REQUEST['del'], "Deleted");
     runsql("DELETE texttags FROM (texttags LEFT JOIN tags2 on TtT2ID = T2ID) WHERE T2ID IS NULL", '');
-    runsql("DELETE archtexttags FROM (archtexttags LEFT JOIN tags2 on AgT2ID = T2ID) WHERE T2ID IS NULL", '');
 }
 
 // INS/UPD
@@ -270,7 +267,6 @@ Multi Actions <img src="icn/lightning.png" title="Multi Actions" alt="Multi Acti
 <th class="th1 clickable">Tag Text</th>
 <th class="th1 clickable">Tag Comment</th>
 <th class="th1 clickable">Texts<br />With Tag</th>
-<th class="th1 clickable">Arch.Texts<br />With Tag</th>
 </tr>
 
         <?php
@@ -282,14 +278,12 @@ Multi Actions <img src="icn/lightning.png" title="Multi Actions" alt="Multi Acti
         $res = do_mysqli_query($sql);
         while ($record = mysqli_fetch_assoc($res)) {
             $c = get_first_value('select count(*) as value from texttags where TtT2ID=' . $record['T2ID']);
-            $ca = get_first_value('select count(*) as value from archtexttags where AgT2ID=' . $record['T2ID']);
             echo '<tr>';
             echo '<td class="td1 center"><a name="rec' . $record['T2ID'] . '"><input name="marked[]" type="checkbox" class="markcheck" value="' . $record['T2ID'] . '" ' . checkTest($record['T2ID'], 'marked') . ' /></a></td>';
             echo '<td class="td1 center" nowrap="nowrap">&nbsp;<a href="' . $_SERVER['PHP_SELF'] . '?chg=' . $record['T2ID'] . '"><img src="icn/document--pencil.png" title="Edit" alt="Edit" /></a>&nbsp; <a class="confirmdelete" href="' . $_SERVER['PHP_SELF'] . '?del=' . $record['T2ID'] . '"><img src="icn/minus-button.png" title="Delete" alt="Delete" /></a>&nbsp;</td>';
             echo '<td class="td1 center">' . tohtml($record['T2Text']) . '</td>';
             echo '<td class="td1 center">' . tohtml($record['T2Comment']) . '</td>';
             echo '<td class="td1 center">' . ($c > 0 ? '<a href="edit_texts.php?page=1&amp;query=&amp;tag12=0&amp;tag2=&amp;tag1=' . $record['T2ID'] . '">' . $c . '</a>' : '0' ) . '</td>';
-            echo '<td class="td1 center">' . ($ca > 0 ? '<a href="archivedtexts.php">' . $ca . '</a>' : '0' ) . '</td>';
             echo '</tr>';
         }
         mysqli_free_result($res);
