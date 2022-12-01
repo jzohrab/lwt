@@ -9,11 +9,18 @@ This is a fork of [Hugo Fara's fork](https://github.com/hugofara) of the origina
 
 ## Major differences with Hugo Fara's repo
 
+### Functionality changes
+
 * Wordpress logins give new users their own separate LWT database instance.  See [docs.wordpress](./docs/wordpress.md) for notes.
-* Backup/restore removed from the UI: use `sqldump` from the command line, instead of verbose/error-prone PHP code.
-* Added simple automatic database migrations.  See [db/README.md](./db/README.md).
 * Added "parent term" for things like verb declensions etc.
 * Removed most text archiving/unarchiving functions.  See [docs/archivingchanges.md](./docs/archivingchanges.md).
+
+### Code changes
+
+* Backup/restore removed from the UI: use `sqldump` from the command line, instead of verbose/error-prone PHP code.
+* Added simple automatic database migrations.  See [db/README.md](./db/README.md).
+* Gradually/hopefully moving to different code organization, following ideas outlined in [on-structuring-php-projects](https://www.nikolaposa.in.rs/blog/2017/01/16/on-structuring-php-projects/).
+* More tests, which can generally only be run using a "test_xxx" database.
 
 ## Installation, usage, etc.
 
