@@ -792,7 +792,7 @@ function keydown_event_do_text_text (e) {
     if ((typeof curr.attr('data_ann')) !== 'undefined') { 
       ann = curr.attr('data_ann'); 
     }
-    showRightFrames('show_word.php?wid=' + curr.attr('data_wid') + '&ann=' + encodeURIComponent(ann));
+    showRightFrames('edit_word.php?wid=' + curr.attr('data_wid') + '&ann=' + encodeURIComponent(ann) + '&autofocus=false');
     return false;
   }
   if (e.which == 39 || e.which == 32) { // space /right : known word navigation
@@ -820,7 +820,7 @@ function keydown_event_do_text_text (e) {
     if ((typeof curr.attr('data_ann')) !== 'undefined') { 
       ann = curr.attr('data_ann'); 
     }
-    showRightFrames('show_word.php?wid=' + curr.attr('data_wid') + '&ann=' + encodeURIComponent(ann));
+    showRightFrames('edit_word.php?wid=' + curr.attr('data_wid') + '&ann=' + encodeURIComponent(ann) + '&autofocus=false');
     return false;
   }
 
