@@ -19,30 +19,29 @@ require_once 'inc/session_utility.php';
 $i = $_REQUEST["i"];
 $t = $_REQUEST["t"];
 
-    $sql = 'select SeText, LgGoogleTranslateURI from languages, sentences, textitems2 where Ti2SeID = SeID and Ti2LgID = LgID and Ti2TxID = ' . $t . ' and Ti2Order = ' . $i;
-    $res = do_mysqli_query($sql);
-    $record = mysqli_fetch_assoc($res);
-    if ($record) {
-        $satz = $record['SeText'];
-        $trans = isset($record['LgGoogleTranslateURI']) ? $record['LgGoogleTranslateURI'] : "";
-        if(substr($trans, 0, 1) == '*') { $trans = substr($trans, 1); 
-        }
-    } else {
-        my_die("No results: $sql"); 
+$sql = 'select SeText, LgGoogleTranslateURI from languages, sentences, textitems2 where Ti2SeID = SeID and Ti2LgID = LgID and Ti2TxID = ' . $t . ' and Ti2Order = ' . $i;
+$res = do_mysqli_query($sql);
+$record = mysqli_fetch_assoc($res);
+if ($record) {
+    $satz = $record['SeText'];
+    $trans = isset($record['LgGoogleTranslateURI']) ? $record['LgGoogleTranslateURI'] : "";
+    if(substr($trans, 0, 1) == '*') { $trans = substr($trans, 1); 
     }
-    mysqli_free_result($res);
-    if ($trans != '') {
-        /*
-        echo "{" . $i . "}<br />";
-        echo "{" . $t . "}<br />";
-        echo "{" . createTheDictLink($trans,$satz) . "}<br />";
-        */
-        if (substr($trans, 0, 7) == 'ggl.php') {
-            $trans = str_replace('?', '?sent=1&', $trans);
-        }
-        header("Location: " . createTheDictLink($trans, $satz));
+} else {
+    my_die("No results: $sql"); 
+}
+mysqli_free_result($res);
+if ($trans != '') {
+    /*
+      echo "{" . $i . "}<br />";
+      echo "{" . $t . "}<br />";
+      echo "{" . createTheDictLink($trans,$satz) . "}<br />";
+    */
+    if (substr($trans, 0, 7) == 'ggl.php') {
+        $trans = str_replace('?', '?sent=1&', $trans);
     }
-    exit();
-
+    header("Location: " . createTheDictLink($trans, $satz));
+}
+exit();
 
 ?>
