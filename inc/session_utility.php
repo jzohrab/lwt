@@ -2299,20 +2299,20 @@ function createTheDictLink($u, $t)
     $pos = stripos($url, '###');
     // no ### found
     if ($pos === false) {
-        $r = $url . urlencode($trm);
+        $r = $url . rawurlencode($trm);
         return $r;
     }
     // ### found
     $pos2 = stripos($url, '###', $pos + 1);
     if ($pos2 === false) {
         // 1 ### found
-        return str_replace("###", ($trm == '' ? '+' : urlencode($trm)), $url);
+        return str_replace("###", ($trm == '' ? '+' : rawurlencode($trm)), $url);
     }
     // 2 ### found
     // Get encoding
     $enc = trim(substr($url, $pos + 3, $pos2 - $pos - 3));
     $r = substr($url, 0, $pos);
-    $r .= urlencode(mb_convert_encoding($trm, $enc, 'UTF-8'));
+    $r .= rawurlencode(mb_convert_encoding($trm, $enc, 'UTF-8'));
     if ($pos2+3 < strlen($url)) { 
         $r .= substr($url, $pos2 + 3); 
     }
