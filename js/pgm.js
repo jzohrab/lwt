@@ -130,10 +130,10 @@ if(e.which==35){$('span.kwordmarked').removeClass('kwordmarked');TEXTPOS=l_known
 showRightFrames('show_word.php?wid='+curr.attr('data_wid')+'&ann='+encodeURIComponent(ann));return!1}
 if(e.which==37){var marked=$('span.kwordmarked');var currid=(marked.length==0)?(100000000):get_position_from_id(marked.attr('id'));$('span.kwordmarked').removeClass('kwordmarked');TEXTPOS=l_knownwordlist-1;for(var i=l_knownwordlist-1;i>=0;i--){var iid=get_position_from_id(knownwordlist.eq(i).attr('id'));if(iid<currid){TEXTPOS=i;break}}
 curr=knownwordlist.eq(TEXTPOS);curr.addClass('kwordmarked');$(window).scrollTo(curr,{axis:'y',offset:-150});var ann='';if((typeof curr.attr('data_ann'))!=='undefined'){ann=curr.attr('data_ann')}
-showRightFrames('show_word.php?wid='+curr.attr('data_wid')+'&ann='+encodeURIComponent(ann));return!1}
+showRightFrames('edit_word.php?wid='+curr.attr('data_wid')+'&ann='+encodeURIComponent(ann)+'&autofocus=false');return!1}
 if(e.which==39||e.which==32){var marked=$('span.kwordmarked');var currid=(marked.length==0)?(-1):get_position_from_id(marked.attr('id'));$('span.kwordmarked').removeClass('kwordmarked');TEXTPOS=0;for(var i=0;i<l_knownwordlist;i++){var iid=get_position_from_id(knownwordlist.eq(i).attr('id'));if(iid>currid){TEXTPOS=i;break}}
 curr=knownwordlist.eq(TEXTPOS);curr.addClass('kwordmarked');$(window).scrollTo(curr,{axis:'y',offset:-150});var ann='';if((typeof curr.attr('data_ann'))!=='undefined'){ann=curr.attr('data_ann')}
-showRightFrames('show_word.php?wid='+curr.attr('data_wid')+'&ann='+encodeURIComponent(ann));return!1}
+showRightFrames('edit_word.php?wid='+curr.attr('data_wid')+'&ann='+encodeURIComponent(ann)+'&autofocus=false');return!1}
 if((!$('.kwordmarked, .uwordmarked')[0])&&$('.hword:hover')[0]){curr=$('.hword:hover')}else{if(TEXTPOS<0||TEXTPOS>=l_knownwordlist)return!0;curr=knownwordlist.eq(TEXTPOS)}
 const wid=curr.attr('data_wid');const ord=curr.attr('data_order');const stat=curr.attr('data_status');const txt=(curr.hasClass('mwsty'))?curr.attr('data_text'):curr.text();let dict='';for(var i=1;i<=5;i++){if(e.which==(48+i)||e.which==(96+i)){if(stat=='0'){if(i==1){const sl=getLangFromDict(WBLINK3);const tl=WBLINK3.replace(/.*[?&]tl=([a-zA-Z\-]*)(&.*)*$/,'$1');if(sl!=WBLINK3&&tl!=WBLINK3)
 i=i+'&sl='+sl+'&tl='+tl}
