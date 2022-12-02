@@ -124,15 +124,18 @@ title+='<p><b>Status</b>: <span class="status'+status+'">'+statname+'</span></p>
 return title}});jQuery.fn.extend({tooltip_wsty_init:function(){$(this).tooltip({position:{my:'left top+10',at:'left bottom',collision:'flipfit'},items:'.hword',show:{easing:'easeOutCirc'},content:function(){return $(this).tooltip_wsty_content()}})}});function get_position_from_id(id_string){if((typeof id_string)==='undefined')return-1;const arr=id_string.split('-');return parseInt(arr[1])*10+10-parseInt(arr[2])}
 function keydown_event_do_text_text(e){if(e.which==27){TEXTPOS=-1;$('span.uwordmarked').removeClass('uwordmarked');$('span.kwordmarked').removeClass('kwordmarked');cClick();return!1}
 if(e.which==13){$('span.uwordmarked').removeClass('uwordmarked');const unknownwordlist=$('span.status0.word:not(.hide):first');if(unknownwordlist.size()==0)return!1;$(window).scrollTo(unknownwordlist,{axis:'y',offset:-150});unknownwordlist.addClass('uwordmarked').trigger('click');cClick();return!1}
-const knownwordlist=$('span.word:not(.hide)'+ADDFILTER+',span.mword:not(.hide)'+ADDFILTER);const l_knownwordlist=knownwordlist.size();if(l_knownwordlist==0)return!0;function set_current(curr){curr.addClass('kwordmarked');$(window).scrollTo(curr,{axis:'y',offset:-150});var ann='';if((typeof curr.attr('data_ann'))!=='undefined'){ann=curr.attr('data_ann')}
-showRightFrames('edit_word.php?tid='+TID+'&ord='+curr.attr('data_order')+'&ann='+encodeURIComponent(ann)+'&autofocus=false')}
-if(e.which==36){$('span.kwordmarked').removeClass('kwordmarked');TEXTPOS=0;curr=knownwordlist.eq(TEXTPOS);set_current(curr);return!1}
-if(e.which==35){$('span.kwordmarked').removeClass('kwordmarked');TEXTPOS=l_knownwordlist-1;curr=knownwordlist.eq(TEXTPOS);set_current(curr);return!1}
-if(e.which==37){var marked=$('span.kwordmarked');var currid=(marked.length==0)?(100000000):get_position_from_id(marked.attr('id'));$('span.kwordmarked').removeClass('kwordmarked');TEXTPOS=l_knownwordlist-1;for(var i=l_knownwordlist-1;i>=0;i--){var iid=get_position_from_id(knownwordlist.eq(i).attr('id'));if(iid<currid){TEXTPOS=i;break}}
-curr=knownwordlist.eq(TEXTPOS);set_current(curr);return!1}
-if(e.which==39||e.which==32){var marked=$('span.kwordmarked');var currid=(marked.length==0)?(-1):get_position_from_id(marked.attr('id'));$('span.kwordmarked').removeClass('kwordmarked');TEXTPOS=0;for(var i=0;i<l_knownwordlist;i++){var iid=get_position_from_id(knownwordlist.eq(i).attr('id'));if(iid>currid){TEXTPOS=i;break}}
-curr=knownwordlist.eq(TEXTPOS);set_current(curr);return!1}
-if((!$('.kwordmarked, .uwordmarked')[0])&&$('.hword:hover')[0]){curr=$('.hword:hover')}else{if(TEXTPOS<0||TEXTPOS>=l_knownwordlist)return!0;curr=knownwordlist.eq(TEXTPOS)}
+const wordsel='span.word:not(.hide)'+ADDFILTER+',span.mword:not(.hide)'+ADDFILTER;const knownwordlist=$(wordsel).sort(function(a,b){return $(a).attr('data_order')-$(b).attr('data_order')});const maxindex=knownwordlist.size()-1;if(maxindex==-1){return!0}
+function current_kwordmarked_index(){var currmarked=$('span.kwordmarked');if(currmarked.length==0){return-1}
+const ord=currmarked.attr('data_order');return knownwordlist.toArray().findIndex(x=>x.getAttribute('data_order')===ord)}
+const currindex=current_kwordmarked_index();let newindex=currindex;var currmarked=$('span.kwordmarked');if(e.which==36){newindex=0}
+if(e.which==35){newindex=maxindex}
+if(e.which==37){newindex=currindex-1}
+if(e.which==39||e.which==32){newindex=currindex+1}
+if(newindex!=currindex){if(newindex<0){newindex=0}
+if(newindex>maxindex){newindex=maxindex}
+TEXTPOS=newindex;$('span.kwordmarked').removeClass('kwordmarked');let curr=knownwordlist.eq(newindex);curr.addClass('kwordmarked');$(window).scrollTo(curr,{axis:'y',offset:-150});var ann='';if((typeof curr.attr('data_ann'))!=='undefined'){ann=encodeURIComponent(curr.attr('data_ann'))}
+showRightFrames('edit_word.php?tid='+TID+'&ord='+curr.attr('data_order')+'&ann='+ann+'&autofocus=false');return!1}
+let curr=null;if((!$('.kwordmarked, .uwordmarked')[0])&&$('.hword:hover')[0]){curr=$('.hword:hover')}else{if(TEXTPOS<0||TEXTPOS>maxindex)return!0;curr=knownwordlist.eq(TEXTPOS)}
 const wid=curr.attr('data_wid');const ord=curr.attr('data_order');const stat=curr.attr('data_status');const txt=(curr.hasClass('mwsty'))?curr.attr('data_text'):curr.text();let dict='';for(var i=1;i<=5;i++){if(e.which==(48+i)||e.which==(96+i)){if(stat=='0'){if(i==1){const sl=getLangFromDict(WBLINK3);const tl=WBLINK3.replace(/.*[?&]tl=([a-zA-Z\-]*)(&.*)*$/,'$1');if(sl!=WBLINK3&&tl!=WBLINK3)
 i=i+'&sl='+sl+'&tl='+tl}
 showRightFrames('set_word_on_hover.php?text='+txt+'&tid='+TID+'&status='+i)}else{showRightFrames('set_word_status.php?wid='+wid+'&tid='+TID+'&ord='+ord+'&status='+i);return!1}}}
