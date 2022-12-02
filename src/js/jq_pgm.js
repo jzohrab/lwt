@@ -875,10 +875,11 @@ function keydown_event_do_text_text (e) {
     return false;
   }
   if (e.which == 84) { // T : translate sentence
+    const trans = 'trans.php?i=' + ord + '&t=' + TID;
     if ((WBLINK3.substr(0, 8) == '*http://') || (WBLINK3.substr(0, 9) == '*https://')) {
-      owin('trans.php?x=1&i=' + ord + '&t=' + TID);
+      owin(trans);
     } else if ((WBLINK3.substr(0, 7) == 'http://') || (WBLINK3.substr(0, 8) == 'https://') || (WBLINK3.substr(0, 7) == 'ggl.php')) {
-      showRightFrames(undefined, 'trans.php?x=1&i=' + ord + '&t=' + TID);
+      showRightFrames(undefined, trans);
     }
     return false;
   }
