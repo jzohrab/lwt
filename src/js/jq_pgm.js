@@ -735,7 +735,7 @@ function keydown_event_do_text_text (e) {
     return false;
   }
 
-  const knownwordlist = $('span.word:not(.hide):not(.status0)' + ADDFILTER + ',span.mword:not(.hide)' + ADDFILTER);
+  const knownwordlist = $('span.word:not(.hide)' + ADDFILTER + ',span.mword:not(.hide)' + ADDFILTER);
   const l_knownwordlist = knownwordlist.size();
   // console.log(knownwordlist);
   if (l_knownwordlist == 0) return true;
