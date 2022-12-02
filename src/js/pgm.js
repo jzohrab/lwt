@@ -933,10 +933,10 @@ function createSentLookupLink (torder, txid, url, txt) {
     return r;
   }
   if (url.substring(0, 8) == '*http://' || url.substring(0, 9) == '*https://') {
-    r = ' <span class="click" onclick="owin(\'trans.php?x=1&i=' + torder + 
+    r = ' <span class="click" onclick="owin(\'trans.php?i=' + torder + 
     '&t=' + txid + '\');">' + txt + '</span> ';
   } else if (url.substring(0, 7) == 'http://' || url.substring(0, 8) == 'https://') {
-    r = ' <a href="trans.php?x=1&i=' + torder + '&t=' + txid + 
+    r = ' <a href="trans.php?i=' + torder + '&t=' + txid + 
     '" target="ru" onclick="showRightFrames();">' + txt + '</a> ';
   }
   return r;

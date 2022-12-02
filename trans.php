@@ -4,10 +4,8 @@
  * \file
  * \brief Get a translation from Web Dictionary
  * 
- * Call 1: trans.php?x=1&t=[textid]&i=[textpos]
- *         GTr translates sentence in Text t, Pos i
- * Call 2: trans.php?x=2&t=[text]&i=[dictURI]
- *         translates text t with dict via dict-url i
+ * Call trans.php?x=1&t=[textid]&i=[textpos]
+ *      GTr translates sentence in Text t, Pos i
  * 
  * @package Lwt
  * @author  LWT Project <lwt-project@hotmail.com>
@@ -18,11 +16,9 @@
 
 require_once 'inc/session_utility.php';
 
-$x = $_REQUEST["x"];
 $i = $_REQUEST["i"];
 $t = $_REQUEST["t"];
 
-if ($x == 1 ) {
     $sql = 'select SeText, LgGoogleTranslateURI from languages, sentences, textitems2 where Ti2SeID = SeID and Ti2LgID = LgID and Ti2TxID = ' . $t . ' and Ti2Order = ' . $i;
     $res = do_mysqli_query($sql);
     $record = mysqli_fetch_assoc($res);
@@ -47,16 +43,6 @@ if ($x == 1 ) {
         header("Location: " . createTheDictLink($trans, $satz));
     }
     exit();
-}
 
-if ($x == 2 ) {
-    /*
-    echo "{" . $i . "}<br />";
-    echo "{" . $t . "}<br />";
-    echo "{" . createTheDictLink($i,$t) . "}<br />";
-    */
-    header("Location: " . createTheDictLink($i, $t));
-    exit();
-}    
 
 ?>
