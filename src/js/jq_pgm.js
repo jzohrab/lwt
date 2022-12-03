@@ -725,16 +725,6 @@ function keydown_event_do_text_text (e) {
     return false;
   }
 
-  if (e.which == 13) { // return = edit next unknown word
-    $('span.uwordmarked').removeClass('uwordmarked');
-    const unknownwordlist = $('span.status0.word:not(.hide):first');
-    if (unknownwordlist.size() == 0) return false;
-    $(window).scrollTo(unknownwordlist, { axis: 'y', offset: -150 });
-    unknownwordlist.addClass('uwordmarked').trigger('click');
-    cClick();
-    return false;
-  }
-
   const wordsel = 'span.word:not(.hide)' + ADDFILTER + ',span.mword:not(.hide)' + ADDFILTER;
   const knownwordlist = $(wordsel).sort(function(a, b) {
     return $(a).attr('data_order') - $(b).attr('data_order');
@@ -792,6 +782,18 @@ function keydown_event_do_text_text (e) {
 
   if (e.which == 39 && e.shiftKey) {  // right + shift
     newindex = find_next_non_ignored_non_well_known(currindex, +1);
+  }
+
+  if (e.which == 13) { // return = edit next unknown word
+    newindex = currindex + 1;
+    while (newindex <= maxindex) {
+      const nextword = knownwordlist.eq(newindex);
+      const st = nextword.attr('data_status');
+      if (st == 0) {
+        break;
+      }
+      newindex += 1;
+    }
   }
 
   // If moved, update UI and exit.

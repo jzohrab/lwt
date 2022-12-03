@@ -123,7 +123,6 @@ title+='<p><b>Transl.</b>: '+trans+'</p>'}
 title+='<p><b>Status</b>: <span class="status'+status+'">'+statname+'</span></p>';if($(this).attr('parent_text')){title+='<hr />';title+='<p><i>Parent term:</i></p>';title+="<p><b style='font-size:120%'>"+$(this).attr('parent_text')+"</b></p>";let ptrans=$(this).attr('parent_trans').replace(re,'$1 ');title+='<p><b>Transl.</b>: '+ptrans+'</p>'}
 return title}});jQuery.fn.extend({tooltip_wsty_init:function(){$(this).tooltip({position:{my:'left top+10',at:'left bottom',collision:'flipfit'},items:'.hword',show:{easing:'easeOutCirc'},content:function(){return $(this).tooltip_wsty_content()}})}});function get_position_from_id(id_string){if((typeof id_string)==='undefined')return-1;const arr=id_string.split('-');return parseInt(arr[1])*10+10-parseInt(arr[2])}
 function keydown_event_do_text_text(e){if(e.which==27){TEXTPOS=-1;$('span.uwordmarked').removeClass('uwordmarked');$('span.kwordmarked').removeClass('kwordmarked');cClick();return!1}
-if(e.which==13){$('span.uwordmarked').removeClass('uwordmarked');const unknownwordlist=$('span.status0.word:not(.hide):first');if(unknownwordlist.size()==0)return!1;$(window).scrollTo(unknownwordlist,{axis:'y',offset:-150});unknownwordlist.addClass('uwordmarked').trigger('click');cClick();return!1}
 const wordsel='span.word:not(.hide)'+ADDFILTER+',span.mword:not(.hide)'+ADDFILTER;const knownwordlist=$(wordsel).sort(function(a,b){return $(a).attr('data_order')-$(b).attr('data_order')});const maxindex=knownwordlist.size()-1;if(maxindex==-1){return!0}
 function current_kwordmarked_index(){var currmarked=$('span.kwordmarked');if(currmarked.length==0){return-1}
 const ord=currmarked.attr('data_order');return knownwordlist.toArray().findIndex(x=>x.getAttribute('data_order')===ord)}
@@ -136,6 +135,8 @@ newindex+=shiftby}
 return newindex}
 if(e.which==37&&e.shiftKey){newindex=find_next_non_ignored_non_well_known(currindex,-1)}
 if(e.which==39&&e.shiftKey){newindex=find_next_non_ignored_non_well_known(currindex,+1)}
+if(e.which==13){newindex=currindex+1;while(newindex<=maxindex){const nextword=knownwordlist.eq(newindex);const st=nextword.attr('data_status');if(st==0){break}
+newindex+=1}}
 if(newindex!=currindex){if(newindex<0){newindex=0}
 if(newindex>maxindex){newindex=maxindex}
 TEXTPOS=newindex;$('span.kwordmarked').removeClass('kwordmarked');let curr=knownwordlist.eq(newindex);curr.addClass('kwordmarked');$(window).scrollTo(curr,{axis:'y',offset:-150});var ann='';if((typeof curr.attr('data_ann'))!=='undefined'){ann=encodeURIComponent(curr.attr('data_ann'))}
