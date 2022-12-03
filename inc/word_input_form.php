@@ -25,6 +25,7 @@ class FormData
   public $parent_id = 0;
   public $parent_text = '';
   public $textid = 0;  // For "new_word.php"
+  public $autofocus = 1;  // Sometimes form is opened but shouldn't get focus.
 
 
   /**
@@ -509,11 +510,14 @@ $(window).on('beforeunload',function() {
 $(window).on('load', function() {
   const wordfield = $('#wordfield');
   const transfield = $('#translationfield');
-  if (wordfield.val()) {
-    transfield.focus();
-  }
-  else {
-    wordfield.focus();
+
+  if ($('#autofocus').val() != 'false') {
+    if (wordfield.val()) {
+       transfield.focus();
+    }
+    else {
+      wordfield.focus();
+    }
   }
 
   set_up_parent_autocomplete();
@@ -536,6 +540,7 @@ $(window).on('load', function() {
 <input type="hidden" name="ord" value="<?php echo getreq('ord'); ?>" />
 <input type="hidden" name="textid" value="<?php echo $formdata->textid; ?>" />
 <input type="hidden" id="autocomplete_parent_id" name="WpParentWoID" value="<?php echo $formdata->parent_id; ?>" />
+<input type="hidden" id="autofocus" value="<?php echo $formdata->autofocus; ?>" />
 
 <table class="tab2" cellspacing="0" cellpadding="5">
   <tr title="Only change uppercase/lowercase!">

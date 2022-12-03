@@ -123,18 +123,25 @@ title+='<p><b>Transl.</b>: '+trans+'</p>'}
 title+='<p><b>Status</b>: <span class="status'+status+'">'+statname+'</span></p>';if($(this).attr('parent_text')){title+='<hr />';title+='<p><i>Parent term:</i></p>';title+="<p><b style='font-size:120%'>"+$(this).attr('parent_text')+"</b></p>";let ptrans=$(this).attr('parent_trans').replace(re,'$1 ');title+='<p><b>Transl.</b>: '+ptrans+'</p>'}
 return title}});jQuery.fn.extend({tooltip_wsty_init:function(){$(this).tooltip({position:{my:'left top+10',at:'left bottom',collision:'flipfit'},items:'.hword',show:{easing:'easeOutCirc'},content:function(){return $(this).tooltip_wsty_content()}})}});function get_position_from_id(id_string){if((typeof id_string)==='undefined')return-1;const arr=id_string.split('-');return parseInt(arr[1])*10+10-parseInt(arr[2])}
 function keydown_event_do_text_text(e){if(e.which==27){TEXTPOS=-1;$('span.uwordmarked').removeClass('uwordmarked');$('span.kwordmarked').removeClass('kwordmarked');cClick();return!1}
-if(e.which==13){$('span.uwordmarked').removeClass('uwordmarked');const unknownwordlist=$('span.status0.word:not(.hide):first');if(unknownwordlist.size()==0)return!1;$(window).scrollTo(unknownwordlist,{axis:'y',offset:-150});unknownwordlist.addClass('uwordmarked').trigger('click');cClick();return!1}
-const knownwordlist=$('span.word:not(.hide):not(.status0)'+ADDFILTER+',span.mword:not(.hide)'+ADDFILTER);const l_knownwordlist=knownwordlist.size();if(l_knownwordlist==0)return!0;if(e.which==36){$('span.kwordmarked').removeClass('kwordmarked');TEXTPOS=0;curr=knownwordlist.eq(TEXTPOS);curr.addClass('kwordmarked');$(window).scrollTo(curr,{axis:'y',offset:-150});var ann='';if((typeof curr.attr('data_ann'))!=='undefined'){ann=curr.attr('data_ann')}
-showRightFrames('show_word.php?wid='+curr.attr('data_wid')+'&ann='+encodeURIComponent(ann));return!1}
-if(e.which==35){$('span.kwordmarked').removeClass('kwordmarked');TEXTPOS=l_knownwordlist-1;curr=knownwordlist.eq(TEXTPOS);curr.addClass('kwordmarked');$(window).scrollTo(curr,{axis:'y',offset:-150});var ann='';if((typeof curr.attr('data_ann'))!=='undefined'){ann=curr.attr('data_ann')}
-showRightFrames('show_word.php?wid='+curr.attr('data_wid')+'&ann='+encodeURIComponent(ann));return!1}
-if(e.which==37){var marked=$('span.kwordmarked');var currid=(marked.length==0)?(100000000):get_position_from_id(marked.attr('id'));$('span.kwordmarked').removeClass('kwordmarked');TEXTPOS=l_knownwordlist-1;for(var i=l_knownwordlist-1;i>=0;i--){var iid=get_position_from_id(knownwordlist.eq(i).attr('id'));if(iid<currid){TEXTPOS=i;break}}
-curr=knownwordlist.eq(TEXTPOS);curr.addClass('kwordmarked');$(window).scrollTo(curr,{axis:'y',offset:-150});var ann='';if((typeof curr.attr('data_ann'))!=='undefined'){ann=curr.attr('data_ann')}
-showRightFrames('show_word.php?wid='+curr.attr('data_wid')+'&ann='+encodeURIComponent(ann));return!1}
-if(e.which==39||e.which==32){var marked=$('span.kwordmarked');var currid=(marked.length==0)?(-1):get_position_from_id(marked.attr('id'));$('span.kwordmarked').removeClass('kwordmarked');TEXTPOS=0;for(var i=0;i<l_knownwordlist;i++){var iid=get_position_from_id(knownwordlist.eq(i).attr('id'));if(iid>currid){TEXTPOS=i;break}}
-curr=knownwordlist.eq(TEXTPOS);curr.addClass('kwordmarked');$(window).scrollTo(curr,{axis:'y',offset:-150});var ann='';if((typeof curr.attr('data_ann'))!=='undefined'){ann=curr.attr('data_ann')}
-showRightFrames('show_word.php?wid='+curr.attr('data_wid')+'&ann='+encodeURIComponent(ann));return!1}
-if((!$('.kwordmarked, .uwordmarked')[0])&&$('.hword:hover')[0]){curr=$('.hword:hover')}else{if(TEXTPOS<0||TEXTPOS>=l_knownwordlist)return!0;curr=knownwordlist.eq(TEXTPOS)}
+const wordsel='span.word:not(.hide)'+ADDFILTER+',span.mword:not(.hide)'+ADDFILTER;const knownwordlist=$(wordsel).sort(function(a,b){return $(a).attr('data_order')-$(b).attr('data_order')});const maxindex=knownwordlist.size()-1;if(maxindex==-1){return!0}
+function current_kwordmarked_index(){var currmarked=$('span.kwordmarked');if(currmarked.length==0){return-1}
+const ord=currmarked.attr('data_order');return knownwordlist.toArray().findIndex(x=>x.getAttribute('data_order')===ord)}
+const currindex=current_kwordmarked_index();let newindex=currindex;var currmarked=$('span.kwordmarked');if(e.which==36){newindex=0}
+if(e.which==35){newindex=maxindex}
+if(e.which==37&&!e.shiftKey){newindex=currindex-1}
+if(e.which==39&&!e.shiftKey){newindex=currindex+1}
+function find_next_non_ignored_non_well_known(currindex,shiftby=1){let newindex=currindex+shiftby;while(newindex>=0&&newindex<=maxindex){const nextword=knownwordlist.eq(newindex);const st=nextword.attr('data_status');if(st!=99&&st!=98){break}
+newindex+=shiftby}
+return newindex}
+if(e.which==37&&e.shiftKey){newindex=find_next_non_ignored_non_well_known(currindex,-1)}
+if(e.which==39&&e.shiftKey){newindex=find_next_non_ignored_non_well_known(currindex,+1)}
+if(e.which==13){newindex=currindex+1;while(newindex<=maxindex){const nextword=knownwordlist.eq(newindex);const st=nextword.attr('data_status');if(st==0){break}
+newindex+=1}}
+if(newindex!=currindex){if(newindex<0){newindex=0}
+if(newindex>maxindex){newindex=maxindex}
+TEXTPOS=newindex;$('span.kwordmarked').removeClass('kwordmarked');let curr=knownwordlist.eq(newindex);curr.addClass('kwordmarked');$(window).scrollTo(curr,{axis:'y',offset:-150});var ann='';if((typeof curr.attr('data_ann'))!=='undefined'){ann=encodeURIComponent(curr.attr('data_ann'))}
+showRightFrames('edit_word.php?tid='+TID+'&ord='+curr.attr('data_order')+'&ann='+ann+'&autofocus=false');return!1}
+let curr=null;if((!$('.kwordmarked, .uwordmarked')[0])&&$('.hword:hover')[0]){curr=$('.hword:hover')}else{if(TEXTPOS<0||TEXTPOS>maxindex)return!0;curr=knownwordlist.eq(TEXTPOS)}
 const wid=curr.attr('data_wid');const ord=curr.attr('data_order');const stat=curr.attr('data_status');const txt=(curr.hasClass('mwsty'))?curr.attr('data_text'):curr.text();let dict='';for(var i=1;i<=5;i++){if(e.which==(48+i)||e.which==(96+i)){if(stat=='0'){if(i==1){const sl=getLangFromDict(WBLINK3);const tl=WBLINK3.replace(/.*[?&]tl=([a-zA-Z\-]*)(&.*)*$/,'$1');if(sl!=WBLINK3&&tl!=WBLINK3)
 i=i+'&sl='+sl+'&tl='+tl}
 showRightFrames('set_word_on_hover.php?text='+txt+'&tid='+TID+'&status='+i)}else{showRightFrames('set_word_status.php?wid='+wid+'&tid='+TID+'&ord='+ord+'&status='+i);return!1}}}
@@ -142,7 +149,7 @@ if(e.which==73){if(stat=='0'){showRightFrames('set_word_on_hover.php?text='+txt+
 if(e.which==87){if(stat=='0'){showRightFrames('set_word_on_hover.php?text='+txt+'&tid='+TID+'&status=99')}else{showRightFrames('set_word_status.php?wid='+wid+'&tid='+TID+'&ord='+ord+'&status=99')}
 return!1}
 if(e.which==80){const lg=getLangFromDict(WBLINK3);readTextAloud(txt,lg);return!1}
-if(e.which==84){if((WBLINK3.substr(0,8)=='*http://')||(WBLINK3.substr(0,9)=='*https://')){owin('trans.php?x=1&i='+ord+'&t='+TID)}else if((WBLINK3.substr(0,7)=='http://')||(WBLINK3.substr(0,8)=='https://')||(WBLINK3.substr(0,7)=='ggl.php')){showRightFrames(undefined,'trans.php?x=1&i='+ord+'&t='+TID)}
+if(e.which==84){const trans='trans.php?i='+ord+'&t='+TID;if((WBLINK3.substr(0,8)=='*http://')||(WBLINK3.substr(0,9)=='*https://')){owin(trans)}else if((WBLINK3.substr(0,7)=='http://')||(WBLINK3.substr(0,8)=='https://')||(WBLINK3.substr(0,7)=='ggl.php')){showRightFrames(undefined,trans)}
 return!1}
 if(e.which==65){let p=curr.attr('data_pos');const t=parseInt($('#totalcharcount').text(),10);if(t==0)return!0;p=100*(p-5)/t;if(p<0)p=0;if(typeof(window.parent.frames.h.new_pos)==='function'){window.parent.frames.h.new_pos(p)}else{return!0}
 return!1}
@@ -279,7 +286,7 @@ return output}
 function createTheDictLink(u,w,t,b){const url=u.trim();const trm=w.trim();const txt=t.trim();const txtbefore=b.trim();let r='';if(url!=''&&txt!=''){if(url.substring(0,1)=='*'){r=' '+txtbefore+' <span class="click" onclick="owin(\''+createTheDictUrl(url.substring(1),escape_apostrophes(trm))+'\');">'+txt+'</span> '}else{r=' '+txtbefore+' <a href="'+createTheDictUrl(url,trm)+'" target="ru" onclick="showRightFrames();">'+txt+'</a> '}}
 return r}
 function createSentLookupLink(torder,txid,url,txt){var url=url.trim();var txt=txt.trim();let r='';if(url==''||txt==''){return r}
-if(url.substring(0,8)=='*http://'||url.substring(0,9)=='*https://'){r=' <span class="click" onclick="owin(\'trans.php?x=1&i='+torder+'&t='+txid+'\');">'+txt+'</span> '}else if(url.substring(0,7)=='http://'||url.substring(0,8)=='https://'){r=' <a href="trans.php?x=1&i='+torder+'&t='+txid+'" target="ru" onclick="showRightFrames();">'+txt+'</a> '}
+if(url.substring(0,8)=='*http://'||url.substring(0,9)=='*https://'){r=' <span class="click" onclick="owin(\'trans.php?i='+torder+'&t='+txid+'\');">'+txt+'</span> '}else if(url.substring(0,7)=='http://'||url.substring(0,8)=='https://'){r=' <a href="trans.php?i='+torder+'&t='+txid+'" target="ru" onclick="showRightFrames();">'+txt+'</a> '}
 return r}
 function escape_html_chars(s){return s.replace(/&/g,'%AMP%').replace(/</g,'&#060;').replace(/>/g,'&#062;').replace(/"/g,'&#034;').replace(/'/g,'&#039;').replace(/%AMP%/g,'&#038;').replace(/\x0d/g,'<br />')}
 function escape_apostrophes(s){return s.replace(/'/g,'\\\'')}

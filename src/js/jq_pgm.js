@@ -725,109 +725,104 @@ function keydown_event_do_text_text (e) {
     return false;
   }
 
-  if (e.which == 13) { // return = edit next unknown word
-    $('span.uwordmarked').removeClass('uwordmarked');
-    const unknownwordlist = $('span.status0.word:not(.hide):first');
-    if (unknownwordlist.size() == 0) return false;
-    $(window).scrollTo(unknownwordlist, { axis: 'y', offset: -150 });
-    unknownwordlist.addClass('uwordmarked').trigger('click');
-    cClick();
-    return false;
+  const wordsel = 'span.word:not(.hide)' + ADDFILTER + ',span.mword:not(.hide)' + ADDFILTER;
+  const knownwordlist = $(wordsel).sort(function(a, b) {
+    return $(a).attr('data_order') - $(b).attr('data_order');
+  });
+  const maxindex = knownwordlist.size() - 1;
+  if (maxindex == -1) {
+    // No words!
+    return true;
   }
 
-  const knownwordlist = $('span.word:not(.hide):not(.status0)' + ADDFILTER + ',span.mword:not(.hide)' + ADDFILTER);
-  const l_knownwordlist = knownwordlist.size();
-  // console.log(knownwordlist);
-  if (l_knownwordlist == 0) return true;
+  function current_kwordmarked_index() {
+    var currmarked = $('span.kwordmarked');
+    if (currmarked.length == 0) {
+      return -1;
+    }
+    const ord = currmarked.attr('data_order');
+    return knownwordlist.toArray().findIndex(x => x.getAttribute('data_order') === ord);
+  }
 
-  // the following only for a non-zero known words list
+  const currindex = current_kwordmarked_index();
+  let newindex = currindex;
+
+  var currmarked = $('span.kwordmarked');
+  
   if (e.which == 36) { // home : known word navigation -> first
-    $('span.kwordmarked').removeClass('kwordmarked');
-    TEXTPOS = 0;
-    curr = knownwordlist.eq(TEXTPOS);
-    curr.addClass('kwordmarked');
-    $(window).scrollTo(curr, { axis: 'y', offset: -150 });
-    var ann = '';
-    if ((typeof curr.attr('data_ann')) !== 'undefined') { 
-      ann = curr.attr('data_ann');
-    }
-    showRightFrames('show_word.php?wid=' + curr.attr('data_wid') + '&ann=' + encodeURIComponent(ann));
-    return false;
+    newindex = 0;
   }
+
   if (e.which == 35) { // end : known word navigation -> last
-    $('span.kwordmarked').removeClass('kwordmarked');
-    TEXTPOS = l_knownwordlist - 1;
-    curr = knownwordlist.eq(TEXTPOS);
-    curr.addClass('kwordmarked');
-    $(window).scrollTo(curr, { axis: 'y', offset: -150 });
-    var ann = '';
-    if ((typeof curr.attr('data_ann')) !== 'undefined') { 
-      ann = curr.attr('data_ann');
-    }
-    showRightFrames('show_word.php?wid=' + curr.attr('data_wid') + '&ann=' + encodeURIComponent(ann));
-    return false;
+    newindex = maxindex;
   }
-  if (e.which == 37) { // left : known word navigation
-    var marked = $('span.kwordmarked');
-    var currid = (marked.length == 0)
-      ? (100000000)
-      : get_position_from_id(marked.attr('id'));
-    $('span.kwordmarked').removeClass('kwordmarked');
-    // console.log(currid);
-    TEXTPOS = l_knownwordlist - 1;
-    for (var i = l_knownwordlist - 1; i >= 0; i--) {
-      var iid = get_position_from_id(knownwordlist.eq(i).attr('id'));
-      // console.log(iid);
-      if (iid < currid) {
-        TEXTPOS = i;
+  if (e.which == 37 && !e.shiftKey) { // left : known word navigation
+    newindex = currindex - 1;
+  }
+  if (e.which == 39 && !e.shiftKey) {  // right
+    newindex = currindex + 1;
+  }
+
+  function find_next_non_ignored_non_well_known(currindex, shiftby = 1) {
+    let newindex = currindex + shiftby;
+    while (newindex >= 0 && newindex <= maxindex) {
+      const nextword = knownwordlist.eq(newindex);
+      const st = nextword.attr('data_status');
+      if (st != 99 && st != 98) {
         break;
       }
+      newindex += shiftby;
     }
-    // TEXTPOS--;
-    // if (TEXTPOS < 0) TEXTPOS = l_knownwordlist - 1;
-    curr = knownwordlist.eq(TEXTPOS);
-    curr.addClass('kwordmarked');
-    $(window).scrollTo(curr, { axis: 'y', offset: -150 });
-    var ann = '';
-    if ((typeof curr.attr('data_ann')) !== 'undefined') { 
-      ann = curr.attr('data_ann'); 
-    }
-    showRightFrames('show_word.php?wid=' + curr.attr('data_wid') + '&ann=' + encodeURIComponent(ann));
-    return false;
+    return newindex;
   }
-  if (e.which == 39 || e.which == 32) { // space /right : known word navigation
-    var marked = $('span.kwordmarked');
-    var currid = (marked.length == 0)
-      ? (-1)
-      : get_position_from_id(marked.attr('id'));
-    $('span.kwordmarked').removeClass('kwordmarked');
-    // console.log(currid);
-    TEXTPOS = 0;
-    for (var i = 0; i < l_knownwordlist; i++) {
-      var iid = get_position_from_id(knownwordlist.eq(i).attr('id'));
-      // console.log(iid);
-      if (iid > currid) {
-        TEXTPOS = i;
+
+  if (e.which == 37 && e.shiftKey) {  // left + shift
+    newindex = find_next_non_ignored_non_well_known(currindex, -1);
+  }
+
+  if (e.which == 39 && e.shiftKey) {  // right + shift
+    newindex = find_next_non_ignored_non_well_known(currindex, +1);
+  }
+
+  if (e.which == 13) { // return = edit next unknown word
+    newindex = currindex + 1;
+    while (newindex <= maxindex) {
+      const nextword = knownwordlist.eq(newindex);
+      const st = nextword.attr('data_status');
+      if (st == 0) {
         break;
       }
+      newindex += 1;
     }
-    // TEXTPOS++;
-    // if (TEXTPOS >= l_knownwordlist) TEXTPOS = 0;
-    curr = knownwordlist.eq(TEXTPOS);
+  }
+
+  // If moved, update UI and exit.
+  if (newindex != currindex) {
+    if (newindex < 0) {
+      newindex = 0;
+    }
+    if (newindex > maxindex) {
+      newindex = maxindex;
+    }
+    TEXTPOS = newindex;
+
+    $('span.kwordmarked').removeClass('kwordmarked');
+    let curr = knownwordlist.eq(newindex);
     curr.addClass('kwordmarked');
     $(window).scrollTo(curr, { axis: 'y', offset: -150 });
     var ann = '';
     if ((typeof curr.attr('data_ann')) !== 'undefined') { 
-      ann = curr.attr('data_ann'); 
+      ann = encodeURIComponent(curr.attr('data_ann'));
     }
-    showRightFrames('show_word.php?wid=' + curr.attr('data_wid') + '&ann=' + encodeURIComponent(ann));
+    showRightFrames('edit_word.php?tid=' + TID + '&ord=' + curr.attr('data_order') + '&ann=' + ann + '&autofocus=false');
     return false;
   }
 
+  let curr = null;
   if ((!$('.kwordmarked, .uwordmarked')[0]) && $('.hword:hover')[0]) {
     curr = $('.hword:hover');
   } else {
-    if (TEXTPOS < 0 || TEXTPOS >= l_knownwordlist) return true;
+    if (TEXTPOS < 0 || TEXTPOS > maxindex) return true;
     curr = knownwordlist.eq(TEXTPOS);
   }
   const wid = curr.attr('data_wid');

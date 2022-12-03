@@ -14,6 +14,7 @@ This is a fork of [Hugo Fara's fork](https://github.com/hugofara) of the origina
 * Wordpress logins give new users their own separate LWT database instance.  See [docs.wordpress](./docs/wordpress.md) for notes.
 * Added "parent term" for things like verb declensions etc.
 * Removed most text archiving/unarchiving functions.  See [docs/archivingchanges.md](./docs/archivingchanges.md).
+* Some changes to the text frame keyboard bindings (i.e. while reading), and new ones added.  See [docs/keybind.md](./docs/keybind.md).
 
 ### Code changes
 

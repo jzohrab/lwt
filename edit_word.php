@@ -188,6 +188,7 @@ function handle_display_form() {
     $ord = getreq('ord', 0);
     $txt = getreq('txt', '');
     $formdata = load_formdata_from_db($wid, $tid, $ord, $txt);
+    $formdata->autofocus = getreq('autofocus', 'true');
 
     pagestart_nobody("Term: " . tohtml($formdata->term));
     show_form($formdata);
