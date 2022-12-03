@@ -6,15 +6,17 @@ Key Bindings in the TEXT Frame
 
 | Key(s)         | Action(s)                                                           |
 |----------------|---------------------------------------------------------------------|
-| RETURN         | The next UNKNOWN (blue) word in the text will be shown for creation |
-| RIGHT or SPACE | Mark next SAVED (non-blue) term (*)                                 |
-| LEFT           | Mark previous SAVED (non-blue) term (*)                             |
-| HOME           | Mark first SAVED (non-blue) term (*)                                |
-| END            | Mark last SAVED (non-blue) term (*)                                 |
+| RETURN         | Move to next unknown word   |
+| RIGHT          | Move to next word                                                   |
+| RIGHT + Shift  | Move to next unknown or learning word (skip known and ignored)      |
+| LEFT           | Move to previous word                                               |
+| LEFT + Shift   | Move to previous unknown or learning word (skip known and ignored)  |
+| HOME           | Move to first word  |
+| END            | Move to last word   |
+| E              | Edit marked term                                                    |
 | 1, 2, 3, 4, 5  | Set status of marked term to 1, 2, 3, 4, or 5                       |
 | I              | Set status of marked term to "Ignored"                              |
 | W              | Set status of marked term to "Well Known"                           |
-| E              | Edit marked term                                                    |
 | G              | Edit marked term and open Google Translate                          |
 | J              | Edit marked term and open Google Image Search                       |
 | A              | Set audio position according to position of marked term.            |
