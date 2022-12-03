@@ -466,6 +466,9 @@ function word_click_event_do_text_text (e) {
     clear_shift_clicked_elements();
   }
 
+  $('span.kwordmarked').removeClass('kwordmarked');
+  $(this).addClass('kwordmarked');
+
   const status = $(this).attr('data_status');
   let ann = '';
   if ($(this).attr('data_ann') !== undefined) { 
