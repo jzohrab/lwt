@@ -123,10 +123,10 @@ function change_term_display($wid, $translation, $hex): void
         .attr('data_rom', roman)
         .attr('data_status', status)
         .attr('title', tooltiptitle);
-
     $('#learnstatus', contexth).html('<?php echo addslashes(texttodocount2($_REQUEST['tid'])); ?>');
 
-    cleanupRightFrames();
+    cleanupRightFrames(context.ownerDocument.body);
+
     //]]>
 </script>
     <?php

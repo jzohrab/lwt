@@ -1131,8 +1131,9 @@ function showRightFrames(roUrl, ruUrl) {
  * @returns {boolean} true if frames were found, false otherwise
  */
 function hideRightFrames() {
-  if ($('#frames-r').length) {
-    $('#frames-r').animate({right: '-100%'}, 100);
+  const rf = window.parent.document.getElementById('frames-r');
+  if (rf) {
+    $(rf).animate({right: '-100%'}, 100);
     return true;
   }
   return false;
@@ -1146,26 +1147,24 @@ function hideRightFrames() {
  * 
  * @returns {undefined}
  */
-function cleanupRightFrames() {
-
-  // A very annoying hack to get right frames to hide correctly.
-  // Calling hideRightFrames directly in window.parent.setTimeout
-  // does  //not work* for some reason ... when called that way,
-  // in hideRightFrames $('#frames-r').length is always 0.  I'm not
-  // sure why.  Using the mytimeout method lets the js find the
-  // element at runtime, and then it's clicked, invoking the function
-  // hideRightFrames, which then works.
-  //
-  // We have to use an anon function to ensure that the frames-r
-  // gets resolved when the timeout fires.
-  const mytimeout = function() {
-    const rf = window.parent.document.getElementById('frames-r');
-    rf.click();
+function cleanupRightFrames(focusElement = null) {
+  function hide_and_focus() {
+    hideRightFrames();
+    if (focusElement) {
+      // Have to set the tabIndex to -1 to be able to set focus
+      // to non-focusable dom elements, like div, etc.
+      // Oddly, even if it appears to already be -1,
+      // it **has to be explicitly set to -1**!!!
+      // Hence, this ridiculous-looking
+      // if statement and body, but it seems to work.
+      if (focusElement.tabIndex == -1) {
+        focusElement.tabIndex = -1;
+      }
+      focusElement.focus();
+    }
   }
-  window.parent.setTimeout(mytimeout, 800);
-
-  window.parent.document.getElementById('frame-l').focus();
   window.parent.setTimeout(window.parent.cClick, 100);
+  window.parent.setTimeout(hide_and_focus, 800);
 }
 
 

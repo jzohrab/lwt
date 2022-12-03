@@ -178,10 +178,11 @@ function showRightFrames(roUrl,ruUrl){if(roUrl!==undefined){top.frames.ro.locati
 if(ruUrl!==undefined){top.frames.ru.location.href=ruUrl}
 if($('#frames-r').length){$('#frames-r').animate({right:'5px'},100);return!0}
 return!1}
-function hideRightFrames(){if($('#frames-r').length){$('#frames-r').animate({right:'-100%'},100);return!0}
+function hideRightFrames(){const rf=window.parent.document.getElementById('frames-r');if(rf){$(rf).animate({right:'-100%'},100);return!0}
 return!1}
-function cleanupRightFrames(){const mytimeout=function(){const rf=window.parent.document.getElementById('frames-r');rf.click()}
-window.parent.setTimeout(mytimeout,800);window.parent.document.getElementById('frame-l').focus();window.parent.setTimeout(window.parent.cClick,100)}
+function cleanupRightFrames(focusElement=null){function hide_and_focus(){hideRightFrames();if(focusElement){if(focusElement.tabIndex==-1){focusElement.tabIndex=-1}
+focusElement.focus()}}
+window.parent.setTimeout(window.parent.cClick,100);window.parent.setTimeout(hide_and_focus,800)}
 function successSound(){document.getElementById('success_sound').pause();document.getElementById('failure_sound').pause();return document.getElementById('success_sound').play()}
 function failureSound(){document.getElementById('success_sound').pause();document.getElementById('failure_sound').pause();return document.getElementById('failure_sound').play()}
 $.fn.serializeObject=function(){const o={};const a=this.serializeArray();$.each(a,function(){if(o[this.name]!==undefined){if(!o[this.name].push){o[this.name]=[o[this.name]]}
