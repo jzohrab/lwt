@@ -129,8 +129,13 @@ function current_kwordmarked_index(){var currmarked=$('span.kwordmarked');if(cur
 const ord=currmarked.attr('data_order');return knownwordlist.toArray().findIndex(x=>x.getAttribute('data_order')===ord)}
 const currindex=current_kwordmarked_index();let newindex=currindex;var currmarked=$('span.kwordmarked');if(e.which==36){newindex=0}
 if(e.which==35){newindex=maxindex}
-if(e.which==37){newindex=currindex-1}
-if(e.which==39||e.which==32){newindex=currindex+1}
+if(e.which==37&&!e.shiftKey){newindex=currindex-1}
+if(e.which==39&&!e.shiftKey){newindex=currindex+1}
+function find_next_non_ignored_non_well_known(shiftby=1){}
+if(e.which==37&&e.shiftKey){newindex=currindex-1;while(newindex>=0){const nextword=knownwordlist.eq(newindex);const st=nextword.attr('data_status');if(st!=99&&st!=98){break}
+newindex-=1}}
+if(e.which==39&&e.shiftKey){newindex=currindex+1;while(newindex<=maxindex){const nextword=knownwordlist.eq(newindex);const st=nextword.attr('data_status');if(st!=99&&st!=98){break}
+newindex+=1}}
 if(newindex!=currindex){if(newindex<0){newindex=0}
 if(newindex>maxindex){newindex=maxindex}
 TEXTPOS=newindex;$('span.kwordmarked').removeClass('kwordmarked');let curr=knownwordlist.eq(newindex);curr.addClass('kwordmarked');$(window).scrollTo(curr,{axis:'y',offset:-150});var ann='';if((typeof curr.attr('data_ann'))!=='undefined'){ann=encodeURIComponent(curr.attr('data_ann'))}

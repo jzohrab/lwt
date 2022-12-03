@@ -766,11 +766,36 @@ function keydown_event_do_text_text (e) {
   if (e.which == 35) { // end : known word navigation -> last
     newindex = maxindex;
   }
-  if (e.which == 37) { // left : known word navigation
+  if (e.which == 37 && !e.shiftKey) { // left : known word navigation
     newindex = currindex - 1;
   }
-  if (e.which == 39 || e.which == 32) { // space /right : known word navigation
+  if (e.which == 39 && !e.shiftKey) {  // right
     newindex = currindex + 1;
+  }
+
+  if (e.which == 37 && e.shiftKey) {  // left + shift
+    newindex = currindex - 1;
+    while (newindex >= 0) {
+      const nextword = knownwordlist.eq(newindex);
+      const st = nextword.attr('data_status');
+      if (st != 99 && st != 98) {
+        break;
+      }
+      newindex -= 1;
+    }
+  }
+
+  if (e.which == 39 && e.shiftKey) {  // right + shift
+    // Shift + right = move to next non-well-known/non-ignored word.
+    newindex = currindex + 1;
+    while (newindex <= maxindex) {
+      const nextword = knownwordlist.eq(newindex);
+      const st = nextword.attr('data_status');
+      if (st != 99 && st != 98) {
+        break;
+      }
+      newindex += 1;
+    }
   }
 
   // If moved, update UI and exit.
