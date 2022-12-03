@@ -773,29 +773,25 @@ function keydown_event_do_text_text (e) {
     newindex = currindex + 1;
   }
 
-  if (e.which == 37 && e.shiftKey) {  // left + shift
-    newindex = currindex - 1;
-    while (newindex >= 0) {
+  function find_next_non_ignored_non_well_known(currindex, shiftby = 1) {
+    let newindex = currindex + shiftby;
+    while (newindex >= 0 && newindex <= maxindex) {
       const nextword = knownwordlist.eq(newindex);
       const st = nextword.attr('data_status');
       if (st != 99 && st != 98) {
         break;
       }
-      newindex -= 1;
+      newindex += shiftby;
     }
+    return newindex;
+  }
+
+  if (e.which == 37 && e.shiftKey) {  // left + shift
+    newindex = find_next_non_ignored_non_well_known(currindex, -1);
   }
 
   if (e.which == 39 && e.shiftKey) {  // right + shift
-    // Shift + right = move to next non-well-known/non-ignored word.
-    newindex = currindex + 1;
-    while (newindex <= maxindex) {
-      const nextword = knownwordlist.eq(newindex);
-      const st = nextword.attr('data_status');
-      if (st != 99 && st != 98) {
-        break;
-      }
-      newindex += 1;
-    }
+    newindex = find_next_non_ignored_non_well_known(currindex, +1);
   }
 
   // If moved, update UI and exit.
