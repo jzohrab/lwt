@@ -91,6 +91,7 @@ function change_term_display($wid, $translation, $hex): void
     var contexth = window.parent.document.getElementById('frame-h');
     var woid = <?php echo prepare_textdata_js($wid); ?>;
     var status = <?php echo prepare_textdata_js($_REQUEST["WoStatus"]); ?>;
+    var oldstatus = <?= getreq("WoOldStatus", 0) ?>;
     var trans = <?php echo prepare_textdata_js($translation . getWordTagList($wid, ' ', 1, 0)); ?>;
     var roman = <?php echo prepare_textdata_js($_REQUEST["WoRomanization"]); ?>;
     var tooltiptitle;
@@ -101,30 +102,28 @@ function change_term_display($wid, $translation, $hex): void
             <?php echo prepare_textdata_js($_REQUEST["WoText"]); ?>, trans, roman, status
         );
     }
-    <?php
-    if ($_REQUEST['op'] == 'Save') {
-        ?>
-        $('.TERM<?php echo $hex; ?>', context)
-        .removeClass('status0')
-        .addClass('word' + woid + ' ' + 'status' + status)
-        .attr('data_trans', trans)
-        .attr('data_rom', roman)
-        .attr('data_status', status)
-        .attr('title', tooltiptitle)
-        .attr('data_wid', woid);
-        <?php
-    } else {
-        ?>
-        $('.word' + woid, context)
-        .removeClass('status<?php echo $_REQUEST['WoOldStatus']; ?>')
+
+    var selector = '.word' + woid;
+    <?php if ($_REQUEST['op'] == 'Save') { ?>
+        selector = '.TERM<?= $hex ?>';
+    <?php } ?>
+
+    var termelement = $(selector, context);
+
+    if (woid != 0 && woid != '') {
+        termelement
+            .addClass('word' + woid)
+            .attr('data_wid', woid);
+    }
+
+    termelement
+        .removeClass('status' + oldstatus)
         .addClass('status' + status)
         .attr('data_trans', trans)
         .attr('data_rom', roman)
         .attr('data_status', status)
         .attr('title', tooltiptitle);
-        <?php
-    }
-    ?>
+
     $('#learnstatus', contexth).html('<?php echo addslashes(texttodocount2($_REQUEST['tid'])); ?>');
 
     cleanupRightFrames();
