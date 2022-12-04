@@ -29,6 +29,21 @@ Most of the docs at https://github.com/hugofara are still valid.  If anything ch
 
 For installation from this fork, `git clone` this repo and use the master branch.
 
+## Use the correct version of php on the server
+
+The app uses components installed using composer, and if your server is running an outdated version of PHP it likely won't work.
+
+For Mac installing later versions of PHP on MAMP, see [this link](https://gist.github.com/codeadamca/09efb674f54172cbee887f04f700fe7c)
+
+I'm doing dev on version 8.1.12, and my MAMP server is running the same version.
+
+## Development
+
+The project will likely eventually _require_ composer to be run, so install it following [these directions](https://getcomposer.org/download/).
+
+Then install dependencies:
+
+`composer install --dev`
 
 ## Branches
 
