@@ -38,7 +38,7 @@ class GoogleTranslate
     private static $headers;
     //&dt=ex&dt=ld&dt=md&dt=qca&dt=rw&dt=rm&dt=ss
     private static $urlFormat = "http://translate.google.%s/translate_a/single?client=t&q=%s&hl=en&sl=%s&tl=%s&dt=t&dt=at&dt=bd&ie=UTF-8&oe=UTF-8&oc=1&otf=2&ssel=0&tsel=3&tk=%s";
-    private static final function setHeaders()
+    private static function setHeaders()
     {
         self::$headers = array(
         'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
@@ -51,7 +51,7 @@ class GoogleTranslate
         'User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:40.0) Gecko/20100101 Firefox/40.1'
         );
     }
-    private static final function generateToken($str,$tok) 
+    private static function generateToken($str,$tok) 
     {
         $t = $c = isset($tok)?$tok[0]:408254;//todo floor(time()/3600);
         $x = hexdec(80000000);
