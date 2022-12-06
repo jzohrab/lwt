@@ -1,36 +1,78 @@
-<h1>Texts</h1>
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
 
-<table id="texts" class="display" style="width:100%">
-  <thead>
-    <tr>
-      <th>ID</th>
-      <th>Title</th>
-    </tr>
-  </thead>
-  <tbody>
+    <meta name="viewport" content="width=900" />
+    <link rel="apple-touch-icon" href="/img/apple-touch-icon-57x57.png');?>" />
+    <link rel="apple-touch-icon" sizes="72x72" href="/img/apple-touch-icon-72x72.png');?>" />
+    <link rel="apple-touch-icon" sizes="114x114" href="/img/apple-touch-icon-114x114.png');?>" />
+    <link rel="apple-touch-startup-image" href="/img/apple-touch-startup.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    
+    <link rel="stylesheet" type="text/css" href="/css/jquery-ui.css" />
+    <link rel="stylesheet" type="text/css" href="/css/jquery.tagit.css" />
+    <link rel="stylesheet" type="text/css" href="/css/styles.css" />
+    <link rel="stylesheet" type="text/css" href="/css/feed_wizard.css" />
+    <link rel="stylesheet" type="text/css" href="/css/datatables.min.css" />
+    
+    <script type="text/javascript" src="/js/jquery.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/js/jquery.scrollTo.min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/js/jquery-ui.min.js"  charset="utf-8"></script>
+    <script type="text/javascript" src="/js/jquery.jeditable.mini.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/js/tag-it.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/js/overlib/overlib_mini.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/js/pgm.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/js/datatables.min.js" charset="utf-8"></script>
 
-    {% for t in texts %}
-    <tr>
-      <td>{{ t['TxID'] }}</td>
-      <td>{{ t['TxTitle'] }}</td>
-    </tr>
-    {% endfor %}
+    <!-- TEMP HACK -->
+    <script type="text/javascript">
+      //<![CDATA[
+      var STATUSES = [1,2,3,4,5];
+      var TAGS = ['fix', 'tags', 'in', 'head'];
+      var TEXTTAGS = ['fix', 'tags', 'in', 'head'];
+      //]]>
+    </script>
 
-  </tbody>
+    <title>LUTE</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+  </head>
 
-  <tfoot>
-    <tr>
-      <th>ID</th>
-      <th>Title</th>
-    </tr>
-  </tfoot>
+  <body>
+    <h1>Texts</h1>
 
-</table>
+    <table id="textlisting" class="display" style="width:100%">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Title</th>
+        </tr>
+      </thead>
+      <tbody>
 
-{#
-<script>
-  $(document).ready(function () {
-    $('#example').DataTable();
-  });
-</script>
-#}
+        {% for t in texts %}
+        <tr>
+          <td>{{ t['TxID'] }}</td>
+          <td>{{ t['TxTitle'] }}</td>
+        </tr>
+        {% endfor %}
+
+      </tbody>
+
+      <tfoot>
+        <tr>
+          <th>ID</th>
+          <th>Title</th>
+        </tr>
+      </tfoot>
+
+    </table>
+
+    <script>
+      $(document).ready(function () {
+        $('#textlisting').DataTable();
+      });
+    </script>
+
+  </body>
+</html>
