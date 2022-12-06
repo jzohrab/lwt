@@ -299,7 +299,8 @@ echo '<div>' .
     </div>
 
     <div class="menu">
-        <a href="edit_texts.php">Texts</a>
+        <a href="edit_texts.php">Texts (Legacy list)</a>
+        <a href="text/active">Texts</a>
         <a href="archivedtexts.php">Text Archive</a>
         
         <a href="edit_texttags.php">Text Tags</a>
