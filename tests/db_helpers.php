@@ -124,10 +124,12 @@ you must use a dedicated test database when running tests.
 
     public static function add_tags($tags) {
         $ids = [];
+        global $DBCONNECTION;
         foreach ($tags as $t) {
             $sql = "insert into tags (TgText, TgComment)
             values ('{$t}', '{$t} comment')";
-            do_mysqli_query($sql);
+            $stmt = $DBCONNECTION->prepare($sql);
+            DbHelpers::exec_statement($stmt);
             $ids[] = $stmt->insert_id;
         };
         return $ids;
@@ -135,10 +137,12 @@ you must use a dedicated test database when running tests.
 
     public static function add_texttags($tags) {
         $ids = [];
+        global $DBCONNECTION;
         foreach ($tags as $t) {
             $sql = "insert into tags2 (T2Text, T2Comment)
             values ('{$t}', '{$t} comment')";
-            do_mysqli_query($sql);
+            $stmt = $DBCONNECTION->prepare($sql);
+            DbHelpers::exec_statement($stmt);
             $ids[] = $stmt->insert_id;
         };
         return $ids;
