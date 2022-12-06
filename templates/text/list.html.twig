@@ -52,7 +52,11 @@
 
         {% for t in texts %}
         <tr>
-          <td>{{ t['TxID'] }}</td>
+          <td>
+            <a href="do_text.php?start={{ t['TxID'] }}">
+              <img src="/icn/book-open-bookmark.png" title="Read" alt="Read" />
+            </a>
+          </td>
           <td>{{ t['TxTitle'] }}</td>
         </tr>
         {% endfor %}
@@ -71,12 +75,6 @@
     <script>
       $(document).ready(function () {
         var table = $('#textlisting').DataTable();
-
-        $('#textlisting tbody').on('click', 'tr', function () {
-          var data = table.row(this).data();
-          alert('You clicked on ' + data[0] + "'s row");
-        });
-
       });
 
     </script>
