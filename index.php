@@ -65,7 +65,7 @@ function no_connectinc_error_page()
     die('');
 }
 
-if (!file_exists('connect.inc.php')) {
+if (!file_exists(__DIR__ . '/connect.inc.php')) {
     no_connectinc_error_page();
 }
 

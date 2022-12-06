@@ -810,7 +810,6 @@ function parse_standard_text($text, $id, $lid): ?array
     // security restrictions
     if (get_first_value("SELECT @@GLOBAL.local_infile as value")) {
         $file_name = sys_get_temp_dir() . DIRECTORY_SEPARATOR . "tmpti.txt";
-        // $file_name = '/Applications/MAMP/htdocs/lwt_testing/dummy.txt';
         $fp = fopen($file_name, 'w');
         fwrite($fp, $text);
         fclose($fp);
@@ -840,6 +839,10 @@ function parse_standard_text($text, $id, $lid): ?array
         mysqli_free_result($res);
         unlink($file_name);
     } else {
+        throw new Exception("SELECT @@GLOBAL.local_infile must be 1, check your mysql configuration.");
+
+        // TODO - this entire function should be rewritten perhaps ... lots of magic in here.
+
         $values = array();
         $order = 0;
         $sid = 1;

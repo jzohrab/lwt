@@ -37,6 +37,18 @@ For Mac installing later versions of PHP on MAMP, see [this link](https://gist.g
 
 I'm doing dev on version 8.1.12, and my MAMP server is running the same version.
 
+## Apache virtual host - TODO
+
+Ref https://davescripts.com/set-up-a-virtual-host-on-mamp-on-mac-os-x
+
+- edit vhosts
+- edit server conf to enable vhosts, url rewrite, some other tweaks
+- edit your local hosts file
+
+## MySQL load local infile
+
+ref https://dba.stackexchange.com/questions/48751/enabling-load-data-local-infile-in-mysql
+
 ## Development
 
 The project will likely eventually _require_ composer to be run, so install it following [these directions](https://getcomposer.org/download/).

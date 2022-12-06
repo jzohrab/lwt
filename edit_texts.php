@@ -1129,7 +1129,7 @@ function edit_texts_display($message)
 
     ?>
 
-<link rel="stylesheet" type="text/css" href="<?php print_file_path('css/css_charts.css');?>" />
+<link rel="stylesheet" type="text/css" href="<?php print_file_path('/css/css_charts.css');?>" />
 <div style="display: flex; justify-content: space-evenly; width: 850px;">
     <div>
         <a href="<?php echo $_SERVER['PHP_SELF']; ?>?new=1">

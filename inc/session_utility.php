@@ -4191,7 +4191,7 @@ function pagestart_nobody($title, $addcss=''): void
 <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
     <!-- 
-        <?php echo file_get_contents("UNLICENSE.md");?> 
+        <?php echo file_get_contents(__DIR__ . "/../UNLICENSE.md");?> 
     -->
     <meta name="viewport" content="width=900" />
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"/>
@@ -4201,20 +4201,20 @@ function pagestart_nobody($title, $addcss=''): void
     <link rel="apple-touch-startup-image" href="img/apple-touch-startup.png" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     
-    <link rel="stylesheet" type="text/css" href="<?php print_file_path('css/jquery-ui.css');?>" />
-    <link rel="stylesheet" type="text/css" href="<?php print_file_path('css/jquery.tagit.css');?>" />
-    <link rel="stylesheet" type="text/css" href="<?php print_file_path('css/styles.css');?>" />
-    <link rel="stylesheet" type="text/css" href="<?php print_file_path('css/feed_wizard.css');?>" />
+    <link rel="stylesheet" type="text/css" href="/css/jquery-ui.css" />
+    <link rel="stylesheet" type="text/css" href="/css/jquery.tagit.css" />
+    <link rel="stylesheet" type="text/css" href="/css/styles.css" />
+    <link rel="stylesheet" type="text/css" href="/css/feed_wizard.css" />
     <style type="text/css">
         <?php echo $addcss . "\n"; ?>
     </style>
     
-    <script type="text/javascript" src="js/jquery.js" charset="utf-8"></script>
-    <script type="text/javascript" src="js/jquery.scrollTo.min.js" charset="utf-8"></script>
-    <script type="text/javascript" src="js/jquery-ui.min.js"  charset="utf-8"></script>
-    <script type="text/javascript" src="js/jquery.jeditable.mini.js" charset="utf-8"></script>
-    <script type="text/javascript" src="js/tag-it.js" charset="utf-8"></script>
-    <script type="text/javascript" src="js/overlib/overlib_mini.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/js/jquery.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/js/jquery.scrollTo.min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/js/jquery-ui.min.js"  charset="utf-8"></script>
+    <script type="text/javascript" src="/js/jquery.jeditable.mini.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/js/tag-it.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/js/overlib/overlib_mini.js" charset="utf-8"></script>
     <!-- URLBASE : "<?php echo tohtml(url_base()); ?>" -->
     <script type="text/javascript">
         //<![CDATA[
@@ -4223,7 +4223,7 @@ function pagestart_nobody($title, $addcss=''): void
         var TEXTTAGS = <?php echo json_encode(get_texttags()); ?>;
         //]]>
     </script>
-    <script type="text/javascript" src="js/pgm.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/js/pgm.js" charset="utf-8"></script>
     
     <title>LWT :: <?php echo tohtml($title); ?></title>
 </head>

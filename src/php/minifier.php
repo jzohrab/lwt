@@ -71,7 +71,7 @@ function minifyAllJS(): string
         }
     }
     // Save minified file to disk
-    return $minifier->minify("js/pgm.js");
+    return $minifier->minify("public/js/pgm.js");
 }
 
 /**
@@ -89,7 +89,7 @@ function minifyAllCSS()
     foreach ($cssFiles as $path) {
         $name = basename($path);
         if (file_exists($path)) {
-            minifyCSS($path, 'css/' . $name);
+            minifyCSS($path, 'public/css/' . $name);
         }
     }
 }
@@ -153,8 +153,10 @@ function minify_everything()
     minifyAllCSS();
     echo "Minifying JS...\n";
     minifyAllJS();
-    echo "Regenerating themes...\n";
-    regenerateThemes();
+
+    echo "(Disabled theme regeneration, to be replaced by Symfony themes.)\n";
+    // echo "Regenerating themes...\n";
+    // regenerateThemes();
 }
 
 /**
