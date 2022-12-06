@@ -70,8 +70,15 @@
 
     <script>
       $(document).ready(function () {
-        $('#textlisting').DataTable();
+        var table = $('#textlisting').DataTable();
+
+        $('#textlisting tbody').on('click', 'tr', function () {
+          var data = table.row(this).data();
+          alert('You clicked on ' + data[0] + "'s row");
+        });
+
       });
+
     </script>
 
   </body>
