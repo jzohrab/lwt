@@ -68,20 +68,20 @@ function do_header_row($textid, $langid): void
     );
     ?>&nbsp; | &nbsp;
     <a href="do_test.php?text=<?php echo $textid; ?>" target="_top">
-        <img src="icn/question-balloon.png" title="Test" alt="Test" />
+        <img src="/icn/question-balloon.png" title="Test" alt="Test" />
     </a>&nbsp;
     <a href="print_text.php?text=<?php echo $textid; ?>" target="_top">
-        <img src="icn/printer.png" title="Print" alt="Print" />
+        <img src="/icn/printer.png" title="Print" alt="Print" />
     </a>
     <?php echo get_annotation_link($textid); ?>&nbsp;
     <a target="_top" href="edit_texts.php?chg=<?php echo $textid; ?>">
-        <img src="icn/document--pencil.png" title="Edit Text" alt="Edit Text" />
+        <img src="/icn/document--pencil.png" title="Edit Text" alt="Edit Text" />
     </a>&nbsp; | &nbsp;
     <a 
         href="new_word.php?text=<?php echo $textid; ?>&amp;lang=<?php echo $langid; ?>" 
         target="ro" onclick="showRightFrames();"
     >
-        <img src="icn/sticky-note--plus.png" title="New Term" alt="New Term" />
+        <img src="/icn/sticky-note--plus.png" title="New Term" alt="New Term" />
     </a>
 </h4>
     <?php
@@ -110,7 +110,7 @@ function do_title($title, $sourceURI): void
                 if (isset($sourceURI) && substr(trim($sourceURI), 0, 1) != '#') { 
                     ?>
                     <a href="<?php echo $sourceURI ?>" target="_blank">
-                        <img src="<?php echo get_file_path('icn/chain.png') ?>" title="Text Source" alt="Text Source" />
+                        <img src="/icn/chain.png" title="Text Source" alt="Text Source" />
                     </a>
                     <?php 
                 } 

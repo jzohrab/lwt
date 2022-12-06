@@ -1326,22 +1326,22 @@ function getPreviousAndNextTextLinks($textid, $url, $onlyann, $add): string
         if($list[$i] == $textid) {
             if ($list[$i-1] !== 0) {
                 $title = tohtml(getTextTitle($list[$i-1]));
-                $prev = '<a href="' . $url . $list[$i-1] . '" target="_top"><img src="icn/navigation-180-button.png" title="Previous Text: ' . $title . '" alt="Previous Text: ' . $title . '" /></a>';
+                $prev = '<a href="' . $url . $list[$i-1] . '" target="_top"><img src="/icn/navigation-180-button.png" title="Previous Text: ' . $title . '" alt="Previous Text: ' . $title . '" /></a>';
             }
             else {
-                $prev = '<img src="icn/navigation-180-button-light.png" title="No Previous Text" alt="No Previous Text" />'; 
+                $prev = '<img src="/icn/navigation-180-button-light.png" title="No Previous Text" alt="No Previous Text" />'; 
             }
             if ($list[$i+1] !== 0) {
                 $title = tohtml(getTextTitle($list[$i+1]));
-                $next = '<a href="' . $url . $list[$i+1] . '" target="_top"><img src="icn/navigation-000-button.png" title="Next Text: ' . $title . '" alt="Next Text: ' . $title . '" /></a>';
+                $next = '<a href="' . $url . $list[$i+1] . '" target="_top"><img src="/icn/navigation-000-button.png" title="Next Text: ' . $title . '" alt="Next Text: ' . $title . '" /></a>';
             }
             else {
-                $next = '<img src="icn/navigation-000-button-light.png" title="No Next Text" alt="No Next Text" />'; 
+                $next = '<img src="/icn/navigation-000-button-light.png" title="No Next Text" alt="No Next Text" />'; 
             }
             return $add . $prev . ' ' . $next;
         }
     }
-    return $add . '<img src="icn/navigation-180-button-light.png" title="No Previous Text" alt="No Previous Text" /> <img src="icn/navigation-000-button-light.png" title="No Next Text" alt="No Next Text" />';
+    return $add . '<img src="/icn/navigation-180-button-light.png" title="No Previous Text" alt="No Previous Text" /> <img src="/icn/navigation-000-button-light.png" title="No Next Text" alt="No Next Text" />';
 }
 
 
@@ -1350,9 +1350,7 @@ function getPreviousAndNextTextLinks($textid, $url, $onlyann, $add): string
  */
 function echo_lwt_logo(): void 
 {
-    echo '<img class="lwtlogo" src="' . 
-    get_file_path('img/lwt_icon.png') . 
-    '" />';
+    echo '<img class="lwtlogo" src="/img/lwt_icon.png" />';
 }
 
 // -------------------------------------------------------------
@@ -1389,7 +1387,7 @@ function selectmediapath($f): string
         '</select> ';
     }
     $r .= '<span class="click" onclick="do_ajax_update_media_select();" style="margin-left: 16px;">
-        <img src="icn/arrow-circle-135.png" title="Refresh Media Selection" alt="Refresh Media Selection" /> Refresh</span>';
+        <img src="/icn/arrow-circle-135.png" title="Refresh Media Selection" alt="Refresh Media Selection" /> Refresh</span>';
     return $r;
 }
 
@@ -1715,14 +1713,14 @@ function make_status_controls_test_table($score, $status, $wordid): string
     }
         
     if ($status <= 5 || $status == 98) { 
-        $plus = '<img src="icn/plus.png" class="click" title="+" alt="+" onclick="changeTableTestStatus(' . $wordid .',true);" />'; 
+        $plus = '<img src="/icn/plus.png" class="click" title="+" alt="+" onclick="changeTableTestStatus(' . $wordid .',true);" />'; 
     } else {
-        $plus = '<img src="'.get_file_path('icn/placeholder.png').'" title="" alt="" />'; 
+        $plus = '<img src="/icn/placeholder.png" title="" alt="" />'; 
     }
     if ($status >=1 ) { 
-        $minus = '<img src="icn/minus.png" class="click" title="-" alt="-" onclick="changeTableTestStatus(' . $wordid .',false);" />'; 
+        $minus = '<img src="/icn/minus.png" class="click" title="-" alt="-" onclick="changeTableTestStatus(' . $wordid .',false);" />'; 
     } else {
-        $minus = '<img src="'.get_file_path('icn/placeholder.png').'" title="" alt="" />'; 
+        $minus = '<img src="/icn/placeholder.png" title="" alt="" />'; 
     }
     return ($status == 98 ? '' : $minus . ' ') . $scoret . ($status == 99 ? '' : ' ' . $plus);
 }
@@ -2154,13 +2152,13 @@ function makePager($currentpage, $pages, $script, $formname): void
     if ($currentpage > 1) { 
         ?>
    &nbsp; &nbsp;<a href="<?php echo $script; ?>?page=1">
-   <img src="icn/control-stop-180.png" title="First Page" alt="First Page" /></a>&nbsp;
-<a href="<?php echo $script; ?>?page=<?php echo $currentpage-1; ?>"><img  src="icn/control-180.png" title="Previous Page" alt="Previous Page" /></a>&nbsp;
+   <img src="/icn/control-stop-180.png" title="First Page" alt="First Page" /></a>&nbsp;
+<a href="<?php echo $script; ?>?page=<?php echo $currentpage-1; ?>"><img  src="/icn/control-180.png" title="Previous Page" alt="Previous Page" /></a>&nbsp;
         <?php
     } else {
         ?>
-   &nbsp; &nbsp;<img src="<?php print_file_path('icn/placeholder.png');?>" alt="-" />&nbsp;
-<img src="<?php print_file_path('icn/placeholder.png');?>" alt="-" />&nbsp;
+   &nbsp; &nbsp;<img src="/icn/placeholder.png" alt="-" />&nbsp;
+<img src="/icn/placeholder.png" alt="-" />&nbsp;
         <?php
     } 
     ?>
@@ -2177,13 +2175,13 @@ Page
     echo ' of ' . $pages . '&nbsp; ';
     if ($currentpage < $pages) { 
         ?>
-<a href="<?php echo $script; ?>?page=<?php echo $currentpage+1; ?>"><img src="icn/control.png" title="Next Page" alt="Next Page" /></a>&nbsp;
-<a href="<?php echo $script; ?>?page=<?php echo $pages; ?>"><img src="icn/control-stop.png" title="Last Page" alt="Last Page" /></a>&nbsp; &nbsp;
+<a href="<?php echo $script; ?>?page=<?php echo $currentpage+1; ?>"><img src="/icn/control.png" title="Next Page" alt="Next Page" /></a>&nbsp;
+<a href="<?php echo $script; ?>?page=<?php echo $pages; ?>"><img src="/icn/control-stop.png" title="Last Page" alt="Last Page" /></a>&nbsp; &nbsp;
         <?php 
     } else {
         ?>
-<img src="<?php print_file_path('icn/placeholder.png');?>" alt="-" />&nbsp;
-<img src="<?php print_file_path('icn/placeholder.png');?>" alt="-" />&nbsp; &nbsp; 
+<img src="/icn/placeholder.png" alt="-" />&nbsp;
+<img src="/icn/placeholder.png" alt="-" />&nbsp; &nbsp; 
         <?php
     }
 }
@@ -2844,7 +2842,7 @@ function texttodocount2($textid): string
     }
     
     $res = '<span title="To Do" class="status0">&nbsp;' . $c . '&nbsp;</span>&nbsp;' .
-    '<img src="icn/script-import.png" onclick="showRightFrames(\'bulk_translate_words.php?tid=' . 
+    '<img src="/icn/script-import.png" onclick="showRightFrames(\'bulk_translate_words.php?tid=' . 
     $textid . '&offset=0&sl=' . $sl . '&tl=' . $tl . 
     '\');" style="cursor: pointer;vertical-align:middle" title="Lookup New Words" alt="Lookup New Words" />&nbsp;&nbsp;&nbsp;';
     if ($show_buttons != 2) {
@@ -3030,7 +3028,7 @@ function getSentence($seid, $wordlc, $mode): array
 function get20Sentences($lang, $wordlc, $wid, $jsctlname, $mode): string 
 {
     $r = '<p><b>Sentences in active texts with <i>' . tohtml($wordlc) . '</i></b></p>
-    <p>(Click on <img src="icn/tick-button.png" title="Choose" alt="Choose" /> 
+    <p>(Click on <img src="/icn/tick-button.png" title="Choose" alt="Choose" /> 
     to copy sentence into above term)</p>';
     $mecab_str = null;
     if (empty($wid)) {
@@ -3125,7 +3123,7 @@ function get20Sentences($lang, $wordlc, $wid, $jsctlname, $mode): string
             if (mb_strstr($sent[1], '}', false, 'UTF-8')) {
                 $r .= '<span class="click" onclick="{' . $jsctlname . '.value=' . 
                     prepare_textdata_js($sent[1]) . '; makeDirty();}">
-                <img src="icn/tick-button.png" title="Choose" alt="Choose" />
+                <img src="/icn/tick-button.png" title="Choose" alt="Choose" />
                 </span> &nbsp;' . $sent[0] . '<br />';
             }
         }
@@ -3767,7 +3765,7 @@ function get_annotation_link($textid): string
 {
     if (get_first_value('select length(TxAnnotatedText) as value from texts where TxID=' . $textid) > 0) { 
         return ' &nbsp;<a href="print_impr_text.php?text=' . $textid . 
-        '" target="_top"><img src="icn/tick.png" title="Annotated Text" alt="Annotated Text" /></a>'; 
+        '" target="_top"><img src="/icn/tick.png" title="Annotated Text" alt="Annotated Text" /></a>'; 
     }
     else { 
         return ''; 
@@ -4007,10 +4005,10 @@ function makeAudioPlayer($audio, $offset=0)
             </select>
             <br />
             <span id="backbutt" class="click">
-                <img src="icn/arrow-circle-225-left.png" alt="Rewind n seconds" title="Rewind n seconds" />
+                <img src="/icn/arrow-circle-225-left.png" alt="Rewind n seconds" title="Rewind n seconds" />
             </span>&nbsp;&nbsp;
             <span id="forwbutt" class="click">
-                <img src="icn/arrow-circle-315.png" alt="Forward n seconds" title="Forward n seconds" />
+                <img src="/icn/arrow-circle-315.png" alt="Forward n seconds" title="Forward n seconds" />
             </span>
             <span id="playTime" class="hide"></span>
         </td>
@@ -4021,15 +4019,15 @@ function makeAudioPlayer($audio, $offset=0)
             </select>
             <br />
             <span id="slower" class="click">
-                <img src="icn/minus.png" alt="Slower" title="Slower" style="margin-top:3px" />
+                <img src="/icn/minus.png" alt="Slower" title="Slower" style="margin-top:3px" />
             </span>
             &nbsp;
             <span id="stdspeed" class="click">
-                <img src="icn/status-away.png" alt="Normal" title="Normal" style="margin-top:3px" />
+                <img src="/icn/status-away.png" alt="Normal" title="Normal" style="margin-top:3px" />
             </span>
             &nbsp;
             <span id="faster" class="click">
-                <img src="icn/plus.png" alt="Faster" title="Faster" style="margin-top:3px" />
+                <img src="/icn/plus.png" alt="Faster" title="Faster" style="margin-top:3px" />
             </span>
         </td>
     </tr>
