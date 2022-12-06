@@ -136,6 +136,31 @@ VALUES (42, 1), (42, 2), (42,99999)");
         $this->assertEquals(getWordTagsText(42), ['a', 'b']);
     }
 
+    public function test_getWordTagList()
+    {
+        DbHelpers::add_word(1, 'CAT', 'cat', 3, 1);
+        DbHelpers::add_word(1, 'DOG', 'dog', 3, 1);
+        $sql = "select WoID, WoText from words";
+        DbHelpers::assertTableContains($sql, ['1; CAT', '2; DOG']);
+
+        DbHelpers::add_tags(['a', 'b']);
+        $sql = "select TgID, TgText from tags";
+        DbHelpers::assertTableContains($sql, ['1; a', '2; b']);
+
+        // Add tags to CAT
+        do_mysqli_query("insert into wordtags (WtWoID, WtTgID) VALUES (1, 1), (1, 2)");
+
+        // CAT
+        $this->assertEquals(getWordTagList(1, '_', 1, 0), '_[a, b]', 'cat 1');
+        $this->assertEquals(getWordTagList(1, '_', 0, 0), '_a, b', 'cat 2');
+        $this->assertEquals(getWordTagList(1, ' ', 0, 1), ' a, b', 'cat 3');
+
+        // DOG
+        $this->assertEquals(getWordTagList(2, '_', 1, 0), '', 'dog 1');
+        $this->assertEquals(getWordTagList(2, '_', 0, 0), '', 'dog 2');
+        $this->assertEquals(getWordTagList(2, ' ', 0, 1), '', 'dog 3');
+    }
+
     /** Texts */
 
 }

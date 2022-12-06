@@ -1628,20 +1628,22 @@ function processDBParam($reqkey, $dbkey, $default, $isnum)
 
 function getWordTagList($wid, $before=' ', $brack=1, $tohtml=1): string 
 {
-    $r = get_first_value(
-        "SELECT IFNULL(" . ($brack ? "CONCAT('['," : "") . 
-        "GROUP_CONCAT(DISTINCT TgText ORDER BY TgText separator ', ')" . 
-        ($brack ? ",']')" : "") . ",'') as value 
-        FROM ((words 
-        LEFT JOIN wordtags 
-        ON WoID = WtWoID) 
-        LEFT JOIN tags 
-        ON TgID = WtTgID) 
-        WHERE WoID = " . $wid
-    );
-    if ($r != '') { 
-        $r = $before . $r; 
+    $sql = "SELECT IFNULL(
+          GROUP_CONCAT(DISTINCT TgText ORDER BY TgText separator ', '), ''
+        ) as value 
+        FROM 
+        words 
+        LEFT JOIN wordtags ON WoID = WtWoID 
+        LEFT JOIN tags ON TgID = WtTgID 
+        WHERE WoID = $wid";
+    $r = get_first_value($sql);
+    if ($r == '') {
+        return $r;
     }
+    if ($brack == 1) {
+        $r = "[{$r}]";
+    }
+    $r = $before . $r; 
     if ($tohtml) { 
         $r = tohtml($r); 
     }
