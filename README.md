@@ -64,6 +64,10 @@ Then install dependencies:
 
 ## Tests
 
+Most tests hit the database, and refuse to run unless the database name starts with 'test_'.  This prevents you from destroying real data!
+
+In your connect.inc.php, change the `$dbname` to `test_<whatever>`, and create the `test_<whatever>` db using a dump from your actual db, or just create a new one.  Then the tests will work.
+
 ```
 # Run a single file
 ./vendor/bin/phpunit tests/splitCheckText_Test.php
