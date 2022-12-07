@@ -262,6 +262,8 @@ pagestart_nobody(
         padding-top: 15px;
     }"
 );
+
+global $debug;
 echo '<div>' . 
     echo_lwt_logo() . '<h1>' . 
         $span3 . 'Learning With Texts (LWT)</span>
@@ -324,6 +326,7 @@ echo '<div>' .
     </div>
 
     <div class="menu">
+        <a href="/settings/symfony">Symfony settings (debug)</a>
         <a href="settings.php">Settings / Preferences</a>
         <a href="text_to_speech_settings.php">Text-to-Speech Settings</a>
         <a href="mobile.php">Mobile LWT (Deprecated)</a>

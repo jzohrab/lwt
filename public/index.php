@@ -19,6 +19,16 @@ require dirname(__DIR__).'/vendor/autoload.php';
  */
 global $kernel;
 
+/**
+ * LWT users create a connect.inc.php file with db settings, so just
+ * use that to create the db connection.
+ */
+require_once __DIR__ . '/../connect.inc.php';
+global $userid, $passwd, $server, $dbname;
+$DATABASE_URL = "mysql://{$userid}:{$passwd}@{$server}/{$dbname}?serverVersion=8&charset=utf8";
+$_ENV['DATABASE_URL'] = $DATABASE_URL;
+$_SERVER['DATABASE_URL'] = $DATABASE_URL;
+
 if ($_SERVER['APP_DEBUG']) {
     umask(0000);
 
