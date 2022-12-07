@@ -5,47 +5,59 @@
 {% block body %}
     <h1>Text index</h1>
 
-    <table class="table">
+    <table id="textlisting" class="table">
         <thead>
-            <tr>
+          <tr>
+            <th></th>
                 <th>TxID</th>
                 <th>TxLgID</th>
                 <th>TxTitle</th>
-                <th>TxText</th>
-                <th>TxAnnotatedText</th>
                 <th>TxAudioURI</th>
                 <th>TxSourceURI</th>
-                <th>TxPosition</th>
-                <th>TxAudioPosition</th>
-                <th>TxArchived</th>
-                <th>actions</th>
             </tr>
         </thead>
         <tbody>
         {% for text in texts %}
             <tr>
+              <td>
+                            <a href="/do_text.php?start={{ text.TxID }}">
+              <img src="/icn/book-open-bookmark.png" title="Read" alt="Read" />
+            </a>
+            <span onclick="confirm_archive({{ text.TxID }});">
+              <img src="/icn/inbox-download.png" title="Archive" alt="Archive" />
+            </a>
+            <span onclick="confirm_delete({{ text.TxID }});">
+              <img src="/icn/minus-button.png" title="Delete" alt="Delete" />
+            </a>
+                </td>
                 <td>{{ text.TxID }}</td>
                 <td>{{ text.TxLgID }}</td>
                 <td>{{ text.TxTitle }}</td>
-                <td>{{ text.TxText }}</td>
-                <td>{{ text.TxAnnotatedText }}</td>
                 <td>{{ text.TxAudioURI }}</td>
                 <td>{{ text.TxSourceURI }}</td>
-                <td>{{ text.TxPosition }}</td>
-                <td>{{ text.TxAudioPosition }}</td>
-                <td>{{ text.TxArchived ? 'Yes' : 'No' }}</td>
-                <td>
-                    <a href="{{ path('app_text_show', {'TxID': text.TxID}) }}">show</a>
-                    <a href="{{ path('app_text_edit', {'TxID': text.TxID}) }}">edit</a>
-                </td>
             </tr>
         {% else %}
             <tr>
-                <td colspan="11">no records found</td>
+                <td colspan="5">no records found</td>
             </tr>
         {% endfor %}
         </tbody>
     </table>
 
-    <a href="{{ path('app_text_new') }}">Create new</a>
+<a href="{{ path('app_text_new') }}">Create new</a>
+
+    <script>
+      $(document).ready(function () {
+        var table = $('#textlisting').DataTable();
+      });
+
+      function confirm_archive(textid) {
+        alert('TODO');
+      }
+
+      function confirm_delete(textid) {
+        alert('TODO');
+      }
+    </script>
+
 {% endblock %}
