@@ -302,7 +302,7 @@ echo '<div>' .
 
     <div class="menu">
         <a href="edit_texts.php">Texts (Legacy list)</a>
-        <a href="text/active">Texts</a>
+        <a href="/text/">Texts</a>
         <a href="archivedtexts.php">Text Archive</a>
         
         <a href="edit_texttags.php">Text Tags</a>
