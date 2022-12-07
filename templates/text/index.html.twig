@@ -1,0 +1,51 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Text index{% endblock %}
+
+{% block body %}
+    <h1>Text index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>TxID</th>
+                <th>TxLgID</th>
+                <th>TxTitle</th>
+                <th>TxText</th>
+                <th>TxAnnotatedText</th>
+                <th>TxAudioURI</th>
+                <th>TxSourceURI</th>
+                <th>TxPosition</th>
+                <th>TxAudioPosition</th>
+                <th>TxArchived</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for text in texts %}
+            <tr>
+                <td>{{ text.TxID }}</td>
+                <td>{{ text.TxLgID }}</td>
+                <td>{{ text.TxTitle }}</td>
+                <td>{{ text.TxText }}</td>
+                <td>{{ text.TxAnnotatedText }}</td>
+                <td>{{ text.TxAudioURI }}</td>
+                <td>{{ text.TxSourceURI }}</td>
+                <td>{{ text.TxPosition }}</td>
+                <td>{{ text.TxAudioPosition }}</td>
+                <td>{{ text.TxArchived ? 'Yes' : 'No' }}</td>
+                <td>
+                    <a href="{{ path('app_text_show', {'TxID': text.TxID}) }}">show</a>
+                    <a href="{{ path('app_text_edit', {'TxID': text.TxID}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="11">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_text_new') }}">Create new</a>
+{% endblock %}

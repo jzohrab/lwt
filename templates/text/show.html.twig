@@ -1,0 +1,58 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Text{% endblock %}
+
+{% block body %}
+    <h1>Text</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>TxID</th>
+                <td>{{ text.TxID }}</td>
+            </tr>
+            <tr>
+                <th>TxLgID</th>
+                <td>{{ text.TxLgID }}</td>
+            </tr>
+            <tr>
+                <th>TxTitle</th>
+                <td>{{ text.TxTitle }}</td>
+            </tr>
+            <tr>
+                <th>TxText</th>
+                <td>{{ text.TxText }}</td>
+            </tr>
+            <tr>
+                <th>TxAnnotatedText</th>
+                <td>{{ text.TxAnnotatedText }}</td>
+            </tr>
+            <tr>
+                <th>TxAudioURI</th>
+                <td>{{ text.TxAudioURI }}</td>
+            </tr>
+            <tr>
+                <th>TxSourceURI</th>
+                <td>{{ text.TxSourceURI }}</td>
+            </tr>
+            <tr>
+                <th>TxPosition</th>
+                <td>{{ text.TxPosition }}</td>
+            </tr>
+            <tr>
+                <th>TxAudioPosition</th>
+                <td>{{ text.TxAudioPosition }}</td>
+            </tr>
+            <tr>
+                <th>TxArchived</th>
+                <td>{{ text.TxArchived ? 'Yes' : 'No' }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_text_index') }}">back to list</a>
+
+    <a href="{{ path('app_text_edit', {'TxID': text.TxID}) }}">edit</a>
+
+    {{ include('text/_delete_form.html.twig') }}
+{% endblock %}
