@@ -18,9 +18,14 @@ This is a fork of [Hugo Fara's fork](https://github.com/hugofara) of the origina
 
 ### Code changes
 
-* Backup/restore removed from the UI: use `sqldump` from the command line, instead of verbose/error-prone PHP code.
+Biggest changes:
+
 * Added simple automatic database migrations.  See [db/README.md](./db/README.md).
-* Gradually/hopefully moving to different code organization, following ideas outlined in [on-structuring-php-projects](https://www.nikolaposa.in.rs/blog/2017/01/16/on-structuring-php-projects/).
+* Introduced [Symfony](https://symfony.com/), gradually moving the application to that.  See [docs/symfony.md](./docs/symfony.md).
+
+Other changes:
+
+* Backup/restore removed from the UI: use `sqldump` from the command line, instead of verbose/error-prone PHP code.
 * More tests, which can generally only be run using a "test_xxx" database.
 
 ## Installation, usage, etc.
