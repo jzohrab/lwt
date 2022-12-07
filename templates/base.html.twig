@@ -1,19 +1,55 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="UTF-8">
-        <title>{% block title %}Welcome!{% endblock %}</title>
-        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text></svg>">
-        {# Run `composer require symfony/webpack-encore-bundle` to start using Symfony UX #}
-        {% block stylesheets %}
-            {{ encore_entry_link_tags('app') }}
-        {% endblock %}
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>{% block title %}LUTE{% endblock %}</title>
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"/>
 
-        {% block javascripts %}
-            {{ encore_entry_script_tags('app') }}
-        {% endblock %}
-    </head>
-    <body>
-        {% block body %}{% endblock %}
-    </body>
+    <meta name="viewport" content="width=900" />
+    <link rel="apple-touch-icon" href="/img/apple-touch-icon-57x57.png');?>" />
+    <link rel="apple-touch-icon" sizes="72x72" href="/img/apple-touch-icon-72x72.png');?>" />
+    <link rel="apple-touch-icon" sizes="114x114" href="/img/apple-touch-icon-114x114.png');?>" />
+    <link rel="apple-touch-startup-image" href="/img/apple-touch-startup.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    
+    <link rel="stylesheet" type="text/css" href="/css/jquery-ui.css" />
+    <link rel="stylesheet" type="text/css" href="/css/jquery.tagit.css" />
+    <link rel="stylesheet" type="text/css" href="/css/styles.css" />
+    <link rel="stylesheet" type="text/css" href="/css/feed_wizard.css" />
+    <link rel="stylesheet" type="text/css" href="/css/datatables.min.css" />
+    
+    <script type="text/javascript" src="/js/jquery.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/js/jquery.scrollTo.min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/js/jquery-ui.min.js"  charset="utf-8"></script>
+    <script type="text/javascript" src="/js/jquery.jeditable.mini.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/js/tag-it.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/js/overlib/overlib_mini.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/js/pgm.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/js/datatables.min.js" charset="utf-8"></script>
+
+    <!-- Temp hack for rendering to work; content should be ajaxed in. -->
+    <script type="text/javascript">
+      //<![CDATA[
+      var STATUSES = [1,2,3,4,5];
+      var TAGS = ['fix', 'tags', 'in', 'head'];
+      var TEXTTAGS = ['fix', 'tags', 'in', 'head'];
+      //]]>
+    </script>
+
+    {# Run `composer require symfony/webpack-encore-bundle` to start using Symfony UX #}
+    {#  Eventually, use encore.
+    {% block stylesheets %}
+    {{ encore_entry_link_tags('app') }}
+    {% endblock %}
+    
+    {% block javascripts %}
+    {{ encore_entry_script_tags('app') }}
+    {% endblock %}
+    #}
+  </head>
+
+  <body>
+    {% block body %}{% endblock %}
+  </body>
+
 </html>
