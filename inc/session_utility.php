@@ -3300,12 +3300,11 @@ function insert_expression_from_mecab($text, $lid, $wid, $len, $sentenceIDRange)
  *
  * @return array{string[], empty[], string[]} Append text, empty and sentence id
  *
- * @since 2.5.0-fork Mode is unnused and data are always added to the output.
  * @since 2.5.2-fork Fixed multi-words insertion for languages using no space
  *
  * @psalm-return array{0: array<int, mixed|string>, 1: array<empty, empty>, 2: list<string>}
  */
-function insert_standard_expression($textlc, $lid, $wid, $len, $mode, $sentenceIDRange): array
+function insert_standard_expression($textlc, $lid, $wid, $len, $sentenceIDRange): array
 {
     $appendtext = array();
     $sqlarr = array();
@@ -3482,7 +3481,7 @@ function insertExpressions($textlc, $lid, $wid, $len, $mode, $sentenceIDRange = 
         );
     } else {
         list($appendtext, $_, $sqlarr) = insert_standard_expression(
-            $textlc, $lid, $wid, $len, null, $sentenceIDRange
+            $textlc, $lid, $wid, $len, $sentenceIDRange
         );
     }
     $sqltext = null;
