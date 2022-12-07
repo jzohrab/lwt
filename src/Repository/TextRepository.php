@@ -43,9 +43,42 @@ class TextRepository extends ServiceEntityRepository
     {
         $conn = $this->getEntityManager()->getConnection();
 
-        $sql = "SELECT TxID, LgName, TxTitle, 4 as Extra 
-        FROM texts 
-        INNER JOIN languages on LgID = TxLgID";
+        // TODO: this query is slow ... we could either a) ajax
+        // in relevant content to displayed records, b) page the
+        // datatable, or c) calculate and cache the data for
+        // each text, refreshing the cache as needed.  I feel c)
+        // is best, at the moment.
+        $sql = "SELECT t.TxID, LgName, TxTitle,
+          ifnull(terms.countTerms, 0) as countTerms,
+          ifnull(unkterms.countUnknowns, 0) as countUnknowns
+          /* ifnull(mwordterms.countExpressions, 0) as countExpressions, */
+
+          FROM texts t
+          INNER JOIN languages on LgID = t.TxLgID
+
+          LEFT OUTER JOIN (
+            SELECT Ti2TxID as TxID, COUNT(DISTINCT Ti2TextLC) AS countTerms
+            FROM textitems2
+            WHERE Ti2WoID <> 0
+            GROUP BY Ti2TxID
+          ) AS terms on terms.TxID = t.TxID
+
+          /** Ignoring expression count for now, can't see the need.
+          LEFT OUTER JOIN (
+            SELECT Ti2TxID AS TxID, COUNT(DISTINCT Ti2WoID) as countExpressions
+            FROM textitems2
+            WHERE Ti2WordCount > 1
+            GROUP BY Ti2TxID
+          ) AS mwordterms on mwordterms.TxID = t.TxID
+          */
+
+          LEFT OUTER JOIN (
+            SELECT Ti2TxID as TxID, 0 as status, COUNT(*) as countUnknowns
+            FROM textitems2
+            WHERE Ti2WoID = 0 AND Ti2WordCount = 1
+            GROUP BY Ti2TxID
+          ) AS unkterms ON unkterms.TxID = t.TxID";
+        
         $stmt = $conn->prepare($sql);
         $resultSet = $stmt->executeQuery();
         $ret = [];
@@ -54,11 +87,44 @@ class TextRepository extends ServiceEntityRepository
             $t->ID = $row['TxID'];
             $t->Language = $row['LgName'];
             $t->Title = $row['TxTitle'];
-            $t->Extra = $row['Extra'];
+            $t->TermCount = (int) $row['countTerms'];
+            $t->UnknownCount = (int) $row['countUnknowns'];
             $ret[] = $t;
         }
         return $ret;
     }
+
+    /* Status pivot table query.  Slow when querying for all texts, fast with just one. */
+
+    /*
+      SELECT TxID,
+      SUM(CASE WHEN status=0 THEN c ELSE 0 END) AS s0,
+      SUM(CASE WHEN status=1 THEN c ELSE 0 END) AS s1,
+      SUM(CASE WHEN status=2 THEN c ELSE 0 END) AS s2,
+      SUM(CASE WHEN status=3 THEN c ELSE 0 END) AS s3,
+      SUM(CASE WHEN status=4 THEN c ELSE 0 END) AS s4,
+      SUM(CASE WHEN status=5 THEN c ELSE 0 END) AS s5,
+      SUM(CASE WHEN status=98 THEN c ELSE 0 END) AS s98,
+      SUM(CASE WHEN status=99 THEN c ELSE 0 END) AS s99
+      FROM (
+      SELECT Ti2TxID AS TxID, WoStatus AS status, COUNT(*) as c
+      FROM textitems2
+      INNER JOIN words ON WoID = Ti2WoID
+      WHERE Ti2WoID <> 0
+      AND Ti2TxID in (1)
+      GROUP BY Ti2TxID, WoStatus
+
+      UNION
+      SELECT Ti2TxID as TxID, 0 as status, COUNT(*) as c
+      FROM textitems2
+      WHERE Ti2WoID = 0 AND Ti2WordCount = 1
+      AND Ti2TxID in (1)
+      GROUP BY Ti2TxID
+  
+      ) rawdata
+      GROUP BY TxID;
+    */
+
 
 //    /**
 //     * @return Text[] Returns an array of Text objects
