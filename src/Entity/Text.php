@@ -44,12 +44,12 @@ class Text
     private ?bool $TxArchived = null;
 
 
-    public function getTxID(): ?int
+    public function getID(): ?int
     {
         return $this->TxID;
     }
 
-    public function setTxID(int $TxID): self
+    public function setID(int $TxID): self
     {
         if ($this->TxID != null) {
             // Prevent dumb logic errors.
@@ -60,108 +60,108 @@ class Text
         return $this;
     }
 
-    public function getTxLgID(): ?int
+    public function getLgID(): ?int
     {
         return $this->TxLgID;
     }
 
-    public function setTxLgID(int $TxLgID): self
+    public function setLgID(int $TxLgID): self
     {
         $this->TxLgID = $TxLgID;
 
         return $this;
     }
 
-    public function getTxTitle(): ?string
+    public function getTitle(): ?string
     {
         return $this->TxTitle;
     }
 
-    public function setTxTitle(string $TxTitle): self
+    public function setTitle(string $TxTitle): self
     {
         $this->TxTitle = $TxTitle;
 
         return $this;
     }
 
-    public function getTxText(): ?string
+    public function getText(): ?string
     {
         return $this->TxText;
     }
 
-    public function setTxText(string $TxText): self
+    public function setText(string $TxText): self
     {
         $this->TxText = $TxText;
 
         return $this;
     }
 
-    public function getTxAnnotatedText(): ?string
+    public function getAnnotatedText(): ?string
     {
         return $this->TxAnnotatedText;
     }
 
-    public function setTxAnnotatedText(string $TxAnnotatedText): self
+    public function setAnnotatedText(string $TxAnnotatedText): self
     {
         $this->TxAnnotatedText = $TxAnnotatedText;
 
         return $this;
     }
 
-    public function getTxAudioURI(): ?string
+    public function getAudioURI(): ?string
     {
         return $this->TxAudioURI;
     }
 
-    public function setTxAudioURI(?string $TxAudioURI): self
+    public function setAudioURI(?string $TxAudioURI): self
     {
         $this->TxAudioURI = $TxAudioURI;
 
         return $this;
     }
 
-    public function getTxSourceURI(): ?string
+    public function getSourceURI(): ?string
     {
         return $this->TxSourceURI;
     }
 
-    public function setTxSourceURI(?string $TxSourceURI): self
+    public function setSourceURI(?string $TxSourceURI): self
     {
         $this->TxSourceURI = $TxSourceURI;
 
         return $this;
     }
 
-    public function getTxPosition(): ?int
+    public function getPosition(): ?int
     {
         return $this->TxPosition;
     }
 
-    public function setTxPosition(int $TxPosition): self
+    public function setPosition(int $TxPosition): self
     {
         $this->TxPosition = $TxPosition;
 
         return $this;
     }
 
-    public function getTxAudioPosition(): ?float
+    public function getAudioPosition(): ?float
     {
         return $this->TxAudioPosition;
     }
 
-    public function setTxAudioPosition(float $TxAudioPosition): self
+    public function setAudioPosition(float $TxAudioPosition): self
     {
         $this->TxAudioPosition = $TxAudioPosition;
 
         return $this;
     }
 
-    public function isTxArchived(): ?bool
+    public function isArchived(): ?bool
     {
         return $this->TxArchived;
     }
 
-    public function setTxArchived(bool $TxArchived): self
+    public function setArchived(bool $TxArchived): self
     {
         $this->TxArchived = $TxArchived;
 

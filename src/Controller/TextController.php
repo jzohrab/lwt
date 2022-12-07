@@ -17,7 +17,7 @@ class TextController extends AbstractController
     public function index(TextRepository $textRepository): Response
     {
         return $this->render('text/index.html.twig', [
-            'texts' => $textRepository->findAll(),
+            'texts' => $textRepository->findAllWithStats()
         ]);
     }
 

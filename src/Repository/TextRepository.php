@@ -39,6 +39,27 @@ class TextRepository extends ServiceEntityRepository
         }
     }
 
+    public function findAllWithStats(): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+
+        $sql = "SELECT TxID, LgName, TxTitle, 4 as Extra 
+        FROM texts 
+        INNER JOIN languages on LgID = TxLgID";
+        $stmt = $conn->prepare($sql);
+        $resultSet = $stmt->executeQuery();
+        $ret = [];
+        foreach ($resultSet->fetchAllAssociative() as $row) {
+            $t = new Text();
+            $t->ID = $row['TxID'];
+            $t->Language = $row['LgName'];
+            $t->Title = $row['TxTitle'];
+            $t->Extra = $row['Extra'];
+            $ret[] = $t;
+        }
+        return $ret;
+    }
+
 //    /**
 //     * @return Text[] Returns an array of Text objects
 //     */

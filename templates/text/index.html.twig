@@ -10,26 +10,26 @@
   <thead>
     <tr>
       <th></th>
-      <th>TxLgID</th>
-      <th>TxTitle</th>
+      <th>Language</th>
+      <th>Title</th>
     </tr>
   </thead>
   <tbody>
     {% for text in texts %}
     <tr>
       <td>
-        <a href="/do_text.php?start={{ text.TxID }}">
+        <a href="/do_text.php?start={{ text.ID }}">
           <img src="/icn/book-open-bookmark.png" title="Read" alt="Read" />
         </a>
-        <span onclick="confirm_archive({{ text.TxID }});">
+        <span onclick="confirm_archive({{ text.ID }});">
           <img src="/icn/inbox-download.png" title="Archive" alt="Archive" />
         </span>
-        <span onclick="confirm_delete({{ text.TxID }});">
+        <span onclick="confirm_delete({{ text.ID }});">
           <img src="/icn/minus-button.png" title="Delete" alt="Delete" />
         </span>
       </td>
-      <td>{{ text.TxLgID }}</td>
-      <td>{{ text.TxTitle }}</td>
+      <td>{{ text.Language }}</td>
+      <td>{{ text.Title }}</td>
     </tr>
     {% else %}
     <tr>
