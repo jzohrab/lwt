@@ -12,15 +12,15 @@ class TextType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('TxLgID')
-            ->add('TxTitle')
-            ->add('TxText')
-            ->add('TxAnnotatedText')
-            ->add('TxAudioURI')
-            ->add('TxSourceURI')
-            ->add('TxPosition')
-            ->add('TxAudioPosition')
-            ->add('TxArchived')
+            ->add('LgID')
+            ->add('Title')
+            ->add('Text')
+            ->add('AnnotatedText')
+            ->add('AudioURI')
+            ->add('SourceURI')
+            ->add('Position')
+            ->add('AudioPosition')
+            ->add('Archived')
         ;
     }
 
