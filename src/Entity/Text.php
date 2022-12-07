@@ -20,13 +20,13 @@ class Text
     private ?int $TxLgID = null;
 
     #[ORM\Column(name: 'TxTitle', length: 200)]
-    private ?string $TxTitle = null;
+    private string $TxTitle = '';
 
     #[ORM\Column(name: 'TxText', type: Types::TEXT)]
-    private ?string $TxText = null;
+    private string $TxText = '';
 
     #[ORM\Column(name: 'TxAnnotatedText', type: Types::TEXT)]
-    private ?string $TxAnnotatedText = null;
+    private string $TxAnnotatedText = '';
 
     #[ORM\Column(name: 'TxAudioURI', length: 200, nullable: true)]
     private ?string $TxAudioURI = null;
@@ -35,13 +35,13 @@ class Text
     private ?string $TxSourceURI = null;
 
     #[ORM\Column(name: 'TxPosition', type: Types::SMALLINT)]
-    private ?int $TxPosition = null;
+    private int $TxPosition = 0;
 
     #[ORM\Column(name: 'TxAudioPosition')]
-    private ?float $TxAudioPosition = null;
+    private float $TxAudioPosition = 0;
 
     #[ORM\Column(name: 'TxArchived')]
-    private ?bool $TxArchived = null;
+    private bool $TxArchived = false;
 
 
     public function getID(): ?int
@@ -72,7 +72,7 @@ class Text
         return $this;
     }
 
-    public function getTitle(): ?string
+    public function getTitle(): string
     {
         return $this->TxTitle;
     }
@@ -84,7 +84,7 @@ class Text
         return $this;
     }
 
-    public function getText(): ?string
+    public function getText(): string
     {
         return $this->TxText;
     }
@@ -96,7 +96,7 @@ class Text
         return $this;
     }
 
-    public function getAnnotatedText(): ?string
+    public function getAnnotatedText(): string
     {
         return $this->TxAnnotatedText;
     }
@@ -132,7 +132,7 @@ class Text
         return $this;
     }
 
-    public function getPosition(): ?int
+    public function getPosition(): int
     {
         return $this->TxPosition;
     }
@@ -144,7 +144,7 @@ class Text
         return $this;
     }
 
-    public function getAudioPosition(): ?float
+    public function getAudioPosition(): float
     {
         return $this->TxAudioPosition;
     }
@@ -156,7 +156,7 @@ class Text
         return $this;
     }
 
-    public function isArchived(): ?bool
+    public function isArchived(): bool
     {
         return $this->TxArchived;
     }

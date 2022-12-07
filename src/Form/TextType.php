@@ -15,12 +15,8 @@ class TextType extends AbstractType
             ->add('LgID')
             ->add('Title')
             ->add('Text')
-            ->add('AnnotatedText')
             ->add('AudioURI')
             ->add('SourceURI')
-            ->add('Position')
-            ->add('AudioPosition')
-            ->add('Archived')
         ;
     }
 
