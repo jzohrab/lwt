@@ -48,13 +48,21 @@ class TextRepository extends ServiceEntityRepository
         // datatable, or c) calculate and cache the data for
         // each text, refreshing the cache as needed.  I feel c)
         // is best, at the moment.
-        $sql = "SELECT t.TxID, LgName, TxTitle,
+        $sql = "SELECT t.TxID, LgName, TxTitle, tags.taglist,
           ifnull(terms.countTerms, 0) as countTerms,
           ifnull(unkterms.countUnknowns, 0) as countUnknowns
           /* ifnull(mwordterms.countExpressions, 0) as countExpressions, */
 
           FROM texts t
           INNER JOIN languages on LgID = t.TxLgID
+
+          LEFT OUTER JOIN (
+            SELECT TtTxID as TxID, GROUP_CONCAT(T2Text ORDER BY T2Text SEPARATOR ', ') AS taglist
+            FROM
+            texttags tt
+            INNER JOIN tags2 t2 on t2.T2ID = tt.TtT2ID
+            GROUP BY TtTxID
+          ) AS tags on tags.TxID = t.TxID
 
           LEFT OUTER JOIN (
             SELECT Ti2TxID as TxID, COUNT(DISTINCT Ti2TextLC) AS countTerms
@@ -87,6 +95,7 @@ class TextRepository extends ServiceEntityRepository
             $t->ID = $row['TxID'];
             $t->Language = $row['LgName'];
             $t->Title = $row['TxTitle'];
+            $t->Tags = $row['taglist'];
             $t->TermCount = (int) $row['countTerms'];
             $t->UnknownCount = (int) $row['countUnknowns'];
             $ret[] = $t;
