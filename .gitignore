@@ -3,7 +3,7 @@ connect.inc.php
 media/
 # Text-to-Speech files
 tts/
-_*
+
 # For Mac Users
 .DS_Store
 
