@@ -11,10 +11,10 @@ class Blarg
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column]
+    #[ORM\Column(name: 'TxID')]
     public ?int $TxID = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(name: 'TxTitle', length: 255)]
     public ?string $TxTitle = null;
 
     public ?int $Extra = null;
