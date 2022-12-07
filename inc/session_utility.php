@@ -3298,11 +3298,11 @@ function insert_expression_from_mecab($text, $lid, $wid, $len, $sentenceIDRange)
  * @param mixed  $mode   Unnused
  * @param array  $sentenceIDRange
  *
- * @return array{string[], empty[], string[]} Append text, empty and sentence id
+ * @return array{string[], string[]} Append text, sentence id
  *
  * @since 2.5.2-fork Fixed multi-words insertion for languages using no space
  *
- * @psalm-return array{0: array<int, mixed|string>, 1: array<empty, empty>, 2: list<string>}
+ * @psalm-return array{0: array<int, mixed|string>, 1: list<string>}
  */
 function insert_standard_expression($textlc, $lid, $wid, $len, $sentenceIDRange): array
 {
@@ -3386,7 +3386,7 @@ function insert_standard_expression($textlc, $lid, $wid, $len, $sentenceIDRange)
         }
     }
     mysqli_free_result($res);
-    return array($appendtext, array(), $sqlarr);
+    return array($appendtext, $sqlarr);
 }
 
 
@@ -3480,7 +3480,7 @@ function insertExpressions($textlc, $lid, $wid, $len, $mode, $sentenceIDRange = 
             $textlc, $lid, $wid, $len, $sentenceIDRange
         );
     } else {
-        list($appendtext, $_, $sqlarr) = insert_standard_expression(
+        list($appendtext, $sqlarr) = insert_standard_expression(
             $textlc, $lid, $wid, $len, $sentenceIDRange
         );
     }
