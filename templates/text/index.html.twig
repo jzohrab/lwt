@@ -1,63 +1,58 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Text index{% endblock %}
+{% block title %}Texts{% endblock %}
 
 {% block body %}
-    <h1>Text index</h1>
 
-    <table id="textlisting" class="table">
-        <thead>
-          <tr>
-            <th></th>
-                <th>TxID</th>
-                <th>TxLgID</th>
-                <th>TxTitle</th>
-                <th>TxAudioURI</th>
-                <th>TxSourceURI</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for text in texts %}
-            <tr>
-              <td>
-                            <a href="/do_text.php?start={{ text.TxID }}">
-              <img src="/icn/book-open-bookmark.png" title="Read" alt="Read" />
-            </a>
-            <span onclick="confirm_archive({{ text.TxID }});">
-              <img src="/icn/inbox-download.png" title="Archive" alt="Archive" />
-            </a>
-            <span onclick="confirm_delete({{ text.TxID }});">
-              <img src="/icn/minus-button.png" title="Delete" alt="Delete" />
-            </a>
-                </td>
-                <td>{{ text.TxID }}</td>
-                <td>{{ text.TxLgID }}</td>
-                <td>{{ text.TxTitle }}</td>
-                <td>{{ text.TxAudioURI }}</td>
-                <td>{{ text.TxSourceURI }}</td>
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="5">no records found</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+<h1>Text index</h1>
+
+<table id="textlisting" class="table">
+  <thead>
+    <tr>
+      <th></th>
+      <th>TxLgID</th>
+      <th>TxTitle</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for text in texts %}
+    <tr>
+      <td>
+        <a href="/do_text.php?start={{ text.TxID }}">
+          <img src="/icn/book-open-bookmark.png" title="Read" alt="Read" />
+        </a>
+        <span onclick="confirm_archive({{ text.TxID }});">
+          <img src="/icn/inbox-download.png" title="Archive" alt="Archive" />
+        </span>
+        <span onclick="confirm_delete({{ text.TxID }});">
+          <img src="/icn/minus-button.png" title="Delete" alt="Delete" />
+        </span>
+      </td>
+      <td>{{ text.TxLgID }}</td>
+      <td>{{ text.TxTitle }}</td>
+    </tr>
+    {% else %}
+    <tr>
+      <td colspan="5">no records found</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
 
 <a href="{{ path('app_text_new') }}">Create new</a>
 
-    <script>
-      $(document).ready(function () {
-        var table = $('#textlisting').DataTable();
-      });
+<script>
+  $(document).ready(function () {
+    var table = $('#textlisting').DataTable();
+  });
 
-      function confirm_archive(textid) {
-        alert('TODO');
-      }
+  function confirm_archive(textid) {
+    alert('TODO');
+  }
 
-      function confirm_delete(textid) {
-        alert('TODO');
-      }
-    </script>
+  function confirm_delete(textid) {
+    alert('TODO');
+  }
+</script>
 
 {% endblock %}
