@@ -19,9 +19,9 @@ function quickMenuRedirection(value) {
     if (value == 'INFO') {
         top.location.href = 'info.php';
     } else if (value == 'rss_import') {
-        top.location.href = 'do_feeds.php?check_autoupdate=1';
+        top.location.href = '/do_feeds.php?check_autoupdate=1';
     } else {
-        top.location.href = value + '.php';
+        top.location.href = '/' + value + '.php';
     }
 }
 

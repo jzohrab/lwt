@@ -14,6 +14,7 @@
  *  ("glosbeIso", "googleIso", biggerFont, "wordCharRegExp",
  *  "sentSplRegExp", makeCharacterWord, removeSpaces, rightToLeft)
  */
+global $langDefs;
 $langDefs = array(
 
     "Afrikaans" => 

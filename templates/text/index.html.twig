@@ -1,0 +1,73 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Texts{% endblock %}
+
+{% block body %}
+
+<h1>Text index</h1>
+
+<table id="textlisting" class="table">
+  <thead>
+    <tr>
+      <th></th>
+      <th>Language</th>
+      <th>Title</th>
+      <th>Tags</th>
+      <th>Terms</th>
+      <th>Unknowns</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for text in texts %}
+    <tr>
+      <td>
+        <a href="/do_text.php?start={{ text.ID }}">
+          <img src="/icn/book-open-bookmark.png" title="Read" alt="Read" />
+        </a>
+        <span onclick="confirm_archive({{ text.ID }});">
+          <img src="/icn/inbox-download.png" title="Archive" alt="Archive" />
+        </span>
+        <span onclick="confirm_delete({{ text.ID }});">
+          <img src="/icn/minus-button.png" title="Delete" alt="Delete" />
+        </span>
+      </td>
+      <td>{{ text.Language }}</td>
+      <td>{{ text.Title }}</td>
+      <td>{{ text.Tags }}</td>
+      <td>{{ text.TermCount }}</td>
+      <td>{{ text.UnknownCount }}</td>
+    </tr>
+    {% else %}
+    <tr>
+      <td colspan="5">no records found</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<a href="{{ path('app_text_new') }}">Create new</a>
+
+<script>
+  $(document).ready(function () {
+    var table = $('#textlisting').DataTable({
+      "columns": [
+        { "width": "10%" },
+        { "width": "10%" },
+        null,
+        { "width": "20%" },
+        { "width": "5%" },
+        { "width": "5%" }
+      ]
+    });
+  });
+
+  function confirm_archive(textid) {
+    alert('TODO');
+  }
+
+  function confirm_delete(textid) {
+    alert('TODO');
+  }
+</script>
+
+{% endblock %}

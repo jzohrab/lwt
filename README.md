@@ -18,9 +18,14 @@ This is a fork of [Hugo Fara's fork](https://github.com/hugofara) of the origina
 
 ### Code changes
 
-* Backup/restore removed from the UI: use `sqldump` from the command line, instead of verbose/error-prone PHP code.
+Biggest changes:
+
 * Added simple automatic database migrations.  See [db/README.md](./db/README.md).
-* Gradually/hopefully moving to different code organization, following ideas outlined in [on-structuring-php-projects](https://www.nikolaposa.in.rs/blog/2017/01/16/on-structuring-php-projects/).
+* Introduced [Symfony](https://symfony.com/), gradually moving the application to that.  See [docs/symfony.md](./docs/symfony.md).
+
+Other changes:
+
+* Backup/restore removed from the UI: use `sqldump` from the command line, instead of verbose/error-prone PHP code.
 * More tests, which can generally only be run using a "test_xxx" database.
 
 ## Installation, usage, etc.
@@ -37,6 +42,18 @@ For Mac installing later versions of PHP on MAMP, see [this link](https://gist.g
 
 I'm doing dev on version 8.1.12, and my MAMP server is running the same version.
 
+## Apache virtual host - TODO
+
+Ref https://davescripts.com/set-up-a-virtual-host-on-mamp-on-mac-os-x
+
+- edit vhosts
+- edit server conf to enable vhosts, url rewrite, some other tweaks
+- edit your local hosts file
+
+## MySQL load local infile
+
+ref https://dba.stackexchange.com/questions/48751/enabling-load-data-local-infile-in-mysql
+
 ## Development
 
 The project will likely eventually _require_ composer to be run, so install it following [these directions](https://getcomposer.org/download/).
@@ -51,6 +68,10 @@ Then install dependencies:
 * other branches: features I'm working on.
 
 ## Tests
+
+Most tests hit the database, and refuse to run unless the database name starts with 'test_'.  This prevents you from destroying real data!
+
+In your connect.inc.php, change the `$dbname` to `test_<whatever>`, and create the `test_<whatever>` db using a dump from your actual db, or just create a new one.  Then the tests will work.
 
 ```
 # Run a single file

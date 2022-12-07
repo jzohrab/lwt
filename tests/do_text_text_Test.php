@@ -169,6 +169,16 @@ data_wid="">bebida</span><span id="ID-26-1" class="">.</span><span id="totalchar
             return preg_split("/ +/" , $t);
         }
 
+        # echo "\n\ncontent:\n\n";
+        # echo "--------------\n";
+        # echo implode("\n", clean($content));
+        # echo "--------------\n";
+
+        # echo "\n\nexpected:\n\n";
+        # echo "--------------\n";
+        # echo implode("\n", clean($expected));
+        # echo "--------------\n";
+
         $this->assertEquals(clean($content), clean($expected));
     }
 

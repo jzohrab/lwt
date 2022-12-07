@@ -8,7 +8,7 @@
  * @since  1.5.5
  */
 
-/** These 'global' statements are required for PHPUnit ... don't delete them! */
+/** These 'global' statements are required ... don't delete them! */
 global $server;
 global $userid;
 global $passwd;
@@ -16,7 +16,7 @@ global $dbname;
 
 
 // database server
-$server = "localhost:8889";
+$server = "127.0.0.1:8889";
 
 // database userid
 $userid = "root";

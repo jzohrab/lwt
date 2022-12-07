@@ -8,7 +8,7 @@
  * @since  1.0.3
  */
 
-/** These 'global' statements are required for PHPUnit ... don't delete them! */
+/** These 'global' statements are required ... don't delete them! */
 global $server;
 global $userid;
 global $passwd;
