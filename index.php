@@ -271,6 +271,8 @@ echo '<div>' .
     <h2>Home' . ($debug ? ' <span class="red">DEBUG</span>' : '') . '</h2>
 </div>';
 
+global $userid, $passwd, $server, $dbname;
+
 ?>
 <script type="text/javascript">
     //<![CDATA[
