@@ -1114,7 +1114,7 @@ function insert_standard_expression($textlc, $lid, $wid, $len, $sentenceIDRange)
 {
     $logme = function($s) {};
 
-    if ($textlc == 'de refilón' || $textlc == 'con el tiempo' || $textlc == 'nos marcamos' || $textlc == 'pabellón auditivo') {
+    if ($textlc == 'de refilón') {
         $logme = function($s) { debug_log($s); };
         $logme("\n\n================");
         $logme("Starting $textlc");
@@ -1154,12 +1154,12 @@ function insert_standard_expression($textlc, $lid, $wid, $len, $sentenceIDRange)
 
     $wis = $textlc;
     $res = do_mysqli_query($sql);
-    $notermchar = "/[^$termchar]($textlc)[^$termchar]/ui";
+    $notermchar = "/[^$termchar]{$textlc}[^$termchar]/ui";
     // For each sentence in the language containing the query
     $matches = null;
     while ($record = mysqli_fetch_assoc($res)){
         $string = ' ' . $record['SeText'] . ' ';
-        $logme($string);
+        $logme('"' . $string . '"');
         if ($splitEachChar) {
             $string = preg_replace('/([^\s])/u', "$1 ", $string);
         } else if ($removeSpaces == 1 && empty($rSflag)) {
@@ -1170,7 +1170,7 @@ function insert_standard_expression($textlc, $lid, $wid, $len, $sentenceIDRange)
             );
             if (!empty($ma[1])) {
                 $textlc = trim($ma[1]);
-                $notermchar = "/[^$termchar]($textlc)[^$termchar]/ui";
+                $notermchar = "/[^$termchar]{$textlc}[^$termchar]/ui";
             }
         }
         $last_pos = mb_strripos($string, $textlc, 0, 'UTF-8');
@@ -1201,11 +1201,13 @@ function insert_standard_expression($textlc, $lid, $wid, $len, $sentenceIDRange)
                     $_
                 );
                 $pos = 2 * $cnt + (int) $record['SeFirstPos'];
+                $txt = $textlc;
+/*
                 $txt = $matches[1];
                 if ($txt != $textlc) {
                     $txt = $splitEachChar ? $wis : $matches[1]; 
                 }
-
+*/
                 $insert = convert_string_to_sqlsyntax_notrim_nonull($txt);
                 $entry = "($wid, $lid, {$record['SeTxID']}, {$record['SeID']}, $pos, $len, $insert)";
                 $sqlarr[] = $entry;
@@ -1214,7 +1216,7 @@ function insert_standard_expression($textlc, $lid, $wid, $len, $sentenceIDRange)
                 if (getSettingZeroOrOne('showallwords', 1)) {
                     $appendtext[$pos] = "&nbsp;$len&nbsp";
                 } else { 
-                    $appendtext[$pos] = $splitEachChar || $removeSpaces?$wis:$matches[1]; 
+                    $appendtext[$pos] = $splitEachChar || $removeSpaces ? $wis : $txt;
                 }
             }
             // Cut the sentence to before the right-most term starts
