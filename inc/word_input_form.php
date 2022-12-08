@@ -82,34 +82,33 @@ class FormDataDbLoader {
    * @return formadata
    */
   public function load_formdata_from_db($wid, $tid, $ord, $mword_text = '') {
-
     if (($wid == '' || $wid == 0) && $tid == 0 && $ord == 0) {
       throw new Exception("Missing all wid tid or ord");
     }
 
     $ret = null;
+
     if ($wid != '' && $wid > 0) {
       $ret = $this->load_formdata_from_wid($wid);
     }
-    else {
-      if (intval($tid) == 0 || intval($ord) == 0) {
-        throw new Exception("Missing tid or ord");
-      }
+
+    if ($ret == null && $mword_text != '') {
+      $lid = $this->get_lang_id(intval($wid), intval($tid), intval($ord));
+      $ret = $this->load_formdata_from_text($mword_text, $lid);
+    }
+
+    if ($ret == null && intval($tid) != 0 && intval($ord) != 0) {
       $ret = $this->load_formdata_from_tid_ord($tid, $ord);
 
       // The tid and ord might lead to a saved word,
-      // and if the override mword_text is blank, just use
-      // that saved word as-is.
-      if ($ret->wid && $mword_text == '') {
+      // in which case, use it.
+      if ($ret->wid) {
         $ret = $this->load_formdata_from_wid($ret->wid);
       }
     }
 
-    if ($mword_text != '') {
-      // The override text was set, so it's a new term.
-      $ret->wid = 0;
-      $ret->term = $mword_text;
-      $ret->termlc = mb_strtolower($mword_text);
+    if ($ret == null) {
+      throw new Exception("Out of options to search for term");
     }
 
     if ($ret->translation == '*') {
@@ -123,6 +122,19 @@ class FormDataDbLoader {
   }
 
   /** Private methods *************/
+
+  private function get_lang_id($wid, $tid, $ord) {
+    $sql = "SELECT IFNULL(Ti2LgID, 0) as value 
+    FROM textitems2 
+    WHERE (Ti2WoID = $wid) OR (Ti2TxID = $tid AND Ti2Order = $ord) 
+    LIMIT 1";
+    $lid = intval(get_first_value($sql));
+    if ($lid == 0) {
+      throw new Exception("Can't get language from wid = $wid, tid = $tid, ord = $ord");
+    }
+    return $lid;
+  }
+
 
   private function load_formdata_from_wid($wid) {
     $sql = "SELECT words.*,
@@ -140,25 +152,60 @@ where words.WoID = {$wid}";
       throw new Exception("No matching record for {$wid}");
     }
 
-    $status = $record['WoStatus'];
-    $sentence = $record['WoSentence'];
-    $transl = $record['WoTranslation'];
-    if($transl == '*') {
-      $transl='';
-    }
-
     $f = new FormData();
     $f->wid = $wid;
     $f->term = $record['WoText'];
     $f->termlc = $record['WoTextLC'];
     $f->lang = (int) $record['WoLgID'];
     $f->scrdir = getScriptDirectionTag($f->lang);
-    $f->translation = $transl;
+    $f->translation = $record['WoTranslation'];
     $f->tags = getWordTagsText($wid);
-    $f->sentence = $sentence;
+    $f->sentence = $record['WoSentence'];
     $f->romanization = $record['WoRomanization'];
-    $f->status = $status;
-    $f->status_old = $status;
+    $f->status = $record['WoStatus'];
+    $f->status_old = $record['WoStatus'];
+    $f->parent_id = $record['ParentWoID'];
+    $f->parent_text = $record['ParentWoTextLC'];
+
+    return $f;
+  }
+
+
+  private function load_formdata_from_text($text, $langid) {
+    $textlc = mb_strtolower($text);
+    $sql = "SELECT words.*,
+ifnull(pw.WoID, 0) as ParentWoID,
+ifnull(pw.WoTextLC, '') as ParentWoTextLC
+FROM words
+INNER JOIN languages on LgID = words.WoLgID
+LEFT OUTER JOIN wordparents on wordparents.WpWoID = words.WoID
+LEFT OUTER JOIN words AS pw on pw.WoID = wordparents.WpParentWoID
+where words.WoTextLC = \"{$textlc}\"";
+    $res = do_mysqli_query($sql);
+    $record = mysqli_fetch_assoc($res);
+    mysqli_free_result($res);
+    if (! $record) {
+      // The override text was set, so it's a new term.
+      $ret = new FormData();
+      $ret->wid = 0;
+      $ret->lang = $langid;
+      $ret->term = $text;
+      $ret->termlc = $textlc;
+      return $ret;
+    }
+
+    $f = new FormData();
+    $f->wid = intval($record['WoID']);
+    $f->term = $record['WoText'];
+    $f->termlc = $record['WoTextLC'];
+    $f->lang = (int) $record['WoLgID'];
+    $f->scrdir = getScriptDirectionTag($f->lang);
+    $f->translation = $record['WoTranslation'];
+    $f->tags = [];
+    $f->sentence = $record['WoSentence'];
+    $f->romanization = $record['WoRomanization'];
+    $f->status = $record['WoStatus'];
+    $f->status_old = $record['WoStatus'];
     $f->parent_id = $record['ParentWoID'];
     $f->parent_text = $record['ParentWoTextLC'];
 
@@ -199,8 +246,8 @@ WHERE Ti2TxID = {$tid} AND Ti2WordCount = 1 AND Ti2Order = {$ord}";
 
   private function get_sentence($termlc, $tid, $ord) {
     $sql = "select Ti2SeID as value from textitems2
-  where Ti2WordCount = 1 and
-  Ti2TxID = {$tid} and Ti2Order = {$ord}";
+      where Ti2WordCount = 1 and
+      Ti2TxID = {$tid} and Ti2Order = {$ord}";
     $seid = get_first_value($sql);
     $sentcount = (int) getSettingWithDefault('set-term-sentence-count');
     $sent = getSentence($seid, $termlc, $sentcount);

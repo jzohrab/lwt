@@ -125,6 +125,27 @@ where ti2order = 25";
     }
 
 
+    public function test_multi_word_returns_existing_word_if_it_matches() {
+        $wid = DbHelpers::add_word(1, 'TENGO UNA', 'tengo una', 4, 2);
+
+        $fd = load_formdata_from_db('', 1, 12, 'TENGO una');
+        $expected = array(
+            'wid' => $wid,  // Matches existing word!
+            'lang' => 1,
+            'term' => 'TENGO UNA',
+            'termlc' => 'tengo una',
+            'scrdir' => '',
+            'status' => 4,
+            'status_old' => 4,
+            'parent_id' => 0,
+            'parent_text' => ''
+        );
+        foreach ($expected as $k => $v) {
+            $this->assertEquals($v, $fd->$k, "checking $k");
+        }
+    }
+
+
     public function test_missing_tid_or_ord_throws() {
         $msg = '';
         try { load_formdata_from_db('', 0, 0); }
