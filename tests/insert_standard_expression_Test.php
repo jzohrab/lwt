@@ -52,10 +52,7 @@ values
         $this->assertEquals($ret[1], ["(12937, 1, 146, 21210, 652, 2, 'nos marcamos')"]);
 
         $ret = insert_standard_expression('de refilón', 1, 3412, 2, [21175, 21225]);
-        $this->assertEquals($ret[1], [], 'THIS SHOULD NOT BE LIKE THIS, this is the bug.  See next line.');
-        
-        // NOTE: this really should be something like:
-        // $this->assertEquals($ret[1], ["(3412, 1, 146, 21215, '???', 2, 'de refilón')"]);
+        $this->assertEquals($ret[1], ["(3412, 1, 146, 21215, 829, 2, 'de refilón')"], 'Fixed!');
     }
 
 }

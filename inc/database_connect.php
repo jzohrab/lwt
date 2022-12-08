@@ -1095,6 +1095,57 @@ function insert_expression_from_mecab($text, $lid, $wid, $len, $sentenceIDRange)
 }
 
 
+// Ref https://stackoverflow.com/questions/1725227/preg-match-and-utf-8-in-php
+/**
+ * Returns array of matches in same format as preg_match or preg_match_all
+ * @param bool   $matchAll If true, execute preg_match_all, otherwise preg_match
+ * @param string $pattern  The pattern to search for, as a string.
+ * @param string $subject  The input string.
+ * @param int    $offset   The place from which to start the search (in bytes).
+ * @return array
+ */
+function pregMatchCapture($matchAll, $pattern, $subject, $offset = 0)
+{
+    if ($offset != 0) { $offset = strlen(mb_substr($subject, 0, $offset)); }
+
+    $matchInfo = array();
+    $method    = 'preg_match';
+    $flag      = PREG_OFFSET_CAPTURE;
+    if ($matchAll) {
+        $method .= '_all';
+    }
+
+    echo "pattern: $pattern ; subject: $subject \n";
+    $n = $method($pattern, $subject, $matchInfo, $flag, $offset);
+    echo "matchinfo:\n";
+    var_dump($matchInfo);
+    $result = array();
+    if ($n !== 0 && !empty($matchInfo)) {
+        if (!$matchAll) {
+            $matchInfo = array($matchInfo);
+        }
+        foreach ($matchInfo as $matches) {
+            $positions = array();
+            foreach ($matches as $match) {
+                $matchedText   = $match[0];
+                $matchedLength = $match[1];
+                $positions[]   = array(
+                    $matchedText,
+                    mb_strlen(mb_strcut($subject, 0, $matchedLength))
+                );
+            }
+            $result[] = $positions;
+        }
+        if (!$matchAll) {
+            $result = $result[0];
+        }
+    }
+    echo "Returning:\n";
+    var_dump($result);
+    return $result;
+}
+
+
 /**
  * Insert an expression without using a tool like MeCab.
  *
@@ -1114,7 +1165,7 @@ function insert_standard_expression($textlc, $lid, $wid, $len, $sentenceIDRange)
 {
     $logme = function($s) {};
 
-    if ($textlc == 'de refilón') {
+    if ($textlc == 'de refilón' || $textlc == 'con el tiempo') {
         $logme = function($s) { debug_log($s); };
         $logme("\n\n================");
         $logme("Starting $textlc");
@@ -1162,11 +1213,12 @@ function insert_standard_expression($textlc, $lid, $wid, $len, $sentenceIDRange)
         $logme('"' . $string . '"');
         if ($splitEachChar) {
             $string = preg_replace('/([^\s])/u', "$1 ", $string);
-        } else if ($removeSpaces == 1 && empty($rSflag)) {
-            $rSflag = preg_match(
+        } else if ($removeSpaces == 1) {
+            $ma = pregMatchCapture(
+                false,
                 '/(?<=[ ])(' . preg_replace('/(.)/ui', "$1[ ]*", $textlc) . 
                 ')(?=[ ])/ui', 
-                $string, $ma
+                $string
             );
             if (!empty($ma[1])) {
                 $textlc = trim($ma[1]);
@@ -1176,31 +1228,39 @@ function insert_standard_expression($textlc, $lid, $wid, $len, $sentenceIDRange)
         $last_pos = mb_strripos($string, $textlc, 0, 'UTF-8');
         $logme("last pos = $last_pos");
 
+        $logme("spliteach = $splitEachChar");
+        $logme("remove = $removeSpaces");
+        $logme("noterm = $notermchar");
+
         // For each occurence of query in sentence
         while ($last_pos !== false) {
             $matches = null;
-            $logme("spliteach = $splitEachChar");
-            $logme("remove = $removeSpaces");
-            $logme("noterm = $notermchar");
             $logme("string = ' $string '");
-            $pregresult = preg_match($notermchar, " $string ", $matches, 0, $last_pos - 1);
-            if ($pregresult === false) {
-                $logme("preg_match returned false");
+            $logme("substring searched: " . '"' . mb_substr(" $string ", $last_pos - 1) . '"');
+            $matches = pregMatchCapture(false, $notermchar, " $string ", $matches, 0, $last_pos - 1);
+            if (count($matches) == 0) {
+                $logme("preg_match returned no matches?");
             }
             else {
-                $logme("big pregmatch = $pregresult");
+                $c = count($matches);
+                $logme("big pregmatch = $c");
             }
-            $matches = null;
-            if ($splitEachChar || $removeSpaces  
-                || preg_match($notermchar, " $string ", $matches, 0, $last_pos - 1)
-            ) {
+
+            if ($splitEachChar || $removeSpaces || count($matches) > 0) {
                 // Number of terms before group
-                $cnt = preg_match_all(
-                    "/([$termchar]+)/u", 
-                    mb_substr($string, 0, $last_pos, 'UTF-8'), 
-                    $_
-                );
+                $beforesubstr = mb_substr($string, 0, $last_pos, 'UTF-8');
+                $logme("Checking count of terms in: $beforesubstr");
+                $before = pregMatchCapture(true, "/([$termchar]+)/u", $beforesubstr);
+
+                // Note pregMatchCapture returns a few arrays, we want
+                // the first one.  (I confess I don't grok what's
+                // happening here, but inspecting a var_dump of the
+                // returned data led me to this.  jz)
+                $cnt = count($before[0]);
+
+                $logme("Got count = $cnt");
                 $pos = 2 * $cnt + (int) $record['SeFirstPos'];
+                $logme("pos = $pos");
                 $txt = $textlc;
 /*
                 $txt = $matches[1];
