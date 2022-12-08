@@ -12,6 +12,8 @@ require __DIR__ . "/../connect.inc.php";
 require_once __DIR__ . "/db_restore.php";
 require_once __DIR__ . "/../db/lib/apply_migrations.php";
 
+require_once __DIR__ . "/debug_logging.php";
+
 /**
  * Do a SQL query to the database. 
  * It is a wrapper for mysqli_query function.
@@ -1110,6 +1112,16 @@ function insert_expression_from_mecab($text, $lid, $wid, $len, $sentenceIDRange)
  */
 function insert_standard_expression($textlc, $lid, $wid, $len, $sentenceIDRange): array
 {
+    $logme = function($s) {};
+
+    if ($textlc == 'de refilón' || $textlc == 'con el tiempo' || $textlc == 'nos marcamos' || $textlc == 'pabellón auditivo') {
+        $logme = function($s) { debug_log($s); };
+        $logme("\n\n================");
+        $logme("Starting $textlc");
+        $r = implode(', ', $sentenceIDRange);
+        $logme("lid = $lid, wid = $wid, len = $len, range = {$r}");
+    }
+
     $appendtext = array();
     $sqlarr = array();
     $res = do_mysqli_query("SELECT * FROM languages WHERE LgID=$lid");
@@ -1138,6 +1150,8 @@ function insert_standard_expression($textlc, $lid, $wid, $len, $sentenceIDRange)
         WHERE {$whereSeIDRange} SeLgID = $lid AND SeText LIKE " . 
         convert_string_to_sqlsyntax_notrim_nonull("%$textlc%");
     }
+    $logme($sql);
+
     $wis = $textlc;
     $res = do_mysqli_query($sql);
     $notermchar = "/[^$termchar]($textlc)[^$termchar]/ui";
@@ -1145,6 +1159,7 @@ function insert_standard_expression($textlc, $lid, $wid, $len, $sentenceIDRange)
     $matches = null;
     while ($record = mysqli_fetch_assoc($res)){
         $string = ' ' . $record['SeText'] . ' ';
+        $logme($string);
         if ($splitEachChar) {
             $string = preg_replace('/([^\s])/u', "$1 ", $string);
         } else if ($removeSpaces == 1 && empty($rSflag)) {
@@ -1159,8 +1174,23 @@ function insert_standard_expression($textlc, $lid, $wid, $len, $sentenceIDRange)
             }
         }
         $last_pos = mb_strripos($string, $textlc, 0, 'UTF-8');
+        $logme("last pos = $last_pos");
+
         // For each occurence of query in sentence
         while ($last_pos !== false) {
+            $matches = null;
+            $logme("spliteach = $splitEachChar");
+            $logme("remove = $removeSpaces");
+            $logme("noterm = $notermchar");
+            $logme("string = ' $string '");
+            $pregresult = preg_match($notermchar, " $string ", $matches, 0, $last_pos - 1);
+            if ($pregresult === false) {
+                $logme("preg_match returned false");
+            }
+            else {
+                $logme("big pregmatch = $pregresult");
+            }
+            $matches = null;
             if ($splitEachChar || $removeSpaces  
                 || preg_match($notermchar, " $string ", $matches, 0, $last_pos - 1)
             ) {
@@ -1175,9 +1205,12 @@ function insert_standard_expression($textlc, $lid, $wid, $len, $sentenceIDRange)
                 if ($txt != $textlc) {
                     $txt = $splitEachChar ? $wis : $matches[1]; 
                 }
-                $sqlarr[] = "($wid, $lid, {$record['SeTxID']},
-                {$record['SeID']}, $pos, $len, " . 
-                convert_string_to_sqlsyntax_notrim_nonull($txt) . ')';
+
+                $insert = convert_string_to_sqlsyntax_notrim_nonull($txt);
+                $entry = "($wid, $lid, {$record['SeTxID']}, {$record['SeID']}, $pos, $len, $insert)";
+                $sqlarr[] = $entry;
+                $logme("added entry: $entry");
+                
                 if (getSettingZeroOrOne('showallwords', 1)) {
                     $appendtext[$pos] = "&nbsp;$len&nbsp";
                 } else { 
@@ -1186,10 +1219,19 @@ function insert_standard_expression($textlc, $lid, $wid, $len, $sentenceIDRange)
             }
             // Cut the sentence to before the right-most term starts
             $string = mb_substr($string, 0, $last_pos, 'UTF-8');
+            $logme("string is now: $string");
             $last_pos = mb_strripos($string, $textlc, 0, 'UTF-8');
+            $logme("last pos is now: $last_pos");
         }
     }
+    $logme("FINAL SQLARR:");
+    $logme(implode('; ', $sqlarr));
     mysqli_free_result($res);
+
+    $logme("");
+    $logme("ENDING $textlc");
+    $logme("================\n\n");
+
     return array($appendtext, $sqlarr);
 }
 
