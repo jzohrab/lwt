@@ -1093,6 +1093,59 @@ function insert_expression_from_mecab($text, $lid, $wid, $len, $sentenceIDRange)
 }
 
 
+// Ref https://stackoverflow.com/questions/1725227/preg-match-and-utf-8-in-php
+// Leaving the "echo" comments in, in case more future debugging needed.
+
+/**
+ * Returns array of matches in same format as preg_match or preg_match_all
+ * @param bool   $matchAll If true, execute preg_match_all, otherwise preg_match
+ * @param string $pattern  The pattern to search for, as a string.
+ * @param string $subject  The input string.
+ * @param int    $offset   The place from which to start the search (in bytes).
+ * @return array
+ */
+function pregMatchCapture($matchAll, $pattern, $subject, $offset = 0)
+{
+    if ($offset != 0) { $offset = strlen(mb_substr($subject, 0, $offset)); }
+
+    $matchInfo = array();
+    $method    = 'preg_match';
+    $flag      = PREG_OFFSET_CAPTURE;
+    if ($matchAll) {
+        $method .= '_all';
+    }
+
+    // echo "pattern: $pattern ; subject: $subject \n";
+    $n = $method($pattern, $subject, $matchInfo, $flag, $offset);
+    // echo "matchinfo:\n";
+    // var_dump($matchInfo);
+    $result = array();
+    if ($n !== 0 && !empty($matchInfo)) {
+        if (!$matchAll) {
+            $matchInfo = array($matchInfo);
+        }
+        foreach ($matchInfo as $matches) {
+            $positions = array();
+            foreach ($matches as $match) {
+                $matchedText   = $match[0];
+                $matchedLength = $match[1];
+                $positions[]   = array(
+                    $matchedText,
+                    mb_strlen(mb_strcut($subject, 0, $matchedLength))
+                );
+            }
+            $result[] = $positions;
+        }
+        if (!$matchAll) {
+            $result = $result[0];
+        }
+    }
+    // echo "Returning:\n";
+    // var_dump($result);
+    return $result;
+}
+
+
 /**
  * Insert an expression without using a tool like MeCab.
  *
@@ -1110,6 +1163,22 @@ function insert_expression_from_mecab($text, $lid, $wid, $len, $sentenceIDRange)
  */
 function insert_standard_expression($textlc, $lid, $wid, $len, $sentenceIDRange): array
 {
+
+    // DEBUGGING HELPER FOR FUTURE, because this code is brutal and
+    // needs to be completely replaced, but I need to understand it
+    // first.
+    // Change $problemterm to the term that's not getting handled
+    // correctly.  e.g.,
+    // $problemterm = mb_strtolower('de refilón');
+    $problemterm = mb_strtolower('PROBLEM_TERM');
+    $logme = function($s) {};
+    if ($textlc == $problemterm) {
+        $logme = function($s) { echo "{$s}\n"; };
+        $logme("\n\n================");
+        $r = implode(', ', $sentenceIDRange);
+        $logme("Starting search for $textlc, lid = $lid, wid = $wid, len = $len, range = {$r}");
+    }
+
     $appendtext = array();
     $sqlarr = array();
     $res = do_mysqli_query("SELECT * FROM languages WHERE LgID=$lid");
@@ -1138,58 +1207,90 @@ function insert_standard_expression($textlc, $lid, $wid, $len, $sentenceIDRange)
         WHERE {$whereSeIDRange} SeLgID = $lid AND SeText LIKE " . 
         convert_string_to_sqlsyntax_notrim_nonull("%$textlc%");
     }
+    $logme($sql);
+
     $wis = $textlc;
     $res = do_mysqli_query($sql);
-    $notermchar = "/[^$termchar]($textlc)[^$termchar]/ui";
+    $notermchar = "/[^$termchar]({$textlc})[^$termchar]/ui";
     // For each sentence in the language containing the query
     $matches = null;
     while ($record = mysqli_fetch_assoc($res)){
         $string = ' ' . $record['SeText'] . ' ';
+        $logme('"' . $string . '"');
         if ($splitEachChar) {
             $string = preg_replace('/([^\s])/u', "$1 ", $string);
-        } else if ($removeSpaces == 1 && empty($rSflag)) {
-            $rSflag = preg_match(
+        } else if ($removeSpaces == 1) {
+            $ma = pregMatchCapture(
+                false,
                 '/(?<=[ ])(' . preg_replace('/(.)/ui', "$1[ ]*", $textlc) . 
                 ')(?=[ ])/ui', 
-                $string, $ma
+                $string
             );
             if (!empty($ma[1])) {
                 $textlc = trim($ma[1]);
-                $notermchar = "/[^$termchar]($textlc)[^$termchar]/ui";
+                $notermchar = "/[^$termchar]({$textlc})[^$termchar]/ui";
             }
         }
         $last_pos = mb_strripos($string, $textlc, 0, 'UTF-8');
+        $logme("last_pos = $last_pos, notermchar = $notermchar");
+
         // For each occurence of query in sentence
         while ($last_pos !== false) {
-            if ($splitEachChar || $removeSpaces  
-                || preg_match($notermchar, " $string ", $matches, 0, $last_pos - 1)
-            ) {
+            $logme("searching string = ' $string '");
+            $matches = null;
+            $matches = pregMatchCapture(false, $notermchar, " $string ", $last_pos - 1);
+            if (count($matches) == 0) {
+                $logme("preg_match returned no matches?");
+            }
+            else {
+                $c = count($matches);
+                $logme("big pregmatch = $c");
+            }
+
+            if ($splitEachChar || $removeSpaces || count($matches) > 0) {
                 // Number of terms before group
-                $cnt = preg_match_all(
-                    "/([$termchar]+)/u", 
-                    mb_substr($string, 0, $last_pos, 'UTF-8'), 
-                    $_
-                );
+                $beforesubstr = mb_substr($string, 0, $last_pos, 'UTF-8');
+                $logme("Checking count of terms in: $beforesubstr");
+                $before = pregMatchCapture(true, "/([$termchar]+)/u", $beforesubstr);
+
+                // Note pregMatchCapture returns a few arrays, we want
+                // the first one.  (I confess I don't grok what's
+                // happening here, but inspecting a var_dump of the
+                // returned data led me to this.  jz)
+                $cnt = count($before[0]);
                 $pos = 2 * $cnt + (int) $record['SeFirstPos'];
-                $txt = $matches[1];
+                $logme("Got count = $cnt, pos = $pos");
+                // $txt = $textlc;
+
+                $txt = $matches[1][0];
                 if ($txt != $textlc) {
-                    $txt = $splitEachChar ? $wis : $matches[1]; 
+                    $txt = $splitEachChar ? $wis : $matches[1][0]; 
                 }
-                $sqlarr[] = "($wid, $lid, {$record['SeTxID']},
-                {$record['SeID']}, $pos, $len, " . 
-                convert_string_to_sqlsyntax_notrim_nonull($txt) . ')';
+
+                $insert = convert_string_to_sqlsyntax_notrim_nonull($txt);
+                $entry = "($wid, $lid, {$record['SeTxID']}, {$record['SeID']}, $pos, $len, $insert)";
+                $sqlarr[] = $entry;
+                $logme("-----------------\nadded entry: $entry \n-----------------");
+                
                 if (getSettingZeroOrOne('showallwords', 1)) {
                     $appendtext[$pos] = "&nbsp;$len&nbsp";
                 } else { 
-                    $appendtext[$pos] = $splitEachChar || $removeSpaces?$wis:$matches[1]; 
+                    $appendtext[$pos] = $splitEachChar || $removeSpaces ? $wis : $txt;
                 }
             }
             // Cut the sentence to before the right-most term starts
             $string = mb_substr($string, 0, $last_pos, 'UTF-8');
             $last_pos = mb_strripos($string, $textlc, 0, 'UTF-8');
+            $logme("string is now: $string");
+            $logme("last_pos is now: $last_pos");
         }
     }
     mysqli_free_result($res);
+
+    $logme("final sqlarr:" . implode('; ', $sqlarr));
+    $logme("ENDING SEARCH FOR $textlc");
+    $logme("================");
+
     return array($appendtext, $sqlarr);
 }
 
