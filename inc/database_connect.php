@@ -1252,12 +1252,21 @@ function insert_standard_expression($textlc, $lid, $wid, $len, $sentenceIDRange)
                 $beforesubstr = mb_substr($string, 0, $last_pos, 'UTF-8');
                 $logme("Checking count of terms in: $beforesubstr");
                 $before = pregMatchCapture(true, "/([$termchar]+)/u", $beforesubstr);
+                // var_dump($before);
 
-                // Note pregMatchCapture returns a few arrays, we want
-                // the first one.  (I confess I don't grok what's
-                // happening here, but inspecting a var_dump of the
-                // returned data led me to this.  jz)
-                $cnt = count($before[0]);
+                $cnt = null;
+                if (count($before) == 0) {
+                    // Term is at start of sentence.
+                    $cnt = 0;
+                }
+                else {
+                    // Note pregMatchCapture returns a few arrays, we want
+                    // the first one.  (I confess I don't grok what's
+                    // happening here, but inspecting a var_dump of the
+                    // returned data led me to this.  jz)
+                    $cnt = count($before[0]);
+                }
+
                 $pos = 2 * $cnt + (int) $record['SeFirstPos'];
                 $logme("Got count = $cnt, pos = $pos");
                 // $txt = $textlc;

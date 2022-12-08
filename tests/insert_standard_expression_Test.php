@@ -56,6 +56,24 @@ values
     }
 
 
+    // Debugging another prod case.
+    public function test_debug_tanto_daba_prod_case_term_not_getting_added_to_expressions_despite_match()
+    {
+        $sql = "insert into words (woid, wolgid, wotext, wotextlc, wostatus, wowordcount) 
+          values (100042, 1, 'Tanto daba', 'tanto daba', 1, 2)";
+        do_mysqli_query($sql);
+        
+        $sql = "insert into sentences (SeID, SeLgID, SeTxID, SeOrder, SeText, SeFirstPos) 
+           values 
+           ( 21301, 1, 147, 24, 
+             'Tanto daba si había pasado el día trabajando en los campos o llevaba encima los mismos harapos de toda la semana.', 287)";
+        do_mysqli_query($sql);
+
+        $ret = insert_standard_expression('tanto daba', 1, 100042, 2, [21300, 21400]);
+        $this->assertEquals($ret[1], ["(100042, 1, 147, 21301, 287, 2, 'Tanto daba')"]);
+    }
+
+
     // Not actually encountered yet, but should work.
     public function test_sentence_with_same_term_many_times()
     {
