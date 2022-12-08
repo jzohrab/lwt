@@ -1,4 +1,4 @@
-<?php session_start();
+<?php
 
 /**
  * \file
@@ -1164,6 +1164,8 @@ function update_database()
  * Check and/or update the database.
  *
  * @global mysqli $DBCONNECTION Connection to the database
+ *
+ * TODO - deprecate and remove this.
  */
 function check_update_db($debug, $dbname): void 
 {
@@ -1182,6 +1184,7 @@ function check_update_db($debug, $dbname): void
     // Update the database
     update_database();
 
+    // TODO: move this to testing start, _or_ get rid of testing altogether.
     // Do Scoring once per day, clean Word/Texttags, and optimize db
     $lastscorecalc = getSetting('lastscorecalc');
     $today = date('Y-m-d');
@@ -1270,11 +1273,14 @@ global $DBCONNECTION;
 $DBCONNECTION = connect_to_database($server, $userid, $passwd, $dbname);
 
 
+/** DISABLING database updates.
+// TODO: remove this and document db migrations.
 // check/update db - only once per session.
 global $debug;
 if (!isset($_SESSION['DBUPDATED'])) {
     check_update_db($debug, $dbname);
     $_SESSION['DBUPDATED'] = true;
 }
+*/
 
 ?>

@@ -6,6 +6,9 @@ use App\Entity\Text;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
+// TODO: pull splitCheckText into its own parsing library.
+require_once __DIR__ . '/../../inc/database_connect.php';
+
 /**
  * @extends ServiceEntityRepository<Text>
  *
@@ -27,6 +30,8 @@ class TextRepository extends ServiceEntityRepository
 
         if ($flush) {
             $this->getEntityManager()->flush();
+
+            splitCheckText($entity->getText(), $entity->getLgID(), $entity->getID());
         }
     }
 
