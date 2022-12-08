@@ -1,0 +1,34 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Language index{% endblock %}
+
+{% block body %}
+
+<h1>Language index</h1>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>Language</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for language in languages %}
+    <tr>
+      <td>{{ language.LgName }}</td>
+      <td>
+        <a href="{{ path('app_language_show', {'LgID': language.LgID}) }}">show</a>
+        <a href="{{ path('app_language_edit', {'LgID': language.LgID}) }}">edit</a>
+      </td>
+    </tr>
+    {% else %}
+    <tr>
+      <td colspan="2">no records found</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<a href="{{ path('app_language_new') }}">Create new</a>
+{% endblock %}
