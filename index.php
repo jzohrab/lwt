@@ -255,6 +255,28 @@ pagestart_nobody(
 
     .menu > * {
         width: 400px;
+        height: 20px;
+        margin: 5px;
+        text-align: center;
+        background-color: #e1f1fd;  /* ref https://www.color-hex.com/color-palette/47605 */
+        padding-top: 10px;
+    }
+
+    .menu > .disabled-link {
+        pointer-events: none;
+        background-color: #bcbcbc;
+        font-style: italic;
+    }
+
+    .oldmenu {
+        display: flex; 
+        flex-direction: column; 
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+    }
+
+    .oldmenu > * {
+        width: 400px;
         height: 30px;
         margin: 5px;
         text-align: center;
@@ -281,10 +303,62 @@ global $userid, $passwd, $server, $dbname;
     //]]>
 </script>
 
-<p>Welcome to your language learning app!</p> 
+<div style="display: flex; justify-content: space-evenly; flex-wrap: wrap;">
+
+    <div class="menu">
+        <?php
+        if ($langcnt == 0) {
+            ?> 
+        <div><p>Hint: The database seems to be empty.</p></div>
+        <a href="install_demo.php">Install the LWT demo database.</a>
+        <a href="edit_languages.php?new=1">Define the first language you want to learn.</a>
+            <?php
+        } else if ($langcnt > 0) {
+            do_language_selectable($currentlang);
+            if ($currenttext !== null) {
+                do_current_text_info($currenttext);
+            }
+        } 
+        ?>
+        <a href="/language">Languages</a>
+    </div>
+
+    <div class="menu">
+        <a href="/text">Texts</a>
+        <a class="disabled-link" href="archivedtexts.php">Text Archive</a>
+        <a class="disabled-link" href="edit_texttags.php">Text Tags</a>
+        <a class="disabled-link" href="long_text_import.php">Long Text Import</a>
+    </div>
+    
+    <div class="menu">
+        <a class="disabled-link" href="edit_words.php">Terms (Words and Expressions)</a>
+        <a class="disabled-link" href="edit_tags.php">Term Tags</a>
+        <a class="disabled-link" href="upload_words.php">Import Terms</a>
+    </div>
+    
+    <div class="menu">
+        <a class="disabled-link" href="do_feeds.php?check_autoupdate=1">Newsfeed Import</a>
+    </div>
+
+    <div class="menu">
+        <a class="disabled-link" href="statistics.php">Statistics</a>
+        <a class="disabled-link" href="docs/info.php">Help / Information</a>
+    </div>
+
+    <div class="menu">
+        <a href="/settings/symfony">Symfony settings (debug)</a>
+        <a class="disabled-link" href="settings.php">Settings / Preferences</a>
+        <a class="disabled-link" href="text_to_speech_settings.php">Text-to-Speech Settings</a>
+    </div>
+
+</div>
+
+<hr />
+
+<h2>Legacy UI</h2>
 
 <div style="display: flex; justify-content: space-evenly; flex-wrap: wrap;">
-    <div class="menu">
+    <div class="oldmenu">
         <?php
         if ($langcnt == 0) {
             ?> 
@@ -302,9 +376,8 @@ global $userid, $passwd, $server, $dbname;
             <a href="edit_languages.php">Languages</a>
     </div>
 
-    <div class="menu">
-        <a href="edit_texts.php">Texts (Legacy list)</a>
-        <a href="/text/">Texts</a>
+    <div class="oldmenu">
+        <a href="edit_texts.php">Texts</a>
         <a href="archivedtexts.php">Text Archive</a>
         
         <a href="edit_texttags.php">Text Tags</a>
@@ -312,66 +385,36 @@ global $userid, $passwd, $server, $dbname;
         <a href="long_text_import.php">Long Text Import</a>
     </div>
     
-    <div class="menu">
+    <div class="oldmenu">
         <a href="edit_words.php">Terms (Words and Expressions)</a>
         <a href="edit_tags.php">Term Tags</a>
         <a href="upload_words.php">Import Terms</a>
     </div>
     
-    <div class="menu">
+    <div class="oldmenu">
         <a href="do_feeds.php?check_autoupdate=1">Newsfeed Import</a>
     </div>
 
-    <div class="menu">
+    <div class="oldmenu">
         <a href="statistics.php">Statistics</a>
         <a href="docs/info.php">Help / Information</a>
     </div>
 
-    <div class="menu">
+    <div class="oldmenu">
         <a href="/settings/symfony">Symfony settings (debug)</a>
         <a href="settings.php">Settings / Preferences</a>
         <a href="text_to_speech_settings.php">Text-to-Speech Settings</a>
         <a href="mobile.php">Mobile LWT (Deprecated)</a>
     </div>
-        
+
     <?php wordpress_logout_link(); ?>
 
-    <table style="width: 500px; margin: 5px;">
-        <tbody>
-            <tr>
-                <td><a href="https://en.wikipedia.org/wiki/Database" target="_blank">Database</a> name</td>
-                <td><i><?php echo $dbname; ?></i></td>
-            </tr>
-            <tr>
-                <td>Database Location</td>
-                <td><i><?php echo $server; ?></i></td>
-            </tr>
-            <tr>
-                <td>Database Size</td>
-                <td><?php echo $mb; ?> MB</td>
-            </tr>
-            <tr>
-                <td><a href="https://en.wikipedia.org/wiki/Web_server" target="_blank">Web Server</a></td>
-                <td><i><?php echo $_SERVER['HTTP_HOST']; ?></i></td>
-            </tr>
-            <tr>
-                <td>Server Software</td>
-                <td><a href="https://en.wikipedia.org/wiki/Apache_HTTP_Server" target="_blank"><?php echo $apache; ?></a></td>
-            </tr>
-            <tr>
-                <td><a href="https://en.wikipedia.org/wiki/PHP" target="_blank">PHP</a> Version</td>
-                <td><?php echo $php; ?></td>
-            </tr>
-            <tr>
-                <td><a href="https://en.wikipedia.org/wiki/MySQL" target="_blank">MySQL</a> Version</td>
-                <td><?php echo $mysql; ?></td>
-            </tr>
-        </tbody>
-    </table>
-
 </div>
-<p>This is LWT Version <?php echo get_version(); ?></p>
+
 <hr />
+
+<p>Db: <?= $dbname ?> on <?= $server ?>; Web server: <?= $_SERVER['HTTP_HOST'] ?> running <?= $apache ?>, PHP <?= $php ?>.</p>
+
 <footer>
     <table>
         <tr>
@@ -382,8 +425,7 @@ global $userid, $passwd, $server, $dbname;
             </td>
             <td>
                 <p class="small">
-                    <a href="https://sourceforge.net/projects/learning-with-texts/" target="_blank">"Learning with Texts" (LWT)</a> is free 
-                    and unencumbered software released into the 
+                    Lute is free and unencumbered software released into the 
                     <a href="https://en.wikipedia.org/wiki/Public_domain_software" target="_blank">PUBLIC DOMAIN</a>. 
                     <a href="http://unlicense.org/" target="_blank">More information and detailed Unlicense ...</a>
                 </p>

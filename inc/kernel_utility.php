@@ -14,52 +14,6 @@
 
 
 /**
- * Return LWT version for humans
- *
- * Version is hardcoded in this function.
- * For instance 1.6.31 (October 03 2016)
- *
- * @global bool $debug If true adds a red "DEBUG"
- *
- * @return string Version number HTML-formatted
- */
-function get_version(): string 
-{
-    global $debug;
-    $version = '2.5.3-fork (November 06 2022)'; 
-    if ($debug) {
-        $version .= ' <span class="red">DEBUG</span>';
-    }
-    return $version;
-}
-
-/**
- * Return a machine readable version number.
- *
- * @return string Machine-readable version, for instance v001.006.031 for version 
- *                1.6.31.
- */
-function get_version_number(): string 
-{
-    $r = 'v';
-    $v = get_version();
-    // Escape any detail like "-fork"
-    $v = preg_replace('/-\w+\d*/', '', $v);
-    $pos = strpos($v, ' ', 0);
-    if ($pos === false) { 
-        my_die('Wrong version: '. $v); 
-    }
-    $vn = preg_split("/[.]/", substr($v, 0, $pos));
-    if (count($vn) < 3) { 
-        my_die('Wrong version: '. $v); 
-    }
-    for ($i=0; $i<3; $i++) { 
-        $r .= substr('000' . $vn[$i], -3); 
-    }
-    return $r;
-}
-
-/**
  * Escape special HTML characters.
  * 
  * @param  string $s String to escape.
@@ -83,8 +37,6 @@ function showRequest(): void
     echo "<pre>** DEBUGGING **********************************\n";
     echo '$GLOBALS...'; 
     print_r($GLOBALS);
-    echo 'get_version_number()...'; 
-    echo get_version_number() . "\n";
     echo 'get_magic_quotes_gpc()...'; 
     echo "NOT EXISTS (FALSE)\n";
     echo "********************************** DEBUGGING **</pre>";
