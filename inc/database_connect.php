@@ -12,8 +12,6 @@ require __DIR__ . "/../connect.inc.php";
 require_once __DIR__ . "/db_restore.php";
 require_once __DIR__ . "/../db/lib/apply_migrations.php";
 
-require_once __DIR__ . "/debug_logging.php";
-
 /**
  * Do a SQL query to the database. 
  * It is a wrapper for mysqli_query function.
@@ -1096,6 +1094,8 @@ function insert_expression_from_mecab($text, $lid, $wid, $len, $sentenceIDRange)
 
 
 // Ref https://stackoverflow.com/questions/1725227/preg-match-and-utf-8-in-php
+// Leaving the "echo" comments in, in case more future debugging needed.
+
 /**
  * Returns array of matches in same format as preg_match or preg_match_all
  * @param bool   $matchAll If true, execute preg_match_all, otherwise preg_match
@@ -1115,10 +1115,10 @@ function pregMatchCapture($matchAll, $pattern, $subject, $offset = 0)
         $method .= '_all';
     }
 
-    echo "pattern: $pattern ; subject: $subject \n";
+    // echo "pattern: $pattern ; subject: $subject \n";
     $n = $method($pattern, $subject, $matchInfo, $flag, $offset);
-    echo "matchinfo:\n";
-    var_dump($matchInfo);
+    // echo "matchinfo:\n";
+    // var_dump($matchInfo);
     $result = array();
     if ($n !== 0 && !empty($matchInfo)) {
         if (!$matchAll) {
@@ -1140,8 +1140,8 @@ function pregMatchCapture($matchAll, $pattern, $subject, $offset = 0)
             $result = $result[0];
         }
     }
-    echo "Returning:\n";
-    var_dump($result);
+    // echo "Returning:\n";
+    // var_dump($result);
     return $result;
 }
 
@@ -1163,14 +1163,20 @@ function pregMatchCapture($matchAll, $pattern, $subject, $offset = 0)
  */
 function insert_standard_expression($textlc, $lid, $wid, $len, $sentenceIDRange): array
 {
-    $logme = function($s) {};
 
-    if ($textlc == 'de refilón' || $textlc == 'con el tiempo') {
-        $logme = function($s) { debug_log($s); };
+    // DEBUGGING HELPER FOR FUTURE, because this code is brutal and
+    // needs to be completely replaced, but I need to understand it
+    // first.
+    // Change $problemterm to the term that's not getting handled
+    // correctly.  e.g.,
+    // $problemterm = 'de refilón';
+    $problemterm = 'SOME_PROBLEM_TERM_CHANGE_THIS';
+    $logme = function($s) {};
+    if ($textlc == $problemterm) {
+        $logme = function($s) { echo "{$s}\n"; };
         $logme("\n\n================");
-        $logme("Starting $textlc");
         $r = implode(', ', $sentenceIDRange);
-        $logme("lid = $lid, wid = $wid, len = $len, range = {$r}");
+        $logme("Starting search for $textlc, lid = $lid, wid = $wid, len = $len, range = {$r}");
     }
 
     $appendtext = array();
@@ -1226,18 +1232,13 @@ function insert_standard_expression($textlc, $lid, $wid, $len, $sentenceIDRange)
             }
         }
         $last_pos = mb_strripos($string, $textlc, 0, 'UTF-8');
-        $logme("last pos = $last_pos");
-
-        $logme("spliteach = $splitEachChar");
-        $logme("remove = $removeSpaces");
-        $logme("noterm = $notermchar");
+        $logme("last_pos = $last_pos, notermchar = $notermchar");
 
         // For each occurence of query in sentence
         while ($last_pos !== false) {
+            $logme("searching string = ' $string '");
             $matches = null;
-            $logme("string = ' $string '");
-            $logme("substring searched: " . '"' . mb_substr(" $string ", $last_pos - 1) . '"');
-            $matches = pregMatchCapture(false, $notermchar, " $string ", $matches, 0, $last_pos - 1);
+            $matches = pregMatchCapture(false, $notermchar, " $string ", $last_pos - 1);
             if (count($matches) == 0) {
                 $logme("preg_match returned no matches?");
             }
@@ -1257,10 +1258,8 @@ function insert_standard_expression($textlc, $lid, $wid, $len, $sentenceIDRange)
                 // happening here, but inspecting a var_dump of the
                 // returned data led me to this.  jz)
                 $cnt = count($before[0]);
-
-                $logme("Got count = $cnt");
                 $pos = 2 * $cnt + (int) $record['SeFirstPos'];
-                $logme("pos = $pos");
+                $logme("Got count = $cnt, pos = $pos");
                 $txt = $textlc;
 /*
                 $txt = $matches[1];
@@ -1281,18 +1280,16 @@ function insert_standard_expression($textlc, $lid, $wid, $len, $sentenceIDRange)
             }
             // Cut the sentence to before the right-most term starts
             $string = mb_substr($string, 0, $last_pos, 'UTF-8');
-            $logme("string is now: $string");
             $last_pos = mb_strripos($string, $textlc, 0, 'UTF-8');
-            $logme("last pos is now: $last_pos");
+            $logme("string is now: $string");
+            $logme("last_pos is now: $last_pos");
         }
     }
-    $logme("FINAL SQLARR:");
-    $logme(implode('; ', $sqlarr));
     mysqli_free_result($res);
 
-    $logme("");
-    $logme("ENDING $textlc");
-    $logme("================\n\n");
+    $logme("final sqlarr:" . implode('; ', $sqlarr));
+    $logme("ENDING SEARCH FOR $textlc");
+    $logme("================");
 
     return array($appendtext, $sqlarr);
 }
