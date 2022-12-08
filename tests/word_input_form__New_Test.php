@@ -83,7 +83,21 @@ order by WtWoID, TgText";
         $a = $this->make_formdata("HELLO");
         save_new_formdata($a);
         $b = $this->make_formdata("GOOD BYE THEN");
+
+        // Suppressing stdout per
+        // https://stackoverflow.com/questions/486181/php-suppress-output-within-a-function,
+        // since saving the data generates some junk to the screen.
+        ob_start();
         save_new_formdata($b);
+        $content = ob_get_flush();
+        ob_end_clean();
+        // Without the next ob_start, a warning is given:
+        // There was 1 risky test: ...
+        // Test code or tested code did not (only) close its own output buffers
+        // Don't know thet ins and outs of this,
+        // and don't really care.  This works fine. jz
+        ob_start();
+
         $sql = 'select WoText, WoWordCount from words order by WoID';
         DbHelpers::assertTableContains($sql, [ 'HELLO; 1', 'GOOD BYE THEN; 3' ]);
     }
