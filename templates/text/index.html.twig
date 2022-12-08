@@ -6,10 +6,14 @@
 
 <h1>Text index</h1>
 
+{% if texts|length == 0 %}
+  <p>No texts found.</p>
+{% else %}
+
 <table id="textlisting" class="table">
   <thead>
     <tr>
-      <th></th>
+      <th>&nbsp;</th>
       <th>Language</th>
       <th>Title</th>
       <th>Tags</th>
@@ -37,13 +41,11 @@
       <td>{{ text.TermCount }}</td>
       <td>{{ text.UnknownCount }}</td>
     </tr>
-    {% else %}
-    <tr>
-      <td colspan="5">no records found</td>
-    </tr>
     {% endfor %}
   </tbody>
 </table>
+
+{% endif %}
 
 <a href="{{ path('app_text_new') }}">Create new</a>
 
