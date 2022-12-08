@@ -55,4 +55,24 @@ values
         $this->assertEquals($ret[1], ["(3412, 1, 146, 21215, 829, 2, 'de refilón')"], 'Fixed!');
     }
 
+
+    // Not actually encountered yet, but should work.
+    public function test_sentence_with_same_term_many_times()
+    {
+        $sql = "insert into words (woid, wolgid, wotext, wotextlc, wostatus, wowordcount) 
+            values (11, 1, 'hay un', 'hay un', 1, 2)";
+        do_mysqli_query($sql);
+        
+        $sql = "insert into sentences (SeID, SeLgID, SeTxID, SeOrder, SeText, SeFirstPos) 
+            values ( 2, 1, 42, 145, 'Hoy hay un gato.  HAY UN PERRO.  No hay un coche.  Y hay una cosa.', 666)";
+        do_mysqli_query($sql);
+
+        $ret = insert_standard_expression('hay un', 1, 11, 2, [1, 5]);
+        $expected = [
+            "(11, 1, 42, 2, 682, 2, 'hay un')",
+            "(11, 1, 42, 2, 674, 2, 'hay un')",
+            "(11, 1, 42, 2, 668, 2, 'hay un')"
+        ];
+        $this->assertEquals($ret[1], $expected);
+    }
 }
