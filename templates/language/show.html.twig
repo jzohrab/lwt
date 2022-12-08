@@ -1,0 +1,74 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Language{% endblock %}
+
+{% block body %}
+    <h1>Language</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>LgID</th>
+                <td>{{ language.LgID }}</td>
+            </tr>
+            <tr>
+                <th>LgName</th>
+                <td>{{ language.LgName }}</td>
+            </tr>
+            <tr>
+                <th>LgDict1URI</th>
+                <td>{{ language.LgDict1URI }}</td>
+            </tr>
+            <tr>
+                <th>LgDict2URI</th>
+                <td>{{ language.LgDict2URI }}</td>
+            </tr>
+            <tr>
+                <th>LgGoogleTranslateURI</th>
+                <td>{{ language.LgGoogleTranslateURI }}</td>
+            </tr>
+            <tr>
+                <th>LgExportTemplate</th>
+                <td>{{ language.LgExportTemplate }}</td>
+            </tr>
+            <tr>
+                <th>LgTextSize</th>
+                <td>{{ language.LgTextSize }}</td>
+            </tr>
+            <tr>
+                <th>LgCharacterSubstitutions</th>
+                <td>{{ language.LgCharacterSubstitutions }}</td>
+            </tr>
+            <tr>
+                <th>LgRegexpSplitSentences</th>
+                <td>{{ language.LgRegexpSplitSentences }}</td>
+            </tr>
+            <tr>
+                <th>LgExceptionsSplitSentences</th>
+                <td>{{ language.LgExceptionsSplitSentences }}</td>
+            </tr>
+            <tr>
+                <th>LgRegexpWordCharacters</th>
+                <td>{{ language.LgRegexpWordCharacters }}</td>
+            </tr>
+            <tr>
+                <th>LgRemoveSpaces</th>
+                <td>{{ language.LgRemoveSpaces ? 'Yes' : 'No' }}</td>
+            </tr>
+            <tr>
+                <th>LgSplitEachChar</th>
+                <td>{{ language.LgSplitEachChar ? 'Yes' : 'No' }}</td>
+            </tr>
+            <tr>
+                <th>LgRightToLeft</th>
+                <td>{{ language.LgRightToLeft ? 'Yes' : 'No' }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_language_index') }}">back to list</a>
+
+    <a href="{{ path('app_language_edit', {'LgID': language.LgID}) }}">edit</a>
+
+    {{ include('language/_delete_form.html.twig') }}
+{% endblock %}
