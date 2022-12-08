@@ -1169,8 +1169,8 @@ function insert_standard_expression($textlc, $lid, $wid, $len, $sentenceIDRange)
     // first.
     // Change $problemterm to the term that's not getting handled
     // correctly.  e.g.,
-    // $problemterm = 'de refilón';
-    $problemterm = 'SOME_PROBLEM_TERM_CHANGE_THIS';
+    // $problemterm = mb_strtolower('de refilón');
+    $problemterm = mb_strtolower('PROBLEM_TERM');
     $logme = function($s) {};
     if ($textlc == $problemterm) {
         $logme = function($s) { echo "{$s}\n"; };
@@ -1211,7 +1211,7 @@ function insert_standard_expression($textlc, $lid, $wid, $len, $sentenceIDRange)
 
     $wis = $textlc;
     $res = do_mysqli_query($sql);
-    $notermchar = "/[^$termchar]{$textlc}[^$termchar]/ui";
+    $notermchar = "/[^$termchar]({$textlc})[^$termchar]/ui";
     // For each sentence in the language containing the query
     $matches = null;
     while ($record = mysqli_fetch_assoc($res)){
@@ -1228,7 +1228,7 @@ function insert_standard_expression($textlc, $lid, $wid, $len, $sentenceIDRange)
             );
             if (!empty($ma[1])) {
                 $textlc = trim($ma[1]);
-                $notermchar = "/[^$termchar]{$textlc}[^$termchar]/ui";
+                $notermchar = "/[^$termchar]({$textlc})[^$termchar]/ui";
             }
         }
         $last_pos = mb_strripos($string, $textlc, 0, 'UTF-8');
@@ -1260,17 +1260,17 @@ function insert_standard_expression($textlc, $lid, $wid, $len, $sentenceIDRange)
                 $cnt = count($before[0]);
                 $pos = 2 * $cnt + (int) $record['SeFirstPos'];
                 $logme("Got count = $cnt, pos = $pos");
-                $txt = $textlc;
-/*
-                $txt = $matches[1];
+                // $txt = $textlc;
+
+                $txt = $matches[1][0];
                 if ($txt != $textlc) {
-                    $txt = $splitEachChar ? $wis : $matches[1]; 
+                    $txt = $splitEachChar ? $wis : $matches[1][0]; 
                 }
-*/
+
                 $insert = convert_string_to_sqlsyntax_notrim_nonull($txt);
                 $entry = "($wid, $lid, {$record['SeTxID']}, {$record['SeID']}, $pos, $len, $insert)";
                 $sqlarr[] = $entry;
-                $logme("added entry: $entry");
+                $logme("-----------------\nadded entry: $entry \n-----------------");
                 
                 if (getSettingZeroOrOne('showallwords', 1)) {
                     $appendtext[$pos] = "&nbsp;$len&nbsp";
