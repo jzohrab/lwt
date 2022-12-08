@@ -346,7 +346,6 @@ global $userid, $passwd, $server, $dbname;
     </div>
 
     <div class="menu">
-        <a href="/settings/symfony">Symfony settings (debug)</a>
         <a class="disabled-link" href="settings.php">Settings / Preferences</a>
         <a class="disabled-link" href="text_to_speech_settings.php">Text-to-Speech Settings</a>
     </div>
@@ -401,7 +400,6 @@ global $userid, $passwd, $server, $dbname;
     </div>
 
     <div class="oldmenu">
-        <a href="/settings/symfony">Symfony settings (debug)</a>
         <a href="settings.php">Settings / Preferences</a>
         <a href="text_to_speech_settings.php">Text-to-Speech Settings</a>
         <a href="mobile.php">Mobile LWT (Deprecated)</a>
@@ -413,7 +411,8 @@ global $userid, $passwd, $server, $dbname;
 
 <hr />
 
-<p>Db: <?= $dbname ?> on <?= $server ?>; Web server: <?= $_SERVER['HTTP_HOST'] ?> running <?= $apache ?>, PHP <?= $php ?>.</p>
+<p>Db: <?= $dbname ?> on <?= $server ?>; Symfony connection = <?= $_ENV['DATABASE_URL'] ?></p>
+<p>Web server: <?= $_SERVER['HTTP_HOST'] ?> running <?= $apache ?>, PHP <?= $php ?>.</p>
 
 <footer>
     <table>
