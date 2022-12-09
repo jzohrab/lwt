@@ -15,12 +15,13 @@ class TextType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+        $audioHelp = 'YouTube, Dailymotion, Vimeo, or file in /public/media';
         $builder
             ->add('language', EntityType::class, [ 'class' => Language::class, 'choice_label' => 'lgName' ])
             ->add('Title', SymfTextType::class, [ 'attr' => [ 'class' => 'form-text' ] ])
-            ->add('Text', TextareaType::class, [ 'attr' => [ 'class' => 'form-largetextarea' ] ])
-            ->add('AudioURI', SymfTextType::class, [ 'attr' => [ 'class' => 'form-text' ] ])
-            ->add('SourceURI', SymfTextType::class, [ 'attr' => [ 'class' => 'form-text' ] ])
+            ->add('Text', TextareaType::class, [ 'label' => 'Text', 'help' => 'max 65,000 bytes', 'attr' => [ 'class' => 'form-largetextarea' ] ])
+            ->add('AudioURI', SymfTextType::class, [ 'label' => 'Media URI', 'help' => $audioHelp, 'attr' => [ 'class' => 'form-text' ] ])
+            ->add('SourceURI', SymfTextType::class, [ 'label' => 'Source URI', 'attr' => [ 'class' => 'form-text' ] ])
         ;
     }
 

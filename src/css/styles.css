@@ -59,6 +59,11 @@
      box-sizing: border-box;
  }
 
+ div.help-text {
+     font-size: 0.8em;
+     font-style: italic;
+ }
+
  p
  {
    margin: 5px 0 5px 0;
