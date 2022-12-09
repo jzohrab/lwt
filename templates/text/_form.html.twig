@@ -1,13 +1,12 @@
 {% form_theme form 'form_table_layout.html.twig' %}
 
-<ul id="texttags" class="tags"
+<ul id="texttagslist" class="tags"
     data-index="{{ form.textTags|length > 0 ? form.textTags|last.vars.name + 1 : 0 }}"
     data-prototype="{{ form_widget(form.textTags.vars.prototype)|e('html_attr') }}"
     >
 {% for textTag in form.textTags %}
     <li>
-        {{ form_errors(textTag) }}
-        {{ form_widget(textTag) }}
+        {{ textTag.vars.value.text }}
     </li>
 {% endfor %}
 </ul>
@@ -28,7 +27,7 @@
     
     let invalidChar = function(s) { return /[\uD800-\uDFFF]/.test(s); };
 
-    $('#termtags').tagit(
+    $('#texttagslist').tagit(
       {
         beforeTagAdded: function (_event, ui) {
           if (invalidChar(ui.tag.text())) {

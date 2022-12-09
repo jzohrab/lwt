@@ -18,10 +18,10 @@ class TextTag
     private ?int $id = null;
 
     #[ORM\Column(name: 'T2Text', length: 20)]
-    private ?string $text = null;
+    private ?string $text = '';
 
     #[ORM\Column(name: 'T2Comment', length: 200)]
-    private ?string $comment = null;
+    private ?string $comment = '';
 
     public function getId(): ?int
     {
@@ -32,6 +32,8 @@ class TextTag
     {
         return $this->text;
     }
+
+    public function getJunk(): string { return "HEREISJUNK"; }
 
     public function setText(string $text): self
     {
