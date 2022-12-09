@@ -43,6 +43,10 @@ class Text
     #[ORM\Column(name: 'TxArchived')]
     private bool $TxArchived = false;
 
+    #[ORM\ManyToOne(inversedBy: 'texts')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Language $language = null;
+
 
     public function getID(): ?int
     {
@@ -164,6 +168,18 @@ class Text
     public function setArchived(bool $TxArchived): self
     {
         $this->TxArchived = $TxArchived;
+
+        return $this;
+    }
+
+    public function getLanguage(): ?Language
+    {
+        return $this->language;
+    }
+
+    public function setLanguage(?Language $language): self
+    {
+        $this->language = $language;
 
         return $this;
     }
