@@ -57,12 +57,8 @@ class Language
     #[ORM\Column(name: 'LgRightToLeft')]
     private ?bool $LgRightToLeft = null;
 
-    #[ORM\OneToMany(mappedBy: 'language', targetEntity: Text::class)]
-    private Collection $texts;
-
     public function __construct()
     {
-        $this->texts = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -238,33 +234,4 @@ class Language
         return $this;
     }
 
-    /**
-     * @return Collection<int, Text>
-     */
-    public function getTexts(): Collection
-    {
-        return $this->texts;
-    }
-
-    public function addText(Text $text): self
-    {
-        if (!$this->texts->contains($text)) {
-            $this->texts->add($text);
-            $text->setLanguage($this);
-        }
-
-        return $this;
-    }
-
-    public function removeText(Text $text): self
-    {
-        if ($this->texts->removeElement($text)) {
-            // set the owning side to null (unless already changed)
-            if ($text->getLanguage() === $this) {
-                $text->setLanguage(null);
-            }
-        }
-
-        return $this;
-    }
 }

@@ -43,7 +43,7 @@ class Text
     #[ORM\Column(name: 'TxArchived')]
     private bool $TxArchived = false;
 
-    #[ORM\ManyToOne(targetEntity: 'Language', fetch: 'EAGER', inversedBy: 'texts')]
+    #[ORM\ManyToOne(targetEntity: 'Language', fetch: 'EAGER')]
     #[ORM\JoinColumn(name: 'TxLgID', referencedColumnName: 'LgID', nullable: false)]
     private ?Language $language = null;
 
