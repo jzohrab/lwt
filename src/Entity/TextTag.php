@@ -5,29 +5,23 @@ namespace App\Entity;
 use App\Repository\TextTagRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: TextTagRepository::class)]
+#[ORM\Table(name: 'tags2')]
 class TextTag
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column]
+    #[ORM\Column(name: 'T2ID', type: Types::SMALLINT)]
     private ?int $id = null;
 
-    #[ORM\Column(length: 20)]
+    #[ORM\Column(name: 'T2Text', length: 20)]
     private ?string $text = null;
 
-    #[ORM\Column(length: 200)]
+    #[ORM\Column(name: 'T2Comment', length: 200)]
     private ?string $comment = null;
-
-    #[ORM\ManyToMany(targetEntity: Text::class, mappedBy: 'textTags')]
-    private Collection $texts;
-
-    public function __construct()
-    {
-        $this->texts = new ArrayCollection();
-    }
 
     public function getId(): ?int
     {
@@ -58,27 +52,4 @@ class TextTag
         return $this;
     }
 
-    /**
-     * @return Collection<int, Text>
-     */
-    public function getTexts(): Collection
-    {
-        return $this->texts;
-    }
-
-    public function addText(Text $text): self
-    {
-        if (!$this->texts->contains($text)) {
-            $this->texts->add($text);
-        }
-
-        return $this;
-    }
-
-    public function removeText(Text $text): self
-    {
-        $this->texts->removeElement($text);
-
-        return $this;
-    }
 }

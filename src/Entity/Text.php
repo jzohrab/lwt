@@ -46,10 +46,10 @@ class Text
     #[ORM\Column(name: 'TxArchived')]
     private bool $TxArchived = false;
 
-    #[ORM\ManyToMany(targetEntity: TextTag::class, inversedBy: 'texts')]
     #[ORM\JoinTable(name: 'texttags')]
-    #[ORM\JoinColumn(name: 'TtTxID', referencedColumnName: 'ID')]
-    #[ORM\InverseJoinColumn(name: 'TtT2ID', referencedColumnName: 'Id')]
+    #[ORM\JoinColumn(name: 'TtTxID', referencedColumnName: 'TxID')]
+    #[ORM\InverseJoinColumn(name: 'TtT2ID', referencedColumnName: 'T2ID')]
+    #[ORM\ManyToMany(targetEntity: TextTag::class)]
     private Collection $textTags;
 
     public function __construct()
