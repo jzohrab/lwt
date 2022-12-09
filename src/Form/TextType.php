@@ -20,8 +20,8 @@ class TextType extends AbstractType
             ->add('language', EntityType::class, [ 'class' => Language::class, 'choice_label' => 'lgName' ])
             ->add('Title', SymfTextType::class, [ 'attr' => [ 'class' => 'form-text' ] ])
             ->add('Text', TextareaType::class, [ 'label' => 'Text', 'help' => 'max 65,000 bytes', 'attr' => [ 'class' => 'form-largetextarea' ] ])
-            ->add('AudioURI', SymfTextType::class, [ 'label' => 'Media URI', 'help' => $audioHelp, 'attr' => [ 'class' => 'form-text' ] ])
-            ->add('SourceURI', SymfTextType::class, [ 'label' => 'Source URI', 'attr' => [ 'class' => 'form-text' ] ])
+            ->add('AudioURI', SymfTextType::class, [ 'label' => 'Media URI', 'help' => $audioHelp, 'attr' => [ 'class' => 'form-text' ], 'required' => false ])
+            ->add('SourceURI', SymfTextType::class, [ 'label' => 'Source URI', 'attr' => [ 'class' => 'form-text' ], 'required' => false ])
         ;
     }
 
