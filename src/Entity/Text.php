@@ -16,8 +16,9 @@ class Text
     #[ORM\Column(name: 'TxID', type: Types::SMALLINT)]
     private ?int $TxID = null;
 
-    #[ORM\Column(name: 'TxLgID', type: Types::SMALLINT)]
-    private ?int $TxLgID = null;
+    #[ORM\ManyToOne(targetEntity: 'Language', fetch: 'EAGER')]
+    #[ORM\JoinColumn(name: 'TxLgID', referencedColumnName: 'LgID', nullable: false)]
+    private ?Language $language = null;
 
     #[ORM\Column(name: 'TxTitle', length: 200)]
     private string $TxTitle = '';
@@ -43,10 +44,6 @@ class Text
     #[ORM\Column(name: 'TxArchived')]
     private bool $TxArchived = false;
 
-    #[ORM\ManyToOne(targetEntity: 'Language', fetch: 'EAGER')]
-    #[ORM\JoinColumn(name: 'TxLgID', referencedColumnName: 'LgID', nullable: false)]
-    private ?Language $language = null;
-
 
     public function getID(): ?int
     {
@@ -60,18 +57,6 @@ class Text
             throw new \Exception("Can't change ID if already set");
         }
         $this->TxID = $TxID;
-
-        return $this;
-    }
-
-    public function getLgID(): ?int
-    {
-        return $this->TxLgID;
-    }
-
-    public function setLgID(int $TxLgID): self
-    {
-        $this->TxLgID = $TxLgID;
 
         return $this;
     }
