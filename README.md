@@ -9,6 +9,8 @@ This is a fork of [Hugo Fara's fork](https://github.com/hugofara) of the origina
 
 ## Major differences with Hugo Fara's repo
 
+*Also see [the todo list](./docs/todo.md)*.
+
 ### Functionality changes
 
 * Wordpress logins give new users their own separate LWT database instance.  See [docs.wordpress](./docs/wordpress.md) for notes.
