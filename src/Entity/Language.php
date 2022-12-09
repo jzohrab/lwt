@@ -31,31 +31,31 @@ class Language
     private ?string $LgGoogleTranslateURI = null;
 
     #[ORM\Column(name: 'LgExportTemplate', length: 1000, nullable: true)]
-    private ?string $LgExportTemplate = null;
+    private ?string $LgExportTemplate = '$y\t$t\n';
 
     #[ORM\Column(name: 'LgTextSize', type: Types::SMALLINT)]
-    private ?int $LgTextSize = null;
+    private ?int $LgTextSize = 100;
 
     #[ORM\Column(name: 'LgCharacterSubstitutions', length: 500)]
-    private ?string $LgCharacterSubstitutions = null;
+    private ?string $LgCharacterSubstitutions = "´='|`='|’='|‘='|...=…|..=‥";
 
     #[ORM\Column(name: 'LgRegexpSplitSentences', length: 500)]
-    private ?string $LgRegexpSplitSentences = null;
+    private ?string $LgRegexpSplitSentences = '.!?:;';
 
     #[ORM\Column(name: 'LgExceptionsSplitSentences', length: 500)]
-    private ?string $LgExceptionsSplitSentences = null;
+    private ?string $LgExceptionsSplitSentences = 'Mr.|Mrs.|Dr.|[A-Z].|Vd.|Vds.';
 
     #[ORM\Column(name: 'LgRegexpWordCharacters', length: 500)]
-    private ?string $LgRegexpWordCharacters = null;
+    private ?string $LgRegexpWordCharacters = 'a-zA-ZÀ-ÖØ-öø-ȳáéíóúÁÉÍÓÚñÑ';
 
     #[ORM\Column(name: 'LgRemoveSpaces')]
-    private ?bool $LgRemoveSpaces = null;
+    private ?bool $LgRemoveSpaces = false;
 
     #[ORM\Column(name: 'LgSplitEachChar')]
-    private ?bool $LgSplitEachChar = null;
+    private ?bool $LgSplitEachChar = false;
 
     #[ORM\Column(name: 'LgRightToLeft')]
-    private ?bool $LgRightToLeft = null;
+    private ?bool $LgRightToLeft = false;
 
     public function __construct()
     {
