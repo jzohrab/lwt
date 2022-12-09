@@ -43,8 +43,8 @@ class Text
     #[ORM\Column(name: 'TxArchived')]
     private bool $TxArchived = false;
 
-    #[ORM\ManyToOne(inversedBy: 'texts')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\ManyToOne(targetEntity: 'Language', fetch: 'EAGER', inversedBy: 'texts')]
+    #[ORM\JoinColumn(name: 'TxLgID', referencedColumnName: 'LgID', nullable: false)]
     private ?Language $language = null;
 
 
@@ -177,7 +177,7 @@ class Text
         return $this->language;
     }
 
-    public function setLanguage(?Language $language): self
+    public function setLanguage(Language $language): self
     {
         $this->language = $language;
 
