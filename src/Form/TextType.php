@@ -33,6 +33,14 @@ class TextType extends AbstractType
             ->add('SourceURI',
                   SymfTextType::class,
                   [ 'label' => 'Source URI', 'attr' => [ 'class' => 'form-text' ], 'required' => false ])
+            ->add('Tags',
+                  CollectionType::class,
+                  [
+                    'entry_type' => TextTagType::class,
+                    'allow_add' => true,
+                    'allow_delete' => true,
+                    'required' => false
+                  ])
             ;
     }
 
