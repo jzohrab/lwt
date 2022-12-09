@@ -24,17 +24,22 @@
      width: 80%;
  }
 
+ table#text > th, td {
+     padding: 2px;
+ }
+
  table#text > thead tr th:first-child, tbody tr td:first-child {
      width: 20%;
      min-width: 20%;
      max-width: 20%;
+     vertical-align: top;
      word-break: break-all;
  }
  
  input[type=text].form-text
  {
      width: 100%;
-     padding: 5px 5px;
+     /* padding: 5px 5px; */
      margin: 2px 0;
      box-sizing: border-box;
  }
