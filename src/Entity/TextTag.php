@@ -21,7 +21,7 @@ class TextTag
     #[ORM\Column(length: 200)]
     private ?string $comment = null;
 
-    #[ORM\ManyToMany(targetEntity: Text::class, inversedBy: 'textTags')]
+    #[ORM\ManyToMany(targetEntity: Text::class, mappedBy: 'textTags')]
     private Collection $texts;
 
     public function __construct()
