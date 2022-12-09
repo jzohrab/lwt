@@ -18,7 +18,52 @@
    border: 1px solid #C6C6C6;
    padding: 3px;
  }
+
+ table#text
+ {
+     width: 80%;
+ }
+
+ table#text > th, td {
+     padding: 2px;
+ }
+
+ table#text > thead tr th:first-child, tbody tr td:first-child {
+     width: 20%;
+     min-width: 20%;
+     max-width: 20%;
+     vertical-align: top;
+     word-break: break-all;
+ }
  
+ input[type=text].form-text
+ {
+     width: 100%;
+     /* padding: 5px 5px; */
+     margin: 2px 0;
+     box-sizing: border-box;
+ }
+
+ textarea.form-largetextarea
+ {
+     /*
+     1em is /supposedly/ = the current font size, roughly
+     (ref https://stackoverflow.com/questions/2034544/
+     textareas-rows-and-cols-attribute-in-css),
+     but on my machine at least it doesn't appear to be so!
+     */
+     width:40em;
+     height:20em;
+     padding: 5px 5px;
+     margin: 2px 0;
+     box-sizing: border-box;
+ }
+
+ div.help-text {
+     font-size: 0.8em;
+     font-style: italic;
+ }
+
  p
  {
    margin: 5px 0 5px 0;
