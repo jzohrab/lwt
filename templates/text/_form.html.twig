@@ -1,27 +1,6 @@
+{% form_theme form 'form_table_layout.html.twig' %}
+
 {{ form_start(form) }}
-
-<div class="my-custom-class-for-errors">
-  {{ form_errors(form) }}
-</div>
-
-<div class="row">
-  <div class="col">
-    {{ form_row(form.language) }}
-  </div>
-  <div class="col">
-    {{ form_row(form.Title) }}
-  </div>
-  <div class="col">
-    {{ form_row(form.Text) }}
-  </div>
-  <div class="col">
-    {{ form_row(form.AudioURI) }}
-  </div>
-  <div class="col">
-    {{ form_row(form.SourceURI) }}
-  </div>
-
-</div>
-    
-    <button class="btn">{{ button_label|default('Save') }}</button>
+  {{ form_widget(form) }}
+  <button class="btn">{{ button_label|default('Save') }}</button>
 {{ form_end(form) }}
