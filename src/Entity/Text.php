@@ -47,7 +47,9 @@ class Text
     private bool $TxArchived = false;
 
     #[ORM\ManyToMany(targetEntity: TextTag::class, inversedBy: 'texts')]
-    #[ORM\JoinTable(name: 'texttags', joinColumns={ORM\JoinColumn(name: 'TtTxID', referencedColumnName: 'ID')}, inverseJoinColumns={ORM\JoinColumn(name: 'TtT2ID', referencedColumnName: 'Id', unique: true)}
+    #[ORM\JoinTable(name: 'texttags')]
+    #[ORM\JoinColumn(name: 'TtTxID', referencedColumnName: 'ID')]
+    #[ORM\InverseJoinColumn(name: 'TtT2ID', referencedColumnName: 'Id')]
     private Collection $textTags;
 
     public function __construct()

@@ -10,6 +10,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\TextType as SymfTextType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 
 class TextType extends AbstractType
 {
@@ -33,7 +34,7 @@ class TextType extends AbstractType
             ->add('SourceURI',
                   SymfTextType::class,
                   [ 'label' => 'Source URI', 'attr' => [ 'class' => 'form-text' ], 'required' => false ])
-            ->add('Tags',
+            ->add('textTags',
                   CollectionType::class,
                   [
                     'entry_type' => TextTagType::class,
