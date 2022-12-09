@@ -8,6 +8,7 @@ use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Form\Extension\Core\Type\TextType as SymfTextType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 
 class TextType extends AbstractType
@@ -16,10 +17,10 @@ class TextType extends AbstractType
     {
         $builder
             ->add('language', EntityType::class, [ 'class' => Language::class, 'choice_label' => 'lgName' ])
-            ->add('Title')
-            ->add('Text', TextareaType::class)
-            ->add('AudioURI')
-            ->add('SourceURI')
+            ->add('Title', SymfTextType::class, [ 'attr' => [ 'class' => 'form-text' ] ])
+            ->add('Text', TextareaType::class, [ 'attr' => [ 'class' => 'form-largetextarea' ] ])
+            ->add('AudioURI', SymfTextType::class, [ 'attr' => [ 'class' => 'form-text' ] ])
+            ->add('SourceURI', SymfTextType::class, [ 'attr' => [ 'class' => 'form-text' ] ])
         ;
     }
 
