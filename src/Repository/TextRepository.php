@@ -73,7 +73,7 @@ class TextRepository extends ServiceEntityRepository
         // datatable, or c) calculate and cache the data for
         // each text, refreshing the cache as needed.  I feel c)
         // is best, at the moment.
-        $sql = "SELECT t.TxID, LgName, TxTitle, tags.taglist,
+        $sql = "SELECT t.TxID, LgName, TxTitle, TxArchived, tags.taglist,
           ifnull(terms.countTerms, 0) as countTerms,
           ifnull(unkterms.countUnknowns, 0) as countUnknowns
           /* ifnull(mwordterms.countExpressions, 0) as countExpressions, */
@@ -121,6 +121,7 @@ class TextRepository extends ServiceEntityRepository
             $t->Language = $row['LgName'];
             $t->Title = $row['TxTitle'];
             $t->Tags = $row['taglist'];
+            $t->isArchived = $row['TxArchived'];
             $t->TermCount = (int) $row['countTerms'];
             $t->UnknownCount = (int) $row['countUnknowns'];
             $ret[] = $t;

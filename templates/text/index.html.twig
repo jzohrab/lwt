@@ -40,9 +40,15 @@
         </span>
       </td>
       <td>
+        {% if text.isArchived %}
+        <span onclick="confirm_unarchive({{ text.ID }}, '{{csrf_token('unarchive' ~ text.ID)}}');">
+          <img src="/icn/inbox-upload.png" title="Unarchive" alt="Unarchive" />
+        </span>
+        {% else %}
         <span onclick="confirm_archive({{ text.ID }}, '{{csrf_token('archive' ~ text.ID)}}');">
           <img src="/icn/inbox-download.png" title="Archive" alt="Archive" />
         </span>
+        {% endif %}
         <span onclick="confirm_delete({{ text.ID }}, '{{csrf_token('delete' ~ text.ID)}}' );">
           <img src="/icn/minus-button.png" title="Delete" alt="Delete" />
         </span>
@@ -83,6 +89,10 @@
 
   function confirm_archive(textid, token) {
     do_action_post('archive', textid, token);
+  }
+
+  function confirm_unarchive(textid, token) {
+    do_action_post('unarchive', textid, token);
   }
 
   function confirm_delete(textid, token) {
