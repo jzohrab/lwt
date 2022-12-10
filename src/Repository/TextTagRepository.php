@@ -39,6 +39,16 @@ class TextTagRepository extends ServiceEntityRepository
         }
     }
 
+    public function findByText($value): ?TextTag
+    {
+        return $this->createQueryBuilder('t')
+            ->andWhere('t.text = :val')
+            ->setParameter('val', $value)
+            ->getQuery()
+            ->getOneOrNullResult()
+        ;
+    }
+
 //    /**
 //     * @return TextTag[] Returns an array of TextTag objects
 //     */

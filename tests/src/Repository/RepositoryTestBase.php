@@ -1,7 +1,9 @@
 <?php declare(strict_types=1);
 
-// Ref https://symfony.com/doc/current/testing.html#integration-tests
-// as this requires an entity manager etc for the repository to work.
+// Repository tests require an entity manager.
+// See ref https://symfony.com/doc/current/testing.html#integration-tests
+// for some notes about the kernel and entity manager.
+// Note that tests must be run with the phpunit.xml.dist config file.
 
 require_once __DIR__ . '/../../db_helpers.php';
 
