@@ -10,23 +10,27 @@ final class TextRepository_Test extends RepositoryTestBase
 
     public function childSetUp(): void
     {
-        $inimsg = 'php.ini must set mysqli.allow_local_infile to 1.';
-        $this->assertEquals(ini_get('mysqli.allow_local_infile'), '1', $inimsg);
-
         // Set up db.
         DbHelpers::load_language_spanish();
         $this->langid = (int) get_first_value("select LgID as value from languages");
-    }
 
-    public function test_saving_Text_entity_loads_textitems2()
-    {
         $t = new Text();
         $t->setTitle("Hola.");
         $t->setText("Hola tengo un gato.");
         $lang = $this->language_repo->find($this->langid);
         $t->setLanguage($lang);
-
         $this->text_repo->save($t, true);
+
+        $this->text = $t;
+
+        DbHelpers::assertRecordcountEquals("textitems2", 8, 'setup');
+        DbHelpers::assertRecordcountEquals("sentences", 1, 'setup');
+        DbHelpers::assertRecordcountEquals("texts", 1, 'setup');
+    }
+
+    public function test_saving_Text_entity_loads_textitems2()
+    {
+        $t = $this->text;
                         
         $sql = "select ti2seid, ti2order, ti2text from textitems2 where ti2woid = 0 order by ti2order";
         $expected = [
@@ -44,13 +48,7 @@ final class TextRepository_Test extends RepositoryTestBase
 
     public function test_saving_Text_replaces_existing_textitems2()
     {
-        $t = new Text();
-        $t->setTitle("Hola.");
-        $t->setText("Hola tengo un gato.");
-        $lang = $this->language_repo->find($this->langid);
-        $t->setLanguage($lang);
-
-        $this->text_repo->save($t, true);
+        $t = $this->text;
 
         $sql = "select ti2seid, ti2order, ti2text from textitems2 where ti2order = 7";
         $sqlsent = "select SeID, SeTxID, SeText from sentences";
@@ -67,17 +65,7 @@ final class TextRepository_Test extends RepositoryTestBase
 
     public function test_removing_Text_removes_sentences_and_textitems2()
     {
-        $t = new Text();
-        $t->setTitle("Hola.");
-        $t->setText("Hola tengo un gato.");
-        $lang = $this->language_repo->find($this->langid);
-        $t->setLanguage($lang);
-        $this->text_repo->save($t, true);
-
-        DbHelpers::assertRecordcountEquals("textitems2", 8, 'setup');
-        DbHelpers::assertRecordcountEquals("sentences", 1, 'setup');
-        DbHelpers::assertRecordcountEquals("texts", 1, 'setup');
-
+        $t = $this->text;
         $this->text_repo->remove($t, true);
 
         DbHelpers::assertRecordcountEquals('textitems2', 0, 'after');
@@ -88,17 +76,7 @@ final class TextRepository_Test extends RepositoryTestBase
 
     public function test_archiving_Text_removes_sentences_and_textitems2()
     {
-        $t = new Text();
-        $t->setTitle("Hola.");
-        $t->setText("Hola tengo un gato.");
-        $lang = $this->language_repo->find($this->langid);
-        $t->setLanguage($lang);
-        $this->text_repo->save($t, true);
-
-        DbHelpers::assertRecordcountEquals("textitems2", 8, 'setup');
-        DbHelpers::assertRecordcountEquals("sentences", 1, 'setup');
-        DbHelpers::assertRecordcountEquals("texts", 1, 'setup');
-
+        $t = $this->text;
         $t->setArchived(true);
         $this->text_repo->save($t, true);
 
@@ -109,15 +87,7 @@ final class TextRepository_Test extends RepositoryTestBase
 
     public function test_unarchiving_Text_restores_sentences_and_textitems2()
     {
-        $t = new Text();
-        $t->setTitle("Hola.");
-        $t->setText("Hola tengo un gato.");
-        $lang = $this->language_repo->find($this->langid);
-        $t->setLanguage($lang);
-        $this->text_repo->save($t, true);
-
-        DbHelpers::assertRecordcountEquals("textitems2", 8, 'setup');
-
+        $t = $this->text;
         $t->setArchived(true);
         $this->text_repo->save($t, true);
         DbHelpers::assertRecordcountEquals('textitems2', 0, 'arch');
