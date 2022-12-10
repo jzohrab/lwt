@@ -194,18 +194,13 @@ class Text
     {
         if (!$this->textTags->contains($textTag)) {
             $this->textTags->add($textTag);
-            $textTag->addText($this);
         }
-
         return $this;
     }
 
     public function removeTextTag(TextTag $textTag): self
     {
-        if ($this->textTags->removeElement($textTag)) {
-            $textTag->removeText($this);
-        }
-
+        $this->textTags->removeElement($textTag);
         return $this;
     }
 }

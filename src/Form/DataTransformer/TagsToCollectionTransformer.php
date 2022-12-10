@@ -26,7 +26,7 @@ class TagsToCollectionTransformer implements DataTransformerInterface
     {
         $tagCollection = new ArrayCollection();
  
-        $tagsRepository = $this->manager->getRepository(App\Entity\TextTag::class);
+        $tagsRepository = $this->manager->getRepository(\App\Entity\TextTag::class);
  
         foreach ($tags as $tag) {
  
