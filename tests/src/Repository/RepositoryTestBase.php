@@ -5,11 +5,7 @@
 
 require_once __DIR__ . '/../../db_helpers.php';
 
-use PHPUnit\Framework\TestCase;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use App\Entity\Text;
-use App\Repository\TextRepository;
-use App\Repository\LanguageRepository;
 
 abstract class RepositoryTestBase extends WebTestCase
 {
@@ -29,6 +25,7 @@ abstract class RepositoryTestBase extends WebTestCase
 
         $this->text_repo = $this->entity_manager->getRepository(App\Entity\Text::class);
         $this->language_repo = $this->entity_manager->getRepository(App\Entity\Language::class);
+        $this->texttag_repo = $this->entity_manager->getRepository(App\Entity\TextTag::class);
 
         $this->childSetUp();
     }
