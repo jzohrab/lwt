@@ -40,14 +40,6 @@ class LanguageController extends AbstractController
         ]);
     }
 
-    #[Route('/{LgID}', name: 'app_language_show', methods: ['GET'])]
-    public function show(Language $language): Response
-    {
-        return $this->render('language/show.html.twig', [
-            'language' => $language,
-        ]);
-    }
-
     #[Route('/{LgID}/edit', name: 'app_language_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Language $language, LanguageRepository $languageRepository): Response
     {
