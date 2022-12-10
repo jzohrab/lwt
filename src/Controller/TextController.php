@@ -50,14 +50,6 @@ class TextController extends AbstractController
         ]);
     }
 
-    #[Route('/{TxID}', name: 'app_text_show', methods: ['GET'])]
-    public function show(Text $text): Response
-    {
-        return $this->render('text/show.html.twig', [
-            'text' => $text,
-        ]);
-    }
-
     #[Route('/{TxID}/edit', name: 'app_text_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Text $text, TextRepository $textRepository): Response
     {

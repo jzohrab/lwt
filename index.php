@@ -325,7 +325,7 @@ global $userid, $passwd, $server, $dbname;
 
     <div class="menu">
         <a href="/text">Texts</a>
-        <a class="disabled-link" href="archivedtexts.php">Text Archive</a>
+        <a href="/text/archived">Text Archive</a>
         <a class="disabled-link" href="edit_texttags.php">Text Tags</a>
         <a class="disabled-link" href="long_text_import.php">Long Text Import</a>
     </div>
