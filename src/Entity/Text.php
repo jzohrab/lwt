@@ -49,7 +49,7 @@ class Text
     #[ORM\JoinTable(name: 'texttags')]
     #[ORM\JoinColumn(name: 'TtTxID', referencedColumnName: 'TxID')]
     #[ORM\InverseJoinColumn(name: 'TtT2ID', referencedColumnName: 'T2ID')]
-    #[ORM\ManyToMany(targetEntity: TextTag::class)]
+    #[ORM\ManyToMany(targetEntity: TextTag::class, cascade: ['persist'])]
     private Collection $textTags;
 
     public function __construct()
