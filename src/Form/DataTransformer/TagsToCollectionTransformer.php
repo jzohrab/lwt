@@ -1,16 +1,18 @@
+<?php
+
 // Ref https://south634.com/using-a-data-transformer-in-symfony-to-handle-duplicate-tags/
 
 namespace App\Form\DataTransformer;
  
-use Doctrine\Common\Persistence\ObjectManager;
 use Symfony\Component\Form\DataTransformerInterface;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\EntityManagerInterface;
  
 class TagsToCollectionTransformer implements DataTransformerInterface
 {
     private $manager;
  
-    public function __construct(ObjectManager $manager)
+    public function __construct(EntityManagerInterface $manager)
     {
         $this->manager = $manager;
     }

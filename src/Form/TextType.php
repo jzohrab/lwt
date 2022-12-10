@@ -12,13 +12,13 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\TextType as SymfTextType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
-use Doctrine\Common\Persistence\ObjectManager;
+use Doctrine\ORM\EntityManagerInterface;
 
 
 class TextType extends AbstractType
 {
 
-    public function __construct(ObjectManager $manager)
+    public function __construct(EntityManagerInterface $manager)
     {
         $this->manager = $manager;
     }
