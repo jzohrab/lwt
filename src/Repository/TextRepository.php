@@ -24,35 +24,39 @@ class TextRepository extends ServiceEntityRepository
         parent::__construct($registry, Text::class);
     }
 
+    private function removeSentencesAndWords(int $textid): void
+    {
+        // TODO - if create sentence and textitem entities, find and delete?
+        $conn = $this->getEntityManager()->getConnection();
+        $sqls = [
+            "delete from sentences where SeTxID = $textid",
+            "delete from textitems2 where Ti2TxID = $textid"
+        ];
+        foreach ($sqls as $sql) {
+            $stmt = $conn->prepare($sql);
+            $stmt->executeQuery();
+        }
+    }
+
     public function save(Text $entity, bool $flush = false): void
     {
         $this->getEntityManager()->persist($entity);
 
         if ($flush) {
             $this->getEntityManager()->flush();
-
-            // TODO - if create sentence and textitem entities, find and delete?
-            $conn = $this->getEntityManager()->getConnection();
-            $txid = $entity->getID();
-            $sqls = [
-                "delete from sentences where SeTxID = $txid",
-                "delete from textitems2 where Ti2TxID = $txid"
-            ];
-            foreach ($sqls as $sql) {
-                $stmt = $conn->prepare($sql);
-                $stmt->executeQuery();
-            }
-
+            $this->removeSentencesAndWords($entity->getID());
             splitCheckText($entity->getText(), $entity->getLanguage()->getLgID(), $entity->getID());
         }
     }
 
     public function remove(Text $entity, bool $flush = false): void
     {
+        $textid = $entity->getID();
         $this->getEntityManager()->remove($entity);
 
         if ($flush) {
             $this->getEntityManager()->flush();
+            $this->removeSentencesAndWords($textid);
         }
     }
 

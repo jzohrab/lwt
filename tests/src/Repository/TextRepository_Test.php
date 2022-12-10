@@ -65,4 +65,25 @@ final class TextRepository_Test extends RepositoryTestBase
         DbHelpers::assertTableContains($sql, [ "2; 7; perro" ], "sentence ID is incremented");
     }
 
+    public function test_removing_Text_removes_sentences_and_textitems2()
+    {
+        $t = new Text();
+        $t->setTitle("Hola.");
+        $t->setText("Hola tengo un gato.");
+        $lang = $this->language_repo->find($this->langid);
+        $t->setLanguage($lang);
+        $this->text_repo->save($t, true);
+
+        $sql = "select * from textitems2";
+        $sqlsent = "select * from sentences";
+
+        DbHelpers::assertRecordcountEquals($sql, 8, 'setup');
+        DbHelpers::assertRecordcountEquals($sqlsent, 1, 'setup');
+
+        $this->text_repo->remove($t, true);
+
+        DbHelpers::assertRecordcountEquals($sql, 0, 'after');
+        DbHelpers::assertRecordcountEquals($sqlsent, 0, 'after');
+    }
+
 }
