@@ -2,50 +2,40 @@
 
 {{ form_start(form) }}
 
-{% do form.textTags.setRendered %}
+<table id="text">
+  {{ form_row(form.language) }}
+  {{ form_row(form.Title) }}
+  {{ form_row(form.Text) }}
+  {{ form_row(form.AudioURI) }}
+  {{ form_row(form.SourceURI) }}
 
-{{ form_widget(form) }}
+  {% do form.textTags.setRendered %}
+  {# manually write list so it can be managed by tagit. #}
+  <tr>
+    <td>Text tags</td>
+    <td>
+      <ul id="texttagslist" class="tags nomarginblock">
+        {% for textTag in form.textTags %}
+        <li>
+          {{ textTag.vars.value.text }}
+        </li>
+        {% endfor %}
+      </ul>
+    </td>
+  </tr>
 
-{#
-form_table_layout.html.twig doesn't allow adding
-custom rows within the generated table, so first write it
-out and then move it into the generated table w/ javascript.
-
-Added "styling margin-block-start/end" manually, because
-otherwise the tags text input has a huge start/end, on
-Chrome at least.  Not sure where that style is coming from.
-#}
-<table>
-<tr id="tag_source">
-  <td>Text tags</td>
-  <td>
-    <ul id="texttagslist" class="tags" style="margin-block-start: 0px; margin-block-end: 0px;">
-    {% for textTag in form.textTags %}
-    <li>
-        {{ textTag.vars.value.text }}
-    </li>
-    {% endfor %}
-</ul>
-  </td>
-</tr>
 </table>
-
 
 <button class="btn">{{ button_label|default('Save') }}</button>
 {{ form_end(form) }}
 
 <script>
 
-  $(document).ready(function () {
-
+  let setupTagitForTextTags = function() {
     var prototypeFieldName = 'text[textTags][__name__][text]';
     var fieldIndex = 0;
     
     let invalidChar = function(s) { return /[\uD800-\uDFFF]/.test(s); };
-
-    let src = $("#tag_source");
-    let tr = $(src).remove().clone();
-    $("#text tbody").append(tr);
 
     $('#texttagslist').tagit(
       {
@@ -59,7 +49,8 @@ Chrome at least.  Not sure where that style is coming from.
         availableTags: TAGS,
         fieldName: 'text[textTags][0][text]'
       });
+  };
 
-    });
+  $(document).ready(function () { setupTagitForTextTags(); });
 
-    </script>
+</script>
