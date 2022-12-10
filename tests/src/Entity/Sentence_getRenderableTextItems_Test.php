@@ -13,7 +13,7 @@ class Sentence_getRenderableTextItems_Test extends TestCase
     {
         $this->rendered = '';
         $this->fakeRender = function($ti) {
-            $this->rendered .= $ti.getText();
+            $this->rendered .= $ti->Text;
         };
     }
 

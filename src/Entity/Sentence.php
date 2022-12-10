@@ -20,6 +20,8 @@ class Sentence
     }
 
     public function render($renderer) {
-
+        foreach($this->_textitems as $ti) {
+            $renderer($ti);
+        }
     }
 }
