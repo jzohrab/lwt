@@ -61,11 +61,6 @@ class Language
     {
     }
 
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
-
     public function getLgID(): ?int
     {
         return $this->LgID;

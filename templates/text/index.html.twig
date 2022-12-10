@@ -13,8 +13,8 @@
 <table id="textlisting" class="table">
   <thead>
     <tr>
-      <th>Language</th>
       <th>Title</th>
+      <th>Language</th>
       <th>Tags</th>
       <th>Terms</th>
       <th>Actions</th>
@@ -23,7 +23,6 @@
   <tbody>
     {% for text in texts %}
     <tr>
-      <td>{{ text.Language }}</td>
       <td>
         <a href="/do_text.php?start={{ text.ID }}">
           <img src="/icn/book-open-bookmark.png" title="Read" alt="Read" />
@@ -33,6 +32,7 @@
         </a>
         {{ text.Title }}
       </td>
+      <td>{{ text.Language }}</td>
       <td>{{ text.Tags }}</td>
       <td>
         <span title="{{ text.TermCount }} known terms, {{ text.UnknownCount }} unknown">

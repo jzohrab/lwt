@@ -182,6 +182,7 @@ else {
 
     $sql = 'select count(T2ID) as value from tags2 where (1=1) ' . $wh_query;
     $recno = (int) get_first_value($sql);
+    global $debug;
     if ($debug) { 
         echo $sql . ' ===&gt; ' . $recno; 
     }
