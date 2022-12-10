@@ -1,0 +1,52 @@
+<?php declare(strict_types=1);
+
+// Ref https://symfony.com/doc/current/testing.html#integration-tests
+// as this requires an entity manager etc for the repository to work.
+
+require_once __DIR__ . '/../../db_helpers.php';
+
+use PHPUnit\Framework\TestCase;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use App\Entity\Text;
+use App\Repository\TextRepository;
+use App\Repository\LanguageRepository;
+
+abstract class RepositoryTestBase extends WebTestCase
+{
+
+    public function setUp(): void
+    {
+        $inimsg = 'php.ini must set mysqli.allow_local_infile to 1.';
+        $this->assertEquals(ini_get('mysqli.allow_local_infile'), '1', $inimsg);
+
+        // Set up db.
+        DbHelpers::ensure_using_test_db();
+        DbHelpers::clean_db();
+
+        $kernel = static::createKernel();
+        $kernel->boot();
+        $this->entity_manager = $kernel->getContainer()->get('doctrine.orm.entity_manager');
+
+        $this->text_repo = $this->entity_manager->getRepository(App\Entity\Text::class);
+        $this->language_repo = $this->entity_manager->getRepository(App\Entity\Language::class);
+
+        $this->childSetUp();
+    }
+
+    public function childSetUp() {
+        // no-op, child tests can override this to set up stuff.
+    }
+
+    public function tearDown(): void
+    {
+        // echo "tearing down ... \n";
+        $this->childTearDown();
+    }
+
+    public function childTearDown(): void
+    {
+        // echo "tearing down ... \n";
+    }
+
+
+}

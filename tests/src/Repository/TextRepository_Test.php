@@ -4,6 +4,7 @@
 // as this requires an entity manager etc for the repository to work.
 
 require_once __DIR__ . '/../../db_helpers.php';
+require_once __DIR__ . '/RepositoryTestBase.php';
 
 use PHPUnit\Framework\TestCase;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -11,31 +12,17 @@ use App\Entity\Text;
 use App\Repository\TextRepository;
 use App\Repository\LanguageRepository;
 
-final class TextRepository_Test extends WebTestCase
+final class TextRepository_Test extends RepositoryTestBase
 {
 
-    public function setUp(): void
+    public function childSetUp(): void
     {
         $inimsg = 'php.ini must set mysqli.allow_local_infile to 1.';
         $this->assertEquals(ini_get('mysqli.allow_local_infile'), '1', $inimsg);
 
         // Set up db.
-        DbHelpers::ensure_using_test_db();
-        DbHelpers::clean_db();
         DbHelpers::load_language_spanish();
         $this->langid = (int) get_first_value("select LgID as value from languages");
-
-        $kernel = static::createKernel();
-        $kernel->boot();
-        $this->entity_manager = $kernel->getContainer()->get('doctrine.orm.entity_manager');
-
-        $this->text_repo = $this->entity_manager->getRepository(App\Entity\Text::class);
-        $this->language_repo = $this->entity_manager->getRepository(App\Entity\Language::class);
-    }
-
-    public function tearDown(): void
-    {
-        // echo "tearing down ... \n";
     }
 
     public function test_saving_Text_entity_loads_textitems2()
