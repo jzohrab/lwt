@@ -176,7 +176,15 @@ you must use a dedicated test database when running tests.
         PHPUnit\Framework\Assert::assertEquals($expected, $content, $message);
     }
 
+    /**
+     * Sample calls:
+     * DbHelpers::assertRecordcountEquals('select * from x where id=2', 1, 'single record');
+     * DbHelpers::assertRecordcountEquals('x', 19, 'all records in table x');
+     */
     public static function assertRecordcountEquals($sql, $expected, $message = '') {
+        if (stripos($sql, 'select') === false) {
+            $sql = "select * from {$sql}";
+        }
         $c = get_first_value("select count(*) as value from ({$sql}) src");
 
         if ($c != $expected) {

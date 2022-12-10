@@ -4,7 +4,7 @@
 
 {% block body %}
 
-<h1>Text index</h1>
+<h1>{{ status }} Text index</h1>
 
 {% if texts|length == 0 %}
   <p>No texts found.</p>
@@ -13,33 +13,46 @@
 <table id="textlisting" class="table">
   <thead>
     <tr>
-      <th>&nbsp;</th>
       <th>Language</th>
       <th>Title</th>
       <th>Tags</th>
       <th>Terms</th>
-      <th>Unknowns</th>
+      <th>Actions</th>
     </tr>
   </thead>
   <tbody>
     {% for text in texts %}
     <tr>
+      <td>{{ text.Language }}</td>
       <td>
         <a href="/do_text.php?start={{ text.ID }}">
           <img src="/icn/book-open-bookmark.png" title="Read" alt="Read" />
         </a>
-        <span onclick="confirm_archive({{ text.ID }});">
+        <a href="/text/{{ text.ID }}/edit">
+          <img src="/icn/document--pencil.png" title="Edit" alt="Edit" />
+        </a>
+        {{ text.Title }}
+      </td>
+      <td>{{ text.Tags }}</td>
+      <td>
+        <span title="{{ text.TermCount }} known terms, {{ text.UnknownCount }} unknown">
+          {{ text.TermCount }} / {{ text.UnknownCount }}
+        </span>
+      </td>
+      <td>
+        {% if text.isArchived %}
+        <span onclick="confirm_unarchive({{ text.ID }}, '{{csrf_token('unarchive' ~ text.ID)}}');">
+          <img src="/icn/inbox-upload.png" title="Unarchive" alt="Unarchive" />
+        </span>
+        {% else %}
+        <span onclick="confirm_archive({{ text.ID }}, '{{csrf_token('archive' ~ text.ID)}}');">
           <img src="/icn/inbox-download.png" title="Archive" alt="Archive" />
         </span>
-        <span onclick="confirm_delete({{ text.ID }});">
+        {% endif %}
+        <span onclick="confirm_delete({{ text.ID }}, '{{csrf_token('delete' ~ text.ID)}}' );">
           <img src="/icn/minus-button.png" title="Delete" alt="Delete" />
         </span>
       </td>
-      <td>{{ text.Language }}</td>
-      <td>{{ text.Title }}</td>
-      <td>{{ text.Tags }}</td>
-      <td>{{ text.TermCount }}</td>
-      <td>{{ text.UnknownCount }}</td>
     </tr>
     {% endfor %}
   </tbody>
@@ -47,29 +60,47 @@
 
 {% endif %}
 
+{% if status == 'Active' %}
 <a href="{{ path('app_text_new') }}">Create new</a>
+{% endif %}
+
+{# Hidden form for archive, unarchive, delete. #}
+<form id="actionposter" method="post" action="">
+    <input id="actiontoken" type="hidden" name="_token" value="">
+</form>
 
 <script>
   $(document).ready(function () {
     var table = $('#textlisting').DataTable({
-      "columns": [
-        { "width": "10%" },
-        { "width": "10%" },
-        null,
-        { "width": "20%" },
-        { "width": "5%" },
-        { "width": "5%" }
+      columnDefs: [
+        { orderable: false, targets: [3, 4] },
+        { width: '5%', targets: [ 3,4] }
       ]
     });
   });
 
-  function confirm_archive(textid) {
-    alert('TODO');
+  function do_action_post(action, textid, token) {
+    if (!confirm("Click ok to confirm")) {
+      return;
+    }
+    let f = $('#actionposter');
+    f.attr('action', `/text/${textid}/${action}`);
+    $('#actiontoken').val(token);
+    f.submit();
   }
 
-  function confirm_delete(textid) {
-    alert('TODO');
+  function confirm_archive(textid, token) {
+    do_action_post('archive', textid, token);
   }
+
+  function confirm_unarchive(textid, token) {
+    do_action_post('unarchive', textid, token);
+  }
+
+  function confirm_delete(textid, token) {
+    do_action_post('delete', textid, token);
+  }
+
 </script>
 
 {% endblock %}

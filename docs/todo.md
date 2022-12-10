@@ -4,12 +4,6 @@
 
 ## To-do
 
-* Text stuff
-** edit text from list
-** move text actions to end
-** archive from list
-** delete from list
-
 * Listing of text tags with link to texts with tag
 * Language input form styling
 * Add repeatable migrations to db migrator
@@ -26,3 +20,4 @@ The current testing code isn't the best.  It assumes that it should just potenti
 ## Done
 
 * Text tags
+* Text actions from list: edit text from list, archive, unarchive.

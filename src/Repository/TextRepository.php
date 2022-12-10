@@ -24,48 +24,59 @@ class TextRepository extends ServiceEntityRepository
         parent::__construct($registry, Text::class);
     }
 
+    private function removeSentencesAndWords(int $textid): void
+    {
+        // TODO - if create sentence and textitem entities, find and delete?
+        $conn = $this->getEntityManager()->getConnection();
+        $sqls = [
+            "delete from sentences where SeTxID = $textid",
+            "delete from textitems2 where Ti2TxID = $textid"
+        ];
+        foreach ($sqls as $sql) {
+            $stmt = $conn->prepare($sql);
+            $stmt->executeQuery();
+        }
+    }
+
     public function save(Text $entity, bool $flush = false): void
     {
         $this->getEntityManager()->persist($entity);
 
         if ($flush) {
             $this->getEntityManager()->flush();
+            $this->removeSentencesAndWords($entity->getID());
 
-            // TODO - if create sentence and textitem entities, find and delete?
-            $conn = $this->getEntityManager()->getConnection();
-            $txid = $entity->getID();
-            $sqls = [
-                "delete from sentences where SeTxID = $txid",
-                "delete from textitems2 where Ti2TxID = $txid"
-            ];
-            foreach ($sqls as $sql) {
-                $stmt = $conn->prepare($sql);
-                $stmt->executeQuery();
+            if (! $entity->isArchived() ) {
+                $langid = $entity->getLanguage()->getLgID();
+                splitCheckText($entity->getText(), $langid, $entity->getID());
             }
-
-            splitCheckText($entity->getText(), $entity->getLanguage()->getLgID(), $entity->getID());
         }
     }
 
     public function remove(Text $entity, bool $flush = false): void
     {
+        $textid = $entity->getID();
         $this->getEntityManager()->remove($entity);
 
         if ($flush) {
             $this->getEntityManager()->flush();
+            $this->removeSentencesAndWords($textid);
         }
     }
 
-    public function findAllWithStats(): array
+    public function findAllWithStats(bool $archived): array
     {
         $conn = $this->getEntityManager()->getConnection();
+
+        // Required, can't interpolate a bool in the sql string.
+        $archived = $archived ? 'true' : 'false';
 
         // TODO: this query is slow ... we could either a) ajax
         // in relevant content to displayed records, b) page the
         // datatable, or c) calculate and cache the data for
         // each text, refreshing the cache as needed.  I feel c)
         // is best, at the moment.
-        $sql = "SELECT t.TxID, LgName, TxTitle, tags.taglist,
+        $sql = "SELECT t.TxID, LgName, TxTitle, TxArchived, tags.taglist,
           ifnull(terms.countTerms, 0) as countTerms,
           ifnull(unkterms.countUnknowns, 0) as countUnknowns
           /* ifnull(mwordterms.countExpressions, 0) as countExpressions, */
@@ -102,8 +113,10 @@ class TextRepository extends ServiceEntityRepository
             FROM textitems2
             WHERE Ti2WoID = 0 AND Ti2WordCount = 1
             GROUP BY Ti2TxID
-          ) AS unkterms ON unkterms.TxID = t.TxID";
-        
+          ) AS unkterms ON unkterms.TxID = t.TxID
+
+          WHERE t.TxArchived = $archived";
+
         $stmt = $conn->prepare($sql);
         $resultSet = $stmt->executeQuery();
         $ret = [];
@@ -113,6 +126,7 @@ class TextRepository extends ServiceEntityRepository
             $t->Language = $row['LgName'];
             $t->Title = $row['TxTitle'];
             $t->Tags = $row['taglist'];
+            $t->isArchived = $row['TxArchived'];
             $t->TermCount = (int) $row['countTerms'];
             $t->UnknownCount = (int) $row['countUnknowns'];
             $ret[] = $t;
