@@ -4,6 +4,7 @@ namespace App\Form;
 
 use App\Entity\Text;
 use App\Entity\Language;
+use App\Form\DataTransformer\TagsToCollectionTransformer;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -11,9 +12,17 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\TextType as SymfTextType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
+use Doctrine\Common\Persistence\ObjectManager;
+
 
 class TextType extends AbstractType
 {
+
+    public function __construct(ObjectManager $manager)
+    {
+        $this->manager = $manager;
+    }
+
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $audioHelp = 'YouTube, Dailymotion, Vimeo, or file in /public/media';
@@ -43,6 +52,11 @@ class TextType extends AbstractType
                     'required' => false
                   ])
             ;
+
+        // Data Transformer
+        $builder
+            ->get('textTags')
+            ->addModelTransformer(new TagsToCollectionTransformer($this->manager));
     }
 
     public function configureOptions(OptionsResolver $resolver): void
