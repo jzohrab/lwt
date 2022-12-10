@@ -11,7 +11,7 @@ class TextTagType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $builder->add('junk');
+        $builder->add('text');
     }
 
     public function configureOptions(OptionsResolver $resolver): void
