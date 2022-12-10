@@ -75,12 +75,22 @@ Most tests hit the database, and refuse to run unless the database name starts w
 
 In your connect.inc.php, change the `$dbname` to `test_<whatever>`, and create the `test_<whatever>` db using a dump from your actual db, or just create a new one.  Then the tests will work.
 
-```
-# Run a single file
-./vendor/bin/phpunit tests/splitCheckText_Test.php
+**You have to use the config file phpunit.xml.dist when running tests!**  So either specify that file, or use the composer test command:
 
+```
+./bin/phpunit -c phpunit.xml.dist tests/src/Repository/TextRepository_Test.php
+
+composer test tests/src/Repository/TextRepository_Test.php
+```
+
+Examples:
+
+```
 # Run everything
-./vendor/bin/phpunit tests
+composer test tests
+
+# Single file
+composer test tests/src/Repository/TextRepository_Test.php
 ```
 
 Some tests require 'load local infile' to be set to On, so you'll need to set that in your php.ini.  For me, for example, the file I changed was at `/usr/local/etc/php/8.1/php.ini`.
