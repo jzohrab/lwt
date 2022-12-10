@@ -2,6 +2,32 @@
 
 (This list is likely incomplete.)  Sorted more-or-less by priority.  As things are done, they're moved to the Done list and possibly referenced in the top-level README.
 
+## MVP
+
+The initial goal of this project is to get the minimum set of features implemented under the new Symfony framework:
+
+* define Language - DONE
+* create a text - DONE
+* rework rendering
+* import a long text file
+* create terms and multiword terms
+* set statuses
+* manage term tags
+* bulk status updates
+
+A lot of things will be removed at first:
+
+* rss feeds
+* all anki-like testing
+* db import and export
+* old documentation
+* docker
+* texttag lists
+* multi-word edit screen
+* bulk translation
+
+and they might be implemented at some point in the future.
+
 ## Small projects
 
 * Listing of text tags with link to texts with tag
