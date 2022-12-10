@@ -13,21 +13,33 @@
 <table id="textlisting" class="table">
   <thead>
     <tr>
-      <th>&nbsp;</th>
       <th>Language</th>
       <th>Title</th>
       <th>Tags</th>
       <th>Terms</th>
-      <th>Unknowns</th>
+      <th>Actions</th>
     </tr>
   </thead>
   <tbody>
     {% for text in texts %}
     <tr>
+      <td>{{ text.Language }}</td>
       <td>
         <a href="/do_text.php?start={{ text.ID }}">
           <img src="/icn/book-open-bookmark.png" title="Read" alt="Read" />
         </a>
+        <a href="/text/{{ text.ID }}/edit">
+          <img src="/icn/document--pencil.png" title="Edit" alt="Edit" />
+        </a>
+        {{ text.Title }}
+      </td>
+      <td>{{ text.Tags }}</td>
+      <td>
+        <span title="{{ text.TermCount }} known terms, {{ text.UnknownCount }} unknown">
+          {{ text.TermCount }} / {{ text.UnknownCount }}
+        </span>
+      </td>
+      <td>
         <span onclick="confirm_archive({{ text.ID }});">
           <img src="/icn/inbox-download.png" title="Archive" alt="Archive" />
         </span>
@@ -35,11 +47,6 @@
           <img src="/icn/minus-button.png" title="Delete" alt="Delete" />
         </span>
       </td>
-      <td>{{ text.Language }}</td>
-      <td>{{ text.Title }}</td>
-      <td>{{ text.Tags }}</td>
-      <td>{{ text.TermCount }}</td>
-      <td>{{ text.UnknownCount }}</td>
     </tr>
     {% endfor %}
   </tbody>
@@ -52,13 +59,9 @@
 <script>
   $(document).ready(function () {
     var table = $('#textlisting').DataTable({
-      "columns": [
-        { "width": "10%" },
-        { "width": "10%" },
-        null,
-        { "width": "20%" },
-        { "width": "5%" },
-        { "width": "5%" }
+      columnDefs: [
+        { orderable: false, targets: [3, 4] },
+        { width: '5%', targets: [ 3,4] }
       ]
     });
   });
