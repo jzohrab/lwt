@@ -72,6 +72,9 @@
   });
 
   function do_action_post(action, textid, token) {
+    if (!confirm("Click ok to confirm")) {
+      return;
+    }
     let f = $('#actionposter');
     f.attr('action', `/text/${textid}/${action}`);
     $('#actiontoken').val(token);
@@ -79,16 +82,10 @@
   }
 
   function confirm_archive(textid, token) {
-    if (! confirm(`TODO archive for ${textid}, ${token}`)) {
-      alert('cancelled');
-    }
     do_action_post('archive', textid, token);
   }
 
   function confirm_delete(textid, token) {
-    if (! confirm(`TODO delete for ${textid}, ${token}`)) {
-      alert('cancel');
-    }
     do_action_post('delete', textid, token);
   }
 

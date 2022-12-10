@@ -74,16 +74,57 @@ final class TextRepository_Test extends RepositoryTestBase
         $t->setLanguage($lang);
         $this->text_repo->save($t, true);
 
-        $sql = "select * from textitems2";
-        $sqlsent = "select * from sentences";
-
-        DbHelpers::assertRecordcountEquals($sql, 8, 'setup');
-        DbHelpers::assertRecordcountEquals($sqlsent, 1, 'setup');
+        DbHelpers::assertRecordcountEquals("textitems2", 8, 'setup');
+        DbHelpers::assertRecordcountEquals("sentences", 1, 'setup');
+        DbHelpers::assertRecordcountEquals("texts", 1, 'setup');
 
         $this->text_repo->remove($t, true);
 
-        DbHelpers::assertRecordcountEquals($sql, 0, 'after');
-        DbHelpers::assertRecordcountEquals($sqlsent, 0, 'after');
+        DbHelpers::assertRecordcountEquals('textitems2', 0, 'after');
+        DbHelpers::assertRecordcountEquals('sentences', 0, 'after');
+        DbHelpers::assertRecordcountEquals("texts", 0, 'after');
+    }
+
+
+    public function test_archiving_Text_removes_sentences_and_textitems2()
+    {
+        $t = new Text();
+        $t->setTitle("Hola.");
+        $t->setText("Hola tengo un gato.");
+        $lang = $this->language_repo->find($this->langid);
+        $t->setLanguage($lang);
+        $this->text_repo->save($t, true);
+
+        DbHelpers::assertRecordcountEquals("textitems2", 8, 'setup');
+        DbHelpers::assertRecordcountEquals("sentences", 1, 'setup');
+        DbHelpers::assertRecordcountEquals("texts", 1, 'setup');
+
+        $t->setArchived(true);
+        $this->text_repo->save($t, true);
+
+        DbHelpers::assertRecordcountEquals('textitems2', 0, 'after');
+        DbHelpers::assertRecordcountEquals('sentences', 0, 'after');
+        DbHelpers::assertRecordcountEquals("texts", 1, 'after');
+    }
+
+    public function test_unarchiving_Text_restores_sentences_and_textitems2()
+    {
+        $t = new Text();
+        $t->setTitle("Hola.");
+        $t->setText("Hola tengo un gato.");
+        $lang = $this->language_repo->find($this->langid);
+        $t->setLanguage($lang);
+        $this->text_repo->save($t, true);
+
+        DbHelpers::assertRecordcountEquals("textitems2", 8, 'setup');
+
+        $t->setArchived(true);
+        $this->text_repo->save($t, true);
+        DbHelpers::assertRecordcountEquals('textitems2', 0, 'arch');
+
+        $t->setArchived(false);
+        $this->text_repo->save($t, true);
+        DbHelpers::assertRecordcountEquals('textitems2', 8, 'unarch');
     }
 
 }

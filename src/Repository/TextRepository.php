@@ -45,7 +45,11 @@ class TextRepository extends ServiceEntityRepository
         if ($flush) {
             $this->getEntityManager()->flush();
             $this->removeSentencesAndWords($entity->getID());
-            splitCheckText($entity->getText(), $entity->getLanguage()->getLgID(), $entity->getID());
+
+            if (! $entity->isArchived() ) {
+                $langid = $entity->getLanguage()->getLgID();
+                splitCheckText($entity->getText(), $langid, $entity->getID());
+            }
         }
     }
 

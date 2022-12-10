@@ -69,10 +69,33 @@ class TextController extends AbstractController
     #[Route('/{TxID}/delete', name: 'app_text_delete', methods: ['POST'])]
     public function delete(Request $request, Text $text, TextRepository $textRepository): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$text->getID(), $request->request->get('_token'))) {
+        $tok = $request->request->get('_token');
+        if ($this->isCsrfTokenValid('delete'.$text->getID(), $tok)) {
             $textRepository->remove($text, true);
         }
-
         return $this->redirectToRoute('app_text_index', [], Response::HTTP_SEE_OTHER);
     }
+
+    #[Route('/{TxID}/archive', name: 'app_text_archive', methods: ['POST'])]
+    public function archive(Request $request, Text $text, TextRepository $textRepository): Response
+    {
+        $tok = $request->request->get('_token');
+        if ($this->isCsrfTokenValid('archive'.$text->getID(), $tok)) {
+            $text->setArchived(true);
+            $textRepository->save($text, true);
+        }
+        return $this->redirectToRoute('app_text_index', [], Response::HTTP_SEE_OTHER);
+    }
+
+    #[Route('/{TxID}/unarchive', name: 'app_text_unarchive', methods: ['POST'])]
+    public function unarchive(Request $request, Text $text, TextRepository $textRepository): Response
+    {
+        $tok = $request->request->get('_token');
+        if ($this->isCsrfTokenValid('unarchive'.$text->getID(), $tok)) {
+            $text->setArchived(false);
+            $textRepository->save($text, true);
+        }
+        return $this->redirectToRoute('app_text_index', [], Response::HTTP_SEE_OTHER);
+    }
+
 }
