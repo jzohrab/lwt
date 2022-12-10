@@ -23,8 +23,8 @@ class LegacyBridge
             $a = explode('/', $s);
             $r = array_reverse($a);
             $ret = [ $r[0] ];
-            if (count($r) > 1 && $r[1] == 'inc') {
-                $ret[] = 'inc';
+            if (count($r) > 1 && $r[1] == 'inc' || $r[1] == 'docs') {
+                $ret[] = $r[1];
             }
             return implode('/', array_reverse($ret));
         }

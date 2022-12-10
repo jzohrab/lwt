@@ -196,8 +196,6 @@ require_once __DIR__ . '/../src/php/markdown_converter.php';
 			</h2>
 
 			<p>
-				The current version is <?php echo get_version();  ?>.
-				<br>
 				<a href="#CHANGELOG">View the Changelog.</a>
 			</p>
 			
