@@ -4,7 +4,7 @@
 
 {% block body %}
 
-<h1>Text index</h1>
+<h1>{{ status }} Text index</h1>
 
 {% if texts|length == 0 %}
   <p>No texts found.</p>
@@ -60,9 +60,11 @@
 
 {% endif %}
 
+{% if status == 'Active' %}
 <a href="{{ path('app_text_new') }}">Create new</a>
+{% endif %}
 
-<h1>form</h1>
+{# Hidden form for archive, unarchive, delete. #}
 <form id="actionposter" method="post" action="">
     <input id="actiontoken" type="hidden" name="_token" value="">
 </form>

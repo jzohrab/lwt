@@ -17,7 +17,17 @@ class TextController extends AbstractController
     public function index(TextRepository $textRepository): Response
     {
         return $this->render('text/index.html.twig', [
-            'texts' => $textRepository->findAllWithStats()
+            'status' => 'Active',
+            'texts' => $textRepository->findAllWithStats(false)
+        ]);
+    }
+
+    #[Route('/archived', name: 'app_text_archived', methods: ['GET'])]
+    public function archived(TextRepository $textRepository): Response
+    {
+        return $this->render('text/index.html.twig', [
+            'status' => 'Archived',
+            'texts' => $textRepository->findAllWithStats(true)
         ]);
     }
 

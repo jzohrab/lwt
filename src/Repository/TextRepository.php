@@ -64,9 +64,12 @@ class TextRepository extends ServiceEntityRepository
         }
     }
 
-    public function findAllWithStats(): array
+    public function findAllWithStats(bool $archived): array
     {
         $conn = $this->getEntityManager()->getConnection();
+
+        // Required, can't interpolate a bool in the sql string.
+        $archived = $archived ? 'true' : 'false';
 
         // TODO: this query is slow ... we could either a) ajax
         // in relevant content to displayed records, b) page the
@@ -110,8 +113,10 @@ class TextRepository extends ServiceEntityRepository
             FROM textitems2
             WHERE Ti2WoID = 0 AND Ti2WordCount = 1
             GROUP BY Ti2TxID
-          ) AS unkterms ON unkterms.TxID = t.TxID";
-        
+          ) AS unkterms ON unkterms.TxID = t.TxID
+
+          WHERE t.TxArchived = $archived";
+
         $stmt = $conn->prepare($sql);
         $resultSet = $stmt->executeQuery();
         $ret = [];
