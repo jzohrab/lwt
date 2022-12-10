@@ -40,10 +40,10 @@
         </span>
       </td>
       <td>
-        <span onclick="confirm_archive({{ text.ID }});">
+        <span onclick="confirm_archive({{ text.ID }}, '{{csrf_token('archive' ~ text.ID)}}');">
           <img src="/icn/inbox-download.png" title="Archive" alt="Archive" />
         </span>
-        <span onclick="confirm_delete({{ text.ID }});">
+        <span onclick="confirm_delete({{ text.ID }}, '{{csrf_token('delete' ~ text.ID)}}' );">
           <img src="/icn/minus-button.png" title="Delete" alt="Delete" />
         </span>
       </td>
@@ -56,6 +56,11 @@
 
 <a href="{{ path('app_text_new') }}">Create new</a>
 
+<h1>form</h1>
+<form id="actionposter" method="post" action="">
+    <input id="actiontoken" type="hidden" name="_token" value="">
+</form>
+
 <script>
   $(document).ready(function () {
     var table = $('#textlisting').DataTable({
@@ -66,13 +71,27 @@
     });
   });
 
-  function confirm_archive(textid) {
-    alert('TODO');
+  function do_action_post(action, textid, token) {
+    let f = $('#actionposter');
+    f.attr('action', `/text/${textid}/${action}`);
+    $('#actiontoken').val(token);
+    f.submit();
   }
 
-  function confirm_delete(textid) {
-    alert('TODO');
+  function confirm_archive(textid, token) {
+    if (! confirm(`TODO archive for ${textid}, ${token}`)) {
+      alert('cancelled');
+    }
+    do_action_post('archive', textid, token);
   }
+
+  function confirm_delete(textid, token) {
+    if (! confirm(`TODO delete for ${textid}, ${token}`)) {
+      alert('cancel');
+    }
+    do_action_post('delete', textid, token);
+  }
+
 </script>
 
 {% endblock %}

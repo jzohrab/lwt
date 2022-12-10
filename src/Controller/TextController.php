@@ -66,10 +66,10 @@ class TextController extends AbstractController
         ]);
     }
 
-    #[Route('/{TxID}', name: 'app_text_delete', methods: ['POST'])]
+    #[Route('/{TxID}/delete', name: 'app_text_delete', methods: ['POST'])]
     public function delete(Request $request, Text $text, TextRepository $textRepository): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$text->getTxID(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete'.$text->getID(), $request->request->get('_token'))) {
             $textRepository->remove($text, true);
         }
 
