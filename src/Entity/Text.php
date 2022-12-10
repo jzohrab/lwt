@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\TextRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -43,6 +45,17 @@ class Text
 
     #[ORM\Column(name: 'TxArchived')]
     private bool $TxArchived = false;
+
+    #[ORM\JoinTable(name: 'texttags')]
+    #[ORM\JoinColumn(name: 'TtTxID', referencedColumnName: 'TxID')]
+    #[ORM\InverseJoinColumn(name: 'TtT2ID', referencedColumnName: 'T2ID')]
+    #[ORM\ManyToMany(targetEntity: TextTag::class, cascade: ['persist'])]
+    private Collection $textTags;
+
+    public function __construct()
+    {
+        $this->textTags = new ArrayCollection();
+    }
 
 
     public function getID(): ?int
@@ -166,6 +179,28 @@ class Text
     {
         $this->language = $language;
 
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, TextTag>
+     */
+    public function getTextTags(): Collection
+    {
+        return $this->textTags;
+    }
+
+    public function addTextTag(TextTag $textTag): self
+    {
+        if (!$this->textTags->contains($textTag)) {
+            $this->textTags->add($textTag);
+        }
+        return $this;
+    }
+
+    public function removeTextTag(TextTag $textTag): self
+    {
+        $this->textTags->removeElement($textTag);
         return $this;
     }
 }

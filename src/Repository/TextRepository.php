@@ -31,6 +31,18 @@ class TextRepository extends ServiceEntityRepository
         if ($flush) {
             $this->getEntityManager()->flush();
 
+            // TODO - if create sentence and textitem entities, find and delete?
+            $conn = $this->getEntityManager()->getConnection();
+            $txid = $entity->getID();
+            $sqls = [
+                "delete from sentences where SeTxID = $txid",
+                "delete from textitems2 where Ti2TxID = $txid"
+            ];
+            foreach ($sqls as $sql) {
+                $stmt = $conn->prepare($sql);
+                $stmt->executeQuery();
+            }
+
             splitCheckText($entity->getText(), $entity->getLanguage()->getLgID(), $entity->getID());
         }
     }

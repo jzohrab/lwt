@@ -64,6 +64,11 @@
      font-style: italic;
  }
 
+ .nomarginblock {
+     margin-block-start: 0px;
+     margin-block-end: 0px;
+ }
+
  p
  {
    margin: 5px 0 5px 0;

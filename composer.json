@@ -99,7 +99,7 @@
         "squizlabs/php_codesniffer": "Following code style standards is a good thing"
     },
     "scripts": {
-        "test": "vendor/bin/phpunit",
+        "test": "./bin/phpunit -c phpunit.xml.dist",
         "info.html": "@php docs/info.php > docs/info.html",
         "doc": [
             "@info.html",
