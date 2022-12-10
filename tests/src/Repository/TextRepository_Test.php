@@ -5,17 +5,6 @@
 
 require_once __DIR__ . '/../../db_helpers.php';
 
-/**
- * LWT users create a connect.inc.php file with db settings, so just
- * use that to create the db connection.
- */
-require_once __DIR__ . '/../../../connect.inc.php';
-global $userid, $passwd, $server, $dbname;
-$DATABASE_URL = "mysql://{$userid}:{$passwd}@{$server}/{$dbname}?serverVersion=8&charset=utf8";
-$_ENV['DATABASE_URL'] = $DATABASE_URL;
-$_SERVER['DATABASE_URL'] = $DATABASE_URL;
-
-
 use PHPUnit\Framework\TestCase;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use App\Entity\Text;
@@ -54,7 +43,7 @@ final class TextRepository_Test extends WebTestCase
         $t = new Text();
         $t->setTitle("Hola.");
         $t->setText("Hola tengo un gato.");
-        $lang = $this->language_repo->find(1);
+        $lang = $this->language_repo->find($this->langid);
         $t->setLanguage($lang);
 
         $this->text_repo->save($t, true);
@@ -71,6 +60,29 @@ final class TextRepository_Test extends WebTestCase
             "1; 8; ."
         ];
         DbHelpers::assertTableContains($sql, $expected);
+    }
+
+    public function test_saving_Text_replaces_existing_textitems2()
+    {
+        $t = new Text();
+        $t->setTitle("Hola.");
+        $t->setText("Hola tengo un gato.");
+        $lang = $this->language_repo->find($this->langid);
+        $t->setLanguage($lang);
+
+        $this->text_repo->save($t, true);
+
+        $sql = "select ti2seid, ti2order, ti2text from textitems2 where ti2order = 7";
+        $sqlsent = "select SeID, SeTxID, SeText from sentences";
+
+        DbHelpers::assertTableContains($sql, [ "1; 7; gato" ]);
+        DbHelpers::assertTableContains($sqlsent, [ "1; 1; Hola tengo un gato." ]);
+
+        $t->setText("Hola tengo un perro.");
+        $this->text_repo->save($t, true);
+
+        DbHelpers::assertTableContains($sqlsent, [ "2; 1; Hola tengo un perro." ], "sent ID incremented");
+        DbHelpers::assertTableContains($sql, [ "2; 7; perro" ], "sentence ID is incremented");
     }
 
 }
