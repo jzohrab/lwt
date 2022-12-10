@@ -33,8 +33,6 @@ class TextTag
         return $this->text;
     }
 
-    public function getJunk(): string { return "HEREISJUNK"; }
-
     public function setText(string $text): self
     {
         $this->text = $text;
