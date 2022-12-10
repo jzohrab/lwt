@@ -6,29 +6,37 @@
 
 <h1>Language index</h1>
 
-<table class="table">
+{% if languages|length == 0 %}
+  <p>No languages defined.</p>
+{% else %}
+  
+<table class="table dataTable no-footer">
   <thead>
     <tr>
       <th>Language</th>
+      <th>Terms</th>
       <th>Actions</th>
     </tr>
   </thead>
   <tbody>
     {% for language in languages %}
     <tr>
-      <td>{{ language.LgName }}</td>
       <td>
-        <a href="{{ path('app_language_show', {'LgID': language.LgID}) }}">show</a>
-        <a href="{{ path('app_language_edit', {'LgID': language.LgID}) }}">edit</a>
+        <a href="/language/{{ language.LgID }}/edit">
+          <img src="/icn/document--pencil.png" title="Edit" alt="Edit" />
+        </a>
+        {{ language.LgName }}
       </td>
-    </tr>
-    {% else %}
-    <tr>
-      <td colspan="2">no records found</td>
+      <td>Todo - link to terms.</td>
+      <td>
+      </td>
     </tr>
     {% endfor %}
   </tbody>
 </table>
 
+{% endif %}
+
 <a href="{{ path('app_language_new') }}">Create new</a>
 {% endblock %}
+
