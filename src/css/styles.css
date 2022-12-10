@@ -35,7 +35,24 @@
      vertical-align: top;
      word-break: break-all;
  }
- 
+
+ table#language
+ {
+     width: 80%;
+ }
+
+ table#language > th, td {
+     padding: 2px;
+ }
+
+ table#language > thead tr th:first-child, tbody tr td:first-child {
+     width: 40%;
+     min-width: 40%;
+     max-width: 40%;
+     vertical-align: top;
+     word-break: break-word;
+ }
+
  input[type=text].form-text
  {
      width: 100%;
@@ -62,6 +79,7 @@
  div.help-text {
      font-size: 0.8em;
      font-style: italic;
+     color: gray !important;
  }
 
  .nomarginblock {
