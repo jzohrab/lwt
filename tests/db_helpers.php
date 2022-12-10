@@ -7,8 +7,6 @@
  * db.
  */
 
-require_once __DIR__ . '/../inc/database_connect.php';
-
 /**
  * LWT users create a connect.inc.php file with db settings, so just
  * use that to create the db connection for symfony.
@@ -25,10 +23,41 @@ use PHPUnit\Framework\TestCase;
 
 class DbHelpers {
 
+    private static function get_connection() {
+        global $userid, $passwd, $server, $dbname; // From connect.inc.php
+        $conn = @mysqli_connect($server, $userid, $passwd, $dbname);
+        @mysqli_query($conn, "SET SESSION sql_mode = ''");
+        return $conn;
+    }
+
+    public static function exec_sql($sql) {
+        $conn = DbHelpers::get_connection();
+        $res = mysqli_query($conn, $sql);
+        if ($res != false) {
+            return $res;
+        }
+        $errmsg = mysqli_error($conn);
+        $msg = $errmsg . "\nfrom sql:\n" . '"' . $sql . '"';
+        throw new Exception($msg);
+    }
+
+    /** Gets first field of first record. */
+    private static function get_first_value($sql) 
+    {
+        $res = DbHelpers::exec_sql($sql);        
+        $record = mysqli_fetch_array($res, MYSQLI_NUM);
+        mysqli_free_result($res);
+        $ret = null;
+        if ($record) { 
+            $ret = $record[0]; 
+        }
+        return $ret;
+    }
+    
     public static function ensure_using_test_db() {
         global $dbname;
         global $DBCONNECTION;
-        $conn_db_name = get_first_value("SELECT DATABASE() AS value");
+        $conn_db_name = DbHelpers::get_first_value("SELECT DATABASE()");
 
         $istestdbname = function($s) {
             return (strtolowersubstr($s, 0, 5) == 'test_');
@@ -76,7 +105,7 @@ you must use a dedicated test database when running tests.
             "wordtags"
         ];
         foreach ($tables as $t) {
-            do_mysqli_query("truncate {$t}");
+            DbHelpers::exec_sql("truncate {$t}");
         }
 
         $alters = [
@@ -87,14 +116,14 @@ you must use a dedicated test database when running tests.
             "words"
         ];
         foreach ($alters as $t) {
-            do_mysqli_query("ALTER TABLE {$t} AUTO_INCREMENT = 1");
+            DbHelpers::exec_sql("ALTER TABLE {$t} AUTO_INCREMENT = 1");
         }
     }
 
     public static function load_language_spanish() {
         $url = "http://something.com/###";
         $sql = "INSERT INTO `languages` (`LgID`, `LgName`, `LgDict1URI`, `LgDict2URI`, `LgGoogleTranslateURI`, `LgExportTemplate`, `LgTextSize`, `LgCharacterSubstitutions`, `LgRegexpSplitSentences`, `LgExceptionsSplitSentences`, `LgRegexpWordCharacters`, `LgRemoveSpaces`, `LgSplitEachChar`, `LgRightToLeft`) VALUES (1,'Spanish','{$url}','{$url}','{$url}','\$y\\t\$t\\n',150,'´=\'|`=\'|’=\'|‘=\'|...=…|..=‥','.!?:;','Mr.|Dr.|[A-Z].|Vd.|Vds.','a-zA-ZÀ-ÖØ-öø-ȳáéíóúÁÉÍÓÚñÑ',0,0,0)";
-        do_mysqli_query($sql);
+        DbHelpers::exec_sql($sql);
     }
 
     /**
@@ -167,7 +196,7 @@ you must use a dedicated test database when running tests.
 
     public static function assertTableContains($sql, $expected, $message = '') {
         $content = [];
-        $res = do_mysqli_query($sql);
+        $res = DbHelpers::exec_sql($sql);
         while($row = mysqli_fetch_assoc($res)) {
             $content[] = implode('; ', $row);
         }
@@ -189,7 +218,7 @@ you must use a dedicated test database when running tests.
 
         if ($c != $expected) {
             $content = [];
-            $res = do_mysqli_query($sql);
+            $res = DbHelpers::exec_sql($sql);
             while($row = mysqli_fetch_assoc($res)) {
                 $content[] = implode('; ', $row);
             }
