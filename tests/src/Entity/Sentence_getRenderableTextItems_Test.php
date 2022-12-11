@@ -55,6 +55,24 @@ class Sentence_getRenderableTextItems_Test extends TestCase
             [ 5, 'here', 1 ],
             [ 4, ' ', 0 ],
             [ 3, 'data', 1 ],
+            [ 3, 'data here', 2 ],  // <<<
+            [ 2, ' ', 0 ],
+            [ 6, '.', 0 ]
+        ];
+        $sentence = $this->make_sentence($data);
+        $sentence->render($this->fakeRender);
+        $expected = '[some-1][ -0][data here-2][data-1][ -0][here-1][.-0]';
+        $this->assertEquals($this->rendered, $expected);
+    }
+
+    // Just in case, since ordering is so important.
+    public function test_multiword_items_are_rendered_first()
+    {
+        $data = [
+            [ 1, 'some', 1 ],
+            [ 5, 'here', 1 ],
+            [ 4, ' ', 0 ],
+            [ 3, 'data', 1 ],
             [ 2, ' ', 0 ],
             [ 6, '.', 0 ]
         ];

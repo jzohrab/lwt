@@ -22,10 +22,11 @@ class Sentence
     private function sortedTextItems(): array
     {
         $cmp = function($a, $b) {
-            if ($a->Order == $b->Order) {
-                return $a->WordCount > $b->WordCount;
+            if ($a->Order != $b->Order) {
+                return ($a->Order > $b->Order) ? 1 : -1;
             }
-            return $a->Order > $b->Order;
+            // Fallback: descending order, by word count.
+            return ($a->WordCount > $b->WordCount) ? -1 : 1;
         };
 
         usort($this->_textitems, $cmp);
