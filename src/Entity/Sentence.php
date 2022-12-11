@@ -14,8 +14,9 @@ class Sentence
     /**
      * @param TextItem[] $textitems
      */
-    public function __construct(array $textitems)
+    public function __construct(int $sentence_id, array $textitems)
     {
+        $this->SeID = $sentence_id;
         $this->_textitems = $textitems;
     }
 

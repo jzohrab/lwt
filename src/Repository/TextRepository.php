@@ -68,8 +68,6 @@ class TextRepository extends ServiceEntityRepository
 
     public function findAllWithStats(bool $archived): array
     {
-        $conn = $this->getEntityManager()->getConnection();
-
         // Required, can't interpolate a bool in the sql string.
         $archived = $archived ? 'true' : 'false';
 
@@ -119,6 +117,7 @@ class TextRepository extends ServiceEntityRepository
 
           WHERE t.TxArchived = $archived";
 
+        $conn = $this->getEntityManager()->getConnection();
         $stmt = $conn->prepare($sql);
         $resultSet = $stmt->executeQuery();
         $ret = [];
@@ -138,42 +137,53 @@ class TextRepository extends ServiceEntityRepository
 
 
     public function getSentences(Text $entity) {
-        // Returning dummy data for now reusing test code.
 
-        $make_sentence = function ($data) {
-            $makeTextItem = function($row) {
-                $t = new TextItem();
-                $t->Order = $row[0];
-                $t->Text = $row[1];
-                $t->WordCount = $row[2];
-                return $t;
-            };
+        $textid = $textid = $entity->getID();
+        $sql = "SELECT
+           CASE WHEN Ti2WordCount>0 THEN Ti2WordCount ELSE 1 END AS WordCount,
+           Ti2Text AS Text,
+           Ti2TextLC AS TextLC,
+           Ti2Order AS `Order`,
+           Ti2SeID AS SeID,
+           CASE WHEN Ti2WordCount>0 THEN 1 ELSE 0 END AS IsWord,
+           CHAR_LENGTH(Ti2Text) AS TextLength,
+           w.WoID, w.WoText, w.WoStatus, w.WoTranslation, w.WoRomanization,
+           pw.WoID as ParentWoID, pw.WoTextLC as ParentWoTextLC, pw.WoTranslation as ParentWoTranslation
+           FROM textitems2
+           LEFT JOIN words AS w ON Ti2WoID = w.WoID
+           LEFT JOIN wordparents ON wordparents.WpWoID = w.WoID
+           LEFT JOIN words AS pw on pw.WoID = wordparents.WpParentWoID
+           WHERE Ti2TxID = $textid
+           ORDER BY Ti2Order asc, Ti2WordCount desc";
 
-            $textItems = array_map($makeTextItem, $data);
-            return new Sentence($textItems);
-        };
+        $conn = $this->getEntityManager()->getConnection();
+        $stmt = $conn->prepare($sql);
+        $res = $stmt->executeQuery();
+        $rows = $res->fetchAllAssociative();
 
-        $s1 = [
-            [ 1, 'some', 1 ],
-            [ 5, 'here', 1 ],
-            [ 4, ' ', 0 ],
-            [ 3, 'data', 1 ],
-            [ 2, ' ', 0 ],
-            [ 3, 'data here', 2 ],  // <<<
-            [ 6, '.', 0 ]
-        ];
-        $s2 = [
-            [ 11, 'more', 1 ],
-            [ 15, 'here', 1 ],
-            [ 14, ' ', 0 ],
-            [ 13, 'stuff', 1 ],
-            [ 12, ' ', 0 ],
-            [ 13, 'stuff here', 2 ],  // <<<
-            [ 16, '.', 0 ]
-        ];
+        $textitems = [];
+        foreach ($rows as $row) {
+            $t = new TextItem();
+            foreach ($row as $key => $val) {
+                $t->$key = $val;
+            }
+            $intkeys = [ 'WordCount', 'Order', 'SeID', 'IsWord', 'TextLength', 'WoID', 'WoStatus', 'ParentWoID' ];
+            foreach ($intkeys as $key) {
+                $t->key = intval($t->$key);
+            }
+            $textitems[] = $t;
+        }
 
-        return array_map($make_sentence, [ $s1, $s2 ]);
+        $textitems_by_sentenceid = array();
+        foreach($textitems as $t) {
+            $textitems_by_sentenceid[$t->SeID][] = $t;
+        }
 
+        $sentences = [];
+        foreach ($textitems_by_sentenceid as $seid => $textitems)
+            $sentences[] = new Sentence($seid, $textitems);
+
+        return $sentences;
     }
 
     /* Status pivot table query.  Slow when querying for all texts, fast with just one. */

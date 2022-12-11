@@ -28,7 +28,7 @@ class Sentence_getRenderableTextItems_Test extends TestCase
             return $t;
         };
         $textItems = array_map($makeTextItem, $data);
-        return new Sentence($textItems);
+        return new Sentence(1, $textItems);
     }
 
 
