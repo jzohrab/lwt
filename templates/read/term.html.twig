@@ -1,24 +1,62 @@
+{% if item.Text == '¶' %}
+<br />
 
-  {% if item.Text == '¶' %}
-  <br />
+{% elseif item.WordCount == 0 %}
+<span id="{{ item.SpanID }}">{{ item.Text }}</span>
 
-  {% elseif item.WordCount == 0 %}
+{% elseif item.WoID is null %}
+<span id="{{ item.SpanID }}"
+      class="click word wsty status0 {{ item.TermClassname }}"
+      data_pos="{{ data_pos }}"
+      data_order="{{ item.Order }}"
+      data_trans=""
+      data_rom=""
+      data_status="0"
+      data_wid="">{{ item.Text }}</span>
 
-  <span id="{{ item.SpanID }}">{{ item.Text }}</span>
+{% elseif item.WordCount > 1 %}
+<span id="{{ item.SpanID }}"
+      class="click mword wsty order{{ item.Order }} word{{ item.WoID }} status{{ item.WoStatus }} {{ item.TermClassname }}"
+      data_pos="{{ data_pos }}"
+      data_order="{{ item.Order }}"
+      data_trans="{{ item.WoTranslation }} {{ item.Tags }}"
+      data_rom="{{ item.WoRomanization }}"
+      data_status="{{ item.WoStatus }}"
+      data_code="{{ item.WordCount }}"
+      data_text="{{ item.Text }}"
+      data_wid="{{ item.WoID }}"
+      parent_text="{{ item.ParentWoTextLC }}"
+      parent_trans="{{ item.ParentWoTranslation }} {{ item.ParentTags }}">{{ item.Text }}</span>
 
-  {% elseif item.WoID is null %}
+{% else %}
 
-  <span id="{{ item.SpanID }}"
-        class="click word wsty status0 {{ item.TermClassname }}"
-        data_pos="{{ data_pos }}"
-        data_order="{{ item.Order }}"
-        data_trans=""
-        data_rom=""
-        data_status="0"
-        data_wid=""
-        >{{ item.Text }}</span>
+<p>
+        // Word found status 1-5|98|99
+        $clist = "{$hidetag} click word wsty word{$r['WoID']} status{$r['WoStatus']} {$termclass}";
 
-  {% else %}
+        $attrs = [
+            'id' => $spanid,
+            'class' => $clist,
+            'data_pos' => $currcharcount,
+            'data_order' => $r['Ti2Order'],
+            'data_wid' => $r['WoID'],
+            'data_trans' => $trans,
+            'data_rom' => tohtml($r['WoRomanization']),
+            'data_status' => $r['WoStatus']
+        ];
+
+        if ($r['ParentWoID']) {
+            $ptrans = repl_tab_nl($r['ParentWoTranslation']);
+            $ptaglist = getWordTagList($r['ParentWoID'], ' ', 1, 0);
+            $attrs['parent_text'] = tohtml($r['ParentWoTextLC']);
+            $attrs['parent_trans'] = tohtml($ptrans . $ptaglist);
+        };
+
+        $content = tohtml($r['TiText']);
+        echo here
+        return;
+
+</p>
 
   <br />
 <p>Raw data for Text: {{ item.Text }}</p>
