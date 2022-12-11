@@ -67,24 +67,19 @@ class Sentence
             $ti->Keep = true;  // Assume keep them all at first.
         }
 
-        $mwords = array_filter($items, function($i) { return $i->WordCount > 1; });
-        
-        $sort_desc_range_size = function($a, $b) {
-            return ($a->WordCount > $b->WordCount) ? -1 : 1;
-        };
-        usort($mwords, $sort_desc_range_size);
+        $isMultiword = function($i) { return $i->WordCount > 1; };
+        $multiwords = array_filter($items, $isMultiword);
 
         // Don't keep anything contained by a multiword,
         // but don't delete the multiword itself!
-        foreach ($mwords as $mw) {
-            $isContained = function($i) use ($mw){
-                $contained = $i->Order >= $mw->Order && $i->OrderEnd <= $mw->OrderEnd;
-                $equivalent = $i->Order == $mw->Order && $i->OrderEnd == $mw->OrderEnd;
+        foreach ($multiwords as $mw) {
+            $isContained = function($i) use ($mw) {
+                $contained = ($i->Order >= $mw->Order) && ($i->OrderEnd <= $mw->OrderEnd);
+                $equivalent = ($i->Order == $mw->Order) && ($i->OrderEnd == $mw->OrderEnd);
                 return $contained && !$equivalent;
             };
 
-            $contained = array_filter($items, $isContained);
-            foreach ($contained as $c) {
+            foreach (array_filter($items, $isContained) as $c) {
                 $c->Keep = false;
             }
         }
