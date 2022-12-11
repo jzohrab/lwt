@@ -6,6 +6,8 @@
 
 {% set data_pos = 0 %}
 
+<p>
+
 {% for sentence in sentences %}
 
 <span id="sent_{{ sentence.SeID }}">
@@ -16,5 +18,7 @@
 </span>
 
 {% endfor %}
+
+</p>
 
 {% endblock %}
