@@ -147,8 +147,15 @@ class TextRepository extends ServiceEntityRepository
            Ti2SeID AS SeID,
            CASE WHEN Ti2WordCount>0 THEN 1 ELSE 0 END AS IsWord,
            CHAR_LENGTH(Ti2Text) AS TextLength,
-           w.WoID, w.WoText, w.WoStatus, w.WoTranslation, w.WoRomanization,
-           pw.WoID as ParentWoID, pw.WoTextLC as ParentWoTextLC, pw.WoTranslation as ParentWoTranslation
+           w.WoID,
+           w.WoText,
+           w.WoStatus,
+           w.WoTranslation,
+           w.WoRomanization,
+           pw.WoID as ParentWoID,
+           pw.WoTextLC as ParentWoTextLC,
+           pw.WoTranslation as ParentWoTranslation
+
            FROM textitems2
            LEFT JOIN words AS w ON Ti2WoID = w.WoID
            LEFT JOIN wordparents ON wordparents.WpWoID = w.WoID
