@@ -1,16 +1,3 @@
-{% if false %}
-
-<span>{{ item.Text }}</span>
-
-{% else %}
-
-<hr />
-
-<h2>Text: {{ item.Text }}</h2>
-
-<p>Rendering:</p>
-
-<p>
 
   {% if item.Text == '¶' %}
   <br />
@@ -31,15 +18,9 @@
         data_wid=""
         >{{ item.Text }}</span>
 
-{% elseif item.WordCount > 1 %}
-MULTI
-{% else %}
-REGULAR
-{% endif %}
-</p>
+  {% else %}
 
-<br />
-<br />
+  <br />
 <p>Raw data for Text: {{ item.Text }}</p>
 <br />
 <p>span ID: {{ item.SpanID }}</p>
@@ -67,3 +48,4 @@ REGULAR
 </p>
 
 {% endif %}
+
