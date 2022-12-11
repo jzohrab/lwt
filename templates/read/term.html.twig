@@ -7,7 +7,7 @@
 
 {% elseif item.WoID is null %}
 <span id="{{ item.SpanID }}"
-      class="click word wsty status0 {{ item.TermClassname }}"
+      class="{{ item.HtmlClassString }}"
       data_pos="{{ data_pos }}"
       data_order="{{ item.Order }}"
       data_trans=""
@@ -15,23 +15,9 @@
       data_status="0"
       data_wid="">{{ item.Text }}</span>
 
-{% elseif item.WordCount > 1 %}
-<span id="{{ item.SpanID }}"
-      class="click mword wsty word{{ item.WoID }} status{{ item.WoStatus }} {{ item.TermClassname }}"
-      data_pos="{{ data_pos }}"
-      data_order="{{ item.Order }}"
-      data_trans="{{ item.WoTranslation }} {{ item.Tags }}"
-      data_rom="{{ item.WoRomanization }}"
-      data_status="{{ item.WoStatus }}"
-      data_code="{{ item.WordCount }}"
-      data_text="{{ item.Text }}"
-      data_wid="{{ item.WoID }}"
-      parent_text="{{ item.ParentWoTextLC }}"
-      parent_trans="{{ item.ParentWoTranslation }} {{ item.ParentTags }}">{{ item.Text }}</span>
-
 {% else %}
 <span id="{{ item.SpanID }}"
-      class="click word wsty word{{ item.WoID }} status{{ item.WoStatus }} {{ item.TermClassname }}"
+      class="{{ item.HtmlClassString }}"
       data_pos="{{ data_pos }}"
       data_order="{{ item.Order }}"
       data_trans="{{ item.WoTranslation }} {{ item.Tags }}"

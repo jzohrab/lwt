@@ -76,4 +76,13 @@ class TextItem
         ];
         return implode('-', $parts);
     }
+
+    public function getHtmlClassString(): string {
+        $tc = $this->getTermClassname();
+        if ($this->WoID == 0) {
+            return "click word wsty status0 {$tc}";
+        }
+        $wordsty = $this->WordCount > 1 ? 'mword' : 'word';
+        return "click {$wordsty} wsty word{$this->WoID} status{$this->WoStatus} {$tc}";
+    }
 }
