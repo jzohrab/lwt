@@ -7,7 +7,7 @@ use App\Entity\TextItem;
 class Sentence
 {
 
-    private ?int $SeID = null;
+    public int $SeID;
 
     private ?array $_textitems = null;
 
