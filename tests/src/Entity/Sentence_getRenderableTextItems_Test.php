@@ -30,7 +30,17 @@ class Sentence_getRenderableTextItems_Test extends TestCase
         $textItems = array_map($makeTextItem, $data);
         return new Sentence($textItems);
     }
-    
+
+
+    private function assertRenderableEquals($data, $expected) {
+        $sentence = $this->make_sentence($data);
+        $actual = '';
+        foreach ($sentence->renderable() as $ti)
+            $actual .= "[{$ti->Text}-{$ti->WordCount}]";
+        $this->assertEquals($actual, $expected);
+    }
+
+
     public function test_simple_render()
     {
         $data = [
@@ -41,10 +51,8 @@ class Sentence_getRenderableTextItems_Test extends TestCase
             [ 5, 'here', 1 ],
             [ 6, '.', 0 ]
         ];
-        $sentence = $this->make_sentence($data);
-        $sentence->render($this->fakeRender);
         $expected = '[some-1][ -0][data-1][ -0][here-1][.-0]';
-        $this->assertEquals($this->rendered, $expected);
+        $this->assertRenderableEquals($data, $expected);
     }
 
     // Just in case, since ordering is so important.
@@ -58,10 +66,8 @@ class Sentence_getRenderableTextItems_Test extends TestCase
             [ 2, ' ', 0 ],
             [ 6, '.', 0 ]
         ];
-        $sentence = $this->make_sentence($data);
-        $sentence->render($this->fakeRender);
         $expected = '[some-1][ -0][data-1][ -0][here-1][.-0]';
-        $this->assertEquals($this->rendered, $expected);
+        $this->assertRenderableEquals($data, $expected);
     }
 
     public function test_multiword_items_cover_other_items()
@@ -75,11 +81,8 @@ class Sentence_getRenderableTextItems_Test extends TestCase
             [ 3, 'data here', 2 ],  // <<<
             [ 6, '.', 0 ]
         ];
-        $sentence = $this->make_sentence($data);
-
-        $sentence->render($this->fakeRender);
         $expected = '[some-1][ -0][data here-2][.-0]';
-        $this->assertEquals($this->rendered, $expected);
+        $this->assertRenderableEquals($data, $expected);
     }
 
 
@@ -116,11 +119,8 @@ class Sentence_getRenderableTextItems_Test extends TestCase
             [ 6, 'L', 2 ],
             [ 3, 'M', 3 ]
         ];
-        $sentence = $this->make_sentence($data);
-
-        $sentence->render($this->fakeRender);
         $expected = '[A-1][J-2][M-3][K-5]';
-        $this->assertEquals($this->rendered, $expected);
+        $this->assertRenderableEquals($data, $expected);
     }
 
 }
