@@ -9,7 +9,7 @@
 <span><p>seid to go in span</p>
 
   {% for item in sentence.renderable %}
-  <span>{{ item.Text }}</span>
+  {% include '/read/term.html.twig' %}
   {% endfor %}
   
 </span>
