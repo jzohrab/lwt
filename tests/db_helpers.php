@@ -174,6 +174,17 @@ you must use a dedicated test database when running tests.
         DbHelpers::exec_statement($stmt);
     }
 
+    public static function add_word_tag($wordtext, $tagtext) {
+        // sql injection, who cares, it's my test.
+        $sql = "insert ignore into tags(TgText, TgComment)
+          values ('{$tagtext}', '{$tagtext}')";
+        DbHelpers::exec_sql($sql);
+        $sql = "insert ignore into wordtags (WtWoID, WtTgID) values
+          ((select woid from words where wotext = '{$wordtext}'),
+           (select tgid from tags where tgtext='{$tagtext}'))";
+        DbHelpers::exec_sql($sql);
+    }
+
     public static function add_tags($tags) {
         $ids = [];
         global $DBCONNECTION;
