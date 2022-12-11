@@ -4,11 +4,16 @@
 
 {% block body %}
 
+{% set data_pos = 0 %}
+
 {% for sentence in sentences %}
 
 <span id="sent_{{ sentence.SeID }}">
   {% for item in sentence.renderable %}
+  <hr />
   {% include '/read/term.html.twig' %}
+
+  {% set data_pos = data_pos + item.TextLength %}
   {% endfor %}
 </span>
 
