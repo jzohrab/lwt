@@ -3,6 +3,8 @@
 namespace App\Repository;
 
 use App\Entity\Text;
+use App\Entity\Sentence;
+use App\Entity\TextItem;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -66,8 +68,6 @@ class TextRepository extends ServiceEntityRepository
 
     public function findAllWithStats(bool $archived): array
     {
-        $conn = $this->getEntityManager()->getConnection();
-
         // Required, can't interpolate a bool in the sql string.
         $archived = $archived ? 'true' : 'false';
 
@@ -117,6 +117,7 @@ class TextRepository extends ServiceEntityRepository
 
           WHERE t.TxArchived = $archived";
 
+        $conn = $this->getEntityManager()->getConnection();
         $stmt = $conn->prepare($sql);
         $resultSet = $stmt->executeQuery();
         $ret = [];
@@ -132,6 +133,86 @@ class TextRepository extends ServiceEntityRepository
             $ret[] = $t;
         }
         return $ret;
+    }
+
+
+    public function getSentences(Text $entity) {
+
+        $textid = $textid = $entity->getID();
+        $sql = "SELECT
+           Ti2WordCount AS WordCount,
+           Ti2Text AS Text,
+           Ti2TextLC AS TextLC,
+           Ti2Order AS `Order`,
+           Ti2SeID AS SeID,
+           CASE WHEN Ti2WordCount>0 THEN 1 ELSE 0 END AS IsWord,
+           CHAR_LENGTH(Ti2Text) AS TextLength,
+           w.WoID,
+           w.WoText,
+           w.WoStatus,
+           w.WoTranslation,
+           w.WoRomanization,
+           IF (wordtags IS NULL, '', CONCAT('[', wordtags, ']')) as Tags,
+
+           pw.WoID as ParentWoID,
+           pw.WoTextLC as ParentWoTextLC,
+           pw.WoTranslation as ParentWoTranslation,
+           IF (parenttags IS NULL, '', CONCAT('[', parenttags, ']')) as ParentTags
+
+           FROM textitems2
+           LEFT JOIN words AS w ON Ti2WoID = w.WoID
+           LEFT JOIN (
+             SELECT
+             WtWoID,
+             GROUP_CONCAT(DISTINCT TgText ORDER BY TgText separator ', ') as wordtags
+             FROM wordtags
+             INNER JOIN tags ON TgID = WtTgID
+             GROUP BY WtWoID
+           ) wordtaglist on wordtaglist.WtWoID = w.WoID
+
+           LEFT JOIN wordparents ON wordparents.WpWoID = w.WoID
+           LEFT JOIN words AS pw on pw.WoID = wordparents.WpParentWoID
+           LEFT JOIN (
+             SELECT
+             wordparents.WpWoID,
+             GROUP_CONCAT(DISTINCT TgText ORDER BY TgText separator ', ') as parenttags
+             FROM wordtags
+             INNER JOIN tags ON TgID = WtTgID
+             INNER JOIN wordparents on wordparents.WpParentWoID = wordtags.WtWoID
+             GROUP BY WpWoID
+           ) parenttaglist on parenttaglist.WpWoID = w.WoID
+
+           WHERE Ti2TxID = $textid
+           ORDER BY Ti2Order asc, Ti2WordCount desc";
+
+        $conn = $this->getEntityManager()->getConnection();
+        $stmt = $conn->prepare($sql);
+        $res = $stmt->executeQuery();
+        $rows = $res->fetchAllAssociative();
+
+        $textitems = [];
+        foreach ($rows as $row) {
+            $t = new TextItem();
+            foreach ($row as $key => $val) {
+                $t->$key = $val;
+            }
+            $intkeys = [ 'WordCount', 'Order', 'SeID', 'IsWord', 'TextLength', 'WoID', 'WoStatus', 'ParentWoID' ];
+            foreach ($intkeys as $key) {
+                $t->key = intval($t->$key);
+            }
+            $textitems[] = $t;
+        }
+
+        $textitems_by_sentenceid = array();
+        foreach($textitems as $t) {
+            $textitems_by_sentenceid[$t->SeID][] = $t;
+        }
+
+        $sentences = [];
+        foreach ($textitems_by_sentenceid as $seid => $textitems)
+            $sentences[] = new Sentence($seid, $textitems);
+
+        return $sentences;
     }
 
     /* Status pivot table query.  Slow when querying for all texts, fast with just one. */

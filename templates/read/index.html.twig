@@ -1,0 +1,24 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Read{% endblock %}
+
+{% block body %}
+
+{% set data_pos = 0 %}
+
+<p>
+
+{% for sentence in sentences %}
+
+<span id="sent_{{ sentence.SeID }}">
+  {% for item in sentence.renderable %}
+  {% include '/read/term.html.twig' %}
+  {% set data_pos = data_pos + item.TextLength %}
+  {% endfor %}
+</span>
+
+{% endfor %}
+
+</p>
+
+{% endblock %}

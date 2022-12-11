@@ -1,0 +1,33 @@
+{% if item.Text == '¶' %}
+</p>
+<p>
+
+{% elseif item.WordCount == 0 %}
+<span id="{{ item.SpanID }}">{{ item.Text }}</span>
+
+{% elseif item.WoID is null %}
+<span id="{{ item.SpanID }}"
+      class="{{ item.HtmlClassString }}"
+      data_pos="{{ data_pos }}"
+      data_order="{{ item.Order }}"
+      data_trans=""
+      data_rom=""
+      data_status="0"
+      data_wid="">{{ item.Text }}</span>
+
+{% else %}
+<span id="{{ item.SpanID }}"
+      class="{{ item.HtmlClassString }}"
+      data_pos="{{ data_pos }}"
+      data_order="{{ item.Order }}"
+      data_trans="{{ item.WoTranslation }} {{ item.Tags }}"
+      data_rom="{{ item.WoRomanization }}"
+      data_status="{{ item.WoStatus }}"
+      data_code="{{ item.WordCount }}"
+      data_text="{{ item.Text }}"
+      data_wid="{{ item.WoID }}"
+      parent_text="{{ item.ParentWoTextLC }}"
+      parent_trans="{{ item.ParentWoTranslation }} {{ item.ParentTags }}">{{ item.Text }}</span>
+
+{% endif %}
+
