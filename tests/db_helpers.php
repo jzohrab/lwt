@@ -44,7 +44,7 @@ class DbHelpers {
     /** Gets first field of first record. */
     private static function get_first_value($sql) 
     {
-        $res = DbHelpers::exec_sql($sql);        
+        $res = DbHelpers::exec_sql($sql);
         $record = mysqli_fetch_array($res, MYSQLI_NUM);
         mysqli_free_result($res);
         $ret = null;
@@ -56,7 +56,6 @@ class DbHelpers {
     
     public static function ensure_using_test_db() {
         global $dbname;
-        global $DBCONNECTION;
         $conn_db_name = DbHelpers::get_first_value("SELECT DATABASE()");
 
         $istestdbname = function($s) {
@@ -161,6 +160,18 @@ you must use a dedicated test database when running tests.
         $stmt->bind_param("issii", $WoLgID, $WoText, $WoTextLC, $WoStatus, $WoWordCount);
         DbHelpers::exec_statement($stmt);
         return $stmt->insert_id;
+    }
+
+    public static function add_word_parent($wordtext, $parenttext) {
+        global $DBCONNECTION;
+        $sql = "insert into wordparents (WpWoID, WpParentWoID)
+          values (
+            (select WoID from words where WoText = ?),
+            (select WoID from words where WoText = ?)
+          )";
+        $stmt = $DBCONNECTION->prepare($sql);
+        $stmt->bind_param("ss", $wordtext, $parenttext);
+        DbHelpers::exec_statement($stmt);
     }
 
     public static function add_tags($tags) {

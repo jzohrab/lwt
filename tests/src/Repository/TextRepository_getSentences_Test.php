@@ -19,6 +19,10 @@ final class TextRepository_getSentences_Test extends RepositoryTestBase
         DbHelpers::add_word($lid, "lista", "lista", 1, 1);
         DbHelpers::add_word($lid, "tiene una", "tiene una", 1, 2);
 
+        // A parent term.
+        DbHelpers::add_word($lid, "listo", "listo", 1, 1);
+        DbHelpers::add_word_parent("lista", "listo");
+
         $t = new Text();
         $t->setTitle("Hola.");
         $t->setText("Hola tengo un gato.  No tengo una lista.  Ella tiene una bebida.");
