@@ -82,6 +82,29 @@ class Sentence_getRenderableTextItems_Test extends TestCase
         $this->assertEquals($this->rendered, $expected);
     }
 
+    public function DISABLED_test_multiword_terms_supress_following_terms()
+    {
+        $data = [
+            [ 1, 'some', 1 ],
+            [ 2, ' ', 0 ],
+            [ 3, 'data here', 2 ],  // <<<
+            [ 3, 'data', 1 ],
+            [ 4, ' ', 0 ],
+            [ 5, 'here', 1 ],
+            [ 6, '.', 0 ]
+        ];
+        $sentence = $this->make_sentence($data);
+        $sentence->render($this->fakeRender);
+        $expected = '[some-1][ -0][data here-2][.-0]';
+        $this->assertEquals($this->rendered, $expected);
+    }
+
+    // Cases:
+    // overlapping
+    // contained
+    // contiguous
+    // none?
+
     /*
         // order, text, wordcount
         $data = [

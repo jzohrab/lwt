@@ -34,8 +34,26 @@ class Sentence
     }
 
     public function render($renderer) {
-        foreach($this->sortedTextItems() as $ti) {
-            $renderer($ti);
+        $i = 0;
+        $items = $this->sortedTextItems();
+        while ($i < count($items)) {
+            $renderer($items[$i]);
+
+            $moveAheadBy = $items[$i]->WordCount;
+            if ($moveAheadBy < 1) {
+                $moveAheadBy = 1;
+            }
+
+            /*
+            $termsLeftToSkip = $items[$i]->WordCount;
+            $i += 1;
+            $termsLeftToSkip -= $items[$i]->WordCount;
+            while ($i < count($items) && 
+            
+            */
+            // $i += ($moveAheadBy * 2 - 1);
+
+            $i += 1;
         }
     }
 }
