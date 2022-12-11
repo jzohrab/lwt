@@ -152,21 +152,19 @@ class TextRepository extends ServiceEntityRepository
            w.WoStatus,
            w.WoTranslation,
            w.WoRomanization,
-           wordtaglist.tags as Tags,
+           IF (wordtags IS NULL, '', CONCAT('[', wordtags, ']')) as Tags,
 
            pw.WoID as ParentWoID,
            pw.WoTextLC as ParentWoTextLC,
            pw.WoTranslation as ParentWoTranslation,
-           parenttaglist.tags as ParentTags
+           IF (parenttags IS NULL, '', CONCAT('[', parenttags, ']')) as ParentTags
 
            FROM textitems2
            LEFT JOIN words AS w ON Ti2WoID = w.WoID
            LEFT JOIN (
              SELECT
              WtWoID,
-             IFNULL(
-               GROUP_CONCAT(DISTINCT TgText ORDER BY TgText separator ', '), ''
-             ) as tags
+             GROUP_CONCAT(DISTINCT TgText ORDER BY TgText separator ', ') as wordtags
              FROM wordtags
              INNER JOIN tags ON TgID = WtTgID
              GROUP BY WtWoID
@@ -177,9 +175,7 @@ class TextRepository extends ServiceEntityRepository
            LEFT JOIN (
              SELECT
              wordparents.WpWoID,
-             IFNULL(
-               GROUP_CONCAT(DISTINCT TgText ORDER BY TgText separator ', '), ''
-             ) as tags
+             GROUP_CONCAT(DISTINCT TgText ORDER BY TgText separator ', ') as parenttags
              FROM wordtags
              INNER JOIN tags ON TgID = WtTgID
              INNER JOIN wordparents on wordparents.WpParentWoID = wordtags.WtWoID
