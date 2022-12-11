@@ -16,7 +16,7 @@
 
 {% elseif item.WordCount > 1 %}
 <span id="{{ item.SpanID }}"
-      class="click mword wsty order{{ item.Order }} word{{ item.WoID }} status{{ item.WoStatus }} {{ item.TermClassname }}"
+      class="click mword wsty word{{ item.WoID }} status{{ item.WoStatus }} {{ item.TermClassname }}"
       data_pos="{{ data_pos }}"
       data_order="{{ item.Order }}"
       data_trans="{{ item.WoTranslation }} {{ item.Tags }}"
@@ -29,61 +29,18 @@
       parent_trans="{{ item.ParentWoTranslation }} {{ item.ParentTags }}">{{ item.Text }}</span>
 
 {% else %}
-
-<p>
-        // Word found status 1-5|98|99
-        $clist = "{$hidetag} click word wsty word{$r['WoID']} status{$r['WoStatus']} {$termclass}";
-
-        $attrs = [
-            'id' => $spanid,
-            'class' => $clist,
-            'data_pos' => $currcharcount,
-            'data_order' => $r['Ti2Order'],
-            'data_wid' => $r['WoID'],
-            'data_trans' => $trans,
-            'data_rom' => tohtml($r['WoRomanization']),
-            'data_status' => $r['WoStatus']
-        ];
-
-        if ($r['ParentWoID']) {
-            $ptrans = repl_tab_nl($r['ParentWoTranslation']);
-            $ptaglist = getWordTagList($r['ParentWoID'], ' ', 1, 0);
-            $attrs['parent_text'] = tohtml($r['ParentWoTextLC']);
-            $attrs['parent_trans'] = tohtml($ptrans . $ptaglist);
-        };
-
-        $content = tohtml($r['TiText']);
-        echo here
-        return;
-
-</p>
-
-  <br />
-<p>Raw data for Text: {{ item.Text }}</p>
-<br />
-<p>span ID: {{ item.SpanID }}</p>
-<p>class name: {{ item.TermClassname }}</p>
-<P>WordCount: {{ item.WordCount }}</P>
-<p>data_pos: {{ data_pos }}</p>
-<P>WordCount: {{ item.WordCount }}</P>
-<P>TextLC: {{ item.TextLC }}</P>
-<P>Order: {{ item.Order }}</P>
-<P>SeID: {{ item.SeID }}</P>
-<P>IsWord: {{ item.IsWord }}</P>
-<P>TextLength: {{ item.TextLength }}</P>
-<P>WoID: {{ item.WoID }}</P>
-<P>WoText: {{ item.WoText }}</P>
-<P>WoStatus: {{ item.WoStatus }}</P>
-<P>WoTranslation: {{ item.WoTranslation }}</P>
-<P>WoRomanization: {{ item.WoRomanization }}</P>
-<p>Tags: {{ item.Tags }}</p>
-
-<p>
-  ParentWoID: {{ item.ParentWoID }},
-  ParentWoTextLC: {{ item.ParentWoTextLC }},
-  ParentWoTranslation: {{ item.ParentWoTranslation }},
-  ParentTags: {{ item.ParentTags }}
-</p>
+<span id="{{ item.SpanID }}"
+      class="click word wsty word{{ item.WoID }} status{{ item.WoStatus }} {{ item.TermClassname }}"
+      data_pos="{{ data_pos }}"
+      data_order="{{ item.Order }}"
+      data_trans="{{ item.WoTranslation }} {{ item.Tags }}"
+      data_rom="{{ item.WoRomanization }}"
+      data_status="{{ item.WoStatus }}"
+      data_code="{{ item.WordCount }}"
+      data_text="{{ item.Text }}"
+      data_wid="{{ item.WoID }}"
+      parent_text="{{ item.ParentWoTextLC }}"
+      parent_trans="{{ item.ParentWoTranslation }} {{ item.ParentTags }}">{{ item.Text }}</span>
 
 {% endif %}
 
