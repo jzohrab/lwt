@@ -67,43 +67,22 @@ class Sentence
             $ti->Keep = true;  // Assume keep them all at first.
         }
 
-        echo "\nWITH RANGES:\n";
-        foreach($items as $ti) {
-            echo "{$ti->Text} [{$ti->Order}, {$ti->OrderEnd}]\n";
-        }
-        echo "---------------\n";
-
         $mwords = array_filter($items, function($i) { return $i->WordCount > 1; });
-
-        echo "\nMWORDS:\n";
-        foreach($mwords as $ti) {
-            echo "{$ti->Text} [{$ti->Order}, {$ti->OrderEnd}]\n";
-        }
-        echo "---------------\n";
         
         $sort_desc_range_size = function($a, $b) {
             return ($a->WordCount > $b->WordCount) ? -1 : 1;
         };
         usort($mwords, $sort_desc_range_size);
 
-        echo "\nMWORDS SORTED:\n";
-        foreach($mwords as $ti) {
-            echo "{$ti->Text} [{$ti->Order}, {$ti->OrderEnd}]\n";
-        }
-        echo "---------------\n";
-
+        // Don't keep anything contained by a multiword,
+        // but don't delete the multiword itself!
         foreach ($mwords as $mw) {
-            echo "CHECKING CONTAINMENT by {$mw->Text} [{$mw->Order}, {$mw->OrderEnd}]\n";
             $isContained = function($i) use ($mw){
-                echo "comparing {$i->Text} [{$i->Order}, {$i->OrderEnd}] with {$mw->Text} [{$mw->Order}, {$mw->OrderEnd}]\n";
                 $contained = $i->Order >= $mw->Order && $i->OrderEnd <= $mw->OrderEnd;
                 $equivalent = $i->Order == $mw->Order && $i->OrderEnd == $mw->OrderEnd;
-                echo "contained? " . ($contained ? 'yes' : 'no') . "\n";
-                echo "equivalent? " . ($equivalent ? 'yes' : 'no') . "\n";
                 return $contained && !$equivalent;
             };
 
-            // $contained = array_filter($items, $isContained);
             $contained = array_filter($items, $isContained);
             foreach ($contained as $c) {
                 $c->Keep = false;
