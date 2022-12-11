@@ -32,7 +32,7 @@ final class TextRepository_getSentences_Test extends RepositoryTestBase
 
         $t = new Text();
         $t->setTitle("Hola.");
-        $t->setText("Hola tengo un gato.  No tengo una lista.  Ella tiene una bebida.");
+        $t->setText("Hola tengo un gato.  No tengo una lista.\nElla tiene una bebida.");
         $lang = $this->language_repo->find($this->langid);
         $t->setLanguage($lang);
         $this->text_repo->save($t, true);
@@ -61,16 +61,16 @@ final class TextRepository_getSentences_Test extends RepositoryTestBase
 "2; 15;  ",
 "2; 16; lista",
 "2; 17; .",
-"3; 18;  ",
-"3; 19; Ella",
-"3; 20;  ",
-"3; 21; tiene una",
-"3; 21; tiene",
-"3; 22;  ",
-"3; 23; una",
-"3; 24;  ",
-"3; 25; bebida",
-"3; 26; .",
+"3; 18; ¶",
+"4; 19; Ella",
+"4; 20;  ",
+"4; 21; tiene una",
+"4; 21; tiene",
+"4; 22;  ",
+"4; 23; una",
+"4; 24;  ",
+"4; 25; bebida",
+"4; 26; .",
 
         ];
         DbHelpers::assertTableContains($allti2, $expected, 'terms');
@@ -82,9 +82,9 @@ final class TextRepository_getSentences_Test extends RepositoryTestBase
         // original text:
         // Hola tengo un gato.  No tengo una lista.  Ella tiene una bebida.
 
-        DbHelpers::assertRecordcountEquals("sentences", 3, 'sentences');
+        DbHelpers::assertRecordcountEquals("sentences", 4, 'sentences');
         $sentences = $this->text_repo->getSentences($this->text);
-        $this->assertEquals(count($sentences), 3, '3 sentences');
+        $this->assertEquals(count($sentences), 4, '4 sentences');
     }
 
 }

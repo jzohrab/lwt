@@ -68,4 +68,12 @@ class TextItem
         return "TERM{$r}";
     }
 
+    public function getSpanID(): string {
+        $parts = [
+            'ID',
+            $this->Order,
+            max(1, $this->WordCount)
+        ];
+        return implode('-', $parts);
+    }
 }

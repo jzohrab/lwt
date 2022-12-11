@@ -11,8 +11,26 @@
 <p>Rendering:</p>
 
 <p>
-{% if item.WoID is null %}
-NULL
+
+  {% if item.Text == '¶' %}
+  <br />
+
+  {% elseif item.WordCount == 0 %}
+
+  <span id="{{ item.SpanID }}">{{ item.Text }}</span>
+
+  {% elseif item.WoID is null %}
+
+  <span id="{{ item.SpanID }}"
+        class="click word wsty status0 {{ item.TermClassname }}"
+        data_pos="{{ data_pos }}"
+        data_order="{{ item.Order }}"
+        data_trans=""
+        data_rom=""
+        data_status="0"
+        data_wid=""
+        >{{ item.Text }}</span>
+
 {% elseif item.WordCount > 1 %}
 MULTI
 {% else %}
@@ -23,6 +41,8 @@ REGULAR
 <br />
 <br />
 <p>Raw data for Text: {{ item.Text }}</p>
+<br />
+<p>span ID: {{ item.SpanID }}</p>
 <p>class name: {{ item.TermClassname }}</p>
 <P>WordCount: {{ item.WordCount }}</P>
 <p>data_pos: {{ data_pos }}</p>
