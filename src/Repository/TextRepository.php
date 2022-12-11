@@ -140,7 +140,7 @@ class TextRepository extends ServiceEntityRepository
 
         $textid = $textid = $entity->getID();
         $sql = "SELECT
-           CASE WHEN Ti2WordCount>0 THEN Ti2WordCount ELSE 1 END AS WordCount,
+           Ti2WordCount AS WordCount,
            Ti2Text AS Text,
            Ti2TextLC AS TextLC,
            Ti2Order AS `Order`,

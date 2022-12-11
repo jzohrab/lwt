@@ -1,6 +1,30 @@
+{% if false %}
+
+<span>{{ item.Text }}</span>
+
+{% else %}
+
+<hr />
+
 <h2>Text: {{ item.Text }}</h2>
 
+<p>Rendering:</p>
+
+<p>
+{% if item.WoID is null %}
+NULL
+{% elseif item.WordCount > 1 %}
+MULTI
+{% else %}
+REGULAR
+{% endif %}
+</p>
+
+<br />
+<br />
+<p>Raw data for Text: {{ item.Text }}</p>
 <p>class name: {{ item.TermClassname }}</p>
+<P>WordCount: {{ item.WordCount }}</P>
 <p>data_pos: {{ data_pos }}</p>
 <P>WordCount: {{ item.WordCount }}</P>
 <P>TextLC: {{ item.TextLC }}</P>
@@ -14,6 +38,12 @@
 <P>WoTranslation: {{ item.WoTranslation }}</P>
 <P>WoRomanization: {{ item.WoRomanization }}</P>
 <p>Tags: {{ item.Tags }}</p>
-<p>ParentWoID: {{ item.ParentWoID }}, ParentWoTextLC: {{ item.ParentWoTextLC }}, ParentWoTranslation: {{ item.ParentWoTranslation }}, ParentTags: {{ item.ParentTags }}</p>
 
+<p>
+  ParentWoID: {{ item.ParentWoID }},
+  ParentWoTextLC: {{ item.ParentWoTextLC }},
+  ParentWoTranslation: {{ item.ParentWoTranslation }},
+  ParentTags: {{ item.ParentTags }}
+</p>
 
+{% endif %}
