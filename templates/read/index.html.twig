@@ -1,0 +1,18 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Read{% endblock %}
+
+{% block body %}
+
+{% for sentence in sentences %}
+
+<span><p>seid to go in span</p>
+
+  {% for item in sentence.renderable %}
+  <span>{{ item.Text }}</span>
+  {% endfor %}
+  
+</span>
+{% endfor %}
+
+{% endblock %}

@@ -95,4 +95,12 @@ class Sentence
             $renderer($i);
         }
     }
+
+
+    public function renderable() {
+        $items = $this->textitems_not_contained_by_other_text_items();
+        $items = $this->sort_by_order_and_wordcount($items);
+        return $items;
+    }
+
 }

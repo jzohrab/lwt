@@ -3,6 +3,8 @@
 namespace App\Repository;
 
 use App\Entity\Text;
+use App\Entity\Sentence;
+use App\Entity\TextItem;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -132,6 +134,46 @@ class TextRepository extends ServiceEntityRepository
             $ret[] = $t;
         }
         return $ret;
+    }
+
+
+    public function getSentences(Text $entity) {
+        // Returning dummy data for now reusing test code.
+
+        $make_sentence = function ($data) {
+            $makeTextItem = function($row) {
+                $t = new TextItem();
+                $t->Order = $row[0];
+                $t->Text = $row[1];
+                $t->WordCount = $row[2];
+                return $t;
+            };
+
+            $textItems = array_map($makeTextItem, $data);
+            return new Sentence($textItems);
+        };
+
+        $s1 = [
+            [ 1, 'some', 1 ],
+            [ 5, 'here', 1 ],
+            [ 4, ' ', 0 ],
+            [ 3, 'data', 1 ],
+            [ 2, ' ', 0 ],
+            [ 3, 'data here', 2 ],  // <<<
+            [ 6, '.', 0 ]
+        ];
+        $s2 = [
+            [ 11, 'more', 1 ],
+            [ 15, 'here', 1 ],
+            [ 14, ' ', 0 ],
+            [ 13, 'stuff', 1 ],
+            [ 12, ' ', 0 ],
+            [ 13, 'stuff here', 2 ],  // <<<
+            [ 16, '.', 0 ]
+        ];
+
+        return array_map($make_sentence, [ $s1, $s2 ]);
+
     }
 
     /* Status pivot table query.  Slow when querying for all texts, fast with just one. */
