@@ -9,14 +9,6 @@ use PHPUnit\Framework\TestCase;
 class Sentence_getRenderableTextItems_Test extends TestCase
 {
 
-    public function setUp(): void
-    {
-        $this->rendered = '';
-        $this->fakeRender = function($ti) {
-            $this->rendered .= "[{$ti->Text}-{$ti->WordCount}]";
-        };
-    }
-
     // $data = [ [ order, text, wordcount ], ... ]
     private function make_sentence($data)
     {
