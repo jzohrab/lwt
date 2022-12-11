@@ -152,14 +152,40 @@ class TextRepository extends ServiceEntityRepository
            w.WoStatus,
            w.WoTranslation,
            w.WoRomanization,
+           wordtaglist.tags as Tags,
+
            pw.WoID as ParentWoID,
            pw.WoTextLC as ParentWoTextLC,
-           pw.WoTranslation as ParentWoTranslation
+           pw.WoTranslation as ParentWoTranslation,
+           parenttaglist.tags as ParentTags
 
            FROM textitems2
            LEFT JOIN words AS w ON Ti2WoID = w.WoID
+           LEFT JOIN (
+             SELECT
+             WtWoID,
+             IFNULL(
+               GROUP_CONCAT(DISTINCT TgText ORDER BY TgText separator ', '), ''
+             ) as tags
+             FROM wordtags
+             INNER JOIN tags ON TgID = WtTgID
+             GROUP BY WtWoID
+           ) wordtaglist on wordtaglist.WtWoID = w.WoID
+
            LEFT JOIN wordparents ON wordparents.WpWoID = w.WoID
            LEFT JOIN words AS pw on pw.WoID = wordparents.WpParentWoID
+           LEFT JOIN (
+             SELECT
+             wordparents.WpWoID,
+             IFNULL(
+               GROUP_CONCAT(DISTINCT TgText ORDER BY TgText separator ', '), ''
+             ) as tags
+             FROM wordtags
+             INNER JOIN tags ON TgID = WtTgID
+             INNER JOIN wordparents on wordparents.WpParentWoID = wordtags.WtWoID
+             GROUP BY WpWoID
+           ) parenttaglist on parenttaglist.WpWoID = w.WoID
+
            WHERE Ti2TxID = $textid
            ORDER BY Ti2Order asc, Ti2WordCount desc";
 
