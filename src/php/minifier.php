@@ -81,7 +81,7 @@ function minifyAllJS(): string
 function minifyLuteJS(): string 
 {
     $src = array(
-        'src/js/lute.js',
+        // 'src/js/lute.js',
         'src/js/bulk_status_edit.js'
     );
     $minifier = new Minify\JS();
@@ -93,7 +93,7 @@ function minifyLuteJS(): string
             echo "  missing $path \n";
         }
     }
-    return $minifier->minify("public/js/lute.js");
+    return $minifier->minify("public/js/lute_extra.js");
 }
 
 
@@ -176,7 +176,7 @@ function minify_everything()
     minifyAllCSS();
     echo "Minifying JS...\n";
     minifyAllJS();
-    echo "Lute JS\n";
+    echo "Lute extra JS -- note that the main file is just committed in public src, for dev speed.\n";
     minifyLuteJS();
     echo "(Disabled theme regeneration, to be replaced by Symfony themes.)\n";
     // echo "Regenerating themes...\n";
