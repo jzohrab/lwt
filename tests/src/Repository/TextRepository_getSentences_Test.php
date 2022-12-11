@@ -5,7 +5,7 @@ require_once __DIR__ . '/RepositoryTestBase.php';
 
 use App\Entity\Text;
     
-final class TextRepository_render_Test extends RepositoryTestBase
+final class TextRepository_getSentences_Test extends RepositoryTestBase
 {
 
     public function childSetUp(): void
@@ -25,6 +25,7 @@ final class TextRepository_render_Test extends RepositoryTestBase
         $lang = $this->language_repo->find($this->langid);
         $t->setLanguage($lang);
         $this->text_repo->save($t, true);
+        $this->text = $t;
 
         // Initial double-check.
         $allti2 = "select Ti2SeID, Ti2Order, Ti2Text from textitems2 order by Ti2Order, Ti2WordCount DESC";
@@ -62,25 +63,17 @@ final class TextRepository_render_Test extends RepositoryTestBase
 
         ];
         DbHelpers::assertTableContains($allti2, $expected, 'terms');
-
-        DbHelpers::assertRecordcountEquals("sentences", 3, 'sentences');
     }
 
-    public function tearDown(): void
-    {
-        // echo "tearing down ... \n";
-    }
 
     public function test_smoke_test()
     {
-        $date = date('Y-m-d', time());
-        if ($date > '2022-12-20') {
-            echo "\n\n*** Is this test class still needed TextRepository_render_Test ? ****\n\n";
-        }
-        if ($date > '2023-01-05') {
-            $this->assertEquals(1, 0, 'should have implemented or gotten rid of this.');
-        }
-        $this->assertEquals(1, 1, 'todo');
+        // original text:
+        // Hola tengo un gato.  No tengo una lista.  Ella tiene una bebida.
+
+        DbHelpers::assertRecordcountEquals("sentences", 3, 'sentences');
+        $sentences = $this->text_repo->getSentences($this->text);
+        $this->assertEquals(count($sentences), 3, '3 sentences');
     }
 
 }
