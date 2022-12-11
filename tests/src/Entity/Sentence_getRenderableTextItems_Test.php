@@ -13,7 +13,7 @@ class Sentence_getRenderableTextItems_Test extends TestCase
     {
         $this->rendered = '';
         $this->fakeRender = function($ti) {
-            $this->rendered .= $ti->Text;
+            $this->rendered .= "[{$ti->Text}-{$ti->WordCount}]";
         };
     }
 
@@ -31,7 +31,7 @@ class Sentence_getRenderableTextItems_Test extends TestCase
         return new Sentence($textItems);
     }
     
-    public function test_render()
+    public function test_simple_render()
     {
         $data = [
             [ 1, 'some', 1 ],
@@ -43,7 +43,24 @@ class Sentence_getRenderableTextItems_Test extends TestCase
         ];
         $sentence = $this->make_sentence($data);
         $sentence->render($this->fakeRender);
-        $expected = 'some data here.';
+        $expected = '[some-1][ -0][data-1][ -0][here-1][.-0]';
+        $this->assertEquals($this->rendered, $expected);
+    }
+
+    // Just in case, since ordering is so important.
+    public function test_data_out_of_order_still_ok()
+    {
+        $data = [
+            [ 1, 'some', 1 ],
+            [ 5, 'here', 1 ],
+            [ 4, ' ', 0 ],
+            [ 3, 'data', 1 ],
+            [ 2, ' ', 0 ],
+            [ 6, '.', 0 ]
+        ];
+        $sentence = $this->make_sentence($data);
+        $sentence->render($this->fakeRender);
+        $expected = '[some-1][ -0][data-1][ -0][here-1][.-0]';
         $this->assertEquals($this->rendered, $expected);
     }
 

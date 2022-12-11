@@ -19,8 +19,21 @@ class Sentence
         $this->_textitems = $textitems;
     }
 
+    private function sortedTextItems(): array
+    {
+        $cmp = function($a, $b) {
+            if ($a->Order == $b->Order) {
+                return $a->WordCount > $b->WordCount;
+            }
+            return $a->Order > $b->Order;
+        };
+
+        usort($this->_textitems, $cmp);
+        return $this->_textitems;
+    }
+
     public function render($renderer) {
-        foreach($this->_textitems as $ti) {
+        foreach($this->sortedTextItems() as $ti) {
             $renderer($ti);
         }
     }
