@@ -86,57 +86,26 @@ function get_span_groups(): array
 
 /**
  * Display the current text options.
- * 
- * @return void
  */
-function do_current_text_info($textid)
-{
-    $txttit = get_first_value(
-        'SELECT TxTitle AS value 
-        FROM texts 
-        WHERE TxID=' . $textid
-    );
-    if (!isset($txttit)) {
-        return;
-    } 
-    $txtlng = get_first_value(
-        'SELECT TxLgID AS value FROM texts WHERE TxID=' . $textid
-    );
-    $lngname = getLanguage($txtlng);
-    $annotated = (int)get_first_value(
-        "SELECT LENGTH(TxAnnotatedText) AS value 
-        FROM texts 
-        WHERE TxID = " . $textid
-    ) > 0;
-    ?>
- 
- <div style="height: 85px;">
-    Last Text (<?php echo tohtml($lngname); ?>):<br /> 
-    <i><?php echo tohtml($txttit); ?></i>
-    <br />
-    <a href="do_text.php?start=<?php echo $textid; ?>">
-        <img src="icn/book-open-bookmark.png" title="Read" alt="Read" />&nbsp;Read
-    </a>
-    &nbsp; &nbsp; 
-    <a href="do_test.php?text=<?php echo $textid; ?>">
-        <img src="icn/question-balloon.png" title="Test" alt="Test" />&nbsp;Test
-    </a>
-    &nbsp; &nbsp; 
-    <a href="print_text.php?text=<?php echo $textid; ?>">
-        <img src="icn/printer.png" title="Print" alt="Print" />&nbsp;Print
-    </a>
-    <?php
-    if ($annotated) {
-        ?>
-    &nbsp; &nbsp; 
-    <a href="print_impr_text.php?text=<?php echo $textid; ?>">
-        <img src="icn/tick.png" title="Improved Annotated Text" alt="Improved Annotated Text" />&nbsp;Ann. Text
-    </a>
-        <?php
-    }
-    ?>
- </div>
-    <?php
+function do_current_text_info() {
+  $sql = "select TxID, TxTitle from texts
+      where txid = (select StValue from settings where StKey = 'currenttext')";
+  $res = do_mysqli_query($sql);
+  $record = mysqli_fetch_assoc($res);
+  mysqli_free_result($res);
+  if (! $record) {
+    return;
+  }
+
+  $txttit = $record['TxTitle'];
+  $textid = $record['TxID'];
+?>
+  <div>
+  <a href="do_text.php?start=<?php echo $textid; ?>">
+  <img src="icn/book-open-bookmark.png" title="Read" alt="Read" />
+  </a> Keep reading &quot;<?php echo tohtml($txttit); ?>&quot;
+  </div>
+<?php
 }
 
 /**
@@ -234,11 +203,6 @@ if (is_numeric(getSetting('currentlanguage'))) {
     $currentlang = (int) getSetting('currentlanguage');
 }
 
-$currenttext = null;
-if (is_numeric(getSetting('currenttext'))) {
-    $currenttext = (int) getSetting('currenttext');
-}
-
 $langcnt = (int) get_first_value('SELECT COUNT(*) AS value FROM languages');
 
 list($p, $mb, $serversoft, $apache, $php, $mysql) = get_server_data();
@@ -315,9 +279,7 @@ global $userid, $passwd, $server, $dbname;
             <?php
         } else if ($langcnt > 0) {
             do_language_selectable($currentlang);
-            if ($currenttext !== null) {
-                do_current_text_info($currenttext);
-            }
+            do_current_text_info();
         } 
         ?>
         <a href="/language">Languages</a>
@@ -367,9 +329,7 @@ global $userid, $passwd, $server, $dbname;
             <?php
         } else if ($langcnt > 0) {
             do_language_selectable($currentlang);
-            if ($currenttext !== null) {
-                do_current_text_info($currenttext);
-            }
+            do_current_text_info();
         } 
         ?>
             <a href="edit_languages.php">Languages</a>
