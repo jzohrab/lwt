@@ -30,11 +30,26 @@ class DbHelpers {
         return $conn;
     }
 
-    public static function exec_sql_get_result($sql, $params = null) {
+    public static function exec_statement($sql, $params = null) {
         $conn = DbHelpers::get_connection();
         $stmt = $conn->prepare($sql);
         if (!$stmt) {
             throw new Exception($DBCONNECTION->error);
+        }
+        if ($params) {
+            $stmt->bind_param(...$params);
+        }
+        if (!$stmt->execute()) {
+            throw new Exception($stmt->error);
+        }
+        return $stmt;
+    }
+
+    public static function exec_sql_get_result($sql, $params = null) {
+        $conn = DbHelpers::get_connection();
+        $stmt = $conn->prepare($sql);
+        if (!$stmt) {
+            throw new Exception($conn->error);
         }
         if ($params) {
             $stmt->bind_param(...$params);
@@ -49,7 +64,7 @@ class DbHelpers {
         $conn = DbHelpers::get_connection();
         $stmt = $conn->prepare($sql);
         if (!$stmt) {
-            throw new Exception($DBCONNECTION->error);
+            throw new Exception($conn->error);
         }
         if ($params) {
             $stmt->bind_param(...$params);
