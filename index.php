@@ -279,7 +279,6 @@ global $userid, $passwd, $server, $dbname;
             <?php
         } else if ($langcnt > 0) {
             do_language_selectable($currentlang);
-            do_current_text_info();
         } 
         ?>
         <a href="/language">Languages</a>
@@ -287,6 +286,7 @@ global $userid, $passwd, $server, $dbname;
 
     <div class="menu">
         <a href="/text">Texts</a>
+        <?php do_current_text_info(); ?>
         <a href="/text/archived">Text Archive</a>
         <a class="disabled-link" href="edit_texttags.php">Text Tags</a>
         <a class="disabled-link" href="long_text_import.php">Long Text Import</a>
