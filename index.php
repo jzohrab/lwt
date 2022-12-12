@@ -97,14 +97,14 @@ function do_current_text_info() {
     return;
   }
 
-  $txttit = $record['TxTitle'];
+  $txttit = tohtml($record['TxTitle']);
   $textid = $record['TxID'];
 ?>
-  <div>
-  <a href="do_text.php?start=<?php echo $textid; ?>">
-  <img src="icn/book-open-bookmark.png" title="Read" alt="Read" />
-  </a> Keep reading &quot;<?php echo tohtml($txttit); ?>&quot;
-  </div>
+  <a href="do_text.php?start=<?= $textid ?>">
+    <img src="icn/book-open-bookmark.png" title="Read" alt="Read" />
+    Keep reading &quot;<?= $txttit ?>&quot;
+  </a>
+
 <?php
 }
 
