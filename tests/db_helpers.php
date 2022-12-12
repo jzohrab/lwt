@@ -30,8 +30,37 @@ class DbHelpers {
         return $conn;
     }
 
-    public static function exec_sql($sql) {
+    public static function exec_sql_get_result($sql, $params = null) {
         $conn = DbHelpers::get_connection();
+        $stmt = $conn->prepare($sql);
+        if (!$stmt) {
+            throw new Exception($DBCONNECTION->error);
+        }
+        if ($params) {
+            $stmt->bind_param(...$params);
+        }
+        if (!$stmt->execute()) {
+            throw new Exception($stmt->error);
+        }
+        return $stmt->get_result();
+    }
+
+    public static function exec_sql($sql, $params = null) {
+        $conn = DbHelpers::get_connection();
+        $stmt = $conn->prepare($sql);
+        if (!$stmt) {
+            throw new Exception($DBCONNECTION->error);
+        }
+        if ($params) {
+            $stmt->bind_param(...$params);
+        }
+        if (!$stmt->execute()) {
+            throw new Exception($stmt->error);
+        }
+
+        return $stmt->insert_id;
+
+        /*
         $res = mysqli_query($conn, $sql);
         if ($res != false) {
             return $res;
@@ -39,12 +68,13 @@ class DbHelpers {
         $errmsg = mysqli_error($conn);
         $msg = $errmsg . "\nfrom sql:\n" . '"' . $sql . '"';
         throw new Exception($msg);
+        */
     }
 
     /** Gets first field of first record. */
     private static function get_first_value($sql) 
     {
-        $res = DbHelpers::exec_sql($sql);
+        $res = DbHelpers::exec_sql_get_result($sql);
         $record = mysqli_fetch_array($res, MYSQLI_NUM);
         mysqli_free_result($res);
         $ret = null;
@@ -211,7 +241,7 @@ you must use a dedicated test database when running tests.
 
     public static function assertTableContains($sql, $expected, $message = '') {
         $content = [];
-        $res = DbHelpers::exec_sql($sql);
+        $res = DbHelpers::exec_sql_get_result($sql);
         while($row = mysqli_fetch_assoc($res)) {
             $content[] = implode('; ', $row);
         }
