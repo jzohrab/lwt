@@ -134,15 +134,6 @@ you must use a dedicated test database when running tests.
      * also very inefficient!  Will fix if tests get stupid slow.
      */
 
-    public static function exec_statement($stmt) {
-        if (!$stmt) {
-            throw new Exception($DBCONNECTION->error);
-        }
-        if (!$stmt->execute()) {
-            throw new Exception($stmt->error);
-        }
-    }
-    
     public static function exec_statement_sql($sql, $params = null) {
         global $DBCONNECTION;
         $stmt = $DBCONNECTION->prepare($sql);
