@@ -2,8 +2,6 @@
 
 /** 
  * Prepare the interaction events with the text.
- * 
- * @since 2.0.3-fork
  */
 function prepareTextInteractions(textid) {
   $('.word').on('click', word_clicked);
