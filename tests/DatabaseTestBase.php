@@ -1,18 +1,53 @@
 <?php declare(strict_types=1);
 
-require_once __DIR__ . '/../../db_helpers.php';
-require_once __DIR__ . '/RepositoryTestBase.php';
+// Repository tests require an entity manager.
+// See ref https://symfony.com/doc/current/testing.html#integration-tests
+// for some notes about the kernel and entity manager.
+// Note that tests must be run with the phpunit.xml.dist config file.
 
-use App\Entity\Text;
-use App\Entity\Language;
+require_once __DIR__ . '/db_helpers.php';
 
-// This isn't really a test ... it just loads the database with data.
-// Still reasonable to keep as a test though as it needs to always
-// work.
-final class LoadTestData_Test extends RepositoryTestBase
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+
+abstract class DatabaseTestBase extends WebTestCase
 {
 
-    public function childSetUp(): void
+    public function setUp(): void
+    {
+        $inimsg = 'php.ini must set mysqli.allow_local_infile to 1.';
+        $this->assertEquals(ini_get('mysqli.allow_local_infile'), '1', $inimsg);
+
+        // Set up db.
+        DbHelpers::ensure_using_test_db();
+        DbHelpers::clean_db();
+
+        $kernel = static::createKernel();
+        $kernel->boot();
+        $this->entity_manager = $kernel->getContainer()->get('doctrine.orm.entity_manager');
+
+        $this->text_repo = $this->entity_manager->getRepository(App\Entity\Text::class);
+        $this->language_repo = $this->entity_manager->getRepository(App\Entity\Language::class);
+        $this->texttag_repo = $this->entity_manager->getRepository(App\Entity\TextTag::class);
+
+        $this->childSetUp();
+    }
+
+    public function childSetUp() {
+        // no-op, child tests can override this to set up stuff.
+    }
+
+    public function tearDown(): void
+    {
+        // echo "tearing down ... \n";
+        $this->childTearDown();
+    }
+
+    public function childTearDown(): void
+    {
+        // echo "tearing down ... \n";
+    }
+
+    public function load_test_data(): void
     {
         // Set up db.
         $spanish = new Language();
@@ -62,12 +97,6 @@ final class LoadTestData_Test extends RepositoryTestBase
         $frt->setText("Bonjour je suis lista.");
         $frt->setLanguage($french);
         $this->text_repo->save($frt, true);
-    }
-
-
-    public function test_smoke_test()
-    {
-        $this->assertEquals(1, 1, 'dummy test to stop phpunit complaint');
     }
 
 }
