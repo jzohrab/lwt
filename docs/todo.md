@@ -2,32 +2,43 @@
 
 (This list is likely incomplete.)  Sorted more-or-less by priority.  As things are done, they're moved to the Done list and possibly referenced in the top-level README.
 
-## MVP
+## MVP Phase 1
 
 The initial goal of this project is to get the minimum set of features implemented under the new Symfony framework:
 
 * define Language - DONE
 * create a text - DONE
-* rework rendering
+* rework rendering - DONE
+* right pane word definition pop-up
+** create terms and multiword terms
 * import a long text file
-* create terms and multiword terms
-* set statuses
-* manage term tags
+* ajax set statuses
 * bulk status updates
+* move parsing stuff to separate class with smaller interface.
+** Note: after creating a multiword expression, just re-render the current page - the "insert expressions (mode)" stuff is just too messy.
+** Remove all deps on database_connection.php in this class.
+** On text open, just re-parse it.  This takes care of any parsing and expression issues, and should speed up status updates for the current page too.
+* settings?  Not sure if needed at the moment.
 
-A lot of things will be removed at first:
+A lot of things will be removed at first, and *might* be re-introduced after the MVP is done.  They should be removed for the MVP so that the code becomes more manageable, and old/really bad stuff can be tossed.
 
+* all old pages and inc files.
+* themes
 * rss feeds
 * all anki-like testing
 * texts.TxAnnotatedText field, and all "Improved annotation" eg. `/print_impr_text.php?text=1` (this really needs to be reworked, it stores data in a structured but non-intuitive way in the Texts table ...)
 * db import and export
 * old documentation
 * docker
-* texttag lists
 * multi-word edit screen `/edit_words.php`
 * bulk translation
+* overlib
 
-and they might be implemented at some point in the future.
+
+## MVP Phase 2
+
+* manage term tags
+* manage text tags
 
 ## Small projects
 
