@@ -57,18 +57,7 @@ class DbHelpers {
         if (!$stmt->execute()) {
             throw new Exception($stmt->error);
         }
-
         return $stmt->insert_id;
-
-        /*
-        $res = mysqli_query($conn, $sql);
-        if ($res != false) {
-            return $res;
-        }
-        $errmsg = mysqli_error($conn);
-        $msg = $errmsg . "\nfrom sql:\n" . '"' . $sql . '"';
-        throw new Exception($msg);
-        */
     }
 
     /** Gets first field of first record. */
@@ -164,32 +153,16 @@ you must use a dedicated test database when running tests.
      * also very inefficient!  Will fix if tests get stupid slow.
      */
 
-    public static function exec_statement_sql($sql, $params = null) {
-        global $DBCONNECTION;
-        $stmt = $DBCONNECTION->prepare($sql);
-        if (!$stmt) {
-            throw new Exception($DBCONNECTION->error);
-        }
-        if ($params) {
-            $stmt->bind_param(...$params);
-        }
-        if (!$stmt->execute()) {
-            throw new Exception($stmt->error);
-        }
-
-        return $stmt->insert_id;
-    }
-
     public static function add_text($text, $langid, $title = 'testing') {
         $sql = "INSERT INTO texts (TxLgID, TxTitle, TxText) VALUES (?, ?, ?)";
-        return DbHelpers::exec_statement_sql($sql, ["iss", $langid, $title, $text]);
+        return DbHelpers::exec_sql($sql, ["iss", $langid, $title, $text]);
     }
 
     // This just hacks directly into the table, it doesn't update textitems2 etc.
     public static function add_word($WoLgID, $WoText, $WoTextLC, $WoStatus, $WoWordCount) {
         $sql = "insert into words (WoLgID, WoText, WoTextLC, WoStatus, WoWordCount) values (?, ?, ?, ?, ?);";
         $params = ["issii", $WoLgID, $WoText, $WoTextLC, $WoStatus, $WoWordCount];
-        return DbHelpers::exec_statement_sql($sql, $params);
+        return DbHelpers::exec_sql($sql, $params);
     }
 
     public static function add_word_parent($wordtext, $parenttext) {
@@ -198,7 +171,7 @@ you must use a dedicated test database when running tests.
             (select WoID from words where WoText = ?),
             (select WoID from words where WoText = ?)
           )";
-        DbHelpers::exec_statement_sql($sql, ["ss", $wordtext, $parenttext]);
+        DbHelpers::exec_sql($sql, ["ss", $wordtext, $parenttext]);
     }
 
     public static function add_word_tag($wordtext, $tagtext) {
@@ -217,7 +190,7 @@ you must use a dedicated test database when running tests.
         foreach ($tags as $t) {
             $sql = "insert into tags (TgText, TgComment)
             values ('{$t}', '{$t} comment')";
-            $id = DbHelpers::exec_statement_sql($sql);
+            $id = DbHelpers::exec_sql($sql);
             $ids[] = $id;
         };
         return $ids;
@@ -228,7 +201,7 @@ you must use a dedicated test database when running tests.
         foreach ($tags as $t) {
             $sql = "insert into tags2 (T2Text, T2Comment)
             values ('{$t}', '{$t} comment')";
-            $id = DbHelpers::exec_statement_sql($sql);
+            $id = DbHelpers::exec_sql($sql);
             $ids[] = $id;
         };
         return $ids;
