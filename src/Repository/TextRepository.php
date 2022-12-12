@@ -140,6 +140,7 @@ class TextRepository extends ServiceEntityRepository
 
         $textid = $textid = $entity->getID();
         $sql = "SELECT
+           $textid AS TextID,
            Ti2WordCount AS WordCount,
            Ti2Text AS Text,
            Ti2TextLC AS TextLC,
@@ -196,7 +197,7 @@ class TextRepository extends ServiceEntityRepository
             foreach ($row as $key => $val) {
                 $t->$key = $val;
             }
-            $intkeys = [ 'WordCount', 'Order', 'SeID', 'IsWord', 'TextLength', 'WoID', 'WoStatus', 'ParentWoID' ];
+            $intkeys = [ 'TextID', 'WordCount', 'Order', 'SeID', 'IsWord', 'TextLength', 'WoID', 'WoStatus', 'ParentWoID' ];
             foreach ($intkeys as $key) {
                 $t->key = intval($t->$key);
             }

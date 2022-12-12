@@ -8,6 +8,7 @@
 {% elseif item.WoID is null %}
 <span id="{{ item.SpanID }}"
       class="{{ item.HtmlClassString }}"
+      tid="{{ item.TextID }}"
       data_pos="{{ data_pos }}"
       data_order="{{ item.Order }}"
       data_trans=""
@@ -18,6 +19,7 @@
 {% else %}
 <span id="{{ item.SpanID }}"
       class="{{ item.HtmlClassString }}"
+      tid="{{ item.TextID }}"
       data_pos="{{ data_pos }}"
       data_order="{{ item.Order }}"
       data_trans="{{ item.WoTranslation }} {{ item.Tags }}"
