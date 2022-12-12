@@ -19,11 +19,12 @@ A lot of things will be removed at first:
 
 * rss feeds
 * all anki-like testing
+* texts.TxAnnotatedText field, and all "Improved annotation" eg. `/print_impr_text.php?text=1` (this really needs to be reworked, it stores data in a structured but non-intuitive way in the Texts table ...)
 * db import and export
 * old documentation
 * docker
 * texttag lists
-* multi-word edit screen
+* multi-word edit screen `/edit_words.php`
 * bulk translation
 
 and they might be implemented at some point in the future.
