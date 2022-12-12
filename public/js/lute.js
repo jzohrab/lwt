@@ -6,7 +6,9 @@
 function prepareTextInteractions(textid) {
   $('.word').on('click', word_clicked);
   $('.word').mousedown(select_started);
+  $('.word').mouseover(select_over);
   $('.word').mouseup(select_ended);
+
   $(document).on('keydown', handle_keydown);
 
   $('#thetext').tooltip({
@@ -109,20 +111,48 @@ function word_clicked(e) {
   showEditFrame($(this));
 }
 
-var selection_start_el = null;
+let selection_start_el = null;
 
 function select_started(e) {
   mark_active($(this));
+  $(this).addClass('newmultiterm');
   selection_start_el = $(this);
 }
 
+function select_over(e) {
+  if (selection_start_el == null)
+    return;  // Not selecting
+
+  const startord = parseInt(selection_start_el.attr('data_order'))
+  const endord = parseInt($(this).attr('data_order'));
+  const selected = $("span.word").filter(function() {
+    const ord = $(this).attr("data_order");
+    return ord >= startord && ord <= endord;
+  });
+  selected.addClass('newmultiterm');
+
+  const notselected = $("span.word").filter(function() {
+    const ord = $(this).attr("data_order");
+    return ord < startord || ord > endord;
+  });
+  notselected.removeClass('newmultiterm');
+}
+
 function select_ended(e) {
+
+  const clear_newmultiterm_elements = function() {
+    $('.newmultiterm').removeClass('newmultiterm');
+    selection_start_el = null;
+  }
+  
   if (selection_start_el.attr('id') == $(this).attr('id')) {
+    clear_newmultiterm_elements();
     return;
   }
 
   if (selection_start_el.attr('seid') != $(this).attr('seid')) {
     alert("Selections cannot span sentences.");
+    clear_newmultiterm_elements();
     return;
   }
 
@@ -136,10 +166,12 @@ function select_ended(e) {
 
   if (text.length > 250) {
     alert(`Selections can be max length 250 chars ("${text}" is ${text.length} chars)`);
+    clear_newmultiterm_elements();
     return;
   }
 
   showEditFrame(selection_start_el, { text: text });
+  clear_newmultiterm_elements();
 }
 
 /********************************************/

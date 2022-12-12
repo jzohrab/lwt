@@ -596,7 +596,12 @@
  {
    border-bottom: 2px solid red !important;
  }
- 
+
+ .newmultiterm
+ {
+   background: yellow !important;
+ }
+
  #termtags
  {
    width: 340px;
