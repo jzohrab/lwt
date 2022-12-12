@@ -63,6 +63,9 @@ class Text
         return $this->TxID;
     }
 
+    // TODO - remove this.  I only created this to use this class as a
+    // DTO in the texts listing page, but that should have a dedicated
+    // DTO class.
     public function setID(int $TxID): self
     {
         if ($this->TxID != null) {
