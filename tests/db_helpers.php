@@ -236,7 +236,7 @@ you must use a dedicated test database when running tests.
 
         if ($c != $expected) {
             $content = [];
-            $res = DbHelpers::exec_sql($sql);
+            $res = DbHelpers::exec_sql_get_result($sql);
             while($row = mysqli_fetch_assoc($res)) {
                 $content[] = implode('; ', $row);
             }
