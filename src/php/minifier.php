@@ -74,6 +74,29 @@ function minifyAllJS(): string
     return $minifier->minify("public/js/pgm.js");
 }
 
+
+/**
+ * Minify Lute JavaScript files
+ */
+function minifyLuteJS(): string 
+{
+    $src = array(
+        // 'src/js/lute.js',
+        'src/js/bulk_status_edit.js'
+    );
+    $minifier = new Minify\JS();
+    foreach ($src as $path) {
+        if (file_exists($path)) {
+            $minifier->add($path);
+        }
+        else {
+            echo "  missing $path \n";
+        }
+    }
+    return $minifier->minify("public/js/lute_extra.js");
+}
+
+
 /**
  * Minify all Cascading-Style Sheet files
  * 
@@ -153,7 +176,8 @@ function minify_everything()
     minifyAllCSS();
     echo "Minifying JS...\n";
     minifyAllJS();
-
+    echo "Lute extra JS -- note that the main file is just committed in public src, for dev speed.\n";
+    minifyLuteJS();
     echo "(Disabled theme regeneration, to be replaced by Symfony themes.)\n";
     // echo "Regenerating themes...\n";
     // regenerateThemes();

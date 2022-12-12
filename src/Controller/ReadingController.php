@@ -18,6 +18,7 @@ class ReadingController extends AbstractController
     {
         $sentences = $textRepository->getSentences($text);
         return $this->render('read/index.html.twig', [
+            'dictionary_url' => $text->getLanguage()->getLgGoogleTranslateURI(),
             'sentences' => $sentences
         ]);
     }

@@ -24,13 +24,26 @@
     <script type="text/javascript" src="/js/jquery.jeditable.mini.js" charset="utf-8"></script>
     <script type="text/javascript" src="/js/tag-it.js" charset="utf-8"></script>
     <script type="text/javascript" src="/js/overlib/overlib_mini.js" charset="utf-8"></script>
-    <script type="text/javascript" src="/js/pgm.js" charset="utf-8"></script>
     <script type="text/javascript" src="/js/datatables.min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/js/jquery.hoverIntent.js" charset="utf-8"></script>
+
+    <script type="text/javascript" src="/js/lute.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/js/lute_extra.js" charset="utf-8"></script>
 
     <!-- Temp hack for rendering to work; content should be ajaxed in. -->
     <script type="text/javascript">
       //<![CDATA[
-      var STATUSES = [1,2,3,4,5];
+      var STATUSES = {
+        "0": {"abbr":"?","name":"Unknown"},
+        "1": {"abbr":"1","name":"Learning"},
+        "2":{"abbr":"2","name":"Learning"},
+        "3":{"abbr":"3","name":"Learning"},
+        "4":{"abbr":"4","name":"Learning"},
+        "5":{"abbr":"5","name":"Learned"},
+        "99":{"abbr":"WKn","name":"Well Known"},
+        "98":{"abbr":"Ign","name":"Ignored"}
+      };
+    
       var TAGS = ['fix', 'tags', 'in', 'head'];
       var TEXTTAGS = ['fix', 'tags', 'in', 'head'];
       //]]>
@@ -49,6 +62,7 @@
   </head>
 
   <body>
+    <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
     <p><a href="/">Home</a></p>
     {% block body %}{% endblock %}
   </body>

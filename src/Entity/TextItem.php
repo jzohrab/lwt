@@ -82,7 +82,6 @@ class TextItem
         if ($this->WoID == 0) {
             return "click word wsty status0 {$tc}";
         }
-        $wordsty = $this->WordCount > 1 ? 'mword' : 'word';
-        return "click {$wordsty} wsty word{$this->WoID} status{$this->WoStatus} {$tc}";
+        return "click word wsty word{$this->WoID} status{$this->WoStatus} {$tc}";
     }
 }

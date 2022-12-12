@@ -690,7 +690,8 @@ jQuery.fn.extend({
     }
     title += '<p><b>Status</b>: <span class="status' + status + '">' + statname + '</span></p>';
 
-    if ($(this).attr('parent_text')) {
+    const parent_text = $(this).attr('parent_text')
+    if (parent_text != '') {
       title += '<hr />';
       title += '<p><i>Parent term:</i></p>';
       title += "<p><b style='font-size:120%'>" + $(this).attr('parent_text') + "</b></p>";
