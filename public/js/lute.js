@@ -10,16 +10,63 @@ function prepareTextInteractions(textid) {
   $('.word').mousedown(select_started);
   $('.word').mouseup(select_ended);
   $(document).on('keydown', handle_keydown);
-  /*
-    $('#thetext').hoverIntent(
-        {
-            over: word_hover_over, 
-            out: word_hover_out, 
-            interval: 150, 
-            selector:".wsty,.mwsty"
-        }
-    );
-  */
+
+  $('#thetext').tooltip({
+    position: { my: 'left top+10', at: 'left bottom', collision: 'flipfit' },
+    items: '.hword',
+    show: { easing: 'easeOutCirc' },
+    content: function () { return tooltip_wsty_content(); }
+  });
+
+  $('#thetext').hoverIntent(
+    {
+      over: word_hover_over, 
+      out: word_hover_out, 
+      interval: 150, 
+      selector:".word"
+    }
+  );
+
+}
+
+let word_hover_over = function() {
+  $(this).addClass('hword');
+  $(this).trigger('mouseover');
+}
+
+let word_hover_out = function() {
+  $('.hword').removeClass('hword');
+  $('.ui-helper-hidden-accessible>div[style]').remove();
+}
+
+
+let tooltip_wsty_content = function () {
+  let content = `<p><b style="font-size:120%">${$(this).text()}</b></p>`;
+
+  const roman = $(this).attr('data_rom');
+  if (roman != '') {
+    content += '<p><b>Roman.</b>: ' + roman + '</p>';
+  }
+
+  const trans = $(this).attr('data_trans');
+  if (trans != '' && trans != '*') {
+    content += '<p><b>Transl.</b>: ' + trans + '</p>';
+  }
+
+  const status = parseInt($(this).attr('data_status'));
+  const st = STATUSES[status];
+  const statname = `${st['name']} [${st['abbr']}]`;
+  content += `<p><b>Status</b>: <span class="status${status}">${statname}</span></p>`;
+
+  const parent_text = $(this).attr('parent_text')
+  if (parent_text != '') {
+    content += '<hr /><p><i>Parent term:</i></p>';
+    content += "<p><b style='font-size:120%'>" + $(this).attr('parent_text') + "</b></p>";
+    let ptrans = $(this).attr('parent_trans');
+    content += '<p><b>Transl.</b>: ' + ptrans + '</p>';
+  }
+
+  return content;
 }
 
 
