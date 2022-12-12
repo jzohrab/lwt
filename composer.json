@@ -101,6 +101,12 @@
     "scripts": {
         "test": "./bin/phpunit -c phpunit.xml.dist",
         "testdata": "./bin/phpunit -c phpunit.xml.dist tests/LoadTestData_Test.php",
+        "nukecache": [
+            "rm -rf var/cache",
+            "php bin/console cache:clear",
+            "php bin/console cache:warmup",
+            "composer clearcache"
+        ],
         "info.html": "@php docs/info.php > docs/info.html",
         "doc": [
             "@info.html",
