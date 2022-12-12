@@ -3,12 +3,14 @@
 <p>
 
 {% elseif item.WordCount == 0 %}
-<span id="{{ item.SpanID }}">{{ item.Text }}</span>
+<span id="{{ item.SpanID }} style="user-select: none;">{{ item.Text }}</span>
 
 {% elseif item.WoID is null %}
 <span id="{{ item.SpanID }}"
+      style="user-select: none;"
       class="{{ item.HtmlClassString }}"
       tid="{{ item.TextID }}"
+      seid="{{ item.SeID }}"
       data_pos="{{ data_pos }}"
       data_order="{{ item.Order }}"
       data_trans=""
@@ -18,6 +20,7 @@
 
 {% else %}
 <span id="{{ item.SpanID }}"
+      style="user-select: none;"
       class="{{ item.HtmlClassString }}"
       tid="{{ item.TextID }}"
       data_pos="{{ data_pos }}"
