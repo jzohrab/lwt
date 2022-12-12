@@ -34,7 +34,7 @@ class DbHelpers {
         $conn = DbHelpers::get_connection();
         $stmt = $conn->prepare($sql);
         if (!$stmt) {
-            throw new Exception($DBCONNECTION->error);
+            throw new Exception($conn->error);
         }
         if ($params) {
             $stmt->bind_param(...$params);
