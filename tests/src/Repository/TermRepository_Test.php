@@ -25,6 +25,8 @@ final class TermRepository_Test extends DatabaseTestBase
         $t->setText("HOLA");
         $t->setStatus(1);
         $t->setWordCount(1);
+        $t->setTranslation('hi');
+        $t->setRomanization('ho-la');
         $this->term_repo->save($t, true);
 
         $this->assertEquals($t->getTextLC(), 'hola', "sanity check of case");

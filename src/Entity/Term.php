@@ -81,18 +81,68 @@ class Term
         return $this;
     }
 
-    public function getWoText(): ?string
-    {
-        return $this->WoText;
-    }
-
-    public function setWoText(string $WoText): self
+    public function setText(string $WoText): self
     {
         $this->WoText = $WoText;
         $this->WoTextLC = mb_strtolower($WoText);
         return $this;
     }
 
+    public function getText(): ?string
+    {
+        return $this->WoText;
+    }
+
+    public function getTextLC(string $WoText): ?string
+    {
+        return $this->WoTextLC;
+    }
+
+    public function setStatus(?int $n): self
+    {
+        $this->WoStatus = $n;
+        return $this;
+    }
+
+    public function getStatus(): ?int
+    {
+        return $this->WoStatus;
+    }
+
+    public function setWordCount(?int $n): self
+    {
+        $this->WoWordCount = $n;
+        return $this;
+    }
+
+    public function getWordCount(): ?int
+    {
+        return $this->WoWordCount;
+    }
+    
+    public function setTranslation(string $WoTranslation): self
+    {
+        $this->WoTranslation = $WoTranslation;
+        return $this;
+    }
+
+    public function getTranslation(): ?string
+    {
+        return $this->WoTranslation;
+    }
+
+    public function setRomanization(string $WoRomanization): self
+    {
+        $this->WoRomanization = $WoRomanization;
+        return $this;
+    }
+
+    public function getRomanization(): ?string
+    {
+        return $this->WoRomanization;
+    }
+
+    
     /**
      * @return Collection<int, TextTag>
      */
