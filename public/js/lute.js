@@ -218,7 +218,7 @@ let find_next_non_ignored_non_well_known = function(currindex, shiftby = 1) {
 };
 
 
-let next_unknown_word_index = function(currind) {
+let next_unknown_word_index = function(currindex) {
   let newindex = currindex + 1;
   while (newindex <= maxindex) {
     const nextword = words.eq(newindex);
