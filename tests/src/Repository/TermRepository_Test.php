@@ -11,14 +11,9 @@ final class TermRepository_Test extends DatabaseTestBase
 
     public function childSetUp() {
         $this->load_languages();
-
-        $this->t = new TermTag();
-        $this->t->setText("Hola");
-        $this->t->setComment("Hola comment");
-        $this->termtag_repo->save($this->t, true);
     }
 
-    public function test_create_and_save()
+    public function disab_test_create_and_save()
     {
         $t = new Term();
         $t->setLanguage($this->spanish);
@@ -36,11 +31,36 @@ final class TermRepository_Test extends DatabaseTestBase
         DbHelpers::assertTableContains($sql, $expected, "sanity check on save");
     }
 
-    /*
+
     public function test_word_with_parent_and_tags()
     {
+        $tag = new TermTag();
+        $tag->setText("tag");
+        $tag->setComment("tag comment");
+        $this->termtag_repo->save($tag, true);
+
+        $p = new Term();
+        $p->setLanguage($this->spanish);
+        $p->setText("PARENT");
+        $p->setStatus(1);
+        $p->setWordCount(1);
+        $this->term_repo->save($p, true);
+
+        $t = new Term();
+        $t->setLanguage($this->spanish);
+        $t->setText("HOLA");
+        $t->setStatus(1);
+        $t->setWordCount(1);
+        $t->setParent($p);
+        $t->addTermTag($tag);
+        $this->term_repo->save($t, true);
+
+        $sql = "select WoID, WoText, WoTextLC from words";
+        $expected = [ "1; PARENT; parent", "2; HOLA; hola" ];
+        DbHelpers::assertTableContains($sql, $expected, "sanity check on save");
+
     }
-    */
+
 
     /* Tests
        - can't change text of saved word ... see other tests in src/word_form_ thing.

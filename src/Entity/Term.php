@@ -31,7 +31,7 @@ class Term
     private ?int $WoStatus = null;
 
     #[ORM\Column(name: 'WoTranslation', length: 500)]
-    private ?string $WoTranslation = null;
+    private ?string $WoTranslation = '';
 
     #[ORM\Column(name: 'WoRomanization', length: 100)]
     private ?string $WoRomanization = null;
@@ -61,7 +61,7 @@ class Term
 
     public function __construct()
     {
-        $this->textTags = new ArrayCollection();
+        $this->termTags = new ArrayCollection();
         $this->parents = new ArrayCollection();
     }
 
