@@ -29,6 +29,11 @@ function do_mysqli_query($sql)
     if ($res != false) {
         return $res;
     }
+
+    $msg = mysqli_error($DBCONNECTION) . " error in sql: " . $sql;
+    throw new Exception($msg);
+
+    /*
     echo '</select></p></div>
     <div style="padding: 1em; color:red; font-size:120%; background-color:#CEECF5;">' .
     '<p><b>Fatal Error in SQL Query:</b> ' . 
@@ -42,6 +47,7 @@ function do_mysqli_query($sql)
     debug_print_backtrace();
     echo '</pre><hr />';
     die('</body></html>');
+    */
 }
 
 /**
