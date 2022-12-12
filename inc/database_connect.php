@@ -1561,6 +1561,10 @@ function check_text($sql, $rtlScript, $wl)
  */
 function splitCheckText($text, $lid, $id) 
 {
+    // clear out existing text cruft.
+    do_mysqli_query("DELETE FROM sentences WHERE SeTxID = $id");
+    do_mysqli_query("DELETE FROM textitems2 WHERE Ti2TxID = $id");
+
     $wl = array();
     $wl_max = 0;
     $mw_sql = '';
