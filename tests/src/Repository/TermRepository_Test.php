@@ -59,8 +59,16 @@ final class TermRepository_Test extends DatabaseTestBase
         $expected = [ "1; PARENT; parent", "2; HOLA; hola" ];
         DbHelpers::assertTableContains($sql, $expected, "sanity check on save");
 
+        // Hacky sql check.
+        $sql = "select w.WoText, p.WoText as ptext, tags.TgText 
+            FROM words w
+            INNER JOIN wordparents on WpWoID = w.WoID
+            INNER JOIN words p on p.WoID = wordparents.WpParentWoID
+            INNER JOIN wordtags on WtWoID = w.WoID
+            INNER JOIN tags on TgID = WtTgID";
+        $exp = [ "HOLA; PARENT; tag" ];
+        DbHelpers::assertTableContains($sql, $exp, "??? parents, tags");
     }
-
 
     /* Tests
        - can't change text of saved word ... see other tests in src/word_form_ thing.
