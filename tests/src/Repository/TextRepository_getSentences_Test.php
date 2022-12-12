@@ -21,14 +21,14 @@ final class TextRepository_getSentences_Test extends RepositoryTestBase
 
         // A parent term.
         DbHelpers::add_word($lid, "listo", "listo", 1, 1);
-        DbHelpers::add_word_parent("lista", "listo");
+        DbHelpers::add_word_parent($lid, "lista", "listo");
 
         // Some tags for fun.
-        DbHelpers::add_word_tag("Un gato", "furry");
-        DbHelpers::add_word_tag("lista", "adj");
-        DbHelpers::add_word_tag("lista", "another");
-        DbHelpers::add_word_tag("listo", "padj1");
-        DbHelpers::add_word_tag("listo", "padj2");
+        DbHelpers::add_word_tag($lid, "Un gato", "furry");
+        DbHelpers::add_word_tag($lid, "lista", "adj");
+        DbHelpers::add_word_tag($lid, "lista", "another");
+        DbHelpers::add_word_tag($lid, "listo", "padj1");
+        DbHelpers::add_word_tag($lid, "listo", "padj2");
 
         $t = new Text();
         $t->setTitle("Hola.");

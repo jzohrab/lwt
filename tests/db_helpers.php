@@ -165,22 +165,22 @@ you must use a dedicated test database when running tests.
         return DbHelpers::exec_sql($sql, $params);
     }
 
-    public static function add_word_parent($wordtext, $parenttext) {
+    public static function add_word_parent($langid, $wordtext, $parenttext) {
         $sql = "insert into wordparents (WpWoID, WpParentWoID)
           values (
-            (select WoID from words where WoText = ?),
-            (select WoID from words where WoText = ?)
+            (select WoID from words where WoText = ? and WoLgID = ?),
+            (select WoID from words where WoText = ? and WoLgID = ?)
           )";
-        DbHelpers::exec_sql($sql, ["ss", $wordtext, $parenttext]);
+        DbHelpers::exec_sql($sql, ["sisi", $wordtext, $langid, $parenttext, $langid]);
     }
 
-    public static function add_word_tag($wordtext, $tagtext) {
+    public static function add_word_tag($langid, $wordtext, $tagtext) {
         // sql injection, who cares, it's my test.
         $sql = "insert ignore into tags(TgText, TgComment)
           values ('{$tagtext}', '{$tagtext}')";
         DbHelpers::exec_sql($sql);
         $sql = "insert ignore into wordtags (WtWoID, WtTgID) values
-          ((select woid from words where wotext = '{$wordtext}'),
+          ((select woid from words where wotext = '{$wordtext}' and wolgid = {$langid}),
            (select tgid from tags where tgtext='{$tagtext}'))";
         DbHelpers::exec_sql($sql);
     }

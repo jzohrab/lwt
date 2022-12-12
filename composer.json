@@ -100,7 +100,7 @@
     },
     "scripts": {
         "test": "./bin/phpunit -c phpunit.xml.dist",
-        "testdata": "./bin/phpunit -c phpunit.xml.dist tests/do_text_text_Test.php",
+        "testdata": "./bin/phpunit -c phpunit.xml.dist tests/src/Repository/LoadTestData_Test.php",
         "info.html": "@php docs/info.php > docs/info.html",
         "doc": [
             "@info.html",
