@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
 require_once __DIR__ . '/../../db_helpers.php';
-require_once __DIR__ . '/RepositoryTestBase.php';
+require_once __DIR__ . '/../../DatabaseTestBase.php';
 
 use App\Entity\TextTag;
 
-final class TextTagRepository_Test extends RepositoryTestBase
+final class TextTagRepository_Test extends DatabaseTestBase
 {
 
     public function childSetUp() {

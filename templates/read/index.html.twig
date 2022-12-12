@@ -4,38 +4,26 @@
 
 {% block body %}
 
-{% set data_pos = 0 %}
-
-{# Hack for js translation keyboard shortcut. #}
-<span id="translateURL" style="visibility:hidden">{{ dictionary_url }}</span>
-
-<div id="thetext">
-
-  <p>
-
-    {% for sentence in sentences %}
-
-    <span id="sent_{{ sentence.SeID }}">
-      {% for item in sentence.renderable %}
-      {% include '/read/term.html.twig' %}
-      {% set data_pos = data_pos + item.TextLength %}
-      {% endfor %}
-    </span>
-
-    {% endfor %}
-
-  </p>
-
+<div id="reading-frames-left" style="width: 50%;">
+  <div id="reading-header">
+    <p>header for {{ textid }}</p>
+  </div>
+    {{ render(url('app_read_text', { 'TxID': textid })) }}
+  </div>
 </div>
 
-<script>
-  // Hacks while working with old code.
-  // Hardcoding these for now:
-  // Translations are shown below the terms.
-  ANNOTATIONS_MODE = 2;
-  // Use tooltip.
-  // JQ_TOOLTIP=1; // Not properly setting global state.
-  $(document).ready(prepareTextInteractions);
-</script>
+
+<div id="reading-frames-right" style="position: fixed; top: 2%; right: 0; height: 95%; 
+width: 50%;">
+    <iframe name="wordframe" class="rightreadingframe" src="empty.html" scrolling="auto"
+            style="height: 50%; width: 100%;" frameBorder="0">
+      Frame support required.
+    </iframe>
+
+    <iframe name="dictframe" class="rightreadingframe" src="empty.html" scrolling="auto"
+            style="height: 50%; width: 100%;" frameBorder="0">
+      Frame support required.
+    </iframe>
+</div>
 
 {% endblock %}

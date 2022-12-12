@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
 require_once __DIR__ . '/../../db_helpers.php';
-require_once __DIR__ . '/RepositoryTestBase.php';
+require_once __DIR__ . '/../../DatabaseTestBase.php';
 
 use App\Entity\Text;
 
-final class TextRepository_Test extends RepositoryTestBase
+final class TextRepository_Test extends DatabaseTestBase
 {
 
     public function childSetUp(): void
@@ -23,9 +23,9 @@ final class TextRepository_Test extends RepositoryTestBase
 
         $this->text = $t;
 
-        DbHelpers::assertRecordcountEquals("textitems2", 8, 'setup');
-        DbHelpers::assertRecordcountEquals("sentences", 1, 'setup');
-        DbHelpers::assertRecordcountEquals("texts", 1, 'setup');
+        DbHelpers::assertRecordcountEquals("textitems2", 8, 'setup ti2');
+        DbHelpers::assertRecordcountEquals("sentences", 1, 'setup sentences');
+        DbHelpers::assertRecordcountEquals("texts", 1, 'setup texts');
     }
 
     public function test_saving_Text_entity_loads_textitems2()

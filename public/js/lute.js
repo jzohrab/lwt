@@ -6,7 +6,9 @@
 function prepareTextInteractions(textid) {
   $('.word').on('click', word_clicked);
   $('.word').mousedown(select_started);
+  $('.word').mouseover(select_over);
   $('.word').mouseup(select_ended);
+
   $(document).on('keydown', handle_keydown);
 
   $('#thetext').tooltip({
@@ -68,9 +70,20 @@ let tooltip_wsty_content = function (el) {
 }
 
 
-function showEditFrame(url) {
+function showEditFrame(el, extra_args = {}) {
+  const wid = el.attr('data_wid');
+  const tid = el.attr('tid');
+  const ord = el.attr('data_order');
+  const stat = el.attr('data_status');
+
+  let extras = Object.entries(extra_args).
+      map((p) => `${p[0]}=${encodeURIComponent(p[1])}`).
+      join('&');
+  if (extras != '')
+    extras = `&${extras}`;
+  const url = `edit_word.php?tid=${tid}&ord=${ord}&wid=${wid}${extras}`;
   // TODO
-  console.log('show right frame: ' + url);
+  console.log('showEditFrame: ' + url);
 }
 
 function showDictionaryFrame(url) {
@@ -78,6 +91,11 @@ function showDictionaryFrame(url) {
   console.log('show lower right frame: ' + url);
 }
 
+
+function mark_active(e) {
+  $('span.kwordmarked').removeClass('kwordmarked');
+  e.addClass('kwordmarked');
+}
 
 function word_clicked(e) {
   if (e.shiftKey) {
@@ -88,31 +106,53 @@ function word_clicked(e) {
     clear_shift_clicked_elements();
   }
 
-  $('span.kwordmarked').removeClass('kwordmarked');
-  $(this).addClass('kwordmarked');
+  mark_active($(this));
 
-  let av = (s) => $(this).attr(s);
-  const url = 'edit_word.php?tid=' + av('tid') + '&ord=' + av('data_order') + '&wid=' + av('data_wid');
-  showEditFrame(url);
-  
-  return false;
+  showEditFrame($(this));
 }
 
-var selection_start_el = null;
+let selection_start_el = null;
 
 function select_started(e) {
+  mark_active($(this));
+  $(this).addClass('newmultiterm');
   selection_start_el = $(this);
-  console.log('started with ' + $(this).html());
+}
+
+function select_over(e) {
+  if (selection_start_el == null)
+    return;  // Not selecting
+
+  const startord = parseInt(selection_start_el.attr('data_order'))
+  const endord = parseInt($(this).attr('data_order'));
+  const selected = $("span.word").filter(function() {
+    const ord = $(this).attr("data_order");
+    return ord >= startord && ord <= endord;
+  });
+  selected.addClass('newmultiterm');
+
+  const notselected = $("span.word").filter(function() {
+    const ord = $(this).attr("data_order");
+    return ord < startord || ord > endord;
+  });
+  notselected.removeClass('newmultiterm');
 }
 
 function select_ended(e) {
-  console.log('ended with ' + $(this).html());
+
+  const clear_newmultiterm_elements = function() {
+    $('.newmultiterm').removeClass('newmultiterm');
+    selection_start_el = null;
+  }
+  
   if (selection_start_el.attr('id') == $(this).attr('id')) {
+    clear_newmultiterm_elements();
     return;
   }
 
   if (selection_start_el.attr('seid') != $(this).attr('seid')) {
     alert("Selections cannot span sentences.");
+    clear_newmultiterm_elements();
     return;
   }
 
@@ -123,16 +163,15 @@ function select_ended(e) {
     return ord >= startord && ord <= endord;
   });
   const text = selected.toArray().map((el) => $(el).text()).join(' ');
-  console.log(text);
 
   if (text.length > 250) {
     alert(`Selections can be max length 250 chars ("${text}" is ${text.length} chars)`);
+    clear_newmultiterm_elements();
     return;
   }
 
-  let av = (s) => selection_start_el.attr(s);
-  const url = `edit_word.php?tid=${av('tid')}&ord=${av('data_order')}&wid=&text=${encodeURIComponent(text)}`;
-  showEditFrame(url);
+  showEditFrame(selection_start_el, { text: text });
+  clear_newmultiterm_elements();
 }
 
 /********************************************/
@@ -146,7 +185,7 @@ let load_word_globals = function() {
   words = $('span.word').sort(function(a, b) {
     return $(a).attr('data_order') - $(b).attr('data_order');
   });
-  console.log('have ' + words.size() + ' words');
+  // console.log('have ' + words.size() + ' words');
   maxindex = words.size() - 1;
 }
 
@@ -159,7 +198,9 @@ let current_word_index = function() {
     return -1;
   }
   const ord = currmarked.attr('data_order');
-  return words.toArray().findIndex(x => x.getAttribute('data_order') === ord);
+  const i = words.toArray().findIndex(x => x.getAttribute('data_order') === ord);
+  // console.log(`Current index: ${i}`);
+  return i;
 };
 
 
@@ -192,7 +233,6 @@ let next_unknown_word_index = function(currind) {
 
 
 function handle_keydown (e) {
-  console.log('in handler');
   if (words.size() == 0) {
     console.log('no words, exiting');
     return; // Nothing to do.
@@ -248,24 +288,17 @@ function handle_keydown (e) {
 
   // If moved, update UI and exit.
   if (newindex != currindex) {
-    $('span.kwordmarked').removeClass('kwordmarked');
+    // console.log(`Moving from index ${currindex} to ${newindex}`);
     let curr = words.eq(newindex);
-    curr.addClass('kwordmarked');
+    mark_active(curr);
     $(window).scrollTo(curr, { axis: 'y', offset: -150 });
 
-    let av = (s) => curr.attr(s);
-    const url = 'edit_word.php?tid=' + av('tid') + '&ord=' + av('data_order') + '&wid=' + av('data_wid') + '&autofocus=false';
-    showEditFrame(url);
+    showEditFrame(curr, { autofocus: false });
     return false;
   }
 
   let curr = $('span.kwordmarked');
-  const wid = curr.attr('data_wid');
-  const tid = curr.attr('tid');
-  const ord = curr.attr('data_order');
   const stat = curr.attr('data_status');
-  const txt = curr.text();
-  let dict = '';
 
   // Setting status 1-5:
   for (var i = 1; i <= 5; i++) {
@@ -280,11 +313,7 @@ function handle_keydown (e) {
   }
 
   if (e.which == kE) {
-    let url = 'edit_word.php?wid=&tid=' + tid + '&ord=' + ord;
-    if (stat != '0') {
-      url += '&wid=' + wid;
-    }
-    showEditFrame(url);
+    showEditFrame(curr);
     return false;
   }
 
@@ -322,7 +351,7 @@ function handle_keydown (e) {
     */
   }
 
-  // Not ported yet.
+  // Not ported (yet?)
   /*
   if (e.which == 80) { // P : pronounce term
     const lg = getLangFromDict(WBLINK3);
