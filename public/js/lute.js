@@ -15,7 +15,7 @@ function prepareTextInteractions(textid) {
     position: { my: 'left top+10', at: 'left bottom', collision: 'flipfit' },
     items: '.hword',
     show: { easing: 'easeOutCirc' },
-    content: function () { return tooltip_wsty_content(); }
+    content: function () { return tooltip_wsty_content($(this)); }
   });
 
   $('#thetext').hoverIntent(
@@ -40,29 +40,29 @@ let word_hover_out = function() {
 }
 
 
-let tooltip_wsty_content = function () {
-  let content = `<p><b style="font-size:120%">${$(this).text()}</b></p>`;
+let tooltip_wsty_content = function (el) {
+  let content = `<p><b style="font-size:120%">${el.text()}</b></p>`;
 
-  const roman = $(this).attr('data_rom');
+  const roman = el.attr('data_rom');
   if (roman != '') {
     content += '<p><b>Roman.</b>: ' + roman + '</p>';
   }
 
-  const trans = $(this).attr('data_trans');
+  const trans = el.attr('data_trans');
   if (trans != '' && trans != '*') {
     content += '<p><b>Transl.</b>: ' + trans + '</p>';
   }
 
-  const status = parseInt($(this).attr('data_status'));
+  const status = parseInt(el.attr('data_status'));
   const st = STATUSES[status];
   const statname = `${st['name']} [${st['abbr']}]`;
   content += `<p><b>Status</b>: <span class="status${status}">${statname}</span></p>`;
 
-  const parent_text = $(this).attr('parent_text')
-  if (parent_text != '') {
+  const parent_text = el.attr('parent_text')
+  if (parent_text && parent_text != '') {
     content += '<hr /><p><i>Parent term:</i></p>';
-    content += "<p><b style='font-size:120%'>" + $(this).attr('parent_text') + "</b></p>";
-    let ptrans = $(this).attr('parent_trans');
+    content += "<p><b style='font-size:120%'>" + el.attr('parent_text') + "</b></p>";
+    let ptrans = el.attr('parent_trans');
     content += '<p><b>Transl.</b>: ' + ptrans + '</p>';
   }
 
