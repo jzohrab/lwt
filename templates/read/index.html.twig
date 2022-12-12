@@ -4,37 +4,11 @@
 
 {% block body %}
 
-{% set data_pos = 0 %}
-
-{# Hack for js translation keyboard shortcut. #}
-<span id="translateURL" style="visibility:hidden">{{ dictionary_url }}</span>
-
 <div id="reading-frames-left" style="width: 50%;">
   <div id="reading-header">
-    <p>header??</p>
+    <p>header for {{ textid }}</p>
   </div>
-
-  <div id="reading-main">
-
-    <div id="thetext">
-
-      <p>
-
-        {% for sentence in sentences %}
-
-        <span id="sent_{{ sentence.SeID }}">
-          {% for item in sentence.renderable %}
-          {% include '/read/term.html.twig' %}
-          {% set data_pos = data_pos + item.TextLength %}
-          {% endfor %}
-        </span>
-
-        {% endfor %}
-
-      </p>
-
-    </div>
-
+    {{ render(url('app_read_text', { 'TxID': textid })) }}
   </div>
 </div>
 
