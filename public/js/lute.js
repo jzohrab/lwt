@@ -5,10 +5,11 @@
  * 
  * @since 2.0.3-fork
  */
-function prepareTextInteractions() {
-    $('.word').each(word_each_do_text_text);
-    $('.mword').each(mword_each_do_text_text);
-    $('.word').on('click', word_click_event_do_text_text);
+function prepareTextInteractions(textid) {
+  $('.word').on('click', word_clicked);
+  $('.mword').on('click', word_clicked);
+
+  /*
     $('#thetext').on('selectstart','span',false).on(
         'mousedown','.wsty',
         {annotation: ANNOTATIONS_MODE}, 
@@ -25,5 +26,27 @@ function prepareTextInteractions() {
             selector:".wsty,.mwsty"
         }
     );
+*/
 }
 
+
+function word_clicked(e) {
+  if (e.shiftKey) {
+    add_shift_clicked_element($(this));
+    return;
+  }
+  else {
+    clear_shift_clicked_elements();
+  }
+
+  $('span.kwordmarked').removeClass('kwordmarked');
+  $(this).addClass('kwordmarked');
+
+  let av = (s) => $(this).attr(s);
+
+  const url = 'edit_word.php?tid=' + av('tid') + '&ord=' + av('data_order') + '&wid=' + av('data_wid');
+  alert(url);
+  // TODO: showRightFrames
+  
+  return false;
+}
