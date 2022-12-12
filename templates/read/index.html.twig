@@ -9,24 +9,50 @@
 {# Hack for js translation keyboard shortcut. #}
 <span id="translateURL" style="visibility:hidden">{{ dictionary_url }}</span>
 
-<div id="thetext">
+<div id="reading-frames-left" style="width: 50%;">
+  <div id="reading-header">
+    <p>header??</p>
+  </div>
 
-  <p>
+  <div id="reading-main">
 
-    {% for sentence in sentences %}
+    <div id="thetext">
 
-    <span id="sent_{{ sentence.SeID }}">
-      {% for item in sentence.renderable %}
-      {% include '/read/term.html.twig' %}
-      {% set data_pos = data_pos + item.TextLength %}
-      {% endfor %}
-    </span>
+      <p>
 
-    {% endfor %}
+        {% for sentence in sentences %}
 
-  </p>
+        <span id="sent_{{ sentence.SeID }}">
+          {% for item in sentence.renderable %}
+          {% include '/read/term.html.twig' %}
+          {% set data_pos = data_pos + item.TextLength %}
+          {% endfor %}
+        </span>
 
+        {% endfor %}
+
+      </p>
+
+    </div>
+
+  </div>
 </div>
+
+
+<div id="reading-frames-right" style="position: fixed; top: 2%; right: 0; height: 95%; 
+width: 50%;">
+    <iframe name="wordframe" class="rightreadingframe" src="empty.html" scrolling="auto"
+            style="height: 50%; width: 100%;" frameBorder="0">
+      Frame support required.
+    </iframe>
+
+    <iframe name="dictframe" class="rightreadingframe" src="empty.html" scrolling="auto"
+            style="height: 50%; width: 100%;" frameBorder="0">
+      Frame support required.
+    </iframe>
+</div>
+
+
 
 <script>
   // Hacks while working with old code.
