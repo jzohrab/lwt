@@ -8,6 +8,8 @@
 require_once __DIR__ . '/db_helpers.php';
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use App\Entity\Language;
+use App\Entity\Text;
 
 abstract class DatabaseTestBase extends WebTestCase
 {
@@ -57,12 +59,14 @@ abstract class DatabaseTestBase extends WebTestCase
             ->setLgDict2URI('https://www.wordreference.com/es/en/translation.asp?spen=###')
             ->setLgGoogleTranslateURI('*https://www.deepl.com/translator#es/en/###');
         $this->language_repo->save($spanish, true);
+        $this->spanish = $spanish;
 
         $spid = $spanish->getLgID();
         DbHelpers::add_word($spid, "Un gato", "un gato", 1, 2);
         DbHelpers::add_word($spid, "lista", "lista", 1, 1);
         DbHelpers::add_word($spid, "tiene una", "tiene una", 1, 2);
 
+        /*
         // A parent term.
         DbHelpers::add_word($spid, "listo", "listo", 1, 1);
         DbHelpers::add_word_parent($spid, "lista", "listo");
@@ -73,14 +77,16 @@ abstract class DatabaseTestBase extends WebTestCase
         DbHelpers::add_word_tag($spid, "lista", "another");
         DbHelpers::add_word_tag($spid, "listo", "padj1");
         DbHelpers::add_word_tag($spid, "listo", "padj2");
+        */
 
         $t = new Text();
         $t->setTitle("Hola.");
         $t->setText("Hola tengo un gato.  No tengo una lista.\nElla tiene una bebida.");
         $t->setLanguage($spanish);
         $this->text_repo->save($t, true);
-        $this->text = $t;
+        $this->spanish_hola_text = $t;
 
+        /*
         $french = new Language();
         $french
             ->setLgName('French')
@@ -97,6 +103,7 @@ abstract class DatabaseTestBase extends WebTestCase
         $frt->setText("Bonjour je suis lista.");
         $frt->setLanguage($french);
         $this->text_repo->save($frt, true);
+        */
     }
 
 }

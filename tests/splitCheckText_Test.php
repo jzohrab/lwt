@@ -1,15 +1,17 @@
 <?php declare(strict_types=1);
 
 require_once __DIR__ . '/../inc/word_input_form.php';
-require_once __DIR__ . '/db_helpers.php';
+require_once __DIR__ . '/DatabaseTestBase.php';
 
 use PHPUnit\Framework\TestCase;
 
-final class splitCheckText_Test extends TestCase
+final class splitCheckText_Test extends DatabaseTestBase
 {
 
-    public function setUp(): void
+    public function childSetUp(): void
     {
+        // $this->load_test_data();
+
         $inimsg = 'php.ini must set mysqli.allow_local_infile to 1.';
         $this->assertEquals(ini_get('mysqli.allow_local_infile'), '1', $inimsg);
 
@@ -21,6 +23,9 @@ final class splitCheckText_Test extends TestCase
 
         $this->text = "Hola tengo un gato.  No tengo una lista.  Ella tiene una bebida.";
         DbHelpers::add_text($this->text, $this->langid);
+
+        $this->spanish_hola_text = $this->text_repo->find(1);
+        $this->spanish = $this->language_repo->find(1);
     }
 
     public function tearDown(): void
@@ -30,7 +35,8 @@ final class splitCheckText_Test extends TestCase
 
     public function test_split_check_no_words_defined()
     {
-        splitCheckText($this->text, $this->langid, 1);
+        $t = $this->spanish_hola_text;
+        splitCheckText($t->getText(), $this->spanish->getLgID(), $t->getID());
         $sql = "select ti2seid, ti2order, ti2text from textitems2 where ti2woid = 0 order by ti2order";
         $expected = [
             "1; 1; Hola",
