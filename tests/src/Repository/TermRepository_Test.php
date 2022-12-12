@@ -32,7 +32,7 @@ final class TermRepository_Test extends DatabaseTestBase
         $this->assertEquals($t->getTextLC(), 'hola', "sanity check of case");
 
         $sql = "select WoID, WoText, WoTextLC from words";
-        $expected = [ "1; Hola; hola" ];
+        $expected = [ "1; HOLA; hola" ];
         DbHelpers::assertTableContains($sql, $expected, "sanity check on save");
     }
 

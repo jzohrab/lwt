@@ -93,7 +93,7 @@ class Term
         return $this->WoText;
     }
 
-    public function getTextLC(string $WoText): ?string
+    public function getTextLC(): ?string
     {
         return $this->WoTextLC;
     }
