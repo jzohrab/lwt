@@ -23,7 +23,7 @@ function prepareTextInteractions(textid) {
       over: word_hover_over, 
       out: word_hover_out, 
       interval: 150, 
-      selector:".word"
+      selector:".word:not(.status0)"
     }
   );
 
