@@ -10,6 +10,8 @@ require_once __DIR__ . '/db_helpers.php';
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use App\Entity\Language;
 use App\Entity\Text;
+use App\Entity\TextTag;
+use App\Entity\TermTag;
 
 abstract class DatabaseTestBase extends WebTestCase
 {
@@ -30,6 +32,7 @@ abstract class DatabaseTestBase extends WebTestCase
         $this->text_repo = $this->entity_manager->getRepository(App\Entity\Text::class);
         $this->language_repo = $this->entity_manager->getRepository(App\Entity\Language::class);
         $this->texttag_repo = $this->entity_manager->getRepository(App\Entity\TextTag::class);
+        $this->termtag_repo = $this->entity_manager->getRepository(App\Entity\TermTag::class);
 
         $this->childSetUp();
     }
