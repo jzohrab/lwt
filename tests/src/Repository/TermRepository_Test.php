@@ -80,6 +80,56 @@ final class TermRepository_Test extends DatabaseTestBase
         DbHelpers::assertTableContains($sql, $exp, "??? parents, tags");
     }
 
+    public function test_change_parent()
+    {
+        $t = new Term();
+        $t->setLanguage($this->spanish);
+        $t->setText("HOLA");
+        $t->setStatus(1);
+        $t->setWordCount(1);
+        $t->setParent($this->p);
+        $this->term_repo->save($t, true);
+
+        // Hacky sql check.
+        $sql = "select w.WoText, p.WoText as ptext
+            FROM words w
+            LEFT JOIN wordparents on WpWoID = w.WoID
+            LEFT JOIN words p on p.WoID = wordparents.WpParentWoID
+            WHERE w.WoID = {$t->getID()}";
+        $exp = [ "HOLA; PARENT" ];
+        DbHelpers::assertTableContains($sql, $exp, "parents, tags");
+
+        $t->setParent($this->p2);
+        $this->term_repo->save($t, true);
+        $exp = [ "HOLA; OTHER" ];
+        DbHelpers::assertTableContains($sql, $exp, "parents changed, tags");
+    }
+
+    public function test_remove_parent()
+    {
+        $t = new Term();
+        $t->setLanguage($this->spanish);
+        $t->setText("HOLA");
+        $t->setStatus(1);
+        $t->setWordCount(1);
+        $t->setParent($this->p);
+        $this->term_repo->save($t, true);
+
+        // Hacky sql check.
+        $sql = "select w.WoText, p.WoText as ptext
+            FROM words w
+            LEFT JOIN wordparents on WpWoID = w.WoID
+            LEFT JOIN words p on p.WoID = wordparents.WpParentWoID
+            WHERE w.WoID = {$t->getID()}";
+        $exp = [ "HOLA; PARENT" ];
+        DbHelpers::assertTableContains($sql, $exp, "parents, tags");
+
+        $t->removeParent();
+        $this->term_repo->save($t, true);
+        $exp = [ "HOLA; " ];
+        DbHelpers::assertTableContains($sql, $exp, "parents changed, tags");
+    }
+
     /* Tests
        - can't change text of saved word ... see other tests in src/word_form_ thing.
     */
