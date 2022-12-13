@@ -3,7 +3,8 @@
 // Ref https://south634.com/using-a-data-transformer-in-symfony-to-handle-duplicate-tags/
 
 namespace App\Form\DataTransformer;
- 
+
+use App\Entity\Term;
 use Symfony\Component\Form\DataTransformerInterface;
 use Doctrine\ORM\EntityManagerInterface;
  
@@ -16,29 +17,32 @@ class TermParentTransformer implements DataTransformerInterface
         $this->manager = $manager;
     }
  
-    public function transform($parents)
+    public function transform($parent): string
     {
-        if ($parents->isEmpty())
-            return null;
-        return $parents[0]->getText();
+        if (null === $parent)
+            return '';
+        return $parent->getText();
     }
  
-    public function reverseTransform($parent_text)
+    public function reverseTransform($parent_text): ?Term
     {
-        $c = new ArrayCollection();
- 
-        $repo = $this->manager->getRepository(\App\Entity\Term::class);
-
+        if (!parent_text) {
+            return null;
+        }
+        
+        $repo = $this->manager->getRepository(Term::class);
         $p = $repo->findByText($parent_text);
 
+        $ret = null;
         if ($p !== null) {
-            $c->add($p);
+            $ret = $p;
         }
         else {
-            $c->add($parent_text);
+            // New, create it.
+            // $c->add($parent_text);
         }
  
-        return $c;
+        return $ret;
     }
  
 }
