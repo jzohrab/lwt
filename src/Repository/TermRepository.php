@@ -41,40 +41,24 @@ class TermRepository extends ServiceEntityRepository
 
     public function findTermInLanguage(string $value, int $langid): ?Term
     {
-        /*
-        return $this->createQueryBuilder('t')
-            ->andWhere('t.language.LgID = :lid')
-            ->andWhere('t.TextLC = :val')
-            ->setParameter('lid', $langid)
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-            ;
-        */
-        $qb = $this->createQueryBuilder('t');
+        // Using Doctrine Query Language --
+        // Interesting, but am not totally confident with it.
+        // e.g. That I had to use the private field WoTextLC
+        // instead of the public property was surprising.
+        // Anyway, it works. :-P
+        $dql = "SELECT t FROM App\Entity\Term t
+        JOIN App\Entity\Language L
+        WHERE L.LgID = :langid AND t.WoTextLC = :val";
+        $em = $this->getEntityManager();
+        $query = $em
+               ->createQuery($dql)
+               ->setParameter('langid', $langid)
+               ->setParameter('val', mb_strtolower($value));
+        $terms = $query->getResult(); // array of ForumUser objects
 
-        return $qb->select('t')
-            ->innerJoin('t.language', 'L', 'WITH', 'L.lgID = :langid')
-            ->where('t.textLC = :val')
-            ->setParameter('langid', $langid)
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult();
+        if (count($terms) == 0)
+            return null;
+        return $terms[0];
     }
-
-//    /**
-//     * @return Term[] Returns an array of Term objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('t')
-//            ->andWhere('t.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('t.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
 
 }
