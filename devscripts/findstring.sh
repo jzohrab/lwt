@@ -23,6 +23,8 @@ runsearch inc 1
 
 runsearch public 8
 
+runsearch config 8
+
 runsearch src 8
 
 runsearch templates 8

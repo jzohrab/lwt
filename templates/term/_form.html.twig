@@ -1,0 +1,77 @@
+{% form_theme form 'form_table_layout.html.twig' %}
+
+{{ form_start(form) }}
+
+<table id="term">
+
+  {#
+    Using jquery to hide the lang. dropdown if it's set.
+    I tried using various twig checks (defined, is null, etc)
+  but kept getting exceptions.
+    { { form_row(form.language, { 'tr#id': 'edit_user_name' }) } }
+  #}
+  <tr id="languageSel">
+    <td>Language</td>
+    <td>{{ form_widget(form.language) }}</td>
+  </tr>
+
+  {{ form_row(form.Text) }}
+  {{ form_row(form.parent) }}
+  {{ form_row(form.Romanization) }}
+  {{ form_row(form.Translation) }}
+  {{ form_row(form.Status) }}
+  {{ form_row(form.Sentence) }}
+
+  {% do form.termTags.setRendered %}
+  {# manually write list so it can be managed by tagit. #}
+  <tr>
+    <td>Tags</td>
+    <td>
+      <ul id="termtagslist" class="tags nomarginblock">
+        {% for termTag in form.termTags %}
+        <li>
+          {{ termTag.vars.value.text }}
+        </li>
+        {% endfor %}
+      </ul>
+    </td>
+  </tr>
+
+</table>
+
+<button class="btn">{{ button_label|default('Save') }}</button>
+
+{{ form_end(form) }}
+
+<script>
+
+  setupForm = function() {
+    const langid = parseInt($('#term_language').val());
+    console.log(`got langid = ${langid}`);
+    if (langid > 0) {
+      $('#languageSel').hide();
+    }
+
+    var prototypeFieldName = 'term[termTags][__name__][text]';
+    var fieldIndex = 0;
+    
+    let invalidChar = function(s) { return /[\uD800-\uDFFF]/.test(s); };
+
+    $('#termtagslist').tagit(
+      {
+        beforeTagAdded: function (_event, ui) {
+          if (invalidChar(ui.tag.text())) {
+            return;
+          }
+          fieldIndex++;
+          $(this).tagit({fieldName: prototypeFieldName.replace('__name__', fieldIndex)});
+        },
+        availableTags: TAGS,
+        fieldName: 'term[termTags][0][text]'
+      });
+
+  };
+
+  $(document).ready(function () { setupForm(); });
+
+</script>

@@ -33,6 +33,7 @@ abstract class DatabaseTestBase extends WebTestCase
         $this->language_repo = $this->entity_manager->getRepository(App\Entity\Language::class);
         $this->texttag_repo = $this->entity_manager->getRepository(App\Entity\TextTag::class);
         $this->termtag_repo = $this->entity_manager->getRepository(App\Entity\TermTag::class);
+        $this->term_repo = $this->entity_manager->getRepository(App\Entity\Term::class);
 
         $this->childSetUp();
     }
@@ -112,7 +113,7 @@ abstract class DatabaseTestBase extends WebTestCase
         $frt->setLanguage($this->french);
         $this->text_repo->save($frt, true);
     }
-    
+
     public function load_all_test_data(): void
     {
         $this->load_languages();

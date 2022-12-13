@@ -1,0 +1,39 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Term index{% endblock %}
+
+{% block body %}
+<h1>Term index</h1>
+
+{% if terms|length == 0 %}
+  <p>No terms defined.</p>
+{% else %}
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>Language</th>
+      <th>Text</th>
+      <th>Status</th>
+      <th>actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for term in terms %}
+    <tr>
+      <td>{{ term.Language.LgName }}</td>
+      <td>{{ term.Text }}</td>
+      <td>{{ term.Status }}</td>
+      <td>
+        <a href="{{ path('app_term_show', {'id': term.id}) }}">show</a>
+        <a href="{{ path('app_term_edit', {'id': term.id}) }}">edit</a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% endif %}
+
+<a href="{{ path('app_term_new') }}">Create new</a>
+{% endblock %}

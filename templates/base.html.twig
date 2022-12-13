@@ -44,8 +44,8 @@
         "98":{"abbr":"Ign","name":"Ignored"}
       };
     
-      var TAGS = ['fix', 'tags', 'in', 'head'];
-      var TEXTTAGS = ['fix', 'tags', 'in', 'head'];
+      var TAGS = {{ render(url('app_termtag_jsonlist')) }};
+      var TEXTTAGS = {{ render(url('app_texttag_jsonlist')) }};
       //]]>
     </script>
 

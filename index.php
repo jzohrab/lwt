@@ -293,7 +293,7 @@ global $userid, $passwd, $server, $dbname;
     </div>
     
     <div class="menu">
-        <a class="disabled-link" href="edit_words.php">Terms (Words and Expressions)</a>
+        <a href="/term">Terms (SLOW, in progress)</a>
         <a class="disabled-link" href="edit_tags.php">Term Tags</a>
         <a class="disabled-link" href="upload_words.php">Import Terms</a>
     </div>
