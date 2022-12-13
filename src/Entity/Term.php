@@ -83,8 +83,15 @@ class Term
 
     public function setText(string $WoText): self
     {
-        $this->WoText = $WoText;
-        $this->WoTextLC = mb_strtolower($WoText);
+        $parts = mb_split("\s+", $WoText);
+        $testlen = function($p) { return mb_strlen($p) > 0; };
+        $realparts = array_filter($parts, $testlen);
+        $cleanword = implode(' ', $realparts);
+
+        $this->WoText = $cleanword;
+        $this->WoTextLC = mb_strtolower($cleanword);
+        $this->setWordCount(count($realparts));
+
         return $this;
     }
 
