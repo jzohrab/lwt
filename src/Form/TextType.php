@@ -4,7 +4,7 @@ namespace App\Form;
 
 use App\Entity\Text;
 use App\Entity\Language;
-use App\Form\DataTransformer\TagsToCollectionTransformer;
+use App\Form\DataTransformer\TextTagsCollection;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -56,7 +56,7 @@ class TextType extends AbstractType
         // Data Transformer
         $builder
             ->get('textTags')
-            ->addModelTransformer(new TagsToCollectionTransformer($this->manager));
+            ->addModelTransformer(new TextTagsCollection($this->manager));
     }
 
     public function configureOptions(OptionsResolver $resolver): void

@@ -8,7 +8,7 @@ use Symfony\Component\Form\DataTransformerInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
  
-class TagsToCollectionTransformer implements DataTransformerInterface
+class TextTagsCollection implements DataTransformerInterface
 {
     private $manager;
  
@@ -24,25 +24,25 @@ class TagsToCollectionTransformer implements DataTransformerInterface
  
     public function reverseTransform($tags)
     {
-        $tagCollection = new ArrayCollection();
+        $coll = new ArrayCollection();
  
-        $tagsRepository = $this->manager->getRepository(\App\Entity\TextTag::class);
+        $repo = $this->manager->getRepository(\App\Entity\TextTag::class);
  
         foreach ($tags as $tag) {
  
-            $tagInRepo = $tagsRepository->findByText($tag->getText());
+            $tagInRepo = $repo->findByText($tag->getText());
  
             if ($tagInRepo !== null) {
                 // Add tag from repository if found
-                $tagCollection->add($tagInRepo);
+                $coll->add($tagInRepo);
             }
             else {
                 // Otherwise add new tag
-                $tagCollection->add($tag);
+                $coll->add($tag);
             }
         }
  
-        return $tagCollection;
+        return $coll;
     }
  
 }
