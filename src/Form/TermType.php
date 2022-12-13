@@ -3,6 +3,7 @@
 namespace App\Form;
 
 use App\Entity\Term;
+use App\Form\DataTransformer\TermParentTransformer;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -70,6 +71,11 @@ class TermType extends AbstractType
             // ->add('language')
             // ->add('termTags')
         ;
+
+        // Data Transformer
+        $builder
+            ->get('parent')
+            ->addModelTransformer(new TermParentTransformer($this->manager));
     }
 
     public function configureOptions(OptionsResolver $resolver): void
