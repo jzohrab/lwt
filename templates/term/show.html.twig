@@ -8,16 +8,8 @@
     <table class="table">
         <tbody>
             <tr>
-                <th>Id</th>
-                <td>{{ term.ID }}</td>
-            </tr>
-            <tr>
-                <th>WoText</th>
+                <th>Text</th>
                 <td>{{ term.Text }}</td>
-            </tr>
-            <tr>
-                <th>TextLC</th>
-                <td>{{ term.TextLC }}</td>
             </tr>
             <tr>
                 <th>Status</th>
@@ -36,8 +28,12 @@
                 <td>{{ term.Sentence }}</td>
             </tr>
             <tr>
-                <th>WordCount</th>
-                <td>{{ term.WordCount }}</td>
+                <th>Language</th>
+                <td>{{ term.Language.LgName }}</td>
+            </tr>
+            <tr>
+                <th>Parent</th>
+                <td>{{ term.Parent }}</td>
             </tr>
         </tbody>
     </table>
