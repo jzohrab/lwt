@@ -142,7 +142,18 @@ class Term
         return $this->WoRomanization;
     }
 
-    
+    public function setSentence(string $s): self
+    {
+        $this->WoSentence = $s;
+        return $this;
+    }
+
+    public function getSentence(): ?string
+    {
+        return $this->WoSentence;
+    }
+
+
     /**
      * @return Collection<int, TextTag>
      */
@@ -168,7 +179,7 @@ class Term
     /**
      * @return Term or null
      */
-    public function getParent(): Term
+    public function getParent(): ?Term
     {
         if ($this->parents->isEmpty())
             return null;

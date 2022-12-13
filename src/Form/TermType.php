@@ -12,16 +12,16 @@ class TermType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('WoText')
-            ->add('WoTextLC')
-            ->add('WoStatus')
-            ->add('WoTranslation')
-            ->add('WoRomanization')
-            ->add('WoSentence')
-            ->add('WoWordCount')
-            ->add('language')
-            ->add('termTags')
-            ->add('parents')
+            ->add('Text')
+            ->add('TextLC')
+            ->add('Status')
+            ->add('Translation')
+            ->add('Romanization')
+            ->add('Sentence')
+            ->add('WordCount')
+            // ->add('language')
+            // ->add('termTags')
+            ->add('parent')
         ;
     }
 

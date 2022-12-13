@@ -22,14 +22,14 @@
         <tbody>
         {% for term in terms %}
             <tr>
-                <td>{{ term.id }}</td>
-                <td>{{ term.WoText }}</td>
-                <td>{{ term.WoTextLC }}</td>
-                <td>{{ term.WoStatus }}</td>
-                <td>{{ term.WoTranslation }}</td>
-                <td>{{ term.WoRomanization }}</td>
-                <td>{{ term.WoSentence }}</td>
-                <td>{{ term.WoWordCount }}</td>
+                <td>{{ term.ID }}</td>
+                <td>{{ term.Text }}</td>
+                <td>{{ term.TextLC }}</td>
+                <td>{{ term.Status }}</td>
+                <td>{{ term.Translation }}</td>
+                <td>{{ term.Romanization }}</td>
+                <td>{{ term.Sentence }}</td>
+                <td>{{ term.WordCount }}</td>
                 <td>
                     <a href="{{ path('app_term_show', {'id': term.id}) }}">show</a>
                     <a href="{{ path('app_term_edit', {'id': term.id}) }}">edit</a>
