@@ -16,13 +16,13 @@ The DB migrations are applied automatically during LWT operation (see the end of
 ### Applying the migrations manually
 
 ```
-$ php db/migrate.php
+$ composer db:migrate
 ```
 
 ### Creating new migration scripts
 
 ```
-$ php db/create_migration_script.php <some_name_here>
+$ composer db:newscript <some_name_here>
 ```
 
 These migration scripts should be committed to the DB.

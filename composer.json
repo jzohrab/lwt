@@ -98,7 +98,9 @@
     "suggest": {
         "squizlabs/php_codesniffer": "Following code style standards is a good thing"
     },
-    "scripts": {
+  "scripts": {
+    "db:migrate": "php db/migrate.php",
+    "db:newscript": "php db/create_migration_script.php",
         "test": "./bin/phpunit -c phpunit.xml.dist",
         "testdata": "./bin/phpunit -c phpunit.xml.dist tests/LoadTestData_Test.php",
         "nukecache": [
@@ -139,7 +141,9 @@
         ]
 
     },
-    "scripts-descriptions": {
+  "scripts-descriptions": {
+    "db:migrate": "Run db migrations.",
+    "db:newscript": "Make a new db migration script",
         "test": "Run tests",
         "testdata": "Abuse the testing system to load the dev db with some data.",
         "info.html": "Regenerate one-file documentation",
