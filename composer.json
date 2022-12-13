@@ -106,8 +106,8 @@
         "nukecache": [
             "rm -rf var/cache",
             "php bin/console cache:clear",
-            "php bin/console cache:warmup",
-            "composer clearcache"
+            "composer clearcache",
+            "php bin/console cache:warmup"
         ],
         "info.html": "@php docs/info.php > docs/info.html",
         "doc": [
