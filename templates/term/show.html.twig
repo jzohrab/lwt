@@ -31,10 +31,14 @@
                 <th>Language</th>
                 <td>{{ term.Language.LgName }}</td>
             </tr>
+
+            {% if term.Parent %}
             <tr>
                 <th>Parent</th>
-                <td>{{ term.Parent }}</td>
+                <td>{{ term.Parent.Text }}</td>
             </tr>
+            {% endif %}
+
         </tbody>
     </table>
 

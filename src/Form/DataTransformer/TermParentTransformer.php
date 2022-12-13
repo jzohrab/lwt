@@ -13,10 +13,10 @@ class TermParentTransformer implements DataTransformerInterface
 {
     private $manager;
  
-    public function __construct(EntityManagerInterface $manager, Language $language)
+    public function __construct(EntityManagerInterface $manager, Term $term)
     {
         $this->manager = $manager;
-        $this->language = $language;
+        $this->term = $term;
     }
  
     public function transform($parent): string
@@ -25,23 +25,45 @@ class TermParentTransformer implements DataTransformerInterface
             return '';
         return $parent->getText();
     }
- 
+
+    
+    /**
+     * Convert parent_text text box content back into a real Term
+     * instance, creating a new Term if needed.
+     */
     public function reverseTransform($parent_text): ?Term
     {
         if (!$parent_text) {
             return null;
         }
+
+        if (is_null($this->term->getLanguage())) {
+            // Should never happen, but just in case.
+            return null;
+        }
         
         $repo = $this->manager->getRepository(Term::class);
-        $p = $repo->findByText($parent_text, $language->getLgID());
+        $langid = $this->term->getLanguage()->getLgID();
+        $p = $repo->findTermInLanguage($parent_text, $langid);
 
         $ret = null;
         if ($p !== null) {
             $ret = $p;
         }
         else {
-            // New, create it.
-            // $c->add($parent_text);
+            $parts = mb_split("\s+", $parent_text);
+            $testlen = function($p) { return mb_strlen($p) > 0; };
+            $realparts = array_filter($parts, $testlen);
+            $wordcount = count($realparts);
+
+            $p = new Term();
+            $p->setLanguage($this->term->getLanguage());
+            $p->setText($parent_text);
+            $p->setStatus($this->term->getStatus());
+            $p->setWordCount($wordcount);
+            $repo->save($p, true);
+
+            $ret = $p;
         }
  
         return $ret;

@@ -80,14 +80,14 @@ class TermType extends AbstractType
         ;
 
         // The term being used in the form is available as follows
-        // ref https://symfonycasts.com/screencast/symfony-forms/form-options-data
+        // ref https://symfonycasts.com/screencast/symfony-forms/form-options-data.
+        // We need the term to help set some things in the parent.
         $term = $options['data'];
-        $lang = $term->getLanguage();
 
         // Data Transformer
         $builder
             ->get('parent')
-            ->addModelTransformer(new TermParentTransformer($this->manager, $lang));
+            ->addModelTransformer(new TermParentTransformer($this->manager, $term));
     }
 
     public function configureOptions(OptionsResolver $resolver): void
