@@ -1,0 +1,47 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Term index{% endblock %}
+
+{% block body %}
+    <h1>Term index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>WoText</th>
+                <th>WoTextLC</th>
+                <th>WoStatus</th>
+                <th>WoTranslation</th>
+                <th>WoRomanization</th>
+                <th>WoSentence</th>
+                <th>WoWordCount</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for term in terms %}
+            <tr>
+                <td>{{ term.id }}</td>
+                <td>{{ term.WoText }}</td>
+                <td>{{ term.WoTextLC }}</td>
+                <td>{{ term.WoStatus }}</td>
+                <td>{{ term.WoTranslation }}</td>
+                <td>{{ term.WoRomanization }}</td>
+                <td>{{ term.WoSentence }}</td>
+                <td>{{ term.WoWordCount }}</td>
+                <td>
+                    <a href="{{ path('app_term_show', {'id': term.id}) }}">show</a>
+                    <a href="{{ path('app_term_edit', {'id': term.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="9">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_term_new') }}">Create new</a>
+{% endblock %}
