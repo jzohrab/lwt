@@ -19,7 +19,7 @@ ALTER TABLE words DROP KEY WoTomorrowScore;
 -- words.WoTranslation should be nullable.  If users don't enter
 -- anything, it means null, not '*' (the current default.
 
-ALTER words MODIFY WoTranslation varchar(500) null;
+ALTER TABLE words MODIFY WoTranslation varchar(500) null;
 
 UPDATE words set WoTranslation = NULL where WoTranslation = '*';
 
