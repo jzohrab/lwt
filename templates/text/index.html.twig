@@ -6,59 +6,31 @@
 
 <h1>{{ status }} Text index</h1>
 
-{% if texts|length == 0 %}
-  <p>No texts found.</p>
-{% else %}
-
-<table id="textlisting" class="table">
+<table id="texttable" class="table" style="table-layout:fixed;">
   <thead>
     <tr>
+      <th style="width: 5%;">&nbsp;</th>
       <th>Title</th>
       <th>Language</th>
       <th>Tags</th>
-      <th>Terms</th>
-      <th>Actions</th>
+      <th title="known / unknown">Stats</th>
+      <th>Archived</th>
+      <th style="width: 5%;">Actions</th>
     </tr>
   </thead>
-  <tbody>
-    {% for text in texts %}
+  <tfoot>
     <tr>
-      <td>
-        <a href="/do_text.php?start={{ text.ID }}">
-          <img src="/icn/book-open-bookmark.png" title="Read" alt="Read" />
-        </a>
-        <a href="/text/{{ text.ID }}/edit">
-          <img src="/icn/document--pencil.png" title="Edit" alt="Edit" />
-        </a>
-        {{ text.Title }}
-      </td>
-      <td>{{ text.Language }}</td>
-      <td>{{ text.Tags }}</td>
-      <td>
-        <span title="{{ text.TermCount }} known terms, {{ text.UnknownCount }} unknown">
-          {{ text.TermCount }} / {{ text.UnknownCount }}
-        </span>
-      </td>
-      <td>
-        {% if text.isArchived %}
-        <span onclick="confirm_unarchive({{ text.ID }}, '{{csrf_token('unarchive' ~ text.ID)}}');">
-          <img src="/icn/inbox-upload.png" title="Unarchive" alt="Unarchive" />
-        </span>
-        {% else %}
-        <span onclick="confirm_archive({{ text.ID }}, '{{csrf_token('archive' ~ text.ID)}}');">
-          <img src="/icn/inbox-download.png" title="Archive" alt="Archive" />
-        </span>
-        {% endif %}
-        <span onclick="confirm_delete({{ text.ID }}, '{{csrf_token('delete' ~ text.ID)}}' );">
-          <img src="/icn/minus-button.png" title="Delete" alt="Delete" />
-        </span>
-      </td>
+      <th>&nbsp;</th>
+      <th>Title</th>
+      <th>Language</th>
+      <th>Tags</th>
+      <th>Stats</th>
+      <th>Archived</th>
+      <th>Actions</th>
     </tr>
-    {% endfor %}
-  </tbody>
-</table>
+  </tfoot>
 
-{% endif %}
+</table>
 
 {% if status == 'Active' %}
 <a href="{{ path('app_text_new') }}">Create new</a>
@@ -66,39 +38,116 @@
 
 {# Hidden form for archive, unarchive, delete. #}
 <form id="actionposter" method="post" action="">
-    <input id="actiontoken" type="hidden" name="_token" value="">
 </form>
 
 <script>
-  $(document).ready(function () {
-    var table = $('#textlisting').DataTable({
+  
+  let setup_text_datatable = function() {
+    var table = $('#texttable').DataTable({
+      responsive: true,
+      select: true,
+      lengthMenu: [ 10, 25, 50 ],
+      paging: true,
+      info: true,
+      searching: true,
+      processing: true,
+      serverSide: true,
       columnDefs: [
-        { orderable: false, targets: [3, 4] },
-        { width: '5%', targets: [ 3,4] }
-      ]
-    });
-  });
+        // "name" is the column name in your main SQL query.
+        // If the "name" is blank, it's not considered in the SQL query.  This is useful for fields that aren't exact maps of SQL columns (e.g. for rendered cells.)
+        // The fields in each row in the data ajax response are ordered as they are declared here.
+        // All fields default to "orderable" = true, "searchable" = true.
+        {
+          "name": "TxID",
+          "targets": 0,
+          "searchable": false,
+          "orderable": false,
+          "render": function ( data, type, row, meta ) {
+            return `<a href="/do_text.php?start=${row[0]}">
+              <img src="/icn/book-open-bookmark.png" title="Read" alt="Read" />
+            </a>
+            <a href="/text/${row[0]}/edit">
+              <img src="/icn/document--pencil.png" title="Edit" alt="Edit" />
+            </a>`;
+          }
+        },
+        { "name": "TxTitle", "targets": 1 },
+        { "name": "LgName", "targets": 2 },
+        { "name": "TagList", "targets": 3 },
+        {
+          "name": "TermStats",
+          "targets": 4,
+          "searchable": false,
+          "orderable": false
+        },
+        {
+          "name": "TxArchived",
+          "targets": 5,
+          "searchable": false,
+          "orderable": false,
+          "visible": false
+        },
+        {
+          "targets": 6,
+          "data": null,
+          "searchable": false,
+          "orderable": false,
+          "render": function ( data, type, row, meta ) {
+            // TODO:security - add CSRF token (somehow)
+            let ret = '';
+            const txid = row[0];
+            if (row[5] == 0) {
+              // not archived
+              ret += `<span onclick="confirm_archive(${txid});">
+                <img src="/icn/inbox-download.png" title="Archive" />
+                </span>`;
+            }
+            else {
+              ret += `<span onclick="confirm_unarchive(${txid});">
+                <img src="/icn/inbox-upload.png" title="Unrchive" />
+                </span>`;
+            }
+            ret += `<span onclick="confirm_delete(${txid});">
+                <img src="/icn/minus-button.png" title="Delete" />
+                </span>`;
+            return ret;
+          }
+        }
 
-  function do_action_post(action, textid, token) {
-    if (!confirm("Click ok to confirm")) {
+      ],
+
+      // Ajax call
+      ajax: {
+        url: '/text/datatables/{{ status | lower }}',
+        type: "POST",
+        dataType: "json"
+      },
+
+    });
+  } // end setup_text_datatable
+  
+  $(document).ready(function () { setup_text_datatable(); });
+
+  
+  function do_action_post(action, textid) {
+    if (!confirm(`Calling ${action}, click OK to confirm.`)) {
       return;
     }
     let f = $('#actionposter');
     f.attr('action', `/text/${textid}/${action}`);
-    $('#actiontoken').val(token);
     f.submit();
   }
 
-  function confirm_archive(textid, token) {
-    do_action_post('archive', textid, token);
+  function confirm_archive(textid) {
+    do_action_post('archive', textid);
   }
 
-  function confirm_unarchive(textid, token) {
-    do_action_post('unarchive', textid, token);
+  function confirm_unarchive(textid) {
+    do_action_post('unarchive', textid);
   }
 
-  function confirm_delete(textid, token) {
-    do_action_post('delete', textid, token);
+  function confirm_delete(textid) {
+    do_action_post('delete', textid);
   }
 
 </script>
