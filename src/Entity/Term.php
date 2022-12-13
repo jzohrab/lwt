@@ -28,7 +28,7 @@ class Term
     private ?string $WoTextLC = null;
 
     #[ORM\Column(name: 'WoStatus', type: Types::SMALLINT)]
-    private ?int $WoStatus = null;
+    private ?int $WoStatus = 1;
 
     #[ORM\Column(name: 'WoTranslation', length: 500)]
     private ?string $WoTranslation = null;
