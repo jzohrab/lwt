@@ -31,7 +31,7 @@ class Term
     private ?int $WoStatus = null;
 
     #[ORM\Column(name: 'WoTranslation', length: 500)]
-    private ?string $WoTranslation = '';
+    private ?string $WoTranslation = null;
 
     #[ORM\Column(name: 'WoRomanization', length: 100)]
     private ?string $WoRomanization = null;

@@ -8,9 +8,17 @@
     <table class="table">
         <tbody>
             <tr>
-                <th>Text</th>
+                <th>Term</th>
                 <td>{{ term.Text }}</td>
             </tr>
+
+            {% if term.Parent %}
+            <tr>
+                <th>Parent</th>
+                <td>{{ term.Parent.Text }}</td>
+            </tr>
+            {% endif %}
+
             <tr>
                 <th>Status</th>
                 <td>{{ term.Status }}</td>
@@ -31,13 +39,6 @@
                 <th>Language</th>
                 <td>{{ term.Language.LgName }}</td>
             </tr>
-
-            {% if term.Parent %}
-            <tr>
-                <th>Parent</th>
-                <td>{{ term.Parent.Text }}</td>
-            </tr>
-            {% endif %}
 
         </tbody>
     </table>

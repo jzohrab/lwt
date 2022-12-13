@@ -23,6 +23,15 @@ class TermRepository extends ServiceEntityRepository
 
     public function save(Term $entity, bool $flush = false): void
     {
+        // If the term's parent is new, throw some data into it.
+        $p = $entity->getParent();
+        if ($p != null && $p->getID() == null) {
+            $p->setLanguage($entity->getLanguage());
+            $p->setStatus($entity->getStatus());
+            $p->setTranslation($entity->getTranslation());
+            $p->setSentence($entity->getSentence());
+        }
+
         $this->getEntityManager()->persist($entity);
 
         if ($flush) {

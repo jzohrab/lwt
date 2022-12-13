@@ -57,12 +57,11 @@ class TermParentTransformer implements DataTransformerInterface
             $wordcount = count($realparts);
 
             $p = new Term();
-            $p->setLanguage($this->term->getLanguage());
             $p->setText($parent_text);
-            $p->setStatus($this->term->getStatus());
             $p->setWordCount($wordcount);
-            $repo->save($p, true);
-
+            // The rest of the values should be set on save, because
+            // at this point, the $term still hasn't been loaded from
+            // the form.
             $ret = $p;
         }
  
