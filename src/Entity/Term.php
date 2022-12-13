@@ -93,12 +93,6 @@ class Term
         return $this->WoText;
     }
 
-    public function setTextLC(?string $s): self
-    {
-        $this->WoTextLC = $s;
-        return $this;
-    }
-
     public function getTextLC(): ?string
     {
         return $this->WoTextLC;
