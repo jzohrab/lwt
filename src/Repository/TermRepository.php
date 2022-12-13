@@ -39,6 +39,29 @@ class TermRepository extends ServiceEntityRepository
         }
     }
 
+    public function findTermInLanguage(string $value, int $langid): ?Term
+    {
+        /*
+        return $this->createQueryBuilder('t')
+            ->andWhere('t.language.LgID = :lid')
+            ->andWhere('t.TextLC = :val')
+            ->setParameter('lid', $langid)
+            ->setParameter('val', $value)
+            ->getQuery()
+            ->getOneOrNullResult()
+            ;
+        */
+        $qb = $this->createQueryBuilder('t');
+
+        return $qb->select('t')
+            ->innerJoin('t.language', 'L', 'WITH', 'L.lgID = :langid')
+            ->where('t.textLC = :val')
+            ->setParameter('langid', $langid)
+            ->setParameter('val', $value)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
 //    /**
 //     * @return Term[] Returns an array of Term objects
 //     */
@@ -54,13 +77,4 @@ class TermRepository extends ServiceEntityRepository
 //        ;
 //    }
 
-//    public function findOneBySomeField($value): ?Term
-//    {
-//        return $this->createQueryBuilder('t')
-//            ->andWhere('t.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
 }

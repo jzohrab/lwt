@@ -130,6 +130,12 @@ final class TermRepository_Test extends DatabaseTestBase
         DbHelpers::assertTableContains($sql, $exp, "parents changed, tags");
     }
 
+    public function test_find_by_text()
+    {
+        $p = $this->term_repo->findTermInLanguage('parent', $this->spanish->getLgID());
+        $this->assertEquals($p->getText(), 'PARENT', 'parent found');
+    }
+    
     /* Tests
        - can't change text of saved word ... see other tests in src/word_form_ thing.
     */

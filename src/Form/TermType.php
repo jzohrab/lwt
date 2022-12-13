@@ -33,21 +33,21 @@ class TermType extends AbstractType
                   TextType::class,
                   [ 'label' => 'Parent',
                     'attr' => [ 'class' => 'form-text' ],
-                    'required' => true
+                    'required' => false
                   ]
             )
             ->add('Romanization',
                   TextType::class,
                   [ 'label' => 'Romanization',
                     'attr' => [ 'class' => 'form-text' ],
-                    'required' => true
+                    'required' => false
                   ]
             )
             ->add('Translation',
                   TextType::class,
                   [ 'label' => 'Translation',
                     'attr' => [ 'class' => 'form-text' ],
-                    'required' => true
+                    'required' => false
                   ]
             )
             ->add('Status',
@@ -71,7 +71,7 @@ class TermType extends AbstractType
                   TextType::class,
                   [ 'label' => 'Sentence',
                     'attr' => [ 'class' => 'form-text' ],
-                    'required' => true
+                    'required' => false
                   ]
             )
             // ->add('WordCount')
@@ -79,10 +79,15 @@ class TermType extends AbstractType
             // ->add('termTags')
         ;
 
+        // The term being used in the form is available as follows
+        // ref https://symfonycasts.com/screencast/symfony-forms/form-options-data
+        $term = $options['data'];
+        $lang = $term->getLanguage();
+
         // Data Transformer
         $builder
             ->get('parent')
-            ->addModelTransformer(new TermParentTransformer($this->manager));
+            ->addModelTransformer(new TermParentTransformer($this->manager, $lang));
     }
 
     public function configureOptions(OptionsResolver $resolver): void
