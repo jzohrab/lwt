@@ -22,27 +22,25 @@
   {{ form_row(form.Status) }}
   {{ form_row(form.Sentence) }}
 
-  {% if false %}
-  TAGS TODO!
   {% do form.termTags.setRendered %}
-  { # manually write list so it can be managed by tagit. # }
+  {# manually write list so it can be managed by tagit. #}
   <tr>
     <td>Tags</td>
     <td>
       <ul id="termtagslist" class="tags nomarginblock">
         {% for termTag in form.termTags %}
         <li>
-          {{ termTag.vars.value.term }}
+          {{ termTag.vars.value.text }}
         </li>
         {% endfor %}
       </ul>
     </td>
   </tr>
-  {% endif %}
 
 </table>
 
-    <button class="btn">{{ button_label|default('Save') }}</button>
+<button class="btn">{{ button_label|default('Save') }}</button>
+
 {{ form_end(form) }}
 
 <script>
@@ -54,13 +52,12 @@
       $('#languageSel').hide();
     }
 
-    /*
-    var prototypeFieldName = 'text[textTags][__name__][text]';
+    var prototypeFieldName = 'text[termTags][__name__][text]';
     var fieldIndex = 0;
     
     let invalidChar = function(s) { return /[\uD800-\uDFFF]/.test(s); };
 
-    $('#texttagslist').tagit(
+    $('#termtagslist').tagit(
       {
         beforeTagAdded: function (_event, ui) {
           if (invalidChar(ui.tag.text())) {
@@ -70,9 +67,9 @@
           $(this).tagit({fieldName: prototypeFieldName.replace('__name__', fieldIndex)});
         },
         availableTags: TAGS,
-        fieldName: 'text[textTags][0][text]'
+        fieldName: 'term[termTags][0][text]'
       });
-*/
+
   };
 
   $(document).ready(function () { setupForm(); });

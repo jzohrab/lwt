@@ -5,12 +5,14 @@ namespace App\Form;
 use App\Entity\Term;
 use App\Entity\Language;
 use App\Form\DataTransformer\TermParentTransformer;
+use App\Form\DataTransformer\TermTagsCollection;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Doctrine\ORM\EntityManagerInterface;
 
 class TermType extends AbstractType
@@ -83,8 +85,14 @@ class TermType extends AbstractType
                     'required' => false
                   ]
             )
-            // ->add('WordCount')
-            // ->add('termTags')
+            ->add('termTags',
+                  CollectionType::class,
+                  [
+                    'entry_type' => TermTagType::class,
+                    'allow_add' => true,
+                    'allow_delete' => true,
+                    'required' => false
+                  ])
         ;
 
         // The term being used in the form is available as follows
@@ -92,10 +100,14 @@ class TermType extends AbstractType
         // We need the term to help set some things in the parent.
         $term = $options['data'];
 
-        // Data Transformer
+        // Data Transformers
         $builder
             ->get('parent')
             ->addModelTransformer(new TermParentTransformer($this->manager, $term));
+        $builder
+            ->get('termTags')
+            ->addModelTransformer(new TermTagsCollection($this->manager));
+
     }
 
     public function configureOptions(OptionsResolver $resolver): void
