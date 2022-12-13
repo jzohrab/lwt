@@ -21,6 +21,13 @@ class TermType extends AbstractType
                     'required' => true
                   ]
             )
+            ->add('parent',
+                  TextType::class,
+                  [ 'label' => 'Parent',
+                    'attr' => [ 'class' => 'form-text' ],
+                    'required' => true
+                  ]
+            )
             ->add('Romanization',
                   TextType::class,
                   [ 'label' => 'Romanization',
@@ -62,13 +69,6 @@ class TermType extends AbstractType
             // ->add('WordCount')
             // ->add('language')
             // ->add('termTags')
-            ->add('parent',
-                  TextType::class,
-                  [ 'label' => 'Language',
-                    'attr' => [ 'class' => 'form-text' ],
-                    'required' => true
-                  ]
-            )
         ;
     }
 
