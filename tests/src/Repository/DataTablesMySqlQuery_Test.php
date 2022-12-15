@@ -39,7 +39,7 @@ final class DataTablesMySqlQuery_Test extends TestCase
             "columns" => $this->columns,
             "order" => [
                 0 => [
-                    "column" => "0",
+                    "column" => "1",
                     "dir" => "asc"
                 ]
             ],
@@ -68,7 +68,7 @@ final class DataTablesMySqlQuery_Test extends TestCase
 
     public function test_sorting()
     {
-        $this->parameters["order"][0]["column"] = 1;
+        $this->parameters["order"][0]["column"] = "2";
         $this->parameters["order"][0]["dir"] = "desc";
 
         $actual = DataTablesMySqlQuery::getSql($this->basesql, $this->parameters);
