@@ -37,6 +37,9 @@ A lot of things will be removed at first, and *might* be re-introduced after the
 
 ## MVP Phase 2
 
+* statistics
+* import terms
+* help/info
 * manage term tags
 * manage text tags
 

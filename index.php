@@ -307,11 +307,6 @@ global $userid, $passwd, $server, $dbname;
         <a class="disabled-link" href="docs/info.php">Help / Information</a>
     </div>
 
-    <div class="menu">
-        <a class="disabled-link" href="settings.php">Settings / Preferences</a>
-        <a class="disabled-link" href="text_to_speech_settings.php">Text-to-Speech Settings</a>
-    </div>
-
 </div>
 
 <hr />
