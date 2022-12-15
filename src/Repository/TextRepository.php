@@ -98,7 +98,7 @@ class TextRepository extends ServiceEntityRepository
           ) AS tags on tags.TxID = t.TxID
 
           LEFT OUTER JOIN (
-            SELECT Ti2TxID as TxID, COUNT(DISTINCT Ti2TextLC) AS countTerms
+            SELECT Ti2TxID as TxID, COUNT(*) AS countTerms
             FROM textitems2
             WHERE Ti2WoID <> 0
             GROUP BY Ti2TxID
@@ -114,7 +114,7 @@ class TextRepository extends ServiceEntityRepository
           */
 
           LEFT OUTER JOIN (
-            SELECT Ti2TxID as TxID, 0 as status, COUNT(*) as countUnknowns
+            SELECT Ti2TxID as TxID, COUNT(*) as countUnknowns
             FROM textitems2
             WHERE Ti2WoID = 0 AND Ti2WordCount = 1
             GROUP BY Ti2TxID
