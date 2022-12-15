@@ -102,7 +102,7 @@ function do_current_text_info() {
 ?>
   <a href="do_text.php?start=<?= $textid ?>">
     <img src="icn/book-open-bookmark.png" title="Read" alt="Read" />
-    Keep reading &quot;<?= $txttit ?>&quot;
+    &quot;<?= $txttit ?>&quot;
   </a>
 
 <?php
@@ -267,51 +267,7 @@ global $userid, $passwd, $server, $dbname;
     //]]>
 </script>
 
-<div style="display: flex; justify-content: space-evenly; flex-wrap: wrap;">
-
-    <div class="menu">
-        <?php
-        if ($langcnt == 0) {
-            ?> 
-        <div><p>Hint: The database seems to be empty.</p></div>
-        <a href="install_demo.php">Install the LWT demo database.</a>
-        <a href="edit_languages.php?new=1">Define the first language you want to learn.</a>
-            <?php
-        } else if ($langcnt > 0) {
-            do_language_selectable($currentlang);
-        } 
-        ?>
-        <a href="/language">Languages</a>
-    </div>
-
-    <div class="menu">
-        <a href="/text/index">Texts</a>
-        <?php do_current_text_info(); ?>
-        <a href="/text/archived">Text Archive</a>
-        <a class="disabled-link" href="edit_texttags.php">Text Tags</a>
-        <a class="disabled-link" href="long_text_import.php">Long Text Import</a>
-    </div>
-    
-    <div class="menu">
-        <a href="/term">Terms</a>
-        <a class="disabled-link" href="edit_tags.php">Term Tags</a>
-        <a class="disabled-link" href="upload_words.php">Import Terms</a>
-    </div>
-    
-    <div class="menu">
-        <a class="disabled-link" href="do_feeds.php?check_autoupdate=1">Newsfeed Import</a>
-    </div>
-
-    <div class="menu">
-        <a class="disabled-link" href="statistics.php">Statistics</a>
-        <a class="disabled-link" href="docs/info.php">Help / Information</a>
-    </div>
-
-</div>
-
-<hr />
-
-<h2>Legacy UI</h2>
+<p><a href="/">Back to new UI</a></p>
 
 <div style="display: flex; justify-content: space-evenly; flex-wrap: wrap;">
     <div class="oldmenu">
@@ -351,7 +307,7 @@ global $userid, $passwd, $server, $dbname;
 
     <div class="oldmenu">
         <a href="statistics.php">Statistics</a>
-        <a href="docs/info.php">Help / Information</a>
+        <a href="#">Help / Information (disabled)</a>
     </div>
 
     <div class="oldmenu">
