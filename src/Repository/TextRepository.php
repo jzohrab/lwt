@@ -51,6 +51,7 @@ class TextRepository extends ServiceEntityRepository
             if (! $entity->isArchived() ) {
                 $langid = $entity->getLanguage()->getLgID();
                 splitCheckText($entity->getText(), $langid, $entity->getID());
+                $this->refreshStatsCache();
             }
         }
     }
@@ -193,22 +194,17 @@ drop table if exists TEMPupdateStatsTxIDs;
         // Required, can't interpolate a bool in the sql string.
         $archived = $archived ? 'true' : 'false';
 
-        // TODO: this query is slow ... we could either a) ajax
-        // in relevant content to displayed records, b) page the
-        // datatable, or c) calculate and cache the data for
-        // each text, refreshing the cache as needed.  I feel c)
-        // is best, at the moment.
         $base_sql = "SELECT
           t.TxID As TxID,
           LgName,
           TxTitle,
           TxArchived,
           tags.taglist AS TagList,
-          CONCAT(ifnull(terms.countTerms, 0), ' / ', ifnull(unkterms.countUnknowns, 0)) as TermStats
-          /* ifnull(mwordterms.countExpressions, 0) as countExpressions, */
+          CONCAT(c.distinctterms, ' / ', c.sUnk) as TermStats
 
           FROM texts t
           INNER JOIN languages on LgID = t.TxLgID
+          LEFT OUTER JOIN textstatscache c on c.TxID = t.TxID
 
           LEFT OUTER JOIN (
             SELECT TtTxID as TxID, GROUP_CONCAT(T2Text ORDER BY T2Text SEPARATOR ', ') AS taglist
@@ -217,29 +213,6 @@ drop table if exists TEMPupdateStatsTxIDs;
             INNER JOIN tags2 t2 on t2.T2ID = tt.TtT2ID
             GROUP BY TtTxID
           ) AS tags on tags.TxID = t.TxID
-
-          LEFT OUTER JOIN (
-            SELECT Ti2TxID as TxID, COUNT(*) AS countTerms
-            FROM textitems2
-            WHERE Ti2WoID <> 0
-            GROUP BY Ti2TxID
-          ) AS terms on terms.TxID = t.TxID
-
-          /** Ignoring expression count for now, can't see the need.
-          LEFT OUTER JOIN (
-            SELECT Ti2TxID AS TxID, COUNT(DISTINCT Ti2WoID) as countExpressions
-            FROM textitems2
-            WHERE Ti2WordCount > 1
-            GROUP BY Ti2TxID
-          ) AS mwordterms on mwordterms.TxID = t.TxID
-          */
-
-          LEFT OUTER JOIN (
-            SELECT Ti2TxID as TxID, COUNT(*) as countUnknowns
-            FROM textitems2
-            WHERE Ti2WoID = 0 AND Ti2WordCount = 1
-            GROUP BY Ti2TxID
-          ) AS unkterms ON unkterms.TxID = t.TxID
 
           WHERE t.TxArchived = $archived";
 
