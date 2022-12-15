@@ -285,7 +285,7 @@ global $userid, $passwd, $server, $dbname;
     </div>
 
     <div class="menu">
-        <a href="/text">Texts</a>
+        <a href="/text/index">Texts</a>
         <?php do_current_text_info(); ?>
         <a href="/text/archived">Text Archive</a>
         <a class="disabled-link" href="edit_texttags.php">Text Tags</a>
@@ -293,7 +293,7 @@ global $userid, $passwd, $server, $dbname;
     </div>
     
     <div class="menu">
-        <a href="/term">Terms (SLOW, in progress)</a>
+        <a href="/term">Terms</a>
         <a class="disabled-link" href="edit_tags.php">Term Tags</a>
         <a class="disabled-link" href="upload_words.php">Import Terms</a>
     </div>

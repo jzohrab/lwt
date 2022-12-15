@@ -51,6 +51,7 @@ class TextRepository extends ServiceEntityRepository
             if (! $entity->isArchived() ) {
                 $langid = $entity->getLanguage()->getLgID();
                 splitCheckText($entity->getText(), $langid, $entity->getID());
+                $this->refreshStatsCache();
             }
         }
     }
@@ -66,23 +67,144 @@ class TextRepository extends ServiceEntityRepository
         }
     }
 
-    public function findAllWithStats(bool $archived): array
-    {
+
+    /**
+     * refresh records in textstatscache.
+     *
+     * When listing texts, it's far too slow to query and rebuild
+     * stats all the time.
+     */
+    public function refreshStatsCache() {
+
+        // Using a temp table to determine which texts to update.
+        // I tried using left joins back to textstatscache, but it
+        // was slow, despite indexing.  There is probably a better
+        // way to do this, but this works for now.
+        //
+        // Ideally, this would be a temp table ... but then the stats update
+        // query complains about "reopening the table", as it's used several
+        // times in the query.
+        //
+        // This could be moved to a stored procedure, but this is good
+        // enough for now.
+
+        $sql = "
+-- Temp table of textids.
+drop table if exists TEMPupdateStatsTxIDs;
+create table TEMPupdateStatsTxIDs (TxID int primary key);
+
+insert into TEMPupdateStatsTxIDs
+select t.TxID from texts t
+left join textstatscache c on c.TxID = t.TxID
+where c.TxID is null
+and t.TxArchived = 0;
+
+-- Load stats.
+insert into textstatscache (
+  TxID,
+  wordcount,
+  distinctterms,
+  multiwordexpressions,
+  sUnk,
+  s1,
+  s2,
+  s3,
+  s4,
+  s5,
+  sIgn,
+  sWkn
+)
+SELECT
+t.TxID As TxID,
+
+wordcount.n as wordcount,
+distinctterms.n as distinctterms,
+coalesce(mwordexpressions.n, 0) as multiwordexpressions,
+sUnk, s1, s2, s3, s4, s5, sIgn, sWkn
+
+FROM texts t
+inner join TEMPupdateStatsTxIDs u on u.TxID = t.TxID
+
+LEFT OUTER JOIN (
+  SELECT Ti2TxID as TxID, COUNT(*) AS n
+  FROM textitems2
+  inner join TEMPupdateStatsTxIDs u on u.TxID = textitems2.Ti2TxID
+  WHERE Ti2WordCount = 1
+  GROUP BY Ti2TxID
+) AS wordcount on wordcount.TxID = t.TxID
+
+LEFT OUTER JOIN (
+  SELECT Ti2TxID as TxID, COUNT(distinct Ti2WoID) AS n
+  FROM textitems2
+  inner join TEMPupdateStatsTxIDs u on u.TxID = textitems2.Ti2TxID
+  WHERE Ti2WoID <> 0
+  GROUP BY Ti2TxID
+) AS distinctterms on distinctterms.TxID = t.TxID
+
+LEFT OUTER JOIN (
+  SELECT Ti2TxID AS TxID, COUNT(DISTINCT Ti2WoID) as n
+  FROM textitems2
+  inner join TEMPupdateStatsTxIDs u on u.TxID = textitems2.Ti2TxID
+  WHERE Ti2WordCount > 1
+  GROUP BY Ti2TxID
+) AS mwordexpressions on mwordexpressions.TxID = t.TxID
+
+LEFT OUTER JOIN (
+
+      SELECT TxID,
+      SUM(CASE WHEN status=0 THEN c ELSE 0 END) AS sUnk,
+      SUM(CASE WHEN status=1 THEN c ELSE 0 END) AS s1,
+      SUM(CASE WHEN status=2 THEN c ELSE 0 END) AS s2,
+      SUM(CASE WHEN status=3 THEN c ELSE 0 END) AS s3,
+      SUM(CASE WHEN status=4 THEN c ELSE 0 END) AS s4,
+      SUM(CASE WHEN status=5 THEN c ELSE 0 END) AS s5,
+      SUM(CASE WHEN status=98 THEN c ELSE 0 END) AS sIgn,
+      SUM(CASE WHEN status=99 THEN c ELSE 0 END) AS sWkn
+
+      FROM (
+      SELECT Ti2TxID AS TxID, WoStatus AS status, COUNT(*) as c
+      FROM textitems2
+      inner join TEMPupdateStatsTxIDs u on u.TxID = textitems2.Ti2TxID
+      INNER JOIN words ON WoID = Ti2WoID
+      WHERE Ti2WoID <> 0
+      GROUP BY Ti2TxID, WoStatus
+
+      UNION
+      SELECT Ti2TxID as TxID, 0 as status, COUNT(*) as c
+      FROM textitems2
+      inner join TEMPupdateStatsTxIDs u on u.TxID = textitems2.Ti2TxID
+      WHERE Ti2WoID = 0 AND Ti2WordCount = 1
+      GROUP BY Ti2TxID
+  
+      ) rawdata
+      GROUP BY TxID
+) AS statuses on statuses.TxID = t.TxID;
+
+drop table if exists TEMPupdateStatsTxIDs;
+";
+
+        $conn = $this->getEntityManager()->getConnection();
+        $stmt = $conn->prepare($sql);
+        $res = $stmt->executeQuery();
+    }
+
+    /** Returns data for ajax paging. */
+    public function getDataTablesList($parameters, $archived = false) {
+
         // Required, can't interpolate a bool in the sql string.
         $archived = $archived ? 'true' : 'false';
 
-        // TODO: this query is slow ... we could either a) ajax
-        // in relevant content to displayed records, b) page the
-        // datatable, or c) calculate and cache the data for
-        // each text, refreshing the cache as needed.  I feel c)
-        // is best, at the moment.
-        $sql = "SELECT t.TxID, LgName, TxTitle, TxArchived, tags.taglist,
-          ifnull(terms.countTerms, 0) as countTerms,
-          ifnull(unkterms.countUnknowns, 0) as countUnknowns
-          /* ifnull(mwordterms.countExpressions, 0) as countExpressions, */
+        $base_sql = "SELECT
+          t.TxID As TxID,
+          LgName,
+          TxTitle,
+          TxArchived,
+          tags.taglist AS TagList,
+          CONCAT(c.distinctterms, ' / ', c.sUnk) as TermStats
 
           FROM texts t
           INNER JOIN languages on LgID = t.TxLgID
+          LEFT OUTER JOIN textstatscache c on c.TxID = t.TxID
 
           LEFT OUTER JOIN (
             SELECT TtTxID as TxID, GROUP_CONCAT(T2Text ORDER BY T2Text SEPARATOR ', ') AS taglist
@@ -92,47 +214,11 @@ class TextRepository extends ServiceEntityRepository
             GROUP BY TtTxID
           ) AS tags on tags.TxID = t.TxID
 
-          LEFT OUTER JOIN (
-            SELECT Ti2TxID as TxID, COUNT(DISTINCT Ti2TextLC) AS countTerms
-            FROM textitems2
-            WHERE Ti2WoID <> 0
-            GROUP BY Ti2TxID
-          ) AS terms on terms.TxID = t.TxID
-
-          /** Ignoring expression count for now, can't see the need.
-          LEFT OUTER JOIN (
-            SELECT Ti2TxID AS TxID, COUNT(DISTINCT Ti2WoID) as countExpressions
-            FROM textitems2
-            WHERE Ti2WordCount > 1
-            GROUP BY Ti2TxID
-          ) AS mwordterms on mwordterms.TxID = t.TxID
-          */
-
-          LEFT OUTER JOIN (
-            SELECT Ti2TxID as TxID, 0 as status, COUNT(*) as countUnknowns
-            FROM textitems2
-            WHERE Ti2WoID = 0 AND Ti2WordCount = 1
-            GROUP BY Ti2TxID
-          ) AS unkterms ON unkterms.TxID = t.TxID
-
           WHERE t.TxArchived = $archived";
 
         $conn = $this->getEntityManager()->getConnection();
-        $stmt = $conn->prepare($sql);
-        $resultSet = $stmt->executeQuery();
-        $ret = [];
-        foreach ($resultSet->fetchAllAssociative() as $row) {
-            $t = new Text();
-            $t->ID = $row['TxID'];
-            $t->Language = $row['LgName'];
-            $t->Title = $row['TxTitle'];
-            $t->Tags = $row['taglist'];
-            $t->isArchived = $row['TxArchived'];
-            $t->TermCount = (int) $row['countTerms'];
-            $t->UnknownCount = (int) $row['countUnknowns'];
-            $ret[] = $t;
-        }
-        return $ret;
+        
+        return DataTablesMySqlQuery::getData($base_sql, $parameters, $conn);
     }
 
 

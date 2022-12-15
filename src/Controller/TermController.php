@@ -5,10 +5,13 @@ namespace App\Controller;
 use App\Entity\Term;
 use App\Form\TermType;
 use App\Repository\TermRepository;
+
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
+
 
 #[Route('/term')]
 class TermController extends AbstractController
@@ -16,9 +19,16 @@ class TermController extends AbstractController
     #[Route('/', name: 'app_term_index', methods: ['GET'])]
     public function index(TermRepository $termRepository): Response
     {
-        return $this->render('term/index.html.twig', [
-            'terms' => $termRepository->findAll(),
-        ]);
+        return $this->render('term/index.html.twig');
+    }
+
+    #[Route('/datatables', name: 'app_term_datatables', methods: ['POST'])]
+    public function datatables_source(Request $request, TermRepository $repo): JsonResponse
+    {
+        $parameters = $request->request->all();
+        $data = $repo->getDataTablesList($parameters);
+        $data["draw"] = $parameters['draw'];
+        return $this->json($data);
     }
 
     #[Route('/new', name: 'app_term_new', methods: ['GET', 'POST'])]
@@ -75,4 +85,5 @@ class TermController extends AbstractController
 
         return $this->redirectToRoute('app_term_index', [], Response::HTTP_SEE_OTHER);
     }
+
 }

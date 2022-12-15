@@ -116,6 +116,7 @@ you must use a dedicated test database when running tests.
             "tempwords",
             "textitems2",
             "texts",
+            "textstatscache",
             "texttags",
             "tts",
             "words",

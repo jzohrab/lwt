@@ -40,6 +40,11 @@ class LegacyBridge
         $_SERVER['SCRIPT_NAME'] = $p;
         $_SERVER['SCRIPT_FILENAME'] = $fullpath;
 
-        require $fullpath;
+        try {
+            require $fullpath;
+        }
+        catch (\Exception $e) {
+            throw new \Exception("LegacyBridge require of $fullpath failed", 0, $e);
+        }
     }
 }

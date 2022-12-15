@@ -102,7 +102,7 @@
     "db:migrate": "php db/migrate.php",
     "db:newscript": "php db/create_migration_script.php",
         "test": "./bin/phpunit -c phpunit.xml.dist",
-        "testdata": "./bin/phpunit -c phpunit.xml.dist tests/LoadTestData_Test.php",
+        "testdata": "LOAD_LOTS_OF_TEST_DATA=1 ./bin/phpunit -c phpunit.xml.dist tests/LoadTestData_Test.php",
         "nukecache": [
             "rm -rf var/cache",
             "php bin/console cache:clear",
