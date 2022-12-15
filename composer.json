@@ -99,6 +99,7 @@
         "squizlabs/php_codesniffer": "Following code style standards is a good thing"
     },
   "scripts": {
+    "db:which": "grep ^\\$dbname connect.inc.php",
     "db:migrate": "php db/migrate.php",
     "db:newscript": "php db/create_migration_script.php",
         "test": "./bin/phpunit -c phpunit.xml.dist",
