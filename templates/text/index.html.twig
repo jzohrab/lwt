@@ -15,7 +15,7 @@
       <th>Tags</th>
       <th title="known / unknown">Stats</th>
       <th>Archived</th>
-      <th style="width: 5%;">Actions</th>
+      <th>Actions</th>
     </tr>
   </thead>
   <tfoot>
@@ -93,23 +93,17 @@
           "searchable": false,
           "orderable": false,
           "render": function ( data, type, row, meta ) {
-            // TODO:security - add CSRF token (somehow)
+            // TODO:security - add CSRF token
             let ret = '';
             const txid = row[0];
             if (row[5] == 0) {
               // not archived
-              ret += `<span onclick="confirm_archive(${txid});">
-                <img src="/icn/inbox-download.png" title="Archive" />
-                </span>`;
+              ret += `<img src="/icn/inbox-download.png" title="Archive" onclick="confirm_archive(${txid})" />`;
             }
             else {
-              ret += `<span onclick="confirm_unarchive(${txid});">
-                <img src="/icn/inbox-upload.png" title="Unrchive" />
-                </span>`;
+              ret += `<img src="/icn/inbox-upload.png" title="Unarchive" onclick="confirm_unarchive(${txid})" />`;
             }
-            ret += `<span onclick="confirm_delete(${txid});">
-                <img src="/icn/minus-button.png" title="Delete" />
-                </span>`;
+            ret += `<img src="/icn/minus-button.png" title="Delete onclick="confirm_delete(${txid})" />`;
             return ret;
           }
         }
@@ -124,6 +118,11 @@
       },
 
     });
+
+    // TODO:fix  Archived texts don't have stats, but hiding the column messed with the layout.
+    // if ('{{ status }}'.toLowerCase() == 'archived') {
+    //    $('table#texttable > td:nth-child(5),th:nth-child(5)').hide();
+    // }
   } // end setup_text_datatable
   
   $(document).ready(function () { setup_text_datatable(); });
