@@ -1,0 +1,55 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}LUTE{% endblock %}
+
+{% block body %}
+
+<h1>LUTE</h1>
+
+
+<ul>
+<li><a href="/language">Languages</a></li>
+<li><a href="/text/index">Texts</a></li>
+
+{% if currtxid is not null %}
+<li>
+  Continue reading <a href="/do_text.php?start={{ currtxid }}">
+    &quot;{{ currtxtitle }}&quot;
+  </a> (LEGACY, TO BE REPLACED)
+</li>
+{% endif %}
+
+<li><a href="/text/archived">Text Archive</a></li>
+<li><a href="/term">Terms</a></li>
+<li><a href="long_text_import.php">Long Text Import</a> (LEGACY, TO BE REPLACED)</li>
+<li><a href="https://github.com/jzohrab/lwt/tree/master/docs">Docs (on GitHub)</a></li>
+</ul>
+
+<p>(Use the <a href="/index_LEGACY.php">legacy menu</a>)</p>
+
+<hr />
+
+<p>Db: {{ dbname }} on {{ server }}; Symfony connection = {{ symfconn }}</p>
+<p>Web server: {{ webhost }} running {{ apache }}, PHP {{ php }}.</p>
+
+<footer>
+    <table>
+        <tr>
+            <td class="width50px">
+                <a target="_blank" href="http://unlicense.org/">
+                    <img alt="Public Domain" title="Public Domain" src="img/public_domain.png" />
+                </a>
+            </td>
+            <td>
+                <p class="small">
+                    Lute is free and unencumbered software released into the 
+                    <a href="https://en.wikipedia.org/wiki/Public_domain_software" target="_blank">PUBLIC DOMAIN</a>. 
+                    <a href="http://unlicense.org/" target="_blank">More information and detailed Unlicense ...</a>
+                </p>
+            </td>
+        </tr>
+    </table>
+</footer>
+
+{% endblock %}
+

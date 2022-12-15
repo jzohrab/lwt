@@ -21,13 +21,6 @@ Pretty much everything else is just "CRUD" (i.e., it's a simple database "Create
 
 ## Current state
 
-(as of Dec 7, 2022, and hopefully things have changed since then)
+(As of Dec 15, 2022)
 
-* introduced a "front controller", so everything is handled by `public/index.php` at first.
-* the app needs to be entered in `/etc/hosts`, and the host configured in Apache vhosts, for URL rewriting to work.
-
-### App pages
-
-* The text listing is at `/text/`
-* All the legacy pages are currently still in place and are accessed from the site root (e.g., `/edit_texts.php`), and should still work.
-* If any page looks terrible, it's incomplete and will likely not work!  I'll try to break links if the accompanying page is not implemented.
+Working towards an MVP release of Lute, gradually re-implementing key features from LWT.
