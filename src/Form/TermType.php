@@ -95,6 +95,11 @@ class TermType extends AbstractType
                   ])
         ;
 
+        $postto = $options['postto'];
+        if ($postto != null) {
+            $builder->setAction($postto);
+        }
+
         // The term being used in the form is available as follows
         // ref https://symfonycasts.com/screencast/symfony-forms/form-options-data.
         // We need the term to help set some things in the parent.
@@ -114,6 +119,7 @@ class TermType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Term::class,
+            'postto' => null,
         ]);
     }
 }

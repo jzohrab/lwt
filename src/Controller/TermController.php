@@ -95,12 +95,13 @@ class TermController extends AbstractController
             $text = '';
         $term = $termRepository->load($wid, $textid, $ord, $text);
 
-        $form = $this->createForm(TermType::class, $term);
         $postto = '/term/new';
         $wid = $term->getID();
         if ($wid != null) {
             $postto = "/term/{$wid}/edit";
         }
+
+        $form = $this->createForm(TermType::class, $term, [ 'postto' => $postto ]);
 
         if ($form->isSubmitted()) {
             throw new \Exception("The form should not submit back here!");
