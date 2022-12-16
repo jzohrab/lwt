@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Term;
+use App\Entity\Language;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -107,6 +108,8 @@ LEFT OUTER JOIN (
         return DataTablesMySqlQuery::getData($base_sql, $parameters, $conn);
     }
 
+
+
     /******************************************/
     // Loading a Term for the reading pane.
     //
@@ -128,26 +131,20 @@ LEFT OUTER JOIN (
      */
     public function load(int $wid = 0, int $tid = 0, int $ord = 0, string $text = ''): Term
     {
-        if ($wid == 0 && $tid == 0 && $ord == 0) {
-            throw new Exception("Missing all wid tid ord");
-        }
-
         $ret = null;
 
         if ($wid > 0) {
             $ret = $this->find($wid);
         }
-
-        if ($ret == null && $text != '') {
-            $lid = $this->get_lang_id($wid, $tid, $ord);
-            $ret = $this->load_from_text($text, $lid);
+        elseif ($text != '') {
+            $language = $this->getTextLanguage($tid);
+            $ret = $this->loadFromText($text, $language);
         }
-
-        if ($ret == null && $tid != 0 && $ord != 0) {
-            $ret = $this->findByTidAndOrd($tid, $ord);
+        elseif ($tid != 0 && $ord != 0) {
+            $language = $this->getTextLanguage($tid);
+            $ret = $this->loadFromTidAndOrd($tid, $ord, $language);
         }
-
-        if ($ret == null) {
+        else {
             throw new Exception("Out of options to search for term");
         }
 
@@ -159,15 +156,28 @@ LEFT OUTER JOIN (
         return $ret;
     }
 
+    private function getTextLanguage($tid): Language {
+        $sql = "SELECT TxLgID FROM texts WHERE TxID = {$tid}";
+        $record = $this
+            ->getEntityManager()
+            ->getConnection()
+            ->executeQuery($sql)
+            ->fetchAssociative();
+        if (! $record) {
+            throw new \Exception("no record for tid = $tid ???");
+        }
+        $lang = $this->lang_repo->find((int) $record['TxLgID']);
+        return $lang;
+    }
+    
     /**
      * Get baseline data from tid and ord.
      *
      * @return Term.
      */
-    private function findByTidAndOrd($tid, $ord) : ?Term {
+    private function loadFromTidAndOrd($tid, $ord, Language $lang): Term {
         $sql = "SELECT ifnull(WoID, 0) as WoID,
-          Ti2Text AS t,
-          Ti2LgID AS lid
+          Ti2Text AS t
           FROM textitems2
           LEFT OUTER JOIN words on WoTextLC = Ti2TextLC
           WHERE Ti2TxID = {$tid} AND Ti2WordCount = 1 AND Ti2Order = {$ord}";
@@ -187,7 +197,19 @@ LEFT OUTER JOIN (
 
         $t = new Term();
         $t->setText($record['t']);
-        $lang = $this->lang_repo->find((int) $record['lid']);
+        $t->setLanguage($lang);
+        return $t;
+    }
+
+
+    private function loadFromText(string $text, Language $lang): Term {
+        $textlc = mb_strtolower($text);
+        $t = $this->findTermInLanguage($text, $lang->getLgID());
+        if (null != $t)
+            return $t;
+
+        $t = new Term();
+        $t->setText($text);
         $t->setLanguage($lang);
         return $t;
     }

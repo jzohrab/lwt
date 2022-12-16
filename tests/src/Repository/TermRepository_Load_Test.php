@@ -64,30 +64,15 @@ where ti2order = 25";
         $this->assertEquals($t->getLanguage()->getLgID(), $this->spanish->getLgID(), 'language set');
     }
 
-    /*
     public function test_multi_word_overrides_tid_and_ord() {
-        $fd = load_formdata_from_db('', 1, 12, 'TENGO una');
-        $expected = array(
-            'wid' => 0,  // New word!
-            'lang' => 1,
-            'term' => 'TENGO una',
-            'termlc' => 'tengo una',
-            'scrdir' => '',
-            'translation' => '',
-            'tags' => [],
-            'romanization' => '',
-            'sentence' => 'No {TENGO una} lista.',
-            'status' => 1,
-            'status_old' => 1,
-            'parent_id' => 0,
-            'parent_text' => ''
-        );
-        foreach ($expected as $k => $v) {
-            $this->assertEquals($v, $fd->$k, "checking $k");
-        }
+        $t = $this->term_repo->load(0, 1, 12, 'TENGO una');
+        $this->assertEquals($t->getID(), 0, 'new word');
+        $this->assertEquals($t->getText(), "TENGO una", 'text');
+        $this->assertEquals($t->getLanguage()->getLgID(), $this->spanish->getLgID(), 'language set');
+        $this->assertEquals($t->getStatus(), 1, 'status');
     }
 
-
+    /*
     public function test_multi_word_returns_existing_word_if_it_matches() {
         $wid = DbHelpers::add_word(1, 'TENGO UNA', 'tengo una', 4, 2);
 
