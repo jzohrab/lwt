@@ -101,6 +101,7 @@ class TermController extends AbstractController
             $postto = "/term/{$wid}/edit";
         }
 
+        # ref https://symfony.com/doc/current/forms.html#passing-options-to-forms.
         $form = $this->createForm(TermType::class, $term, [ 'postto' => $postto ]);
 
         if ($form->isSubmitted()) {
