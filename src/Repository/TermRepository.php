@@ -73,6 +73,8 @@ class TermRepository extends ServiceEntityRepository
         $p->setStatus($entity->getStatus());
         $p->setTranslation($entity->getTranslation());
         $p->setSentence($entity->getSentence());
+        foreach ($entity->getTermTags() as $tag)
+            $p->addTermTag($tag);
         return $p;
     }
 

@@ -137,7 +137,7 @@ class Term
         return $this->WoWordCount;
     }
     
-    public function setTranslation(string $WoTranslation): self
+    public function setTranslation(?string $WoTranslation): self
     {
         $this->WoTranslation = $WoTranslation;
         return $this;
@@ -159,7 +159,7 @@ class Term
         return $this->WoRomanization;
     }
 
-    public function setSentence(string $s): self
+    public function setSentence(?string $s): self
     {
         $this->WoSentence = $s;
         return $this;
