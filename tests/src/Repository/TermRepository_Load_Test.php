@@ -19,12 +19,12 @@ final class TermRepository_Load_Test extends DatabaseTestBase {
         $t->setLanguage($lang);
         $this->text_repo->save($t, true);
 
-        $spot_check_sql = "select ti2woid, ti2seid, ti2order, ti2text from textitems2
+        $spot_check_sql = "select ti2txid, ti2woid, ti2seid, ti2order, ti2text from textitems2
 where ti2order in (1, 12, 25) order by ti2order";
         $expected = [
-            "0; 1; 1; Hola",
-            "0; 2; 12; TENGO",
-            "0; 3; 25; bebida"
+            "1; 0; 1; 1; Hola",
+            "1; 0; 2; 12; TENGO",
+            "1; 0; 3; 25; bebida"
         ];
         DbHelpers::assertTableContains($spot_check_sql, $expected);
 
@@ -56,30 +56,15 @@ where ti2order = 25";
         $this->assertEquals($t->getText(), "BEBIDA", 'text');
     }
 
-    /*
+
     public function test_no_wid_load_by_tid_and_ord_new_word() {
-        $fd = load_formdata_from_db('', 1, 12);
-        $expected = array(
-            'wid' => 0,  // New word!
-            'lang' => 1,
-            'term' => 'TENGO',
-            'termlc' => 'tengo',
-            'scrdir' => '',
-            'translation' => '',
-            'tags' => [],
-            'romanization' => '',
-            'sentence' => 'No {TENGO} una lista.',
-            'status' => 1,
-            'status_old' => 1,
-            'parent_id' => 0,
-            'parent_text' => ''
-        );
-        foreach ($expected as $k => $v) {
-            $this->assertEquals($v, $fd->$k, "checking $k");
-        }
+        $t = $this->term_repo->load(0, 1, 12, '');
+        $this->assertEquals($t->getID(), 0, 'new word');
+        $this->assertEquals($t->getText(), "TENGO", 'text');
+        $this->assertEquals($t->getLanguage()->getLgID(), $this->spanish, 'language set');
     }
 
-
+    /*
     public function test_multi_word_overrides_tid_and_ord() {
         $fd = load_formdata_from_db('', 1, 12, 'TENGO una');
         $expected = array(

@@ -144,12 +144,6 @@ LEFT OUTER JOIN (
 
         if ($ret == null && $tid != 0 && $ord != 0) {
             $ret = $this->findByTidAndOrd($tid, $ord);
-
-            // The tid and ord might lead to a saved word,
-            // in which case, use it.
-            if ($ret->getID() > 0) {
-                $ret = $this->find($ret->getID());
-            }
         }
 
         if ($ret == null) {
@@ -164,9 +158,39 @@ LEFT OUTER JOIN (
         return $ret;
     }
 
+    /**
+     * Get baseline data from tid and ord.
+     *
+     * @return Term.
+     */
     private function findByTidAndOrd($tid, $ord) : ?Term {
-        return new Term();
+        $sql = "SELECT ifnull(WoID, 0) as WoID,
+          Ti2Text AS t,
+          Ti2LgID AS lid
+          FROM textitems2
+          LEFT OUTER JOIN words on WoTextLC = Ti2TextLC
+          WHERE Ti2TxID = {$tid} AND Ti2WordCount = 1 AND Ti2Order = {$ord}";
+        $record = $this
+            ->getEntityManager()
+            ->getConnection()
+            ->executeQuery($sql)
+            ->fetchAssociative();
+        if (! $record) {
+            throw new \Exception("no matching textitems2 for tid = $tid , ord = $ord");
+        }
+
+        $wid = (int) $record['WoID'];
+        if ($wid > 0) {
+            return $this->find($wid);
+        }
+
+        $t = new Term();
+        $t->setText($record['t']);
+        $lang = $this->lang_repo->find((int) $record['lid']);
+        $t->setLanguage($lang);
+        return $t;
     }
+
 
     private function findSentence($tid, $ord) : string {
         $sql = "select SeText
