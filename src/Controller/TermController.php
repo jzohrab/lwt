@@ -87,10 +87,10 @@ class TermController extends AbstractController
     }
 
     #[Route('/load/{wid}/{textid}/{ord}/{text}', name: 'app_term_load', methods: ['GET'])]
-    public function load_form($wid, $textid, $ord, $text): Response
+    public function load_form($wid, $textid, $ord, $text, Request $request): Response
     {
         return $this->render('term/placeholder.html.twig', [
-            'wid' => $wid, 'textid' => $textid, 'ord' => $ord, 'text' => $text
+            'wid' => $wid, 'textid' => $textid, 'ord' => $ord, 'text' => $text, 'extra' => $request->query
         ]);
     }
     

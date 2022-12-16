@@ -2,3 +2,13 @@
 <p>
             'wid' => {{ wid }}, 'textid' => {{ textid }}, 'ord' => {{ ord }}, 'text' => {{ text }}
 </p>
+
+{% if extra %}
+<ul>
+{% for key,value in extra %}
+    <li>Key : {{ key }}, Value : {{ value }}</li>
+{% endfor %}
+</ul>
+{% else %}
+<p><i>no extra values</i></p>
+{% endif %}
