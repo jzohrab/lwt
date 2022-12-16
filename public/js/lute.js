@@ -71,19 +71,30 @@ let tooltip_wsty_content = function (el) {
 
 
 function showEditFrame(el, extra_args = {}) {
-  const wid = el.attr('data_wid');
-  const tid = el.attr('tid');
-  const ord = el.attr('data_order');
-  const stat = el.attr('data_status');
 
+  const int_attr = function(name) {
+    let ret = el.attr(name);
+    if (!ret || ret == '')
+      return 0;
+    return parseInt(ret);
+  };
+  const wid = int_attr('data_wid');
+  const tid = int_attr('tid');
+  const ord = int_attr('data_order');
+  const text = encodeURIComponent(extra_args.text ?? '-');
+
+  console.log('TODO handle extras');
+  /*
   let extras = Object.entries(extra_args).
       map((p) => `${p[0]}=${encodeURIComponent(p[1])}`).
       join('&');
   if (extras != '')
     extras = `&${extras}`;
-  const url = `edit_word.php?tid=${tid}&ord=${ord}&wid=${wid}${extras}`;
+  */
+  const url = `/term/load/${wid}/${tid}/${ord}/${text}`;
   // TODO
   console.log('showEditFrame: ' + url);
+  top.frames.wordframe.location.href = url;
 }
 
 function showDictionaryFrame(url) {
