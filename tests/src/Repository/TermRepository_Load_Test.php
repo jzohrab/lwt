@@ -78,23 +78,21 @@ where ti2order = 25";
         $this->assertEquals($t->getID(), $wid, 'maps to existing word');
     }
 
-    /*
+
     public function test_missing_tid_or_ord_throws() {
         $msg = '';
-        try { load_formdata_from_db('', 0, 0); }
-        catch (Exception $e) { $msg .= '1'; }
-        try { load_formdata_from_db('', 0, 1); }
-        catch (Exception $e) { $msg .= '2'; }
-        try { load_formdata_from_db('', 1, 0); }
-        catch (Exception $e) { $msg .= '3'; }
+        try { $this->term_repo->load(0, 0, 0); }
+        catch (\Exception $e) { $msg .= '1'; }
+        try { $this->term_repo->load(0, 0, 1); }
+        catch (\Exception $e) { $msg .= '2'; }
+        try { $this->term_repo->load(0, 1, 0); }
+        catch (\Exception $e) { $msg .= '3'; }
 
-        try { load_formdata_from_db('', 1, 1); }
-        catch (Exception $e) { $msg .= 'this does not throw, the tid and ord are sufficient'; }
-        try { load_formdata_from_db(1, 1, null); }
-        catch (Exception $e) { $msg .= 'this does not throw, the wid is sufficient'; }
+        try { $this->term_repo->load(0, 1, 1); }
+        catch (\Exception $e) { $msg .= 'this does not throw, the tid and ord are sufficient'; }
+        try { $this->term_repo->load(1, 1, 0); }
+        catch (\Exception $e) { $msg .= 'this does not throw, the wid is sufficient'; }
         $this->assertEquals('123', $msg, 'all failed :-P');
     }
-
-    */
 
 }

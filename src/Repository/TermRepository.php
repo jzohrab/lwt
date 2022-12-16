@@ -145,7 +145,7 @@ LEFT OUTER JOIN (
             $ret = $this->loadFromTidAndOrd($tid, $ord, $language);
         }
         else {
-            throw new Exception("Out of options to search for term");
+            throw new \Exception("Out of options to search for term");
         }
 
         if ($ret->getSentence() == null && $tid != 0 && $ord != 0) {
