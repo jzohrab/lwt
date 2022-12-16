@@ -81,15 +81,13 @@ function showEditFrame(el, extra_args = {}) {
   const wid = int_attr('data_wid');
   const tid = int_attr('tid');
   const ord = int_attr('data_order');
-  const text = encodeURIComponent(extra_args.text ?? '-');
+  const text = encodeURIComponent(extra_args.text ?? '0');
 
   console.log('TODO handle extras');
 
   let extras = Object.entries(extra_args).
       map((p) => `${p[0]}=${encodeURIComponent(p[1])}`).
       join('&');
-  if (extras != '')
-    extras = `&${extras}`;
 
   const url = `/term/load/${wid}/${tid}/${ord}/${text}?${extras}`;
   // TODO

@@ -87,10 +87,25 @@ class TermController extends AbstractController
     }
 
     #[Route('/load/{wid}/{textid}/{ord}/{text}', name: 'app_term_load', methods: ['GET'])]
-    public function load_form($wid, $textid, $ord, $text, Request $request): Response
+    public function load_form($wid, $textid, $ord, $text, Request $request, TermRepository $termRepository): Response
     {
-        return $this->render('term/placeholder.html.twig', [
-            'wid' => $wid, 'textid' => $textid, 'ord' => $ord, 'text' => $text, 'extra' => $request->query
+        $term = $termRepository->load($wid, $textid, $ord, $text);
+
+        $target_route = 'app_term_edit';
+        $template_neme = 'term/edit.html.twig';
+        if ($term->getID() == null) {
+            $target_route = 'app_term_new';
+            $template_neme = 'term/new.html.twig';
+        }
+
+        $form = $this->createFormBuilder($term)
+            ->setAction($this->generateUrl($target_route))
+            ->getForm();
+
+        return $this->renderForm($template_neme, [
+            'term' => $term,
+            'form' => $form,
+            'extra' => $request->query
         ]);
     }
     
