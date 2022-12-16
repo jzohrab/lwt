@@ -105,4 +105,63 @@ LEFT OUTER JOIN (
         
         return DataTablesMySqlQuery::getData($base_sql, $parameters, $conn);
     }
+
+    /******************************************/
+    // Loading a Term for the reading pane.
+    //
+    // Loading is rather complex.  It can be done by the Term ID (aka
+    // the 'wid') or the textid and position in the text (the 'tid'
+    // and 'ord'), or it might be a brand new multi-word term
+    // (specified by the 'text').  The integration tests cover these
+    // scenarios in /hopefully/ enough detail.
+
+    /**
+     * Get fully populated Term from database.
+     *
+     * @param wid  int    WoID, an actual ID, or 0 if new.
+     * @param tid  int    TxID, text ID
+     * @param ord  int    Ti2Order, the order in the text
+     * @param text string Multiword text (overrides tid/ord text)
+     *
+     * @return Term
+     */
+    public function load(int $wid = 0, int $tid = 0, int $ord = 0, string $text = ''): Term
+    {
+        if ($wid == 0 && $tid == 0 && $ord == 0) {
+            throw new Exception("Missing all wid tid ord");
+        }
+
+        $ret = null;
+
+        if ($wid > 0) {
+            $ret = $this->find($wid);
+        }
+
+        if ($ret == null && $text != '') {
+            $lid = $this->get_lang_id($wid, $tid, $ord);
+            $ret = $this->load_from_text($text, $lid);
+        }
+
+        if ($ret == null && $tid != 0 && $ord != 0) {
+            $ret = $this->findWithTidAndOrd($tid, $ord);
+
+            // The tid and ord might lead to a saved word,
+            // in which case, use it.
+            if ($ret->getID() > 0) {
+                $ret = $this->find($ret->getID());
+            }
+        }
+
+        if ($ret == null) {
+            throw new Exception("Out of options to search for term");
+        }
+
+        if ($ret->getSentence() == null && $tid != 0 && $ord != 0) {
+            $s = $this->get_sentence($ret->getTextLC(), $tid, $ord);
+            $ret->setSentence($s);
+        }
+
+        return $ret;
+    }
+
 }
