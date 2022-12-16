@@ -134,6 +134,10 @@
     // handleAutofocus();
     set_up_parent_autocomplete();
 
+    // Approx good size for the text area:
+    const w = $('#term_Text').css('width');
+    $('#term_Translation').css({'width': `${w}px`, 'height': '43px'});
+
   });
 
 </script>
