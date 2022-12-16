@@ -157,11 +157,24 @@ LEFT OUTER JOIN (
         }
 
         if ($ret->getSentence() == null && $tid != 0 && $ord != 0) {
-            $s = $this->get_sentence($ret->getTextLC(), $tid, $ord);
+            $s = $this->findSentence($tid, $ord);
             $ret->setSentence($s);
         }
 
         return $ret;
     }
+
+    private function findSentence($tid, $ord) {
+        $sql = "select SeText
+           from sentences
+           INNER JOIN textitems2 on Ti2SeID = SeID
+           WHERE Ti2TxID = :tid and Ti2Order = :ord";
+        $params = [ "tid" => $tid, "ord" => $ord ];
+        return $this
+            ->getEntityManager()
+            ->getConnection()
+            ->executeQuery($sql, $params)
+            ->fetchNumeric()[0];
+  }
 
 }
