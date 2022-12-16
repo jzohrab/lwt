@@ -84,6 +84,24 @@ class TermRepository extends ServiceEntityRepository
         return $terms[0];
     }
 
+    public function findByTextMatchInLanguage(string $value, int $langid): array
+    {
+        $search = mb_strtolower(trim($value));
+        if ($search == '')
+            return [];
+        $search = '%' . $search . '%';
+
+        $dql = "SELECT t FROM App\Entity\Term t
+        JOIN App\Entity\Language L
+        WHERE L.LgID = :langid AND t.WoTextLC LIKE :search";
+        $em = $this->getEntityManager();
+        $query = $em
+               ->createQuery($dql)
+               ->setParameter('langid', $langid)
+               ->setParameter('search', $search);
+        return $query->getResult(); // array of ForumUser objects
+    }
+
 
     /** Returns data for ajax paging. */
     public function getDataTablesList($parameters) {

@@ -169,6 +169,40 @@ final class TermRepository_Test extends DatabaseTestBase
         $this->assertTrue($p == null, 'nothing found');
     }
 
+    public function test_findByTextMatch_matching()
+    {
+        $spid = $this->spanish->getLgID();
+
+        $cases = [ 'ARE', 'are', 'AR' ];
+        foreach ($cases as $c) {
+            $p = $this->term_repo->findByTextMatchInLanguage($c, $spid);
+            $this->assertEquals(count($p), 1, '1 match for case ' . $c);
+            $this->assertEquals($p[0]->getText(), 'PARENT', 'parent found for case ' . $c);
+        }
+    }
+
+    public function test_findByTextMatch_no_sql_injection()
+    {
+        $spid = $this->spanish->getLgID();
+        $injection = "a%'; select count(*) from words;";
+        $p = $this->term_repo->findByTextMatchInLanguage($injection, $spid);
+        $this->assertEquals(count($p), 0);
+    }
+
+    public function test_findByTextMatch_returns_empty_if_blank_string()
+    {
+        $spid = $this->spanish->getLgID();
+        $p = $this->term_repo->findByTextMatchInLanguage('', $spid);
+        $this->assertEquals(count($p), 0);
+    }
+
+    public function test_findByTextMatch_returns_empty_for_wrong_language()
+    {
+        $spid = $this->spanish->getLgID();
+        $p = $this->term_repo->findByTextMatchInLanguage('', $spid + 1000);
+        $this->assertEquals(count($p), 0);
+    }
+
     /* Tests
        - can't change text of saved word ... see other tests in src/word_form_ thing.
     */
