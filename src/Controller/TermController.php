@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
-
+use Symfony\Component\HttpKernel\Profiler\Profiler;
 
 #[Route('/term')]
 class TermController extends AbstractController
@@ -87,25 +87,37 @@ class TermController extends AbstractController
     }
 
     #[Route('/load/{wid}/{textid}/{ord}/{text}', name: 'app_term_load', methods: ['GET'])]
-    public function load_form($wid, $textid, $ord, $text, Request $request, TermRepository $termRepository): Response
+    public function load_form($wid, $textid, $ord, $text, Request $request, TermRepository $termRepository, ?Profiler $profiler): Response
     {
+        // The $text is set to '-' if there *is* no text,
+        // b/c otherwise the route didn't work.
+        if ($text == '-')
+            $text = '';
         $term = $termRepository->load($wid, $textid, $ord, $text);
 
+        $form = $this->createForm(TermType::class, $term);
         $target_route = 'app_term_edit';
-        $template_neme = 'term/edit.html.twig';
         if ($term->getID() == null) {
             $target_route = 'app_term_new';
-            $template_neme = 'term/new.html.twig';
+        }
+        $postto = $this->generateUrl($target_route);
+
+        if ($form->isSubmitted()) {
+            throw new \Exception("The form should not submit back here!");
         }
 
-        $form = $this->createFormBuilder($term)
-            ->setAction($this->generateUrl($target_route))
-            ->getForm();
+        // Hide the symfony profiler on the form footer,
+        // because it takes up half of the iframe!
+        // ref https://symfony.com/doc/current/profiler.html#enabling-the-profiler-conditionally
+        if (null !== $profiler) {
+            $profiler->disable();
+        }
 
-        return $this->renderForm($template_neme, [
+        return $this->renderForm('term/frameform.twig.html', [
             'term' => $term,
             'form' => $form,
-            'extra' => $request->query
+            'extra' => $request->query,
+            'postto' => $postto
         ]);
     }
     

@@ -81,7 +81,7 @@ function showEditFrame(el, extra_args = {}) {
   const wid = int_attr('data_wid');
   const tid = int_attr('tid');
   const ord = int_attr('data_order');
-  const text = encodeURIComponent(extra_args.text ?? '0');
+  const text = encodeURIComponent(extra_args.text ?? '-');
 
   console.log('TODO handle extras');
 
