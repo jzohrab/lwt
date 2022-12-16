@@ -41,7 +41,12 @@ class TermController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $termRepository->save($term, true);
 
-            return $this->redirectToRoute('app_term_index', [], Response::HTTP_SEE_OTHER);
+            if ($request->request->get('posttoblank') == 'yes') {
+                return new Response('');
+            }
+            else {
+                return $this->redirectToRoute('app_term_index', [], Response::HTTP_SEE_OTHER);
+            }
         }
 
         return $this->renderForm('term/new.html.twig', [
@@ -67,7 +72,12 @@ class TermController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $termRepository->save($term, true);
 
-            return $this->redirectToRoute('app_term_index', [], Response::HTTP_SEE_OTHER);
+            if ($request->request->get('posttoblank') == 'yes') {
+                return new Response('');
+            }
+            else {
+                return $this->redirectToRoute('app_term_index', [], Response::HTTP_SEE_OTHER);
+            }
         }
 
         return $this->renderForm('term/edit.html.twig', [
@@ -119,7 +129,7 @@ class TermController extends AbstractController
             'term' => $term,
             'form' => $form,
             'extra' => $request->query,
-            'postto' => $postto
+            'posttoblank' => 'yes'
         ]);
     }
     
