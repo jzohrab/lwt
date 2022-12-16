@@ -14,12 +14,22 @@
     <td>{{ form_widget(form.language) }}</td>
   </tr>
 
-  {{ form_row(form.Text) }}
+  <tr>
+    <td>Term</td>
+    <td>{{ form_widget(form.Text) }}</td>
+    <td><img src="/icn/external.png" title="Lookup" /></td>
+  </tr>
+
   {{ form_row(form.ParentText) }}
   {{ form_row(form.Romanization) }}
   {{ form_row(form.Translation) }}
   {{ form_row(form.Status) }}
-  {{ form_row(form.Sentence) }}
+
+  <tr>
+    <td>Sentence</td>
+    <td>{{ form_widget(form.Sentence) }}</td>
+    <td><img src="/icn/external.png" title="Lookup" /></td>
+  </tr>
 
   {% do form.termTags.setRendered %}
   {# manually write list so it can be managed by tagit. #}
@@ -136,8 +146,9 @@
 
     // Approx good size for the text area:
     const w = $('#term_Text').css('width');
-    $('#term_Translation').css({'width': `${w}px`, 'height': '43px'});
-
+    // Textareas seem to have their own dimensional quirks.
+    const hackTextareaWidth = parseInt(parseInt(w) * 1.10);
+    $('#term_Translation').css({'width': `${hackTextareaWidth}px`, 'height': '43px'});
   });
 
 </script>
