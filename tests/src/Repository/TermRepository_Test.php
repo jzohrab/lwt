@@ -169,9 +169,6 @@ final class TermRepository_Test extends DatabaseTestBase
         $this->assertTrue($p == null, 'nothing found');
     }
 
-    /**
-     * @group failing
-     */
     public function test_findTermInLanguage_only_looks_in_specified_language()
     {
         $fp = new Term();
