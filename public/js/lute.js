@@ -83,15 +83,11 @@ function showEditFrame(el, extra_args = {}) {
   const ord = int_attr('data_order');
   const text = encodeURIComponent(extra_args.text ?? '-');
 
-  console.log('TODO handle extras');
-
   let extras = Object.entries(extra_args).
       map((p) => `${p[0]}=${encodeURIComponent(p[1])}`).
       join('&');
 
   const url = `/term/load/${wid}/${tid}/${ord}/${text}?${extras}`;
-  // TODO
-  console.log('showEditFrame: ' + url);
   top.frames.wordframe.location.href = url;
 }
 
