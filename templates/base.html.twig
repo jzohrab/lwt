@@ -30,7 +30,6 @@
     <script type="text/javascript" src="/js/lute.js" charset="utf-8"></script>
     <script type="text/javascript" src="/js/lute_extra.js" charset="utf-8"></script>
 
-    <!-- Temp hack for rendering to work; content should be ajaxed in. -->
     <script type="text/javascript">
       //<![CDATA[
       var STATUSES = {
@@ -46,6 +45,7 @@
     
       var TAGS = {{ render(url('app_termtag_jsonlist')) }};
       var TEXTTAGS = {{ render(url('app_texttag_jsonlist')) }};
+      var LANGUAGES = {{ render(url('app_language_jsonlist')) }};
       //]]>
     </script>
 
