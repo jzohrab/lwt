@@ -27,14 +27,7 @@ class TermRepository extends ServiceEntityRepository
     public function save(Term $entity, bool $flush = false): void
     {
         // If the term's parent is new, throw some data into it.
-        $p = $entity->getParent();
-        if ($p != null && $p->getID() == null) {
-            $p->setLanguage($entity->getLanguage());
-            $p->setStatus($entity->getStatus());
-            $p->setTranslation($entity->getTranslation());
-            $p->setSentence($entity->getSentence());
-        }
-
+        $entity->setParent($this->findOrCreateParent($entity));
         $this->getEntityManager()->persist($entity);
 
         if ($flush) {
@@ -52,6 +45,36 @@ class TermRepository extends ServiceEntityRepository
                 ->executeQuery($updateti2sql, $params);
         }
     }
+
+
+    /**
+     * Convert parent_text text box content back into a real Term
+     * instance, creating a new Term if needed.
+     */
+    private function findOrCreateParent(Term $entity): ?Term
+    {
+        $pt = $entity->getParentText();
+        if ($pt == null || pt == '')
+            return null;
+
+        if (is_null($term->getLanguage())) {
+            throw new \Exception('Language not set for Term?');
+        }
+
+        $p = $this->findTermInLanguage($pt, $term->getLanguage()->getLgID());
+
+        if ($p !== null)
+            return $p;
+
+        $p = new Term();
+        $p->setText($pt);
+        $p->setLanguage($entity->getLanguage());
+        $p->setStatus($entity->getStatus());
+        $p->setTranslation($entity->getTranslation());
+        $p->setSentence($entity->getSentence());
+        return $ret;
+    }
+
 
     public function remove(Term $entity, bool $flush = false): void
     {

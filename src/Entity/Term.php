@@ -58,6 +58,16 @@ class Term
        private members, but the interface will only have setParent()
        and getParent(). */
 
+    // An "override" of the parent text, to be set by the text form on
+    // submit.  This is a code smell -- the Symfony approach of using
+    // the entity as a DTO feels like it runs into problems.  Ref
+    // https://blog.martinhujer.cz/symfony-forms-with-request-objects/.
+    // In a nutshell, I can't determine the parent without also
+    // knowing the term's Language, but I don't know that until the
+    // form processes the request, which occurs after the builder and
+    // its transforms have been used.
+    private string $parentText = null;
+
 
     public function __construct()
     {
@@ -203,6 +213,20 @@ class Term
     public function removeParent(): self
     {
         $this->parents = new ArrayCollection();
+        return $this;
+    }
+
+
+    // Getter and setter parentText that should never be used, except
+    // by the TermType and its transform.
+    public function getParentText(): ?string
+    {
+        return $this->parentText;
+    }
+
+    public function setParentText(?string $s): self
+    {
+        $this->parentText = $s;
         return $this;
     }
 

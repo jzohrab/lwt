@@ -21,50 +21,12 @@ class TermParentTransformer implements DataTransformerInterface
  
     public function transform($parent): string
     {
-        if (null === $parent)
-            return '';
-        return $parent->getText();
+        if ($this->term->parent == null)
+            return null;
+        return $this->term->parent->getText();
     }
 
     
-    /**
-     * Convert parent_text text box content back into a real Term
-     * instance, creating a new Term if needed.
-     */
-    public function reverseTransform($parent_text): ?Term
-    {
-        if (!$parent_text) {
-            return null;
-        }
-
-        if (is_null($this->term->getLanguage())) {
-            throw new \Exception('Language not set for Term?');
-        }
-        
-        $repo = $this->manager->getRepository(Term::class);
-        $langid = $this->term->getLanguage()->getLgID();
-        $p = $repo->findTermInLanguage($parent_text, $langid);
-
-        $ret = null;
-        if ($p !== null) {
-            $ret = $p;
-        }
-        else {
-            $parts = mb_split("\s+", $parent_text);
-            $testlen = function($p) { return mb_strlen($p) > 0; };
-            $realparts = array_filter($parts, $testlen);
-            $wordcount = count($realparts);
-
-            $p = new Term();
-            $p->setText($parent_text);
-            $p->setWordCount($wordcount);
-            // The rest of the values should be set on save, because
-            // at this point, the $term still hasn't been loaded from
-            // the form.
-            $ret = $p;
-        }
- 
-        return $ret;
-    }
+    public function reverseTransform($parent_text) {}
  
 }

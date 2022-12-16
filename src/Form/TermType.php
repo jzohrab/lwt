@@ -40,7 +40,7 @@ class TermType extends AbstractType
                     'required' => true
                   ]
             )
-            ->add('parent',
+            ->add('ParentText',
                   TextType::class,
                   [ 'label' => 'Parent',
                     'attr' => [ 'class' => 'form-text' ],
@@ -107,7 +107,7 @@ class TermType extends AbstractType
 
         // Data Transformers
         $builder
-            ->get('parent')
+            ->get('ParentText')
             ->addModelTransformer(new TermParentTransformer($this->manager, $term));
         $builder
             ->get('termTags')
