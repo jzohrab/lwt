@@ -42,36 +42,51 @@
 <button class="btn">{{ button_label|default('Save') }}</button>
 
 <input name="posttoblank" type="hidden" value="{{ posttoblank ?? 'no' }}">
+<input id="term_parent_id" type="text" value="{{ form.parent.ID ?? 0 }}">
+<span id="parentDetails" title="{{ form.parent.Translation ?? '' }}">?</span>
 
 {{ form_end(form) }}
 
 <script type="text/javascript">
   
   let set_parent_fields = function(event, ui) {
-    $('#autocomplete_parent_text').val(ui.item.label);
-    $('#autocomplete_parent_id').val(ui.item.value);
+    $('#term_parent').val(ui.item.word);
+    $('#term_parent_id').val(ui.item.value);
     if (parseInt(ui.item.value) == 0) {
-      $('#gotoParentID').addClass('hide');
+      console.log('should be hiding');
+      $('#parentDetails').addClass('hide');
     }
     else {
-      $('#gotoParentID').removeClass('hide');
+      console.log('should be showing');
+      $('#parentDetails').removeClass('hide');
+      $('#parentDetails').attr('title', ui.item.translation);
     }
     return false;
   };
   
   let set_up_parent_autocomplete = function() {
-    $("#autocomplete_parent_text").autocomplete({
+    $("#term_parent").autocomplete({
       source: function(request, response) {
-        $('#autocomplete_parent_id').val(0);
+        $('#term_parent_id').val(0);
+        const s = encodeURIComponent(request.term);
+        const langid = parseInt($('#term_language').val());
         $.ajax({
-          url: 'inc/ajax_get_words_matching.php',
-          type: 'POST',
-          data: { word: request.term },
+          url: `/term/search/${s}/${langid}`,
+          type: 'GET',
           dataType: 'json',
           success: function(data) {
             const arr = [];
             for (const [wordid, word] of Object.entries(data)) {
-              const obj = { label: word, value: wordid };
+              let label = word.text;
+              if (word.translation != null && word.translation != '') {
+                label = `${label} (${word.translation})`;
+              }
+              const obj = {
+                label: label,
+                value: wordid,
+                word: word.text,
+                translation: word.translation
+              };
               arr.push(obj);
             };
             response(arr, data);
@@ -81,12 +96,14 @@
       select: set_parent_fields,
       focus: set_parent_fields,
       change: function(event,ui) {
+        console.log('called change');
         if (!ui.item) {
-          $('#autocomplete_parent_id').val(0);
-          $('#gotoParentID').addClass('hide');
+          $('#term_parent_id').val(0);
+          console.log('should be hiding it now')
+          $('#parentDetails').addClass('hide');
         }
         else {
-          $('#gotoParentID').removeClass('hide');
+          $('#parentDetails').removeClass('hide');
         }
       }
     });
@@ -105,6 +122,7 @@
   let showHideLanguageSelector = function() {
     const langid = parseInt($('#term_language').val());
     if (langid > 0) {
+      console.log('hiding selector');
       $('#languageSel').hide();
     }
   }
@@ -145,14 +163,15 @@
 
   }
   $(document).ready(function () {
+    console.log('starting form')
     showHideLanguageSelector()
     setupTagit();
     // TODO - activate this
     // handleAutofocus();
     set_up_parent_autocomplete();
 
-    if ($('#autocomplete_parent_id').val() > 0) {
-      $('#gotoParentID').removeClass('hide');
+    if ($('#term_parent_id').val() > 0) {
+      $('#parentDetails').removeClass('hide');
     }
 
   });

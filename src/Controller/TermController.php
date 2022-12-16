@@ -36,8 +36,15 @@ class TermController extends AbstractController
     public function search_by_text_in_language($text, $langid, Request $request, TermRepository $repo): JsonResponse
     {
         $terms = $repo->findByTextMatchInLanguage($text, intval($langid));
-        $matchtext = array_map(fn($t) => $t->getText(), $terms);
-        return $this->json($matchtext);
+        $result = [];
+        foreach ($terms as $t) {
+            $trans = $t->getTranslation();
+            $result[$t->getID()] = [
+                'text' => $t->getText(),
+                'translation' => $t->getTranslation()
+            ];
+        }
+        return $this->json($result);
     }
 
 
