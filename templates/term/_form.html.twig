@@ -43,7 +43,7 @@
 
 <input name="posttoblank" type="hidden" value="{{ posttoblank ?? 'no' }}">
 <input id="term_parent_id" type="text" value="{{ form.parent.ID ?? 0 }}">
-<span id="parentDetails" title="{{ form.parent.Translation ?? '' }}">?</span>
+<span id="parentDetails" class="hide" title="{{ form.parent.Translation ?? '' }}" onclick="go_to_parent()">&gt;</span>
 
 {{ form_end(form) }}
 
@@ -110,12 +110,12 @@
   };
 
   let go_to_parent = function() {
-    var pid = parseInt($('#autocomplete_parent_id').val());
+    var pid = parseInt($('#term_parent_id').val());
     if (pid == 0) {
       return;
     }
     else {
-      window.location = `edit_word.php?wid=${pid}`;
+      window.location = `/term/${pid}/edit`;
     }
   }
 
