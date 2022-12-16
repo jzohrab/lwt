@@ -70,13 +70,15 @@ class TermRepository extends ServiceEntityRepository
         // instead of the public property was surprising.
         // Anyway, it works. :-P
         $dql = "SELECT t FROM App\Entity\Term t
-        JOIN App\Entity\Language L
+        LEFT JOIN App\Entity\Language L WITH L.LgID = t.WoLgID
         WHERE L.LgID = :langid AND t.WoTextLC = :val";
         $em = $this->getEntityManager();
         $query = $em
                ->createQuery($dql)
                ->setParameter('langid', $langid)
                ->setParameter('val', mb_strtolower($value));
+        var_dump('findTermInLanguage');
+        var_dump($query->getSQL());
         $terms = $query->getResult();
 
         if (count($terms) == 0)
@@ -92,7 +94,7 @@ class TermRepository extends ServiceEntityRepository
         $search = '%' . $search . '%';
 
         $dql = "SELECT t FROM App\Entity\Term t
-        JOIN App\Entity\Language L
+        JOIN App\Entity\Language L WITH L.LgID = t.WoLgID
         WHERE L.LgID = :langid AND t.WoTextLC LIKE :search";
         $em = $this->getEntityManager();
         $query = $em
