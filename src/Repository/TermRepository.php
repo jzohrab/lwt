@@ -77,7 +77,7 @@ class TermRepository extends ServiceEntityRepository
                ->createQuery($dql)
                ->setParameter('langid', $langid)
                ->setParameter('val', mb_strtolower($value));
-        $terms = $query->getResult(); // array of ForumUser objects
+        $terms = $query->getResult();
 
         if (count($terms) == 0)
             return null;
@@ -99,7 +99,7 @@ class TermRepository extends ServiceEntityRepository
                ->createQuery($dql)
                ->setParameter('langid', $langid)
                ->setParameter('search', $search);
-        return $query->getResult(); // array of ForumUser objects
+        return $query->getResult();
     }
 
 
