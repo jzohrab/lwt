@@ -61,7 +61,7 @@ where ti2order = 25";
         $t = $this->term_repo->load(0, 1, 12, '');
         $this->assertEquals($t->getID(), 0, 'new word');
         $this->assertEquals($t->getText(), "TENGO", 'text');
-        $this->assertEquals($t->getLanguage()->getLgID(), $this->spanish, 'language set');
+        $this->assertEquals($t->getLanguage()->getLgID(), $this->spanish->getLgID(), 'language set');
     }
 
     /*

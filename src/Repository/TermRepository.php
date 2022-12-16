@@ -17,9 +17,10 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class TermRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
+    public function __construct(ManagerRegistry $registry, LanguageRepository $langrepo)
     {
         parent::__construct($registry, Term::class);
+        $this->lang_repo = $langrepo;
     }
 
     public function save(Term $entity, bool $flush = false): void
