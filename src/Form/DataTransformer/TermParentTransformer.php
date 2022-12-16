@@ -38,8 +38,7 @@ class TermParentTransformer implements DataTransformerInterface
         }
 
         if (is_null($this->term->getLanguage())) {
-            // Should never happen, but just in case.
-            return null;
+            throw new \Exception('Language not set for Term?');
         }
         
         $repo = $this->manager->getRepository(Term::class);
