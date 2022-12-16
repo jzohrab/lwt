@@ -61,11 +61,9 @@
     $('#term_parent').val(ui.item.word);
     $('#term_parent_id').val(ui.item.value);
     if (parseInt(ui.item.value) == 0) {
-      console.log('should be hiding');
       $('#parentDetails').addClass('hide');
     }
     else {
-      console.log('should be showing');
       $('#parentDetails').removeClass('hide');
       $('#parentDetails').attr('title', ui.item.translation);
     }
@@ -104,10 +102,8 @@
       select: set_parent_fields,
       focus: set_parent_fields,
       change: function(event,ui) {
-        console.log('called change');
         if (!ui.item) {
           $('#term_parent_id').val(0);
-          console.log('should be hiding it now')
           $('#parentDetails').addClass('hide');
         }
         else {
@@ -130,7 +126,6 @@
   let showHideLanguageSelector = function() {
     const langid = parseInt($('#term_language').val());
     if (langid > 0) {
-      console.log('hiding selector');
       $('#languageSel').hide();
     }
   }
@@ -171,7 +166,6 @@
 
   }
   $(document).ready(function () {
-    console.log('starting form')
     showHideLanguageSelector()
     setupTagit();
     // TODO - activate this
