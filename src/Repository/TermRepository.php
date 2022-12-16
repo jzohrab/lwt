@@ -27,25 +27,33 @@ class TermRepository extends ServiceEntityRepository
     public function save(Term $entity, bool $flush = false): void
     {
         // If the term's parent is new, throw some data into it.
-        $entity->setParent($this->findOrCreateParent($entity));
+        $parent = $this->findOrCreateParent($entity);
+        $entity->setParent($parent);
         $this->getEntityManager()->persist($entity);
 
         if ($flush) {
             $this->getEntityManager()->flush();
-
-            $updateti2sql = "UPDATE textitems2
-              SET Ti2WoID = :woid WHERE Ti2LgID = :lgid AND Ti2TextLC = :text";
-            $params = [
-                "woid" => $entity->getID(),
-                "lgid" => $entity->getLanguage()->getLgID(),
-                "text" => $entity->getTextLC()
-            ];
-            $this->getEntityManager()
-                ->getConnection()
-                ->executeQuery($updateti2sql, $params);
+            $this->associateTextItems($entity);
+            $this->associateTextItems($parent);
         }
     }
 
+    private function associateTextItems(?Term $entity): void
+    {
+        if ($entity == null)
+            return;
+
+        $updateti2sql = "UPDATE textitems2
+              SET Ti2WoID = :woid WHERE Ti2WoID = 0 AND Ti2LgID = :lgid AND Ti2TextLC = :text";
+        $params = [
+            "woid" => $entity->getID(),
+            "lgid" => $entity->getLanguage()->getLgID(),
+            "text" => $entity->getTextLC()
+        ];
+        $this->getEntityManager()
+            ->getConnection()
+            ->executeQuery($updateti2sql, $params);
+    }
 
     /**
      * Convert parent_text text box content back into a real Term
