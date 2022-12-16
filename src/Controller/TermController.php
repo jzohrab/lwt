@@ -96,11 +96,11 @@ class TermController extends AbstractController
         $term = $termRepository->load($wid, $textid, $ord, $text);
 
         $form = $this->createForm(TermType::class, $term);
-        $target_route = 'app_term_edit';
-        if ($term->getID() == null) {
-            $target_route = 'app_term_new';
+        $postto = '/term/new';
+        $wid = $term->getID();
+        if ($wid != null) {
+            $postto = "/term/{$wid}/edit";
         }
-        $postto = $this->generateUrl($target_route);
 
         if ($form->isSubmitted()) {
             throw new \Exception("The form should not submit back here!");
