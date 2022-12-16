@@ -45,15 +45,71 @@
 
 {{ form_end(form) }}
 
-<script>
+<script type="text/javascript">
+  
+  let set_parent_fields = function(event, ui) {
+    $('#autocomplete_parent_text').val(ui.item.label);
+    $('#autocomplete_parent_id').val(ui.item.value);
+    if (parseInt(ui.item.value) == 0) {
+      $('#gotoParentID').addClass('hide');
+    }
+    else {
+      $('#gotoParentID').removeClass('hide');
+    }
+    return false;
+  };
+  
+  let set_up_parent_autocomplete = function() {
+    $("#autocomplete_parent_text").autocomplete({
+      source: function(request, response) {
+        $('#autocomplete_parent_id').val(0);
+        $.ajax({
+          url: 'inc/ajax_get_words_matching.php',
+          type: 'POST',
+          data: { word: request.term },
+          dataType: 'json',
+          success: function(data) {
+            const arr = [];
+            for (const [wordid, word] of Object.entries(data)) {
+              const obj = { label: word, value: wordid };
+              arr.push(obj);
+            };
+            response(arr, data);
+          }
+        })
+      },
+      select: set_parent_fields,
+      focus: set_parent_fields,
+      change: function(event,ui) {
+        if (!ui.item) {
+          $('#autocomplete_parent_id').val(0);
+          $('#gotoParentID').addClass('hide');
+        }
+        else {
+          $('#gotoParentID').removeClass('hide');
+        }
+      }
+    });
+  };
 
-  setupForm = function() {
+  let go_to_parent = function() {
+    var pid = parseInt($('#autocomplete_parent_id').val());
+    if (pid == 0) {
+      return;
+    }
+    else {
+      window.location = `edit_word.php?wid=${pid}`;
+    }
+  }
+
+  let showHideLanguageSelector = function() {
     const langid = parseInt($('#term_language').val());
-    console.log(`got langid = ${langid}`);
     if (langid > 0) {
       $('#languageSel').hide();
     }
-
+  }
+    
+  let setupTagit = function() {
     var prototypeFieldName = 'term[termTags][__name__][text]';
     var fieldIndex = 0;
     
@@ -74,6 +130,31 @@
 
   };
 
-  $(document).ready(function () { setupForm(); });
+  let handleAutofocus = function() {
+    const wordfield = $('#wordfield');
+    const transfield = $('#translationfield');
+
+    if ($('#autofocus').val() != 'false') {
+      if (wordfield.val()) {
+        transfield.focus();
+      }
+      else {
+        wordfield.focus();
+      }
+    }
+
+  }
+  $(document).ready(function () {
+    showHideLanguageSelector()
+    setupTagit();
+    // TODO - activate this
+    // handleAutofocus();
+    set_up_parent_autocomplete();
+
+    if ($('#autocomplete_parent_id').val() > 0) {
+      $('#gotoParentID').removeClass('hide');
+    }
+
+  });
 
 </script>
