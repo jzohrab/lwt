@@ -31,6 +31,16 @@ class TermController extends AbstractController
         return $this->json($data);
     }
 
+
+    #[Route('/search/{text}/{langid}', name: 'app_term_search', methods: ['GET'])]
+    public function search_by_text_in_language($text, $langid, Request $request, TermRepository $repo): JsonResponse
+    {
+        $terms = $repo->findByTextMatchInLanguage($text, intval($langid));
+        $matchtext = array_map(fn($t) => $t->getText(), $terms);
+        return $this->json($matchtext);
+    }
+
+
     #[Route('/new', name: 'app_term_new', methods: ['GET', 'POST'])]
     public function new(Request $request, TermRepository $termRepository): Response
     {

@@ -169,14 +169,34 @@ final class TermRepository_Test extends DatabaseTestBase
         $this->assertTrue($p == null, 'nothing found');
     }
 
+    public function test_findTermInLanguage_only_looks_in_specified_language()
+    {
+        $fp = new Term();
+        $fp->setLanguage($this->french);
+        $fp->setText("bonjour");
+        $fp->setStatus(1);
+        $fp->setWordCount(1);
+        $this->term_repo->save($fp, true);
+
+        $spid = $this->spanish->getLgID();
+        $p = $this->term_repo->findTermInLanguage('bonjour', $spid);
+        $this->assertTrue($p == null, 'french terms not checked');
+    }
+
     public function test_findByTextMatch_matching()
     {
-        $spid = $this->spanish->getLgID();
+        $fp = new Term();
+        $fp->setLanguage($this->french);
+        $fp->setText("PARENT");
+        $fp->setStatus(1);
+        $fp->setWordCount(1);
+        $this->term_repo->save($fp, true);
 
+        $spid = $this->spanish->getLgID();
         $cases = [ 'ARE', 'are', 'AR' ];
         foreach ($cases as $c) {
             $p = $this->term_repo->findByTextMatchInLanguage($c, $spid);
-            $this->assertEquals(count($p), 1, '1 match for case ' . $c);
+            $this->assertEquals(count($p), 1, '1 match for case ' . $c . ' in spanish');
             $this->assertEquals($p[0]->getText(), 'PARENT', 'parent found for case ' . $c);
         }
     }
@@ -198,8 +218,15 @@ final class TermRepository_Test extends DatabaseTestBase
 
     public function test_findByTextMatch_returns_empty_for_wrong_language()
     {
+        $fp = new Term();
+        $fp->setLanguage($this->french);
+        $fp->setText("bonjour");
+        $fp->setStatus(1);
+        $fp->setWordCount(1);
+        $this->term_repo->save($fp, true);
+
         $spid = $this->spanish->getLgID();
-        $p = $this->term_repo->findByTextMatchInLanguage('', $spid + 1000);
+        $p = $this->term_repo->findByTextMatchInLanguage('jour', $spid);
         $this->assertEquals(count($p), 0);
     }
 
