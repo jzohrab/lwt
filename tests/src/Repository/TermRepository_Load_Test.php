@@ -50,29 +50,13 @@ where ti2order = 25";
         $this->assertEquals($t->getText(), "BEBIDA", 'text');
     }
 
-    /*
     public function test_no_wid_load_by_tid_and_ord_matches_existing_word() {
-        $fd = load_formdata_from_db('', 1, 25);
-        $expected = array(
-            'wid' => ($this->wid),
-            'lang' => 1,
-            'term' => 'BEBIDA',
-            'termlc' => 'bebida',
-            'scrdir' => '',
-            'translation' => 'translation BEBIDA',
-            'tags' => [],
-            'romanization' => 'rom BEBIDA',
-            'sentence' => 'sent BEBIDA',
-            'status' => 3,
-            'status_old' => 3,
-            'parent_id' => 0,
-            'parent_text' => ''
-        );
-        foreach ($expected as $prop => $value) {
-            $this->assertEquals($value, $fd->$prop, $prop);
-        }
+        $t = $this->term_repo->load(0, 1, 25, '');
+        $this->assertEquals($t->getID(), $this->bebida->getID(), 'id');
+        $this->assertEquals($t->getText(), "BEBIDA", 'text');
     }
 
+    /*
     public function test_no_wid_load_by_tid_and_ord_new_word() {
         $fd = load_formdata_from_db('', 1, 12);
         $expected = array(

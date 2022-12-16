@@ -143,7 +143,7 @@ LEFT OUTER JOIN (
         }
 
         if ($ret == null && $tid != 0 && $ord != 0) {
-            $ret = $this->findWithTidAndOrd($tid, $ord);
+            $ret = $this->findByTidAndOrd($tid, $ord);
 
             // The tid and ord might lead to a saved word,
             // in which case, use it.
@@ -164,7 +164,11 @@ LEFT OUTER JOIN (
         return $ret;
     }
 
-    private function findSentence($tid, $ord) {
+    private function findByTidAndOrd($tid, $ord) : ?Term {
+        return new Term();
+    }
+
+    private function findSentence($tid, $ord) : string {
         $sql = "select SeText
            from sentences
            INNER JOIN textitems2 on Ti2SeID = SeID
