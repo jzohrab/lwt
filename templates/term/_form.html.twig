@@ -22,11 +22,6 @@
   <tr>
     <td><label for="term_parent">Parent</label></td>
     <td>{{ form_widget(form.parent) }}</td>
-    <td>
-      <span id="parentDetails" class="hide"
-            title="{{ form.parent.Translation ?? '' }}"
-            onclick="go_to_parent()">&gt;</span>
-      </td>
   </tr>
 {% endif %}
 
@@ -55,7 +50,6 @@
 <button class="btn">{{ button_label|default('Save') }}</button>
 
 <input name="posttoblank" type="hidden" value="{{ posttoblank ?? 'no' }}">
-DEAD<input id="term_parent_id" type="text" value="{ { form.parent.ID ?? 0 } }">
 
 {{ form_end(form) }}
 
@@ -63,21 +57,12 @@ DEAD<input id="term_parent_id" type="text" value="{ { form.parent.ID ?? 0 } }">
   
   let set_parent_fields = function(event, ui) {
     $('#term_parent').val(ui.item.word);
-    $('#term_parent_id').val(ui.item.value);
-    if (parseInt(ui.item.value) == 0) {
-      $('#parentDetails').addClass('hide');
-    }
-    else {
-      $('#parentDetails').removeClass('hide');
-      $('#parentDetails').attr('title', ui.item.translation);
-    }
     return false;
   };
   
   let set_up_parent_autocomplete = function() {
     $("#term_parent").autocomplete({
       source: function(request, response) {
-        $('#term_parent_id').val(0);
         const s = encodeURIComponent(request.term);
         const langid = parseInt($('#term_language').val());
         $.ajax({
@@ -104,28 +89,10 @@ DEAD<input id="term_parent_id" type="text" value="{ { form.parent.ID ?? 0 } }">
         })
       },
       select: set_parent_fields,
-      focus: set_parent_fields,
-      change: function(event,ui) {
-        if (!ui.item) {
-          $('#term_parent_id').val(0);
-          $('#parentDetails').addClass('hide');
-        }
-        else {
-          $('#parentDetails').removeClass('hide');
-        }
-      }
+      focus: set_parent_fields
+      change: set_parent_fields
     });
   };
-
-  let go_to_parent = function() {
-    var pid = parseInt($('#term_parent_id').val());
-    if (pid == 0) {
-      return;
-    }
-    else {
-      window.location = `/term/${pid}/edit`;
-    }
-  }
 
   let showHideLanguageSelector = function() {
     const langid = parseInt($('#term_language').val());
@@ -175,10 +142,6 @@ DEAD<input id="term_parent_id" type="text" value="{ { form.parent.ID ?? 0 } }">
     // TODO - activate this
     // handleAutofocus();
     set_up_parent_autocomplete();
-
-    if ($('#term_parent_id').val() > 0) {
-      $('#parentDetails').removeClass('hide');
-    }
 
   });
 
