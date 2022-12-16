@@ -37,6 +37,17 @@ class TermRepository extends ServiceEntityRepository
 
         if ($flush) {
             $this->getEntityManager()->flush();
+
+            $updateti2sql = "UPDATE textitems2
+              SET Ti2WoID = :woid WHERE Ti2LgID = :lgid AND Ti2TextLC = :text";
+            $params = [
+                "woid" => $entity->getID(),
+                "lgid" => $entity->getLanguage()->getLgID(),
+                "text" => $entity->getTextLC()
+            ];
+            $this->getEntityManager()
+                ->getConnection()
+                ->executeQuery($updateti2sql, $params);
         }
     }
 

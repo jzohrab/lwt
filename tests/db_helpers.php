@@ -166,6 +166,15 @@ you must use a dedicated test database when running tests.
         return DbHelpers::exec_sql($sql, $params);
     }
 
+    // This just hacks directly into the table.
+    public static function add_textitems2($Ti2LgID, $Ti2Text, $Ti2TextLC, $Ti2TxID= 1, $Ti2WoID = 0, $Ti2SeID = 1, $Ti2Order = 1, $Ti2WordCount = 1) {
+        $sql = "insert into textitems2
+          (Ti2WoID, Ti2LgID, Ti2TxID, Ti2SeID, Ti2Order, Ti2WordCount, Ti2Text, Ti2TextLC)
+          values (?, ?, ?, ?, ?, ?, ?, ?)";
+        $params = ["iiiiiiss", $Ti2WoID, $Ti2LgID, $Ti2TxID, $Ti2SeID, $Ti2Order, $Ti2WordCount, $Ti2Text, $Ti2TextLC];
+        return DbHelpers::exec_sql($sql, $params);
+    }
+
     public static function add_word_parent($langid, $wordtext, $parenttext) {
         $sql = "insert into wordparents (WpWoID, WpParentWoID)
           values (

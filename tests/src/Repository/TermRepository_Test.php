@@ -53,6 +53,26 @@ final class TermRepository_Test extends DatabaseTestBase
         DbHelpers::assertTableContains($sql, $expected, "sanity check on save");
     }
 
+    public function test_saving_updates_textitems2_in_same_language() {
+        DbHelpers::add_textitems2($this->spanish->getLgID(), 'hoLA', 'hola', 1);
+        DbHelpers::add_textitems2($this->french->getLgID(), 'HOLA', 'hola', 2);
+
+        $t = new Term();
+        $t->setLanguage($this->spanish);
+        $t->setText("HOLA");
+        $t->setStatus(1);
+        $t->setWordCount(1);
+        $t->setTranslation('hi');
+        $t->setRomanization('ho-la');
+        $this->term_repo->save($t, true);
+
+        $sql = "select Ti2WoID, Ti2LgID, Ti2Text from textitems2 order by Ti2LgID";
+        $expected = [
+            "{$t->getID()}; {$this->spanish->getLgID()}; hoLA",
+            "0; {$this->french->getLgID()}; HOLA"
+        ];
+        DbHelpers::assertTableContains($sql, $expected, "sanity check on save");
+    }
 
     public function test_word_with_parent_and_tags()
     {
