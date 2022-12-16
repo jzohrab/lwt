@@ -19,14 +19,16 @@ class TermParentTransformer implements DataTransformerInterface
         $this->term = $term;
     }
  
-    public function transform($parent): string
+    public function transform($parent): ?string
     {
-        if ($this->term->parent == null)
+        if ($this->term->getParent() == null)
             return null;
-        return $this->term->parent->getText();
+        return $this->term->getParent()->getText();
     }
 
     
-    public function reverseTransform($parent_text) {}
+    public function reverseTransform($parent_text) {
+        return $parent_text;
+    }
  
 }

@@ -54,14 +54,15 @@ class TermRepository extends ServiceEntityRepository
     private function findOrCreateParent(Term $entity): ?Term
     {
         $pt = $entity->getParentText();
-        if ($pt == null || pt == '')
+        dump('in find or create for entity ' . $entity->getText() . ', have parent text = ' . $pt);
+        if ($pt == null || $pt == '')
             return null;
 
-        if (is_null($term->getLanguage())) {
-            throw new \Exception('Language not set for Term?');
+        if (is_null($entity->getLanguage())) {
+            throw new \Exception('Language not set for Entity?');
         }
 
-        $p = $this->findTermInLanguage($pt, $term->getLanguage()->getLgID());
+        $p = $this->findTermInLanguage($pt, $entity->getLanguage()->getLgID());
 
         if ($p !== null)
             return $p;
@@ -72,7 +73,7 @@ class TermRepository extends ServiceEntityRepository
         $p->setStatus($entity->getStatus());
         $p->setTranslation($entity->getTranslation());
         $p->setSentence($entity->getSentence());
-        return $ret;
+        return $p;
     }
 
 

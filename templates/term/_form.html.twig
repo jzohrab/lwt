@@ -16,6 +16,9 @@
 
   {{ form_row(form.Text) }}
 
+  {{ form_row(form.ParentText) }}
+
+{% if false %}
   <tr>
     <td><label for="term_parent">Parent</label></td>
     <td>{{ form_widget(form.parent) }}</td>
@@ -25,6 +28,7 @@
             onclick="go_to_parent()">&gt;</span>
       </td>
   </tr>
+{% endif %}
 
   {{ form_row(form.Romanization) }}
   {{ form_row(form.Translation) }}
@@ -51,7 +55,7 @@
 <button class="btn">{{ button_label|default('Save') }}</button>
 
 <input name="posttoblank" type="hidden" value="{{ posttoblank ?? 'no' }}">
-<input id="term_parent_id" type="text" value="{{ form.parent.ID ?? 0 }}">
+DEAD<input id="term_parent_id" type="text" value="{ { form.parent.ID ?? 0 } }">
 
 {{ form_end(form) }}
 

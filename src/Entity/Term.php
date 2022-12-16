@@ -66,7 +66,7 @@ class Term
     // knowing the term's Language, but I don't know that until the
     // form processes the request, which occurs after the builder and
     // its transforms have been used.
-    private string $parentText = null;
+    private ?string $parentText = null;
 
 
     public function __construct()
@@ -203,16 +203,11 @@ class Term
         return $this->parents[0];
     }
 
-    public function setParent(Term $parent): self
+    public function setParent(?Term $parent): self
     {
         $this->parents = new ArrayCollection();
-        $this->parents[] = $parent;
-        return $this;
-    }
-
-    public function removeParent(): self
-    {
-        $this->parents = new ArrayCollection();
+        if ($parent != null)
+            $this->parents[] = $parent;
         return $this;
     }
 

@@ -144,10 +144,10 @@ final class TermRepository_Test extends DatabaseTestBase
         $exp = [ "HOLA; PARENT" ];
         DbHelpers::assertTableContains($sql, $exp, "parents, tags");
 
-        $t->removeParent();
+        $t->setParent(null);
         $this->term_repo->save($t, true);
         $exp = [ "HOLA; " ];
-        DbHelpers::assertTableContains($sql, $exp, "parents changed, tags");
+        DbHelpers::assertTableContains($sql, $exp, "parent removed, tags");
     }
 
     public function test_find_by_text_is_found()
