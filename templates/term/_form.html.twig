@@ -41,7 +41,7 @@
 
 <button class="btn">{{ button_label|default('Save') }}</button>
 
-<input name="posttoblank" type="hidden" value="{{ posttoblank }}">
+<input name="posttoblank" type="hidden" value="{{ posttoblank ?? 'no' }}">
 
 {{ form_end(form) }}
 
