@@ -8,7 +8,6 @@
     Using jquery to hide the lang. dropdown if it's set.
     I tried using various twig checks (defined, is null, etc)
   but kept getting exceptions.
-    { { form_row(form.language, { 'tr#id': 'edit_user_name' }) } }
   #}
   <tr id="languageSel">
     <td>Language</td>
@@ -16,7 +15,17 @@
   </tr>
 
   {{ form_row(form.Text) }}
-  {{ form_row(form.parent) }}
+
+  <tr>
+    <td><label for="term_parent">Parent</label></td>
+    <td>{{ form_widget(form.parent) }}</td>
+    <td>
+      <span id="parentDetails" class="hide"
+            title="{{ form.parent.Translation ?? '' }}"
+            onclick="go_to_parent()">&gt;</span>
+      </td>
+  </tr>
+
   {{ form_row(form.Romanization) }}
   {{ form_row(form.Translation) }}
   {{ form_row(form.Status) }}
@@ -43,7 +52,6 @@
 
 <input name="posttoblank" type="hidden" value="{{ posttoblank ?? 'no' }}">
 <input id="term_parent_id" type="text" value="{{ form.parent.ID ?? 0 }}">
-<span id="parentDetails" class="hide" title="{{ form.parent.Translation ?? '' }}" onclick="go_to_parent()">&gt;</span>
 
 {{ form_end(form) }}
 
