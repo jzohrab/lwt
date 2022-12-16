@@ -218,15 +218,22 @@ final class TermRepository_Test extends DatabaseTestBase
 
     public function test_findByTextMatch_returns_empty_for_wrong_language()
     {
-        $fp = new Term();
-        $fp->setLanguage($this->french);
-        $fp->setText("bonjour");
-        $fp->setStatus(1);
-        $fp->setWordCount(1);
-        $this->term_repo->save($fp, true);
+        $ft = new Term();
+        $ft->setLanguage($this->french);
+        $ft->setText("bonjour");
+        $ft->setStatus(1);
+        $ft->setWordCount(1);
+        $this->term_repo->save($ft, true);
+
+        $et = new Term();
+        $et->setLanguage($this->english);
+        $et->setText("ours");
+        $et->setStatus(1);
+        $et->setWordCount(1);
+        $this->term_repo->save($et, true);
 
         $spid = $this->spanish->getLgID();
-        $p = $this->term_repo->findByTextMatchInLanguage('jour', $spid);
+        $p = $this->term_repo->findByTextMatchInLanguage('our', $spid);
         $this->assertEquals(count($p), 0);
     }
 
