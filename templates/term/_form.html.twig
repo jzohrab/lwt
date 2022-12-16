@@ -15,16 +15,7 @@
   </tr>
 
   {{ form_row(form.Text) }}
-
   {{ form_row(form.ParentText) }}
-
-{% if false %}
-  <tr>
-    <td><label for="term_parent">Parent</label></td>
-    <td>{{ form_widget(form.parent) }}</td>
-  </tr>
-{% endif %}
-
   {{ form_row(form.Romanization) }}
   {{ form_row(form.Translation) }}
   {{ form_row(form.Status) }}
@@ -56,12 +47,12 @@
 <script type="text/javascript">
   
   let set_parent_fields = function(event, ui) {
-    $('#term_parent').val(ui.item.word);
+    $('#term_ParentText').val(ui.item.word);
     return false;
   };
   
   let set_up_parent_autocomplete = function() {
-    $("#term_parent").autocomplete({
+    $("#term_ParentText").autocomplete({
       source: function(request, response) {
         const s = encodeURIComponent(request.term);
         const langid = parseInt($('#term_language').val());
