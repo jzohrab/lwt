@@ -117,41 +117,4 @@ class TermController extends AbstractController
         return $this->redirectToRoute('app_term_index', [], Response::HTTP_SEE_OTHER);
     }
 
-    #[Route('/load/{wid}/{textid}/{ord}/{text}', name: 'app_term_load', methods: ['GET'])]
-    public function load_form($wid, $textid, $ord, $text, Request $request, TermRepository $termRepository, ?Profiler $profiler): Response
-    {
-        // The $text is set to '-' if there *is* no text,
-        // b/c otherwise the route didn't work.
-        if ($text == '-')
-            $text = '';
-        $term = $termRepository->load($wid, $textid, $ord, $text);
-
-        $postto = '/term/new';
-        $wid = $term->getID();
-        if ($wid != null) {
-            $postto = "/term/{$wid}/edit";
-        }
-
-        # ref https://symfony.com/doc/current/forms.html#passing-options-to-forms.
-        $form = $this->createForm(TermType::class, $term, [ 'postto' => $postto ]);
-
-        if ($form->isSubmitted()) {
-            throw new \Exception("The form should not submit back here!");
-        }
-
-        // Hide the symfony profiler on the form footer,
-        // because it takes up half of the iframe!
-        // ref https://symfony.com/doc/current/profiler.html#enabling-the-profiler-conditionally
-        if (null !== $profiler) {
-            $profiler->disable();
-        }
-
-        return $this->renderForm('term/frameform.html.twig', [
-            'term' => $term,
-            'form' => $form,
-            'extra' => $request->query,
-            'posttoblank' => 'yes'
-        ]);
-    }
-    
 }
