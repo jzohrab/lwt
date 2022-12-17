@@ -59,26 +59,6 @@ class Parser {
 
     private function prepare_text_parsing(Text $entity) {
 
-        $text = $entity->getText();
-
-        // Initial cleanup.
-        $text = str_replace("\r\n", "\n", $text);
-        // because of sentence special characters
-        $text = str_replace(array('}','{'), array(']','['), $text);
-
-        $charSubs = $entity
-                  ->getLanguage()
-                  ->getLgCharacterSubstitutions();
-        $replace = explode("|", $charSubs);
-        foreach ($replace as $value) {
-            $fromto = explode("=", trim($value));
-            if (count($fromto) >= 2) {
-                $rfrom = trim($fromto[0]);
-                $rto = trim($fromto[1]);
-                $text = str_replace($rfrom, $rto, $text);
-            }
-        }
-
         $rechars = $entity
                  ->getLanguage()
                  ->getLgRegexpWordCharacters();
@@ -102,15 +82,30 @@ class Parser {
      *
      * @return null|string[] If $id == -2 return a splitted version of the text.
      */
-    private function parse_standard_text($text, $id, $lid): ?array
+    private function parse_standard_text(Text $entity): ?array
     {
-    $sql = "SELECT * FROM languages WHERE LgID=$lid";
-    $res = do_mysqli_query($sql);
-    $record = mysqli_fetch_assoc($res);
-    $removeSpaces = $record['LgRemoveSpaces'];
-    $splitSentence = $record['LgRegexpSplitSentences'];
-    $noSentenceEnd = $record['LgExceptionsSplitSentences'];
-    $termchar = $record['LgRegexpWordCharacters'];
+        $lang = $entity->getLanguage();
+
+        $text = $entity->getText();
+
+        // Initial cleanup.
+        $text = str_replace("\r\n", "\n", $text);
+        // because of sentence special characters
+        $text = str_replace(array('}','{'), array(']','['), $text);
+
+        $charSubs = $entity
+                  ->getLanguage()
+                  ->getLgCharacterSubstitutions();
+        $replace = explode("|", $charSubs);
+        foreach ($replace as $value) {
+            $fromto = explode("=", trim($value));
+            if (count($fromto) >= 2) {
+                $rfrom = trim($fromto[0]);
+                $rto = trim($fromto[1]);
+                $text = str_replace($rfrom, $rto, $text);
+            }
+        }
+
 
     // Split text paragraphs using " ¶" symbol
     $text = str_replace("\n", " ¶", $text);
@@ -121,6 +116,9 @@ class Parser {
     $text = preg_replace('/\s+/u', ' ', $text);
     // "\r" => Sentence delimiter, "\t" and "\n" => Word delimiter
 
+    $splitSentence = $lang->getLgRegexpSplitSentences();
+    $noSentenceEnd = $lang->getLgExceptionsSplitSentences();
+
     $text = preg_replace_callback(
         "/(\S+)\s*((\.+)|([$splitSentence]))([]'`\"”)‘’‹›“„«»』」]*)(?=(\s*)(\S+|$))/u",
         function ($matches) use ($noSentenceEnd) {
@@ -130,6 +128,8 @@ class Parser {
     );
     // Paragraph delimiters become a combination of ¶ and carriage return \r
     $text = str_replace(array("¶"," ¶"), array("¶\r","\r¶"), $text);
+
+    $termchar = $lang->getLgRegexpWordCharacters();
     $text = preg_replace(
         array(
             '/([^' . $termchar . '])/u',
@@ -159,9 +159,13 @@ class Parser {
             str_replace(array("\t","\n\n"), array("\n",""), $text)
         )
     );
-    $text = remove_spaces(
-        preg_replace("/(\n|^)(?!1\t)/u", "\n0\t", $text), $removeSpaces
-    );
+
+    $text = preg_replace("/(\n|^)(?!1\t)/u", "\n0\t", $text);
+
+    if ($lang->isLgRemoveSpaces()) {
+        $text = str_replace(' ', '', $text);
+    }
+
     // It is faster to write to a file and let SQL do its magic, but may run into
     // security restrictions
     if (get_first_value("SELECT @@GLOBAL.local_infile as value")) {
