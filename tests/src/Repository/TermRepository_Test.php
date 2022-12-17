@@ -97,7 +97,7 @@ final class TermRepository_Test extends DatabaseTestBase
             INNER JOIN wordtags on WtWoID = w.WoID
             INNER JOIN tags on TgID = WtTgID";
         $exp = [ "HOLA; PARENT; tag" ];
-        DbHelpers::assertTableContains($sql, $exp, "??? parents, tags");
+        DbHelpers::assertTableContains($sql, $exp, "parents, tags");
     }
 
     public function test_change_parent()
@@ -120,6 +120,8 @@ final class TermRepository_Test extends DatabaseTestBase
         DbHelpers::assertTableContains($sql, $exp, "parents, tags");
 
         $t->setParent($this->p2);
+        // TODO:TermDTO - see Term.php.
+        $t->setParentText($this->p2->getText());
         $this->term_repo->save($t, true);
         $exp = [ "HOLA; OTHER" ];
         DbHelpers::assertTableContains($sql, $exp, "parents changed, tags");
@@ -145,6 +147,8 @@ final class TermRepository_Test extends DatabaseTestBase
         DbHelpers::assertTableContains($sql, $exp, "parents, tags");
 
         $t->setParent(null);
+        // TODO:TermDTO - see Term.php.
+        $t->setParentText(null);
         $this->term_repo->save($t, true);
         $exp = [ "HOLA; " ];
         DbHelpers::assertTableContains($sql, $exp, "parent removed, tags");

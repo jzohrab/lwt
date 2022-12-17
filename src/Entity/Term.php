@@ -208,6 +208,13 @@ class Term
         $this->parents = new ArrayCollection();
         if ($parent != null)
             $this->parents[] = $parent;
+
+        // Hacky code to allow for set/getParentText.
+        // TODO:TermDTO create TermDTO so that the form doesn't directly use entity
+        if ($this->parentText == null && $parent != null) {
+            $this->parentText = $parent->getText();
+        }
+
         return $this;
     }
 
