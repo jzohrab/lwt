@@ -17,7 +17,7 @@
   <tr>
     <td>Term</td>
     <td>{{ form_widget(form.Text) }}</td>
-    <td><img src="/icn/external.png" title="Lookup" /></td>
+    <td><img src="/icn/external.png" title="Lookup" onclick="do_term_lookup()" /></td>
   </tr>
 
   {{ form_row(form.ParentText) }}
@@ -150,5 +150,27 @@
     const hackTextareaWidth = parseInt(parseInt(w) * 1.10);
     $('#term_Translation').css({'width': `${hackTextareaWidth}px`, 'height': '43px'});
   });
+
+  /** LOOKUPS */
+
+  const LANGUAGES = {{ render(url('app_language_jsonlist')) }};
+
+  // Term lookups cycle through the available dictionaries in the language.
+  var termdictindex = 0;
+
+  function do_term_lookup() {
+    const langid = $('#term_language').val();
+    if (langid == null || langid == '' || parseInt(langid) == 0) {
+      alert('Please select a language.');
+      return;
+    }
+
+    const termdicts = LANGUAGES[langid].term;
+    const usedict = termdicts[termdictindex];
+    console.log(`will use dict ${usedict}`);
+    termdictindex++;
+    if (termdictindex >= termdicts.length)
+      termdictindex = 0;
+  }
 
 </script>
