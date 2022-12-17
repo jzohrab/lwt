@@ -50,7 +50,7 @@ class TermType extends AbstractType
             )
             ->add('Romanization',
                   TextType::class,
-                  [ 'label' => 'Romanization',
+                  [ 'label' => 'Roman.',
                     'attr' => [ 'class' => 'form-text' ],
                     'required' => false
                   ]
