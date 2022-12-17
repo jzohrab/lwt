@@ -12,13 +12,13 @@
 <script>
 
   {# This feels bananas, but it works.  Generating javascript. #}
-  let showels = function() {
+  let update_reading_pane_elements = function() {
     {% for item in textitems %}
-      showel(`{% include '/read/textitem.html.twig' %}`)
+      update_element(`{% include '/read/textitem.html.twig' %}`)
     {% endfor %}
   }
   
-  let showel = function(s) {
+  let update_element = function(s) {
     console.log(s);
     var newel = $($.parseHTML(s));
     const newid = newel.attr('id');
@@ -42,6 +42,6 @@
   top.frames.dictframe.location.href = '/read/empty';
 
   $(document).ready(function() {
-    showels();
+    update_reading_pane_elements();
   });
 </script>
