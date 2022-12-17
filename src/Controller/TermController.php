@@ -69,6 +69,7 @@ class TermController extends AbstractController
         return $this->renderForm('term/new.html.twig', [
             'term' => $term,
             'form' => $form,
+            'showlanguageselector' => true,
             'disabletermediting' => false
         ]);
     }

@@ -4,12 +4,11 @@
 
 <table id="term">
 
-  {#
-    Using jquery to hide the lang. dropdown if it's set.
-    I tried using various twig checks (defined, is null, etc)
-  but kept getting exceptions.
-  #}
-  <tr id="languageSel">
+  <tr id="languageSel"
+    {% if ((showlanguageselector ?? false) != true) %}
+      style="display:none;"
+    {% endif %}
+  >
     <td>Language</td>
     <td>{{ form_widget(form.language) }}</td>
   </tr>
@@ -95,13 +94,6 @@
     });
   };
 
-  let showHideLanguageSelector = function() {
-    const langid = parseInt($('#term_language').val());
-    if (langid > 0) {
-      $('#languageSel').hide();
-    }
-  }
-    
   let setupTagit = function() {
     var prototypeFieldName = 'term[termTags][__name__][text]';
     var fieldIndex = 0;
@@ -138,7 +130,6 @@
 
   }
   $(document).ready(function () {
-    showHideLanguageSelector()
     setupTagit();
     // TODO - activate this
     // handleAutofocus();
@@ -151,7 +142,9 @@
     // console.log(`got term_Text width = ${w} giving hack width ${hackTextareaWidth}`);
     $('#term_Translation').css({'width': `${hackTextareaWidth}px`, 'height': '43px'});
 
-    do_term_lookup(false);
+    if (($('#term_Text').val() ?? '') != '') {
+      do_term_lookup(false);
+    }
   });
 
   /** LOOKUPS */
