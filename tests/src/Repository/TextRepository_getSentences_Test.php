@@ -48,4 +48,12 @@ final class TextRepository_getSentences_Test extends DatabaseTestBase
         $this->assertEquals(count($textitems), 2, '2 matches');
     }
 
+
+    public function test_getTextItems_all()
+    {
+        $textitems = $this->text_repo->getTextItems($this->text);
+        $this->assertEquals(count($textitems), 28, '28 items');
+        $this->assertEquals($textitems[0]->SeID, 1, 'sanity check, SeID set');
+    }
+
 }
