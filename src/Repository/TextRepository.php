@@ -40,7 +40,7 @@ class TextRepository extends ServiceEntityRepository
         }
     }
 
-    public function save(Text $entity, bool $flush = false): void
+    public function save(Text $entity, bool $flush = false, bool $parseTexts = true): void
     {
         $this->getEntityManager()->persist($entity);
 
@@ -50,7 +50,12 @@ class TextRepository extends ServiceEntityRepository
 
             if (! $entity->isArchived() ) {
                 $langid = $entity->getLanguage()->getLgID();
-                splitCheckText($entity->getText(), $langid, $entity->getID());
+
+                // TODO:parsing Change to new module when ready.
+                if ($parseTexts) {
+                    splitCheckText($entity->getText(), $langid, $entity->getID());
+                }
+
                 $this->refreshStatsCache();
             }
         }
