@@ -97,6 +97,8 @@
     "squizlabs/php_codesniffer": "Following code style standards is a good thing"
   },
   "scripts": {
+    "todo:list": "composer find TODO",
+    "todo:types": "composer find TODO | grep TODO | sed -E 's/.*(TODO[^ ]*).*/\\1/' | sort | uniq",
     "db:which": "grep ^\\$dbname connect.inc.php",
     "db:migrate": "php db/migrate.php",
     "db:newscript": "php db/create_migration_script.php",
@@ -133,6 +135,8 @@
     
   },
   "scripts-descriptions": {
+    "todo:list": "Show code todos",
+    "todo:types": "show types of todos",
     "db:migrate": "Run db migrations.",
     "db:newscript": "Make a new db migration script",
     "db:which": "What db connecting to",
