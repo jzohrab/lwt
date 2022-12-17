@@ -87,7 +87,7 @@ function showEditFrame(el, extra_args = {}) {
       map((p) => `${p[0]}=${encodeURIComponent(p[1])}`).
       join('&');
 
-  const url = `/term/load/${wid}/${tid}/${ord}/${text}?${extras}`;
+  const url = `/read/termform/${wid}/${tid}/${ord}/${text}?${extras}`;
   top.frames.wordframe.location.href = url;
 }
 
