@@ -5,13 +5,20 @@
 {% block body %}
 
 <div id="form-frame-left" style="width: 50%;">
+  {% if not showlanguageselector %}
   <h1>Edit Term</h1>
+  {% else %}
+  <h1>New Term</h1>
+  {% endif %}
 
   {{ include('term/_form.html.twig', {'button_label': 'Update'}) }}
 
   <a href="{{ path('app_term_index') }}">back to list</a>
 
+  {% if not showlanguageselector %}
   {{ include('term/_delete_form.html.twig') }}
+  {% endif %}
+
 </div>
 
 
