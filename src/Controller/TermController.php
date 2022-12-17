@@ -48,16 +48,16 @@ class TermController extends AbstractController
     }
 
 
-    #[Route('/new', name: 'app_term_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, TermRepository $termRepository): Response
+    private function processTermForm(
+        \Symfony\Component\Form\Form $form,
+        Request $request,
+        Term $term,
+        TermRepository $repo
+    ): ?Response
     {
-        $term = new Term();
-        $form = $this->createForm(TermType::class, $term);
         $form->handleRequest($request);
-
         if ($form->isSubmitted() && $form->isValid()) {
-            $termRepository->save($term, true);
-
+            $repo->save($term, true);
             if ($request->request->get('posttoblank') == 'yes') {
                 return $this->render('term/updated.html.twig', [ 'term' => $term ]);
             }
@@ -65,6 +65,17 @@ class TermController extends AbstractController
                 return $this->redirectToRoute('app_term_index', [], Response::HTTP_SEE_OTHER);
             }
         }
+        return null;
+    }
+
+    #[Route('/new', name: 'app_term_new', methods: ['GET', 'POST'])]
+    public function new(Request $request, TermRepository $termRepository): Response
+    {
+        $term = new Term();
+        $form = $this->createForm(TermType::class, $term);
+        $resp = $this->processTermForm($form, $request, $term, $termRepository);
+        if ($resp != null)
+            return $resp;
 
         return $this->renderForm('term/new.html.twig', [
             'term' => $term,
@@ -86,18 +97,9 @@ class TermController extends AbstractController
     public function edit(Request $request, Term $term, TermRepository $termRepository): Response
     {
         $form = $this->createForm(TermType::class, $term);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $termRepository->save($term, true);
-
-            if ($request->request->get('posttoblank') == 'yes') {
-                return new Response('');
-            }
-            else {
-                return $this->redirectToRoute('app_term_index', [], Response::HTTP_SEE_OTHER);
-            }
-        }
+        $resp = $this->processTermForm($form, $request, $term, $termRepository);
+        if ($resp != null)
+            return $resp;
 
         return $this->renderForm('term/edit.html.twig', [
             'term' => $term,
