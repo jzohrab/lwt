@@ -59,7 +59,7 @@ class TermController extends AbstractController
             $termRepository->save($term, true);
 
             if ($request->request->get('posttoblank') == 'yes') {
-                return new Response('');
+                return $this->render('term/updated.html.twig', [ 'term' => $term ]);
             }
             else {
                 return $this->redirectToRoute('app_term_index', [], Response::HTTP_SEE_OTHER);
