@@ -64,6 +64,7 @@ class ReadingController extends AbstractController
         $text,
         Request $request,
         TermRepository $termRepository,
+        TextRepository $textRepository,
         ?Profiler $profiler): Response
     {
         // The $text is set to '-' if there *is* no text,
@@ -83,7 +84,12 @@ class ReadingController extends AbstractController
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $termRepository->save($term, true);
-            return $this->render('read/updated.html.twig', [ 'term' => $term ]);
+            $textentity = $textRepository->find($textid);
+            $textitems = $textRepository->getTextItems($textentity, $term->getID());
+            return $this->render('read/updated.html.twig', [
+                'term' => $term,
+                'textitems' => $textitems
+            ]);
         }
 
         return $this->renderForm('read/frameform.html.twig', [

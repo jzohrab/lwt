@@ -1,5 +1,47 @@
+<script type="text/javascript" src="/js/jquery.js" charset="utf-8"></script>
+
 <p>Updated: {{ term.ID }}</p>
 
+<p>Terms:</p>
+<div>
+  {% for item in textitems %}
+  {% include '/read/textitem.html.twig' %}
+  {% endfor %}
+</div>
+
 <script>
+
+  {# This feels bananas, but it works.  Generating javascript. #}
+  let showels = function() {
+    {% for item in textitems %}
+      showel(`{% include '/read/textitem.html.twig' %}`)
+    {% endfor %}
+  }
+  
+  let showel = function(s) {
+    console.log(s);
+    var newel = $($.parseHTML(s));
+    const newid = newel.attr('id');
+    console.log(`got element id = ${newel.attr('id')}`);
+    const length = parseInt(newel.attr('data_code'));
+
+    // Changing things in the parent frame,
+    // so have to search there.
+    if (length == 1) {
+      console.log(`replacing ${newid} with content.`);
+      const repel = $(`#${newid}`, window.parent.document);
+      if (repel.length == 0) {
+        console.log(' ... couldnt find newid??');
+      }
+      else {
+        repel.replaceWith(s);
+      }
+    }
+  }
+
   top.frames.dictframe.location.href = '/read/empty';
+
+  $(document).ready(function() {
+    showels();
+  });
 </script>
