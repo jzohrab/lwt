@@ -50,48 +50,12 @@ class Parser {
         foreach ($cleanup as $sql)
             $this->exec_sql($sql);
 
-        return;
-        
-    $wl = array();
-    $wl_max = 0;
-    $mw_sql = '';
-    $sql = "SELECT LgRightToLeft FROM languages WHERE LgID=$lid";
-    $res = do_mysqli_query($sql);
-    $record = mysqli_fetch_assoc($res);
-    // Just checking if LgID exists with ID should be enough
-    if ($record == false) {
-        my_die("Language data not found: $sql"); 
-    }
-    $rtlScript = $record['LgRightToLeft'];
-    mysqli_free_result($res);
-
-    if ($id == -2) {
         /*
-        Replacement code not created yet 
+        $this->prepare_text_parsing($text, $id, $lid);
 
-        trigger_error(
-            "Using splitCheckText with \$id == -2 is deprectad and won't work in 
-            LWT 3.0.0. Use format_text instead.", 
-            E_USER_WARNING
-        );*/
-        return prepare_text_parsing($text, -2, $lid);
-    }
-    prepare_text_parsing($text, $id, $lid);
+        $this->import_temptextitems($id, $lid);
+        */
 
-    // Check text
-    if ($id == -1) {
-        check_text_valid($lid);
-    }
-
-    if ($id > 0) {
-        import_temptextitems($id, $lid);
-    }
-    // Check text
-    if ($id == -1) {
-        check_text($sql, (bool)$rtlScript, $wl);
-    }
-    do_mysqli_query("TRUNCATE TABLE temptextitems");
-
-        // TODO
+        $this->exec_sql("TRUNCATE TABLE temptextitems");
     }
 }
