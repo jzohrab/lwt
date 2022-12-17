@@ -16,6 +16,13 @@ use Symfony\Component\HttpKernel\Profiler\Profiler;
 class ReadingController extends AbstractController
 {
 
+    #[Route('/empty', name: 'app_read_empty', methods: ['GET'])]
+    public function empty(Request $request): Response
+    {
+        // A dummy hack to clear out the dictionary pane.  Annoying!
+        return $this->render('read/empty.html.twig');
+    }
+
     #[Route('/{TxID}', name: 'app_read', methods: ['GET'])]
     public function read(Request $request, Text $text, TextRepository $textRepository): Response
     {
