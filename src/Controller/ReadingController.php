@@ -74,6 +74,8 @@ class ReadingController extends AbstractController
             'term' => $term,
             'form' => $form,
             'extra' => $request->query,
+            'showlanguageselector' => false,
+            'disabletermediting' => true,
             'posttoblank' => 'yes'
         ]);
     }
