@@ -79,12 +79,15 @@ class Parser {
             }
         }
 
-        $termchar = $record['LgRegexpWordCharacters'];
-        if ('MECAB' == strtoupper(trim($termchar))) {
+        $rechars = $entity
+                 ->getLanguage()
+                 ->getLgRegexpWordCharacters();
+        $isJapanese = 'MECAB' == strtoupper(trim($rechars))
+        if ($isJapanese) {
             // TODO:japanese MECAB parsing.
             throw new \Exception("MECAB parsing not supported");
-            // Ref code in https://github.com/HugoFara/lwt/blob/master/inc/database_connect.php
-            // return parse_japanese_text($text, $id);
+            // Ref parse_japanese_text($text, $id) in
+            // https://github.com/HugoFara/lwt/blob/master/inc/database_connect.php
         }
 
         return $this->parse_standard_text($text, $id, $lid);
@@ -100,7 +103,7 @@ class Parser {
      * @return null|string[] If $id == -2 return a splitted version of the text.
      */
     private function parse_standard_text($text, $id, $lid): ?array
-{
+    {
     $sql = "SELECT * FROM languages WHERE LgID=$lid";
     $res = do_mysqli_query($sql);
     $record = mysqli_fetch_assoc($res);
@@ -108,7 +111,7 @@ class Parser {
     $splitSentence = $record['LgRegexpSplitSentences'];
     $noSentenceEnd = $record['LgExceptionsSplitSentences'];
     $termchar = $record['LgRegexpWordCharacters'];
-    $rtlScript = $record['LgRightToLeft'];
+
     // Split text paragraphs using " ¶" symbol
     $text = str_replace("\n", " ¶", $text);
     $text = trim($text);
