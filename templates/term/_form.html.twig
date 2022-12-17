@@ -158,6 +158,12 @@
   // Term lookups cycle through the available dictionaries in the language.
   var termdictindex = 0;
 
+  let get_lookup_url = function(dicturl, term) {
+    let ret = dicturl;
+    ret = ret.replace('###', encodeURIComponent(term));
+    return ret;
+  }
+
   function do_term_lookup() {
     const langid = $('#term_language').val();
     if (langid == null || langid == '' || parseInt(langid) == 0) {
@@ -167,7 +173,9 @@
 
     const termdicts = LANGUAGES[langid].term;
     const usedict = termdicts[termdictindex];
-    top.frames.dictframe.location.href = usedict;
+
+    const url = get_lookup_url(usedict, $('#term_Text').val());
+    top.frames.dictframe.location.href = url;
 
     termdictindex++;
     if (termdictindex >= termdicts.length)
