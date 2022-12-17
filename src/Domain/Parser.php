@@ -51,18 +51,10 @@ class Parser {
         foreach ($cleanup as $sql)
             $this->exec_sql($sql);
 
-        $this->prepare_text_parsing($text, $id, $lid);
-        // $this->import_temptextitems($id, $lid);
-
-        $this->exec_sql("TRUNCATE TABLE temptextitems");
-    }
-
-    private function prepare_text_parsing(Text $entity) {
-
-        $rechars = $entity
+        $rechars = $text
                  ->getLanguage()
                  ->getLgRegexpWordCharacters();
-        $isJapanese = 'MECAB' == strtoupper(trim($rechars))
+        $isJapanese = 'MECAB' == strtoupper(trim($rechars));
         if ($isJapanese) {
             // TODO:japanese MECAB parsing.
             throw new \Exception("MECAB parsing not supported");
@@ -70,12 +62,16 @@ class Parser {
             // https://github.com/HugoFara/lwt/blob/master/inc/database_connect.php
         }
 
-        return $this->parse_standard_text($text, $id, $lid);
+        $this->parse_standard_text($text);
+
+        // TODO:parsing - keep going
+        // $this->import_temptextitems($id, $lid);
+
+        $this->exec_sql("TRUNCATE TABLE temptextitems");
     }
 
+
     /**
-     * Parse non-japanese text.
-     *
      * @param string $text Text to parse
      * @param int    $id   Text ID. If $id == -2, only split the text.
      * @param int    $lid  Language ID.
@@ -93,10 +89,7 @@ class Parser {
         // because of sentence special characters
         $text = str_replace(array('}','{'), array(']','['), $text);
 
-        $charSubs = $entity
-                  ->getLanguage()
-                  ->getLgCharacterSubstitutions();
-        $replace = explode("|", $charSubs);
+        $replace = explode("|", $lang->getLgCharacterSubstitutions());
         foreach ($replace as $value) {
             $fromto = explode("=", trim($value));
             if (count($fromto) >= 2) {
@@ -106,65 +99,63 @@ class Parser {
             }
         }
 
+        $text = str_replace("\n", " ¶", $text);
+        $text = trim($text);
+        if ($lang->isLgSplitEachChar()) {
+            $text = preg_replace('/([^\s])/u', "$1\t", $text);
+        }
+        $text = preg_replace('/\s+/u', ' ', $text);
 
-    // Split text paragraphs using " ¶" symbol
-    $text = str_replace("\n", " ¶", $text);
-    $text = trim($text);
-    if ($record['LgSplitEachChar']) {
-        $text = preg_replace('/([^\s])/u', "$1\t", $text);
-    }
-    $text = preg_replace('/\s+/u', ' ', $text);
-    // "\r" => Sentence delimiter, "\t" and "\n" => Word delimiter
+        $splitSentence = $lang->getLgRegexpSplitSentences();
+        
+        $callback = function($matches) {
+            $notEnd = $lang->getLgExceptionsSplitSentences();
+            return $this->find_latin_sentence_end($matches, $notEnd);
+        };
+        $re = "/(\S+)\s*((\.+)|([$splitSentence]))([]'`\"”)‘’‹›“„«»』」]*)(?=(\s*)(\S+|$))/u";
+        $text = preg_replace_callback($re, $callback, $text);
 
-    $splitSentence = $lang->getLgRegexpSplitSentences();
-    $noSentenceEnd = $lang->getLgExceptionsSplitSentences();
+        // Para delims include \r
+        $text = str_replace(array("¶"," ¶"), array("¶\r","\r¶"), $text);
 
-    $text = preg_replace_callback(
-        "/(\S+)\s*((\.+)|([$splitSentence]))([]'`\"”)‘’‹›“„«»』」]*)(?=(\s*)(\S+|$))/u",
-        function ($matches) use ($noSentenceEnd) {
-            return find_latin_sentence_end($matches, $noSentenceEnd);
-        },
-        $text
-    );
-    // Paragraph delimiters become a combination of ¶ and carriage return \r
-    $text = str_replace(array("¶"," ¶"), array("¶\r","\r¶"), $text);
-
-    $termchar = $lang->getLgRegexpWordCharacters();
-    $text = preg_replace(
-        array(
-            '/([^' . $termchar . '])/u',
-            '/\n([' . $splitSentence . '][\'`"”)\]‘’‹›“„«»』」]*)\n\t/u',
-            '/([0-9])[\n]([:.,])[\n]([0-9])/u'
-        ),
-        array("\n$1\n", "$1", "$1$2$3"),
-        $text
-    );
-
-    $text = trim(
-        preg_replace(
+        $termchar = $lang->getLgRegexpWordCharacters();
+        $text = preg_replace(
             array(
-                "/\r(?=[]'`\"”)‘’‹›“„«»』」 ]*\r)/u",
-                '/[\n]+\r/u',
-                '/\r([^\n])/u',
-                "/\n[.](?![]'`\"”)‘’‹›“„«»』」]*\r)/u",
-                "/(\n|^)(?=.?[$termchar][^\n]*\n)/u"
+                '/([^' . $termchar . '])/u',
+                '/\n([' . $splitSentence . '][\'`"”)\]‘’‹›“„«»』」]*)\n\t/u',
+                '/([0-9])[\n]([:.,])[\n]([0-9])/u'
             ),
-            array(
-                "",
-                "\r",
-                "\r\n$1",
-                ".\n",
-                "\n1\t"
-            ),
-            str_replace(array("\t","\n\n"), array("\n",""), $text)
-        )
-    );
+            array("\n$1\n", "$1", "$1$2$3"),
+            $text
+        );
 
-    $text = preg_replace("/(\n|^)(?!1\t)/u", "\n0\t", $text);
+        $text = str_replace(array("\t","\n\n"), array("\n",""), $text);
 
-    if ($lang->isLgRemoveSpaces()) {
-        $text = str_replace(' ', '', $text);
-    }
+        $text = preg_replace(
+                array(
+                    "/\r(?=[]'`\"”)‘’‹›“„«»』」 ]*\r)/u",
+                    '/[\n]+\r/u',
+                    '/\r([^\n])/u',
+                    "/\n[.](?![]'`\"”)‘’‹›“„«»』」]*\r)/u",
+                    "/(\n|^)(?=.?[$termchar][^\n]*\n)/u"
+                ),
+                array(
+                    "",
+                    "\r",
+                    "\r\n$1",
+                    ".\n",
+                    "\n1\t"
+                ),
+                $text
+            );
+
+        $text = trim($text);
+
+        $text = preg_replace("/(\n|^)(?!1\t)/u", "\n0\t", $text);
+
+        if ($lang->isLgRemoveSpaces()) {
+            $text = str_replace(' ', '', $text);
+        }
 
     // It is faster to write to a file and let SQL do its magic, but may run into
     // security restrictions
@@ -233,6 +224,37 @@ class Parser {
         );
     }
     return null;
+}
+
+
+/**
+ * Find end-of-sentence characters in a sentence using latin alphabet.
+ * 
+ * @param string[] $matches       All the matches from a capturing regex
+ * @param string   $noSentenceEnd If different from '', can declare that a string a not the end of a sentence.
+ * 
+ * @return string $matches[0] with ends of sentences marked with \t and \r.
+ */
+private function find_latin_sentence_end($matches, $noSentenceEnd)
+{
+    if (!strlen($matches[6]) && strlen($matches[7]) && preg_match('/[a-zA-Z0-9]/', substr($matches[1], -1))) { 
+        return preg_replace("/[.]/", ".\t", $matches[0]); 
+    }
+    if (is_numeric($matches[1])) {
+        if (strlen($matches[1]) < 3) { 
+            return $matches[0];
+        }
+    } else if ($matches[3] && (preg_match('/^[B-DF-HJ-NP-TV-XZb-df-hj-np-tv-xz][b-df-hj-np-tv-xzñ]*$/u', $matches[1]) || preg_match('/^[AEIOUY]$/', $matches[1]))
+    ) { 
+        return $matches[0]; 
+    }
+    if (preg_match('/[.:]/', $matches[2]) && preg_match('/^[a-z]/', $matches[7])) {
+        return $matches[0];
+    }
+    if ($noSentenceEnd != '' && preg_match("/^($noSentenceEnd)$/", $matches[0])) {
+        return $matches[0]; 
+    }
+    return $matches[0] . "\r";
 }
 
 }
