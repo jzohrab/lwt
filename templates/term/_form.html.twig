@@ -28,7 +28,7 @@
   <tr>
     <td>Sentence</td>
     <td>{{ form_widget(form.Sentence) }}</td>
-    <td><img src="/icn/external.png" title="Lookup" /></td>
+    <td><img src="/icn/external.png" title="Lookup" onclick="do_sentence_lookup()" /></td>
   </tr>
 
   {% do form.termTags.setRendered %}
@@ -158,11 +158,33 @@
   // Term lookups cycle through the available dictionaries in the language.
   var termdictindex = 0;
 
+  let open_new_lookup_window = function(url) {
+    window.open(
+      url,
+      'otherwin',
+      'width=800, height=400, scrollbars=yes, menubar=no, resizable=yes, status=no'
+    );
+  };
+
   let get_lookup_url = function(dicturl, term) {
     let ret = dicturl;
     ret = ret.replace('###', encodeURIComponent(term));
     return ret;
-  }
+  };
+
+  /**
+   * Either open a new window, or show the result in the correct frame.
+   */
+  let show_lookup_page = function(dicturl, text) {
+    const is_external = (dicturl.charAt(0) == '*');
+    if (is_external)
+      dicturl = dicturl.slice(1);
+    const url = get_lookup_url(dicturl, text);
+    if (is_external)
+      open_new_lookup_window(url);
+    else
+      top.frames.dictframe.location.href = url;
+  };
 
   function do_term_lookup() {
     const langid = $('#term_language').val();
@@ -173,13 +195,22 @@
 
     const termdicts = LANGUAGES[langid].term;
     const usedict = termdicts[termdictindex];
-
-    const url = get_lookup_url(usedict, $('#term_Text').val());
-    top.frames.dictframe.location.href = url;
+    show_lookup_page(usedict, $('#term_Text').val());
 
     termdictindex++;
     if (termdictindex >= termdicts.length)
       termdictindex = 0;
+  }
+
+  function do_sentence_lookup() {
+    const langid = $('#term_language').val();
+    if (langid == null || langid == '' || parseInt(langid) == 0) {
+      alert('Please select a language.');
+      return;
+    }
+
+    const usedict = LANGUAGES[langid].sentence;
+    show_lookup_page(usedict, $('#term_Sentence').val());
   }
 
 </script>
