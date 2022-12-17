@@ -148,7 +148,10 @@
     const w = $('#term_Text').css('width');
     // Textareas seem to have their own dimensional quirks.
     const hackTextareaWidth = parseInt(parseInt(w) * 1.10);
+    // console.log(`got term_Text width = ${w} giving hack width ${hackTextareaWidth}`);
     $('#term_Translation').css({'width': `${hackTextareaWidth}px`, 'height': '43px'});
+
+    do_term_lookup(false);
   });
 
   /** LOOKUPS */
@@ -175,8 +178,15 @@
   /**
    * Either open a new window, or show the result in the correct frame.
    */
-  let show_lookup_page = function(dicturl, text) {
+  let show_lookup_page = function(dicturl, text, allow_open_new_web_page = true) {
     const is_external = (dicturl.charAt(0) == '*');
+    if (is_external && !allow_open_new_web_page) {
+      console.log('Declining to open external web page.');
+      return;
+    }
+
+    // TODO: the URL shouldn't be prepended with trash.
+    // Instead, each dict should have an "is_external" property.
     if (is_external)
       dicturl = dicturl.slice(1);
     const url = get_lookup_url(dicturl, text);
@@ -186,7 +196,7 @@
       top.frames.dictframe.location.href = url;
   };
 
-  function do_term_lookup() {
+  function do_term_lookup(allow_open_new_web_page = true) {
     const langid = $('#term_language').val();
     if (langid == null || langid == '' || parseInt(langid) == 0) {
       alert('Please select a language.');
@@ -195,7 +205,7 @@
 
     const termdicts = LANGUAGES[langid].term;
     const usedict = termdicts[termdictindex];
-    show_lookup_page(usedict, $('#term_Text').val());
+    show_lookup_page(usedict, $('#term_Text').val(), allow_open_new_web_page);
 
     termdictindex++;
     if (termdictindex >= termdicts.length)
