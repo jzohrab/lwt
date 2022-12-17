@@ -167,7 +167,8 @@
 
     const termdicts = LANGUAGES[langid].term;
     const usedict = termdicts[termdictindex];
-    console.log(`will use dict ${usedict}`);
+    top.frames.dictframe.location.href = usedict;
+
     termdictindex++;
     if (termdictindex >= termdicts.length)
       termdictindex = 0;
