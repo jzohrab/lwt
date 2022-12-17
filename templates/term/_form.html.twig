@@ -16,7 +16,7 @@
 
   <tr>
     <td>Term</td>
-    <td>{{ form_widget(form.Text) }}</td>
+    <td>{{ form_widget(form.Text, { 'attr': {'disabled': (disabletermediting ?? true) }}) }}</td>
     <td><img src="/icn/external.png" title="Lookup" onclick="do_term_lookup()" /></td>
   </tr>
 
