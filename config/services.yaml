@@ -6,6 +6,8 @@
 parameters:
 
 services:
+    Symfony\Component\HttpKernel\Profiler\Profiler: '@profiler'
+
     # default configuration for services in *this* file
     _defaults:
         autowire: true      # Automatically injects dependencies in your services.

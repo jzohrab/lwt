@@ -53,6 +53,26 @@ final class TermRepository_Test extends DatabaseTestBase
         DbHelpers::assertTableContains($sql, $expected, "sanity check on save");
     }
 
+    public function test_saving_updates_textitems2_in_same_language() {
+        DbHelpers::add_textitems2($this->spanish->getLgID(), 'hoLA', 'hola', 1);
+        DbHelpers::add_textitems2($this->french->getLgID(), 'HOLA', 'hola', 2);
+
+        $t = new Term();
+        $t->setLanguage($this->spanish);
+        $t->setText("HOLA");
+        $t->setStatus(1);
+        $t->setWordCount(1);
+        $t->setTranslation('hi');
+        $t->setRomanization('ho-la');
+        $this->term_repo->save($t, true);
+
+        $sql = "select Ti2WoID, Ti2LgID, Ti2Text from textitems2 order by Ti2LgID";
+        $expected = [
+            "{$t->getID()}; {$this->spanish->getLgID()}; hoLA",
+            "0; {$this->french->getLgID()}; HOLA"
+        ];
+        DbHelpers::assertTableContains($sql, $expected, "sanity check on save");
+    }
 
     public function test_word_with_parent_and_tags()
     {
@@ -77,7 +97,7 @@ final class TermRepository_Test extends DatabaseTestBase
             INNER JOIN wordtags on WtWoID = w.WoID
             INNER JOIN tags on TgID = WtTgID";
         $exp = [ "HOLA; PARENT; tag" ];
-        DbHelpers::assertTableContains($sql, $exp, "??? parents, tags");
+        DbHelpers::assertTableContains($sql, $exp, "parents, tags");
     }
 
     public function test_change_parent()
@@ -100,6 +120,8 @@ final class TermRepository_Test extends DatabaseTestBase
         DbHelpers::assertTableContains($sql, $exp, "parents, tags");
 
         $t->setParent($this->p2);
+        // TODO:TermDTO - see Term.php.
+        $t->setParentText($this->p2->getText());
         $this->term_repo->save($t, true);
         $exp = [ "HOLA; OTHER" ];
         DbHelpers::assertTableContains($sql, $exp, "parents changed, tags");
@@ -124,10 +146,12 @@ final class TermRepository_Test extends DatabaseTestBase
         $exp = [ "HOLA; PARENT" ];
         DbHelpers::assertTableContains($sql, $exp, "parents, tags");
 
-        $t->removeParent();
+        $t->setParent(null);
+        // TODO:TermDTO - see Term.php.
+        $t->setParentText(null);
         $this->term_repo->save($t, true);
         $exp = [ "HOLA; " ];
-        DbHelpers::assertTableContains($sql, $exp, "parents changed, tags");
+        DbHelpers::assertTableContains($sql, $exp, "parent removed, tags");
     }
 
     public function test_find_by_text_is_found()
@@ -147,6 +171,74 @@ final class TermRepository_Test extends DatabaseTestBase
         $spid = $this->spanish->getLgID();
         $p = $this->term_repo->findTermInLanguage('SOMETHING_MISSING', $spid);
         $this->assertTrue($p == null, 'nothing found');
+    }
+
+    public function test_findTermInLanguage_only_looks_in_specified_language()
+    {
+        $fp = new Term();
+        $fp->setLanguage($this->french);
+        $fp->setText("bonjour");
+        $fp->setStatus(1);
+        $fp->setWordCount(1);
+        $this->term_repo->save($fp, true);
+
+        $spid = $this->spanish->getLgID();
+        $p = $this->term_repo->findTermInLanguage('bonjour', $spid);
+        $this->assertTrue($p == null, 'french terms not checked');
+    }
+
+    public function test_findByTextMatch_matching()
+    {
+        $fp = new Term();
+        $fp->setLanguage($this->french);
+        $fp->setText("PARENT");
+        $fp->setStatus(1);
+        $fp->setWordCount(1);
+        $this->term_repo->save($fp, true);
+
+        $spid = $this->spanish->getLgID();
+        $cases = [ 'ARE', 'are', 'AR' ];
+        foreach ($cases as $c) {
+            $p = $this->term_repo->findByTextMatchInLanguage($c, $spid);
+            $this->assertEquals(count($p), 1, '1 match for case ' . $c . ' in spanish');
+            $this->assertEquals($p[0]->getText(), 'PARENT', 'parent found for case ' . $c);
+        }
+    }
+
+    public function test_findByTextMatch_no_sql_injection()
+    {
+        $spid = $this->spanish->getLgID();
+        $injection = "a%'; select count(*) from words;";
+        $p = $this->term_repo->findByTextMatchInLanguage($injection, $spid);
+        $this->assertEquals(count($p), 0);
+    }
+
+    public function test_findByTextMatch_returns_empty_if_blank_string()
+    {
+        $spid = $this->spanish->getLgID();
+        $p = $this->term_repo->findByTextMatchInLanguage('', $spid);
+        $this->assertEquals(count($p), 0);
+    }
+
+    public function test_findByTextMatch_returns_empty_for_wrong_language()
+    {
+        $ft = new Term();
+        $ft->setLanguage($this->french);
+        $ft->setText("bonjour");
+        $ft->setStatus(1);
+        $ft->setWordCount(1);
+        $this->term_repo->save($ft, true);
+
+        $et = new Term();
+        $et->setLanguage($this->english);
+        $et->setText("ours");
+        $et->setStatus(1);
+        $et->setWordCount(1);
+        $this->term_repo->save($et, true);
+
+        $spid = $this->spanish->getLgID();
+        $p = $this->term_repo->findByTextMatchInLanguage('our', $spid);
+        $this->assertEquals(count($p), 0);
     }
 
     /* Tests

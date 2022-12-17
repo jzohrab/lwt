@@ -1,5 +1,3 @@
-{% set data_pos = 0 %}
-
 {# Hack for js translation keyboard shortcut. #}
 <span id="translateURL" style="visibility:hidden">{{ dictionary_url }}</span>
 
@@ -11,8 +9,7 @@
 
     <span id="sent_{{ sentence.SeID }}">
       {% for item in sentence.renderable %}
-      {% include '/read/term.html.twig' %}
-      {% set data_pos = data_pos + item.TextLength %}
+      {% include '/read/textitem.html.twig' %}
       {% endfor %}
     </span>
 

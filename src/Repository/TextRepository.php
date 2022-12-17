@@ -76,6 +76,8 @@ class TextRepository extends ServiceEntityRepository
      */
     public function refreshStatsCache() {
 
+        // TODO:storedproc Replace temp table with stored proc.
+        //
         // Using a temp table to determine which texts to update.
         // I tried using left joins back to textstatscache, but it
         // was slow, despite indexing.  There is probably a better
@@ -222,9 +224,14 @@ drop table if exists TEMPupdateStatsTxIDs;
     }
 
 
-    public function getSentences(Text $entity) {
-
+    public function getTextItems(Text $entity, int $woid = null) {
         $textid = $textid = $entity->getID();
+
+        $where = [ "Ti2TxID = $textid" ];
+        if ($woid != null)
+            $where[] = "w.WoID = $woid";
+        $where = implode(' AND ', $where);
+
         $sql = "SELECT
            $textid AS TextID,
            Ti2WordCount AS WordCount,
@@ -269,7 +276,7 @@ drop table if exists TEMPupdateStatsTxIDs;
              GROUP BY WpWoID
            ) parenttaglist on parenttaglist.WpWoID = w.WoID
 
-           WHERE Ti2TxID = $textid
+           WHERE $where
            ORDER BY Ti2Order asc, Ti2WordCount desc";
 
         $conn = $this->getEntityManager()->getConnection();
@@ -290,72 +297,7 @@ drop table if exists TEMPupdateStatsTxIDs;
             $textitems[] = $t;
         }
 
-        $textitems_by_sentenceid = array();
-        foreach($textitems as $t) {
-            $textitems_by_sentenceid[$t->SeID][] = $t;
-        }
-
-        $sentences = [];
-        foreach ($textitems_by_sentenceid as $seid => $textitems)
-            $sentences[] = new Sentence($seid, $textitems);
-
-        return $sentences;
+        return $textitems;
     }
 
-    /* Status pivot table query.  Slow when querying for all texts, fast with just one. */
-
-    /*
-      SELECT TxID,
-      SUM(CASE WHEN status=0 THEN c ELSE 0 END) AS s0,
-      SUM(CASE WHEN status=1 THEN c ELSE 0 END) AS s1,
-      SUM(CASE WHEN status=2 THEN c ELSE 0 END) AS s2,
-      SUM(CASE WHEN status=3 THEN c ELSE 0 END) AS s3,
-      SUM(CASE WHEN status=4 THEN c ELSE 0 END) AS s4,
-      SUM(CASE WHEN status=5 THEN c ELSE 0 END) AS s5,
-      SUM(CASE WHEN status=98 THEN c ELSE 0 END) AS s98,
-      SUM(CASE WHEN status=99 THEN c ELSE 0 END) AS s99
-      FROM (
-      SELECT Ti2TxID AS TxID, WoStatus AS status, COUNT(*) as c
-      FROM textitems2
-      INNER JOIN words ON WoID = Ti2WoID
-      WHERE Ti2WoID <> 0
-      AND Ti2TxID in (1)
-      GROUP BY Ti2TxID, WoStatus
-
-      UNION
-      SELECT Ti2TxID as TxID, 0 as status, COUNT(*) as c
-      FROM textitems2
-      WHERE Ti2WoID = 0 AND Ti2WordCount = 1
-      AND Ti2TxID in (1)
-      GROUP BY Ti2TxID
-  
-      ) rawdata
-      GROUP BY TxID;
-    */
-
-
-//    /**
-//     * @return Text[] Returns an array of Text objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('t')
-//            ->andWhere('t.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('t.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
-
-//    public function findOneBySomeField($value): ?Text
-//    {
-//        return $this->createQueryBuilder('t')
-//            ->andWhere('t.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
 }

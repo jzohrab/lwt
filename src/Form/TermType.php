@@ -11,6 +11,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Doctrine\ORM\EntityManagerInterface;
@@ -40,7 +41,7 @@ class TermType extends AbstractType
                     'required' => true
                   ]
             )
-            ->add('parent',
+            ->add('ParentText',
                   TextType::class,
                   [ 'label' => 'Parent',
                     'attr' => [ 'class' => 'form-text' ],
@@ -49,13 +50,13 @@ class TermType extends AbstractType
             )
             ->add('Romanization',
                   TextType::class,
-                  [ 'label' => 'Romanization',
+                  [ 'label' => 'Roman.',
                     'attr' => [ 'class' => 'form-text' ],
                     'required' => false
                   ]
             )
             ->add('Translation',
-                  TextType::class,
+                  TextareaType::class,
                   [ 'label' => 'Translation',
                     'attr' => [ 'class' => 'form-text' ],
                     'required' => false
@@ -102,7 +103,7 @@ class TermType extends AbstractType
 
         // Data Transformers
         $builder
-            ->get('parent')
+            ->get('ParentText')
             ->addModelTransformer(new TermParentTransformer($this->manager, $term));
         $builder
             ->get('termTags')

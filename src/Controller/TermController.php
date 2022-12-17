@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
-
+use Symfony\Component\HttpKernel\Profiler\Profiler;
 
 #[Route('/term')]
 class TermController extends AbstractController
@@ -31,22 +31,52 @@ class TermController extends AbstractController
         return $this->json($data);
     }
 
+
+    #[Route('/search/{text}/{langid}', name: 'app_term_search', methods: ['GET'])]
+    public function search_by_text_in_language($text, $langid, Request $request, TermRepository $repo): JsonResponse
+    {
+        $terms = $repo->findByTextMatchInLanguage($text, intval($langid));
+        $result = [];
+        foreach ($terms as $t) {
+            $trans = $t->getTranslation();
+            $result[$t->getID()] = [
+                'text' => $t->getText(),
+                'translation' => $t->getTranslation()
+            ];
+        }
+        return $this->json($result);
+    }
+
+
+    private function processTermForm(
+        \Symfony\Component\Form\Form $form,
+        Request $request,
+        Term $term,
+        TermRepository $repo
+    ): ?Response
+    {
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $repo->save($term, true);
+            return $this->redirectToRoute('app_term_index', [], Response::HTTP_SEE_OTHER);
+        }
+        return null;
+    }
+
     #[Route('/new', name: 'app_term_new', methods: ['GET', 'POST'])]
     public function new(Request $request, TermRepository $termRepository): Response
     {
         $term = new Term();
         $form = $this->createForm(TermType::class, $term);
-        $form->handleRequest($request);
+        $resp = $this->processTermForm($form, $request, $term, $termRepository);
+        if ($resp != null)
+            return $resp;
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $termRepository->save($term, true);
-
-            return $this->redirectToRoute('app_term_index', [], Response::HTTP_SEE_OTHER);
-        }
-
-        return $this->renderForm('term/new.html.twig', [
+        return $this->renderForm('term/formframes.html.twig', [
             'term' => $term,
             'form' => $form,
+            'showlanguageselector' => true,
+            'disabletermediting' => false
         ]);
     }
 
@@ -62,17 +92,15 @@ class TermController extends AbstractController
     public function edit(Request $request, Term $term, TermRepository $termRepository): Response
     {
         $form = $this->createForm(TermType::class, $term);
-        $form->handleRequest($request);
+        $resp = $this->processTermForm($form, $request, $term, $termRepository);
+        if ($resp != null)
+            return $resp;
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $termRepository->save($term, true);
-
-            return $this->redirectToRoute('app_term_index', [], Response::HTTP_SEE_OTHER);
-        }
-
-        return $this->renderForm('term/edit.html.twig', [
+        return $this->renderForm('term/formframes.html.twig', [
             'term' => $term,
             'form' => $form,
+            'showlanguageselector' => false,
+            'disabletermediting' => true
         ]);
     }
 

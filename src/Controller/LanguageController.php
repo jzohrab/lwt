@@ -8,6 +8,7 @@ use App\Repository\LanguageRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
 #[Route('/language')]
@@ -67,4 +68,25 @@ class LanguageController extends AbstractController
 
         return $this->redirectToRoute('app_language_index', [], Response::HTTP_SEE_OTHER);
     }
+
+    #[Route('/jsonlist', name: 'app_language_jsonlist', methods: ['GET'])]
+    public function jsonlist(LanguageRepository $languageRepository): Response
+    {
+        $langs = $languageRepository->findAll();
+        $ret = [];
+        foreach ($langs as $lang) {
+            $termdicts = [
+                $lang->getLgDict1URI(),
+                $lang->getLgDict2URI()
+            ];
+            $termdicts = array_filter($termdicts, fn($s) => $s != null);
+            $h = [
+                'term' => $termdicts,
+                'sentence' => $lang->getLgGoogleTranslateURI()
+            ];
+            $ret[$lang->getLgID()] = $h;
+        }
+        return $this->json($ret);
+    }
+
 }

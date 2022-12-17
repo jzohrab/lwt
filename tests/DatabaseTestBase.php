@@ -72,6 +72,15 @@ abstract class DatabaseTestBase extends WebTestCase
             ->setLgGoogleTranslateURI('*https://www.deepl.com/translator#fr/en/###');
         $this->language_repo->save($french, true);
         $this->french = $french;
+
+        $english = new Language();
+        $english
+            ->setLgName('English')
+            ->setLgDict1URI('https://en.thefreedictionary.com/###')
+            ->setLgDict2URI('https://www.wordreference.com/en/###')
+            ->setLgGoogleTranslateURI('*https://www.deepl.com/translator#en/fr/###');
+        $this->language_repo->save($english, true);
+        $this->english = $english;
     }
 
     public function load_spanish_words(): void
