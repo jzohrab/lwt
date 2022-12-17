@@ -146,7 +146,7 @@ class TermController extends AbstractController
             $profiler->disable();
         }
 
-        return $this->renderForm('term/frameform.twig.html', [
+        return $this->renderForm('term/frameform.html.twig', [
             'term' => $term,
             'form' => $form,
             'extra' => $request->query,
