@@ -42,6 +42,8 @@ class TermRepository extends ServiceEntityRepository
     {
         if ($entity == null)
             return;
+        if ($entity->getID() == null)
+            throw new \Exception("associateTextItems can't be set for null ID (" . $entity->getText() . ")");
 
         $updateti2sql = "UPDATE textitems2
               SET Ti2WoID = :woid WHERE Ti2WoID = 0 AND Ti2LgID = :lgid AND Ti2TextLC = :text";
@@ -62,7 +64,6 @@ class TermRepository extends ServiceEntityRepository
     private function findOrCreateParent(Term $entity): ?Term
     {
         $pt = $entity->getParentText();
-        dump('in find or create for entity ' . $entity->getText() . ', have parent text = ' . $pt);
         if ($pt == null || $pt == '')
             return null;
 

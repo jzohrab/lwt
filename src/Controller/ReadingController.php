@@ -50,24 +50,18 @@ class ReadingController extends AbstractController
             $text = '';
         $term = $termRepository->load($wid, $textid, $ord, $text);
 
-        $postto = '/term/new';
-        $wid = $term->getID();
-        if ($wid != null) {
-            $postto = "/term/{$wid}/edit";
-        }
-
-        # ref https://symfony.com/doc/current/forms.html#passing-options-to-forms.
-        $form = $this->createForm(TermType::class, $term, [ 'postto' => $postto ]);
-
-        if ($form->isSubmitted()) {
-            throw new \Exception("The form should not submit back here!");
-        }
-
         // Hide the symfony profiler on the form footer,
         // because it takes up half of the iframe!
         // ref https://symfony.com/doc/current/profiler.html#enabling-the-profiler-conditionally
         if (null !== $profiler) {
             $profiler->disable();
+        }
+
+        $form = $this->createForm(TermType::class, $term);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $termRepository->save($term, true);
+            return $this->render('read/updated.html.twig', [ 'term' => $term ]);
         }
 
         return $this->renderForm('read/frameform.html.twig', [
