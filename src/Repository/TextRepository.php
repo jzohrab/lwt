@@ -76,6 +76,8 @@ class TextRepository extends ServiceEntityRepository
      */
     public function refreshStatsCache() {
 
+        // TODO:storedproc Replace temp table with stored proc.
+        //
         // Using a temp table to determine which texts to update.
         // I tried using left joins back to textstatscache, but it
         // was slow, despite indexing.  There is probably a better
