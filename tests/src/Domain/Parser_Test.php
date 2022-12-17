@@ -18,6 +18,19 @@ final class Parser_Test extends DatabaseTestBase
         // echo "tearing down ... \n";
     }
 
+    public function test_existing_cruft_deleted() {
+        $this->load_spanish_texts(false);
+        $t = $this->spanish_hola_text;
+        DbHelpers::add_textitems2(1, "CRAP", "crap", $t->getID());
+
+        $sql = "select * FROM textitems2 where ti2Text = 'CRAP'";
+        DbHelpers::assertRecordcountEquals($sql, 1, 'before');
+
+        Parser::parse($t);
+        DbHelpers::assertRecordcountEquals($sql, 0, 'after');
+    }
+
+
     /**
      * @group current
      */
