@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Repository\TextRepository;
 use App\Repository\TermRepository;
 use App\Entity\Text;
+use App\Entity\Sentence;
 use App\Form\TermType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -31,10 +32,24 @@ class ReadingController extends AbstractController
         ]);
     }
 
+    private function textItemsBySentenceID($textitems) {
+        $textitems_by_sentenceid = array();
+        foreach($textitems as $t) {
+            $textitems_by_sentenceid[$t->SeID][] = $t;
+        }
+
+        $sentences = [];
+        foreach ($textitems_by_sentenceid as $seid => $textitems)
+            $sentences[] = new Sentence($seid, $textitems);
+
+        return $sentences;
+    }
+
     #[Route('/text/{TxID}', name: 'app_read_text', methods: ['GET'])]
     public function text(Request $request, Text $text, TextRepository $textRepository): Response
     {
-        $sentences = $textRepository->getSentences($text);
+        $textitems = $textRepository->getTextItems($text);
+        $sentences = $this->textItemsBySentenceID($textitems);
         return $this->render('read/text.html.twig', [
             'dictionary_url' => $text->getLanguage()->getLgGoogleTranslateURI(),
             'sentences' => $sentences

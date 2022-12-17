@@ -41,21 +41,7 @@ final class TextRepository_getSentences_Test extends DatabaseTestBase
         $this->text = $t;
     }
 
-    /**
-     * @group curr
-     */
-    public function test_smoke_test()
-    {
-        // original text:
-        // Hola tengo un gato.  No tengo una lista. \n Ella tiene una bebida.
-        DbHelpers::assertRecordcountEquals("sentences", 4, 'sentences');
-        $sentences = $this->text_repo->getSentences($this->text);
-        $this->assertEquals(count($sentences), 4, '4 sentences');
-    }
 
-    /**
-     * @group curr
-     */
     public function test_getTextItems_matching()
     {
         $textitems = $this->text_repo->getTextItems($this->text, $this->tengo_wid);

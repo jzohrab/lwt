@@ -300,20 +300,6 @@ drop table if exists TEMPupdateStatsTxIDs;
         return $textitems;
     }
     
-    public function getSentences(Text $entity) {
-        $textitems = $this->getTextItems($entity);
-
-        $textitems_by_sentenceid = array();
-        foreach($textitems as $t) {
-            $textitems_by_sentenceid[$t->SeID][] = $t;
-        }
-
-        $sentences = [];
-        foreach ($textitems_by_sentenceid as $seid => $textitems)
-            $sentences[] = new Sentence($seid, $textitems);
-
-        return $sentences;
-    }
 
     /* Status pivot table query.  Slow when querying for all texts, fast with just one. */
 
