@@ -4,7 +4,8 @@ require_once __DIR__ . '/../../db_helpers.php';
 require_once __DIR__ . '/../../DatabaseTestBase.php';
 
 use App\Entity\Text;
-    
+use App\Entity\TextItem;
+
 final class TextRepository_getSentences_Test extends DatabaseTestBase
 {
 
@@ -18,6 +19,7 @@ final class TextRepository_getSentences_Test extends DatabaseTestBase
         DbHelpers::add_word($lid, "Un gato", "un gato", 1, 2);
         DbHelpers::add_word($lid, "lista", "lista", 1, 1);
         DbHelpers::add_word($lid, "tiene una", "tiene una", 1, 2);
+        $this->tengo_wid = DbHelpers::add_word($lid, "tengo", "tengo", 1, 1);
 
         // A parent term.
         DbHelpers::add_word($lid, "listo", "listo", 1, 1);
@@ -39,15 +41,25 @@ final class TextRepository_getSentences_Test extends DatabaseTestBase
         $this->text = $t;
     }
 
-
+    /**
+     * @group curr
+     */
     public function test_smoke_test()
     {
         // original text:
-        // Hola tengo un gato.  No tengo una lista.  Ella tiene una bebida.
-
+        // Hola tengo un gato.  No tengo una lista. \n Ella tiene una bebida.
         DbHelpers::assertRecordcountEquals("sentences", 4, 'sentences');
         $sentences = $this->text_repo->getSentences($this->text);
         $this->assertEquals(count($sentences), 4, '4 sentences');
+    }
+
+    /**
+     * @group curr
+     */
+    public function test_getTextItems_matching()
+    {
+        $textitems = $this->text_repo->getTextItems($this->text, $this->tengo_wid);
+        $this->assertEquals(count($textitems), 2, '2 matches');
     }
 
 }
