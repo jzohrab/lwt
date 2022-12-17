@@ -49,8 +49,6 @@
 
 <button class="btn">{{ button_label|default('Save') }}</button>
 
-<input name="posttoblank" type="hidden" value="{{ posttoblank ?? 'no' }}">
-
 {{ form_end(form) }}
 
 <script type="text/javascript">
@@ -152,7 +150,9 @@
     // Ref https://stackoverflow.com/questions/8925716/
     //   disabled-form-fields-not-submitting-data
     $('form[name="term"]').submit(function(e) {
+      alert('re-enable');
       $(':disabled').each(function(e) {
+        alert('re-anable ' + $(this).attr('id'));
         $(this).removeAttr('disabled');
       })
     });

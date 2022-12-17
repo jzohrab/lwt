@@ -58,12 +58,7 @@ class TermController extends AbstractController
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $repo->save($term, true);
-            if ($request->request->get('posttoblank') == 'yes') {
-                return $this->render('term/updated.html.twig', [ 'term' => $term ]);
-            }
-            else {
-                return $this->redirectToRoute('app_term_index', [], Response::HTTP_SEE_OTHER);
-            }
+            return $this->redirectToRoute('app_term_index', [], Response::HTTP_SEE_OTHER);
         }
         return null;
     }
@@ -77,7 +72,7 @@ class TermController extends AbstractController
         if ($resp != null)
             return $resp;
 
-        return $this->renderForm('term/new.html.twig', [
+        return $this->renderForm('term/formframes.html.twig', [
             'term' => $term,
             'form' => $form,
             'showlanguageselector' => true,
@@ -101,9 +96,11 @@ class TermController extends AbstractController
         if ($resp != null)
             return $resp;
 
-        return $this->renderForm('term/edit.html.twig', [
+        return $this->renderForm('term/formframes.html.twig', [
             'term' => $term,
             'form' => $form,
+            'showlanguageselector' => false,
+            'disabletermediting' => true
         ]);
     }
 
