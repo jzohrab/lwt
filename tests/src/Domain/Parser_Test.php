@@ -45,37 +45,33 @@ final class Parser_Test extends DatabaseTestBase
         Parser::parse($t);
 
 
-        // Note the SeIDs start at 5 because the text was initially
-        // parsed when the Text was saved to the TextRepository,
-        // but then calling splitCheckText directly deletes the
-        // existing parsed data.
         $expected = [
-            "5; 1; Hola",
-            "5; 2;  ",
-            "5; 3; tengo",
-            "5; 4;  ",
-            "5; 5; un",
-            "5; 6;  ",
-            "5; 7; gato",
-            "5; 8; .",
-            "6; 9;  ",
-            "6; 10; No",
-            "6; 11;  ",
-            "6; 12; tengo",
-            "6; 13;  ",
-            "6; 14; una",
-            "6; 15;  ",
-            "6; 16; lista",
-            "6; 17; .",
-            "7; 18; ¶",
-            "8; 19; Ella",
-            "8; 20;  ",
-            "8; 21; tiene",
-            "8; 22;  ",
-            "8; 23; una",
-            "8; 24;  ",
-            "8; 25; bebida",
-            "8; 26; ."
+            "1; 1; Hola",
+            "1; 2;  ",
+            "1; 3; tengo",
+            "1; 4;  ",
+            "1; 5; un",
+            "1; 6;  ",
+            "1; 7; gato",
+            "1; 8; .",
+            "2; 9;  ",
+            "2; 10; No",
+            "2; 11;  ",
+            "2; 12; tengo",
+            "2; 13;  ",
+            "2; 14; una",
+            "2; 15;  ",
+            "2; 16; lista",
+            "2; 17; .",
+            "3; 18; ¶",
+            "4; 19; Ella",
+            "4; 20;  ",
+            "4; 21; tiene",
+            "4; 22;  ",
+            "4; 23; una",
+            "4; 24;  ",
+            "4; 25; bebida",
+            "4; 26; ."
         ];
         DbHelpers::assertTableContains($sql, $expected, 'after parse');
     }
