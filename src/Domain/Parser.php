@@ -612,6 +612,13 @@ class Parser {
         foreach ($sentences as $record) {
             $string = ' ' . $record['SeText'] . ' ';
             $logme('"' . $string . '"');
+
+            $allmatches = $this->pregMatchCapture(true, $notermchar, " $string ");
+            $logme("allmatches -------------------");
+            $logdump($allmatches);
+            $logme("END allmatches -------------------");
+
+
             $last_pos = mb_strripos($string, $textlc, 0, 'UTF-8');
             if ($last_pos === false) {
                 $msg = "Couldn't find $textlc in $string ???";
