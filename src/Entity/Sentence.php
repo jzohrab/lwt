@@ -148,7 +148,7 @@ class Sentence
     }
     
     public function renderable() {
-        $items = $this->textitems_not_contained_by_other_text_items();
+        $items = array_filter($this->_textitems, fn($i) => $i->Render);
         $items = $this->sort_by_order_and_wordcount($items);
         return $items;
     }
