@@ -627,20 +627,6 @@ $logme("notermchar = $notermchar");
         foreach ($sentences as $record) {
             $string = ' ' . $record['SeText'] . ' ';
             $logme('"' . $string . '"');
-            if ($splitEachChar) {
-                $string = preg_replace('/([^\s])/u', "$1 ", $string);
-            } else if ($removeSpaces == 1) {
-                $ma = $this->pregMatchCapture(
-                    false,
-                    '/(?<=[ ])(' . preg_replace('/(.)/ui', "$1[ ]*", $textlc) . 
-                    ')(?=[ ])/ui', 
-                    $string
-                );
-                if (!empty($ma[1])) {
-                    $textlc = trim($ma[1]);
-                    $notermchar = "/[^$termchar]({$textlc})[^$termchar]/ui";
-                }
-            }
             $last_pos = mb_strripos($string, $textlc, 0, 'UTF-8');
             $logme("last_pos = $last_pos, notermchar = $notermchar");
 
