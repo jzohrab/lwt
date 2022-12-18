@@ -2,6 +2,9 @@
 
 <p>Updated: {{ term.ID }}</p>
 
+<p>Updates:</p>
+<p>{{ updates|json_encode() }}</p>
+
 <p>Terms:</p>
 <div>
   {% for item in textitems %}

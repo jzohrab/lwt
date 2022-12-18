@@ -85,9 +85,27 @@ class ReadingController extends AbstractController
             $textitems = $sentence->getTextItems();
             $updateitems = array_filter($textitems, fn($t) => $t->WoID == $term->getID());
 
+            // what updates to do.
+            $update_js = [];
+            foreach ($updateitems as $item) {
+                $hide_ids = array_map(fn($i) => $i->getSpanID(), $item->hides);
+                $hide_ids = array_values($hide_ids);
+                $replace_id = $item->getSpanID();
+                if (count($hide_ids) > 0)
+                    $replace_id = $hide_ids[0];
+                $el = $this->renderView('/read/textitem.html.twig', [ 'item' => $item ]);
+                $u = [
+                    'newelement' => $el,
+                    'replace' => $replace_id,
+                    'hide' => $hide_ids
+                ];
+                $update_js[ $item->getSpanID() ] = $u;
+            }
+
             return $this->render('read/updated.html.twig', [
                 'term' => $term,
-                'textitems' => $updateitems
+                'textitems' => $updateitems,
+                'updates' => $update_js
             ]);
         }
 
