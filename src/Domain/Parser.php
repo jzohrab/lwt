@@ -213,7 +213,8 @@ $sql = "LOAD DATA LOCAL INFILE '{$file_name}'
 
 //Try to execute query (not stmt) and catch mysqli error from engine and php error
 if (!($stmt = $this->conn->query($sql))) {
-    echo "\nQuery execute failed: ERRNO: (" . $this->conn->errno . ") " . $this->conn->error;
+    $msg = "Query execute failed: ERRNO: (" . $this->conn->errno . ") " . $this->conn->error;
+    throw new \Exception($msg);
 };
         unlink($file_name);
 
