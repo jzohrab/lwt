@@ -4,6 +4,7 @@ require_once __DIR__ . '/../../../src/Domain/Parser.php';
 require_once __DIR__ . '/../../DatabaseTestBase.php';
 
 use App\Domain\Parser;
+use App\Domain\ExpressionUpdater;
 use App\Entity\Text;
 
 final class Parser_Test extends DatabaseTestBase
@@ -41,6 +42,7 @@ final class Parser_Test extends DatabaseTestBase
         DbHelpers::assertTableContains($sql, [], 'nothing in table before parsing.');
         
         Parser::parse($t);
+        ExpressionUpdater::associateExpressionsInText($t);
 
         $expected = [
             "1; 1; Hola",
@@ -81,6 +83,7 @@ final class Parser_Test extends DatabaseTestBase
         $t = $this->spanish_hola_text;
 
         Parser::parse($t);
+        ExpressionUpdater::associateExpressionsInText($t);
 
         $sql = "select ti2seid, ti2order, ti2text from textitems2 where ti2woid = 0 order by ti2order";
         $expected = [
@@ -133,6 +136,7 @@ final class Parser_Test extends DatabaseTestBase
         $this->text_repo->save($t, true, false);
 
         Parser::parse($t);
+        ExpressionUpdater::associateExpressionsInText($t);
 
         $sql = "select ti2seid, ti2order, ti2text from textitems2
           where ti2wordcount > 0 order by ti2order, ti2wordcount desc";
@@ -170,6 +174,7 @@ final class Parser_Test extends DatabaseTestBase
         $this->text_repo->save($t, true, false);
 
         Parser::parse($t);
+        ExpressionUpdater::associateExpressionsInText($t);
 
         $sql = "select ti2seid, ti2order, ti2text from textitems2
           where ti2wordcount > 0 order by ti2order, ti2wordcount desc";
@@ -222,6 +227,7 @@ final class Parser_Test extends DatabaseTestBase
         DbHelpers::add_word($spid, 'Tanto daba', 'tanto daba', 1, 2);
 
         Parser::parse($t);
+        ExpressionUpdater::associateExpressionsInText($t);
 
         $sql = "select ti2seid, ti2order, ti2text from textitems2
           where ti2woid <> 0 order by ti2seid";
