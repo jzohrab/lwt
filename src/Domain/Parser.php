@@ -628,6 +628,10 @@ $logme("notermchar = $notermchar");
             $string = ' ' . $record['SeText'] . ' ';
             $logme('"' . $string . '"');
             $last_pos = mb_strripos($string, $textlc, 0, 'UTF-8');
+            if ($last_pos === false) {
+                $msg = "Couldn't find $textlc in $string ???";
+                throw new \Exception($msg);
+            }
             $logme("last_pos = $last_pos, notermchar = $notermchar");
 
             // For each occurence of query in sentence
