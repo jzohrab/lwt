@@ -78,7 +78,8 @@ class Parser {
             // https://github.com/HugoFara/lwt/blob/master/inc/database_connect.php
         }
 
-        $this->parse_standard_text($text);
+        $cleantext = $this->legacy_clean_standard_text($text);
+        $this->load_temptextitems($cleantext);
 
         $this->import_temptextitems($text);
 
@@ -87,13 +88,97 @@ class Parser {
 
 
     /**
-     * @param string $text Text to parse
-     * @param int    $id   Text ID. If $id == -2, only split the text.
-     * @param int    $lid  Language ID.
-     *
-     * @return null|string[] If $id == -2 return a splitted version of the text.
+     * @param string $text Text to clean, using regexs.
      */
-    private function parse_standard_text(Text $entity): ?array
+    private function legacy_clean_standard_text(Text $entity): string
+    {
+        $lang = $entity->getLanguage();
+
+        $text = $entity->getText();
+
+        // TODO:parsing replace fix the preg_ query mapping mess.
+        // Initial cleanup.
+        $text = str_replace("\r\n", "\n", $text);
+        // because of sentence special characters
+        $text = str_replace(array('}','{'), array(']','['), $text);
+
+        $replace = explode("|", $lang->getLgCharacterSubstitutions());
+        foreach ($replace as $value) {
+            $fromto = explode("=", trim($value));
+            if (count($fromto) >= 2) {
+                $rfrom = trim($fromto[0]);
+                $rto = trim($fromto[1]);
+                $text = str_replace($rfrom, $rto, $text);
+            }
+        }
+
+        $text = str_replace("\n", " ¶", $text);
+        $text = trim($text);
+        if ($lang->isLgSplitEachChar()) {
+            $text = preg_replace('/([^\s])/u', "$1\t", $text);
+        }
+        $text = preg_replace('/\s+/u', ' ', $text);
+
+        $splitSentence = $lang->getLgRegexpSplitSentences();
+        
+        $callback = function($matches) use ($lang) {
+            $notEnd = $lang->getLgExceptionsSplitSentences();
+            return $this->find_latin_sentence_end($matches, $notEnd);
+        };
+        $re = "/(\S+)\s*((\.+)|([$splitSentence]))([]'`\"”)‘’‹›“„«»』」]*)(?=(\s*)(\S+|$))/u";
+        $text = preg_replace_callback($re, $callback, $text);
+
+        // Para delims include \r
+        $text = str_replace(array("¶"," ¶"), array("¶\r","\r¶"), $text);
+
+        $termchar = $lang->getLgRegexpWordCharacters();
+        $punctchars = "'`\"”)\]‘’‹›“„«»』」";
+        $text = preg_replace(
+            array(
+                '/([^' . $termchar . '])/u',
+                '/\n([' . $splitSentence . '][' . $punctchars . ']*)\n\t/u',
+                '/([0-9])[\n]([:.,])[\n]([0-9])/u'
+            ),
+            array("\n$1\n", "$1", "$1$2$3"),
+            $text
+        );
+
+        $text = str_replace(array("\t","\n\n"), array("\n",""), $text);
+
+        $text = preg_replace(
+                array(
+                    "/\r(?=[]'`\"”)‘’‹›“„«»』」 ]*\r)/u",
+                    '/[\n]+\r/u',
+                    '/\r([^\n])/u',
+                    "/\n[.](?![]'`\"”)‘’‹›“„«»』」]*\r)/u",
+                    "/(\n|^)(?=.?[$termchar][^\n]*\n)/u"
+                ),
+                array(
+                    "",
+                    "\r",
+                    "\r\n$1",
+                    ".\n",
+                    "\n1\t"
+                ),
+                $text
+        );
+
+        $text = trim($text);
+
+        $text = preg_replace("/(\n|^)(?!1\t)/u", "\n0\t", $text);
+
+        if ($lang->isLgRemoveSpaces()) {
+            $text = str_replace(' ', '', $text);
+        }
+
+        return $text;
+    }
+
+ 
+     /**
+     * @param string $text Text to clean, using regexs.
+     */
+    private function new_clean_standard_text(Text $entity): string
     {
         // A (possibly) easier way to do substitutions -- each
         // pair in $replacements is run in order.
@@ -207,12 +292,15 @@ class Parser {
             $text = str_replace(' ', '', $text);
         }
 
-/*
-        echo "\nWRITING FILE:\n";
-        echo $text;
-        echo "\nDONE\n";
-*/
+        return $text;
+    }
 
+
+    /**
+     * Load temptextitems using load local infile.
+     */
+    private function load_temptextitems($text)
+    {
         $file_name = sys_get_temp_dir() . DIRECTORY_SEPARATOR . "tmpti.txt";
         $fp = fopen($file_name, 'w');
         fwrite($fp, $text);
