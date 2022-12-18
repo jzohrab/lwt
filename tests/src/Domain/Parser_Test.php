@@ -42,7 +42,6 @@ final class Parser_Test extends DatabaseTestBase
         
         Parser::parse($t);
 
-
         $expected = [
             "1; 1; Hola",
             "1; 2;  ",
@@ -195,9 +194,6 @@ final class Parser_Test extends DatabaseTestBase
 
     }
 
-    /**
-     * @group current
-     */
     public function test_verify_regexes() {
         $t = new Text();
         $t->setTitle("Hacky");
@@ -207,6 +203,21 @@ final class Parser_Test extends DatabaseTestBase
 
         Parser::parse($t);
 
+        $this->assertEquals(1, 1, 'ok');
+    }
+
+    /**
+     * @group current
+     */
+    public function test_verify_regexes_split_each() {
+        $t = new Text();
+        $t->setTitle("Hacky");
+        $t->setText("{Hola}.");
+        $t->setLanguage($this->spanish);
+        $this->text_repo->save($t, true, false);
+
+        $this->spanish->setLgSplitEachChar(true);
+        Parser::parse($t);
         $this->assertEquals(1, 1, 'ok');
     }
 

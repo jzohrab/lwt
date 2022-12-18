@@ -191,20 +191,41 @@ class Parser {
     {
         // A (possibly) easier way to do substitutions -- each
         // pair in $replacements is run in order.
+        // Possible entries:
+        // ( <src string or regex string (starting with '/')>, <target (string or callback)> [, <condition>] )
         $do_replacements = function($text, $replacements) {
             foreach($replacements as $r) {
-                [ $src, $tgt ] = $r;
-                if (substr($src, 0, 1) == '/') {
-                    $text = preg_replace($src, $tgt, $text);
+                if ($r == 'trim') {
+                    $text = trim($text);
+                    continue;
+                }
+
+                $src = $r[0];
+                $tgt = $r[1];
+
+                if (count($r) == 3) {
+                    if ($r[2] == false) {
+                        continue;
+                    }
+                }
+
+                if (is_string($tgt)) {
+                    if (substr($src, 0, 1) == '/') {
+                        $text = preg_replace($src, $tgt, $text);
+                    }
+                    else {
+                        $text = str_replace($src, $tgt, $text);
+                    }
                 }
                 else {
-                    $text = str_replace($src, $tgt, $text);
+                    $text = preg_replace_callback($src, $tgt, $text);
                 }
             }
             return $text;
         };
 
         $debugtext = function($s, $text) {
+            // return;
             echo "\n{$s} ------------------------\n\n";
             echo str_replace(
                 array("\n", "¶", ' '),
@@ -230,27 +251,21 @@ class Parser {
         $debugtext("substitutions", $text);
 
         // TODO:parsing replace fix the preg_ query mapping mess.
-        // Initial cleanup.
-        $text = str_replace("\r\n", "\n", $text);
-        // because of sentence special characters
-        // $text = str_replace(array('}','{'), array(']','['), $text);
-        $text = $do_replacements($text, [
-            ['}', ']'],
-            ['{', '[']
-        ]);
-        $debugtext("brackets", $text);
-        
-        $text = str_replace("\n", " ¶", $text);
-        $debugtext("p-newline", $text);
 
-        $text = trim($text);
-        if ($lang->isLgSplitEachChar()) {
-            $text = preg_replace('/([^\s])/u', "$1\t", $text);
-        }
-        $text = preg_replace('/\s+/u', ' ', $text);
+        // because of sentence special characters
+        $text = $do_replacements($text, [
+            [ "\r\n", "\n" ],
+            [ '}', ']'],
+            [ '{', '['],
+            [ "\n", " ¶" ],
+            [ '/([^\s])/u', "$1\t", $lang->isLgSplitEachChar() ],
+            'trim',
+            [ '/\s+/u', ' ' ]
+        ]);
+        
+        $debugtext("current", $text);
 
         $splitSentence = $lang->getLgRegexpSplitSentences();
-        
         $callback = function($matches) use ($lang) {
             $notEnd = $lang->getLgExceptionsSplitSentences();
             return $this->find_latin_sentence_end($matches, $notEnd);
