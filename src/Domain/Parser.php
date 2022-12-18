@@ -587,6 +587,8 @@ class Parser {
         Language $lang, $textlc, $wid, $len, $sentenceIDRange
     )
     {
+        echo "\n\n\nTERM: $textlc \n\n\n";
+
         $lid = $lang->getLgID();
 
         // DEBUGGING HELPER FOR FUTURE, because this code is brutal and
@@ -603,7 +605,7 @@ class Parser {
             $logdump = function($s) { var_dump($s); };
             $logme("\n\n================");
             $r = implode(', ', $sentenceIDRange);
-            $logme("match problem term = $problemterm");
+            // $logme("match problem term = $problemterm");
             $logme("Starting search for $textlc, lid = $lid, wid = $wid, len = $len, range = {$r}");
         }
 
@@ -618,24 +620,28 @@ class Parser {
         $matches = null;
         foreach ($sentences as $record) {
             $string = ' ' . $record['SeText'] . ' ';
+            echo ">>>>>>>>" . $string . "\n";
+            echo ">>>>>>>>" . $textlc . "\n";
+            echo "\n\n";
+
             $logme('"' . $string . '"');
 
             $logme("allmatches[1] -------------------");
-            $rx = "/[^a-zA-ZÀ-ÖØ-öø-ȳáéíóúÁÉÍÓÚñÑ](un gato)[^a-zA-ZÀ-ÖØ-öø-ȳáéíóúÁÉÍÓÚñÑ]/ui";
-            $rx = "/[^a-z](un gato)[^a-z]/ui";
+            // $rx = "/[^a-zA-ZÀ-ÖØ-öø-ȳáéíóúÁÉÍÓÚñÑ](un gato)[^a-zA-ZÀ-ÖØ-öø-ȳáéíóúÁÉÍÓÚñÑ]/ui";
+            // $rx = "/[^a-z](un gato)[^a-z]/ui";
+            $rx = $notermchar;
             $allmatches = $this->pregMatchCapture(true, $rx, " $string ");
-            $logme("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
             $logme($string);
             $logme($rx);
             $logme("");
-            $logme("HERE's all matches:");
+            $logme("matches:");
             $logdump($allmatches);
-            $logme("LENGTH = " . count($allmatches));
             $termmatches = [];
             if (count($allmatches) > 0) {
                 $termmatches = $allmatches[1];
             }
-            $logme("YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
+            $logme("termmatch:");
+            $logdump($termmatches);
 
                       /* Sample $termmatches data:
 array(3) {
