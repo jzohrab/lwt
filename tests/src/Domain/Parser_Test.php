@@ -76,12 +76,13 @@ final class Parser_Test extends DatabaseTestBase
     /**
      * @group current
      */
-    public function test_split_check_words_defined()
+    public function test_parse_words_defined()
     {
         $this->load_spanish_words();
-        $this->load_spanish_texts();
+        $this->load_spanish_texts(false);
         $t = $this->spanish_hola_text;
-        splitCheckText($t->getText(), $this->spanish->getLgID(), $t->getID());
+
+        Parser::parse($t);
 
         $sql = "select ti2seid, ti2order, ti2text from textitems2 where ti2woid = 0 order by ti2order";
         $expected = [
