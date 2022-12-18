@@ -526,7 +526,7 @@ if (!($stmt = $this->conn->query($sql))) {
                     $sql = "INSERT INTO textitems2
                   (Ti2WoID,Ti2LgID,Ti2TxID,Ti2SeID,Ti2Order,Ti2WordCount,Ti2Text)
                   VALUES (?, ?, ?, ?, ?, ?, ?)";
-                    $params = (
+                    $params = array(
                         "iiiiiis",
                         $wid, $lid, $record['SeTxID'], $record['SeID'], $pos, $len, $txt);
                     $this->conn->query($sql, $params);
