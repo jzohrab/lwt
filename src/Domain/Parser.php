@@ -77,8 +77,7 @@ class Parser {
 
         $this->parse_standard_text($text);
 
-        // TODO:parsing - keep going
-        // $this->import_temptextitems($id, $lid);
+        $this->import_temptextitems($text);
 
         $this->exec_sql("TRUNCATE TABLE temptextitems");
     }
@@ -183,7 +182,7 @@ class Parser {
 
         // TODO:parsing Drop the temp table and re-create it.
         $file_name = mysqli_real_escape_string($this->conn, $file_name);
-        $sql = "LOAD DATA LOCAL INFILE $file_name
+        $sql = "LOAD DATA LOCAL INFILE '{$file_name}'
         INTO TABLE temptextitems
         FIELDS TERMINATED BY '\\t' LINES TERMINATED BY '\\n' (@word_count, @term)
         SET
@@ -202,41 +201,103 @@ class Parser {
             TiText = @term,
             TiWordCount = @word_count";
 
-        $this->conn->query($sql);
+// $this->conn->execute($sql);
+
+//Try to execute query (not stmt) and catch mysqli error from engine and php error
+if (!($stmt = $this->conn->query($sql))) {
+    echo "\nQuery execute failed: ERRNO: (" . $this->conn->errno . ") " . $this->conn->error;
+};
         unlink($file_name);
 
         return null;
     }
 
 
-/**
- * Find end-of-sentence characters in a sentence using latin alphabet.
- * 
- * @param string[] $matches       All the matches from a capturing regex
- * @param string   $noSentenceEnd If different from '', can declare that a string a not the end of a sentence.
- * 
- * @return string $matches[0] with ends of sentences marked with \t and \r.
- */
-private function find_latin_sentence_end($matches, $noSentenceEnd)
-{
-    if (!strlen($matches[6]) && strlen($matches[7]) && preg_match('/[a-zA-Z0-9]/', substr($matches[1], -1))) { 
-        return preg_replace("/[.]/", ".\t", $matches[0]); 
-    }
-    if (is_numeric($matches[1])) {
-        if (strlen($matches[1]) < 3) { 
+    /**
+     * Find end-of-sentence characters in a sentence using latin alphabet.
+     * 
+     * @param string[] $matches       All the matches from a capturing regex
+     * @param string   $noSentenceEnd If different from '', can declare that a string a not the end of a sentence.
+     * 
+     * @return string $matches[0] with ends of sentences marked with \t and \r.
+     */
+    private function find_latin_sentence_end($matches, $noSentenceEnd)
+    {
+        if (!strlen($matches[6]) && strlen($matches[7]) && preg_match('/[a-zA-Z0-9]/', substr($matches[1], -1))) { 
+            return preg_replace("/[.]/", ".\t", $matches[0]); 
+        }
+        if (is_numeric($matches[1])) {
+            if (strlen($matches[1]) < 3) { 
+                return $matches[0];
+            }
+        } else if ($matches[3] && (preg_match('/^[B-DF-HJ-NP-TV-XZb-df-hj-np-tv-xz][b-df-hj-np-tv-xzñ]*$/u', $matches[1]) || preg_match('/^[AEIOUY]$/', $matches[1]))
+        ) { 
+            return $matches[0]; 
+        }
+        if (preg_match('/[.:]/', $matches[2]) && preg_match('/^[a-z]/', $matches[7])) {
             return $matches[0];
         }
-    } else if ($matches[3] && (preg_match('/^[B-DF-HJ-NP-TV-XZb-df-hj-np-tv-xz][b-df-hj-np-tv-xzñ]*$/u', $matches[1]) || preg_match('/^[AEIOUY]$/', $matches[1]))
-    ) { 
-        return $matches[0]; 
+        if ($noSentenceEnd != '' && preg_match("/^($noSentenceEnd)$/", $matches[0])) {
+            return $matches[0]; 
+        }
+        return $matches[0] . "\r";
     }
-    if (preg_match('/[.:]/', $matches[2]) && preg_match('/^[a-z]/', $matches[7])) {
-        return $matches[0];
+
+
+    /**
+     * Move data from temptextitems to final tables.
+     * 
+     * @param int    $id  New default text ID
+     * @param int    $lid New default language ID
+     * 
+     * @return void
+     */
+    private function import_temptextitems(Text $text)
+    {
+        $id = $text->getID();
+        $lid = $text->getLanguage()->getLgID();
+
+        $sql = "INSERT INTO sentences (SeLgID, SeTxID, SeOrder, SeFirstPos, SeText)
+            SELECT {$lid}, {$id}, TiSeID, 
+            min(if(TiWordCount=0, TiOrder+1, TiOrder)),
+            GROUP_CONCAT(TiText order by TiOrder SEPARATOR \"\") 
+            FROM temptextitems 
+            group by TiSeID";
+        $this->exec_sql($sql);
+
+        $minmax = "SELECT MIN(SeID) as minseid, MAX(SeID) as maxseid FROM sentences WHERE SeTxID = {$id}";
+        $rec = $this->conn
+             ->query($minmax)->fetch_array();
+        $firstSeID = intval($rec['minseid']);
+        $lastSeID = intval($rec['maxseid']);
+    
+        $addti2 = "INSERT INTO textitems2 (
+                Ti2LgID, Ti2TxID, Ti2WoID, Ti2SeID, Ti2Order, Ti2WordCount, Ti2Text
+            )
+            select {$lid}, {$id}, WoID, TiSeID + {$firstSeID}, TiOrder, TiWordCount, TiText 
+            FROM temptextitems 
+            left join words 
+            on lower(TiText) = WoTextLC and TiWordCount>0 and WoLgID = {$lid} 
+            order by TiOrder,TiWordCount";
+        $this->exec_sql($addti2);
+
+        /*
+        // For each expession in the language, add expressions for the sentence range.
+        // Inefficient, but for now I don't care -- will see how slow it is.
+        $sentenceRange = [ $firstSeID, $lastSeID ];
+        $mwordsql = "SELECT * FROM words WHERE WoLgID = $lid AND WoWordCount > 1";
+        $res = do_mysqli_query($mwordsql);
+        while ($record = mysqli_fetch_assoc($res)) {
+            insertExpressions(
+                $record['WoTextLC'],
+                $lid,
+                $record['WoID'],
+                $record['WoWordCount'],
+                1,
+                $sentenceRange);
+        }
+        mysqli_free_result($res);
+        */
     }
-    if ($noSentenceEnd != '' && preg_match("/^($noSentenceEnd)$/", $matches[0])) {
-        return $matches[0]; 
-    }
-    return $matches[0] . "\r";
-}
 
 }
