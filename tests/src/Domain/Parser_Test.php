@@ -4,6 +4,7 @@ require_once __DIR__ . '/../../../src/Domain/Parser.php';
 require_once __DIR__ . '/../../DatabaseTestBase.php';
 
 use App\Domain\Parser;
+use App\Entity\Text;
 
 final class Parser_Test extends DatabaseTestBase
 {
@@ -30,7 +31,7 @@ final class Parser_Test extends DatabaseTestBase
         DbHelpers::assertRecordcountEquals($sql, 0, 'after');
     }
 
-
+    
     public function test_parse_no_words_defined()
     {
         $this->load_spanish_texts(false);
@@ -73,9 +74,7 @@ final class Parser_Test extends DatabaseTestBase
         DbHelpers::assertTableContains($sql, $expected, 'after parse');
     }
 
-    /**
-     * @group current
-     */
+    
     public function test_parse_words_defined()
     {
         $this->load_spanish_words();
@@ -121,6 +120,79 @@ final class Parser_Test extends DatabaseTestBase
             "3; 4; 21; tiene una"
         ];
         DbHelpers::assertTableContains($sql, $expected);
+    }
+
+
+    public function test_text_contains_same_term_many_times()
+    {
+        $spid = $this->spanish->getLgID();
+        DbHelpers::add_word($spid, "Un gato", "un gato", 1, 2);
+
+        $t = new Text();
+        $t->setTitle("Gato.");
+        $t->setText("Un gato es bueno. No hay un gato.  Veo a un gato.");
+        $t->setLanguage($this->spanish);
+        $this->text_repo->save($t, true, false);
+
+        Parser::parse($t);
+
+        $sql = "select ti2seid, ti2order, ti2text from textitems2
+          where ti2wordcount > 0 order by ti2order, ti2wordcount desc";
+        $expected = [
+            "1; 1; Un gato",
+            "1; 1; Un",
+            "1; 3; gato",
+            "1; 5; es",
+            "1; 7; bueno",
+            "2; 10; No",
+            "2; 12; hay",
+            "2; 14; un gato",
+            "2; 14; un",
+            "2; 16; gato",
+            "3; 19; Veo",
+            "3; 21; a",
+            "3; 23; un gato",
+            "3; 23; un",
+            "3; 25; gato"
+        ];
+        DbHelpers::assertTableContains($sql, $expected);
+
+    }
+
+    public function test_text_same_sentence_contains_same_term_many_times()
+    {
+        $spid = $this->spanish->getLgID();
+        DbHelpers::add_word($spid, "Un gato", "un gato", 1, 2);
+
+        $t = new Text();
+        $t->setTitle("Gato.");
+        $t->setText("Un gato es bueno, no hay un gato, veo a un gato.");
+        $t->setLanguage($this->spanish);
+        $this->text_repo->save($t, true, false);
+
+        Parser::parse($t);
+
+        $sql = "select ti2seid, ti2order, ti2text from textitems2
+          where ti2wordcount > 0 order by ti2order, ti2wordcount desc";
+        $expected = [
+            "1; 1; Un gato",
+            "1; 1; Un",
+            "1; 3; gato",
+            "1; 5; es",
+            "1; 7; bueno",
+            "1; 9; no",
+            "1; 11; hay",
+            "1; 13; un gato",
+            "1; 13; un",
+            "1; 15; gato",
+            "1; 17; veo",
+            "1; 19; a",
+            "1; 21; un gato",
+            "1; 21; un",
+            "1; 23; gato"
+        ];
+        DbHelpers::assertTableContains($sql, $expected);
+
     }
 
 }
