@@ -663,8 +663,20 @@ $beforesubstr = mb_substr($string, 0, $tm[1] - 1, 'UTF-8');
                     $txt = $tm[0];
                     $logme("Got count = $cnt, pos = $pos, txt = $txt");
 
+                    $sql = "INSERT INTO textitems2
+                  (Ti2WoID,Ti2LgID,Ti2TxID,Ti2SeID,Ti2Order,Ti2WordCount,Ti2Text)
+                  VALUES (?, ?, ?, ?, ?, ?, ?)";
+                    $params = array(
+                        "iiiiiis",
+                        $wid, $lid, $record['SeTxID'], $record['SeID'], $pos, $len, $txt);
+                    $this->exec_sql($sql, $params);
+                    $pstring = implode(',', $params);
+                    $logme("-----------------\nadded entry: {$pstring} \n-----------------");
+
                       $logme("END termmatch ----------------------------");
                       } // end foreach termmatches
+
+                      return;
 
             $last_pos = mb_strripos($string, $textlc, 0, 'UTF-8');
             if ($last_pos === false) {
