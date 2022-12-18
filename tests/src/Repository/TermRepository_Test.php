@@ -5,6 +5,7 @@ require_once __DIR__ . '/../../DatabaseTestBase.php';
 
 use App\Entity\TermTag;
 use App\Entity\Term;
+use App\Entity\Text;
 
 final class TermRepository_Test extends DatabaseTestBase
 {
@@ -241,7 +242,35 @@ final class TermRepository_Test extends DatabaseTestBase
         $this->assertEquals(count($p), 0);
     }
 
+    /**
+     * @group current
+     */
+    public function test_save_updates_associated_textitems() {
+        $this->make_text("Hola.", "Hola tengo un gato.", $this->spanish);
+        $this->make_text("Bonj.", "Je veux un tengo.", $this->french);
+
+        DbHelpers::assertRecordcountEquals("textitems2", 16, 'sanity check');
+        $sql = "select Ti2WoID, Ti2LgID, Ti2WordCount, Ti2Text from textitems2 where Ti2WoID <> 0 order by Ti2Order";
+        DbHelpers::assertTableContains($sql, [], "No associations");
+
+        $t = new Term();
+        $t->setLanguage($this->spanish);
+        $t->setText("tengo");
+        $this->term_repo->save($t, true);
+
+        $expected = [ "{$t->getID()}; 1; 1; tengo" ];
+        DbHelpers::assertTableContains($sql, $expected, "associated spanish text");
+
+        $t = new Term();
+        $t->setLanguage($this->spanish);
+        $t->setText("un gato");
+        $this->term_repo->save($t, true);
+
+        $expected[] = "{$t->getID()}; 1; 2; un gato";
+        DbHelpers::assertTableContains($sql, $expected, "associated multi-word term");
+    }
+
     /* Tests
-       - can't change text of saved word ... see other tests in src/word_form_ thing.
+    // TODO:fix Can't change the text of a saved word.
     */
 }
