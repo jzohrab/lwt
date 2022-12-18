@@ -601,13 +601,7 @@ class Parser {
             // array(3) { [0]=> array(2) { [0]=> string(7) "Un gato", [1]=> int(2) }, ... }
 
             foreach($termmatches as $tm) {
-                // Number of terms before group
-                $beforesubstr = mb_substr($string, 0, $tm[1] - 1, 'UTF-8');
-                $termsbefore = $this->pregMatchCapture(true, "/([$termchar]+)/u", $beforesubstr);
-                $cnt = 0;
-                if (count($termsbefore) != 0)
-                    $cnt = count($termsbefore[1]);
-                
+                $cnt = $this->get_term_count_before($string, $tm[1], $termchar);
                 $pos = 2 * $cnt + (int) $record['SeFirstPos'];
                 $txt = $tm[0];
 
@@ -623,6 +617,14 @@ class Parser {
 
         }  // next sentence
 
+    }
+
+    private function get_term_count_before($string, $pos, $termchar): int {
+        $beforesubstr = mb_substr($string, 0, $pos - 1, 'UTF-8');
+        $termsbefore = $this->pregMatchCapture(true, "/([$termchar]+)/u", $beforesubstr);
+        if (count($termsbefore) != 0)
+            return count($termsbefore[1]);
+        return 0;
     }
 
 }
