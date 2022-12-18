@@ -473,10 +473,16 @@ class Parser {
             $method .= '_all';
         }
         
-        // echo "pattern: $pattern ; subject: $subject \n";
         $n = $method($pattern, $subject, $matchInfo, $flag, $offset);
-        // echo "matchinfo:\n";
-        // var_dump($matchInfo);
+
+                      if ($pattern == '/[^a-z](un gato)[^a-z]/ui') {
+                      echo "pregMatchCapture ====================\n";
+        echo "pattern: $pattern ; subject: $subject \n";
+        echo "matchinfo:\n";
+        var_dump($matchInfo);
+                      echo "end pregMatchCapture ====================\n";
+                      }
+
         $result = array();
         if ($n !== 0 && !empty($matchInfo)) {
             if (!$matchAll) {
@@ -613,10 +619,15 @@ class Parser {
             $string = ' ' . $record['SeText'] . ' ';
             $logme('"' . $string . '"');
 
-            $allmatches = $this->pregMatchCapture(true, $notermchar, " $string ");
-            $logme("allmatches -------------------");
-            $logdump($allmatches);
-            $logme("END allmatches -------------------");
+            $logme("allmatches[1] -------------------");
+            $rx = "/[^a-zA-ZÀ-ÖØ-öø-ȳáéíóúÁÉÍÓÚñÑ](un gato)[^a-zA-ZÀ-ÖØ-öø-ȳáéíóúÁÉÍÓÚñÑ]/ui";
+            $rx = "/[^a-z](un gato)[^a-z]/ui";
+            $allmatches = $this->pregMatchCapture(true, $rx, " $string ");
+            $logme($string);
+            $logme($rx);
+            $logme("");
+            $logdump($allmatches[1]);
+            $logme("END allmatches[1] -------------------");
 
 
             $last_pos = mb_strripos($string, $textlc, 0, 'UTF-8');
