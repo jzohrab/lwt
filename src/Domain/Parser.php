@@ -617,29 +617,6 @@ $logme("notermchar = $notermchar");
         $splitEachChar = $lang->isLgSplitEachChar();
         $termchar = $lang->getLgRegexpWordCharacters();
         
-        $whereSeIDRange = '';
-        if (! is_null($sentenceIDRange)) {
-            [ $lower, $upper ] = $sentenceIDRange;
-            $whereSeIDRange = "(SeID >= {$lower} AND SeID <= {$upper}) AND";
-        }
-        if ($removeSpaces == 1 && $splitEachChar == 0) {
-            $sql = "SELECT 
-        group_concat(Ti2Text ORDER BY Ti2Order SEPARATOR ' ') AS SeText, SeID, 
-        SeTxID, SeFirstPos 
-        FROM textitems2, sentences 
-        WHERE {$whereSeIDRange} SeID=Ti2SeID AND SeLgID = $lid AND Ti2LgID = $lid 
-        AND SeText LIKE LIKE concat('%', ?, '%') 
-        AND Ti2WordCount < 2 
-        GROUP BY SeID";
-        } else {
-            $sql = "SELECT * FROM sentences 
-        WHERE {$whereSeIDRange} SeLgID = $lid AND SeText LIKE concat('%', ?, '%')";
-        }
-        $logme($sql);
-
-        $params = [ 's', $textlc ];
-        $res = $this->exec_sql($sql, $params);
-        
         $wis = $textlc;
 
         $notermchar = "/[^$termchar]({$textlc})[^$termchar]/ui";
@@ -729,7 +706,7 @@ $logme("notermchar = $notermchar");
                 $logme("last_pos is now: $last_pos");
             }
         }
-        mysqli_free_result($res);
+
     }
 
 }
