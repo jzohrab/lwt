@@ -37,45 +37,40 @@
    but that also felt somehow incorrect, since I'm already
    rendering this template from a controller that has all the data!
   #}
-  let update_reading_pane_elements = function() {
+  let update_reading_pane_elements = function(updates_dict) {
     {% for item in textitems %}
-      update_element(`{% include '/read/textitem.html.twig' %}`)
+    const content = `{% include '/read/textitem.html.twig' %}`;
+    const newel = $($.parseHTML(content));
+    const newid = newel.attr('id');
+    update_element(content, updates_dict[newid]);
     {% endfor %}
   }
   
-  let update_element = function(s) {
-    console.log(s);
-    var newel = $($.parseHTML(s));
+  let update_element = function(content, updates) {
+    const newel = $($.parseHTML(content));
     const newid = newel.attr('id');
-    console.log(`got element id = ${newel.attr('id')}`);
-    const length = parseInt(newel.attr('data_code'));
+    console.log(`got element id = ${newid}`);
 
-    // Changing things in the parent frame,
-    // so have to search there.
-    if (length == 1) {
-      console.log(`replacing ${newid} with content.`);
-      const repel = $(`#${newid}`, window.parent.document);
-      if (repel.length == 0) {
-        console.log(' ... couldnt find newid??');
-      }
-      else {
-        repel.replaceWith(s);
-      }
+    const replaceid = updates.replace;
+    const repel = $(`#${replaceid}`, window.parent.document);
+    if (repel.length == 0) {
+      console.log(` ... could not find ${replaceid} ?`);
+      return;
     }
-    else {
-      console.log(`multi-term element, trickier.`);
+    console.log(`replacing ${replaceid} with content.`);
+    repel.replaceWith(content);
+
+    const removeids = updates.hide;
+    for(let i = 0; i < removeids.length; i++) {
+      const delid = removeids[i];
+      $(`#${delid}`, window.parent.document).remove();
     }
   }
 
   top.frames.dictframe.location.href = '/read/empty';
 
   $(document).ready(function() {
-    const updates = {{ updates | raw }};
-    for (const [spanid, data] of Object.entries(updates)) {
-      console.log(spanid);
-      console.log(data.replace);
-      console.log(data.hide);
-    };
-    update_reading_pane_elements();
+    const updates_by_spanid = {{ updates | raw }};
+    update_reading_pane_elements(updates_by_spanid);
   });
 </script>
