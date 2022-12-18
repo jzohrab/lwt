@@ -52,9 +52,6 @@ class TermRepository extends ServiceEntityRepository
         $params = [
             "text" => $entity->getTextLC()
         ];
-        echo "\n\nRUNNING QUERY: $updateti2sql \n";
-        echo "with params: \n";
-        echo implode(';', $params);
         $this->getEntityManager()
             ->getConnection()
             ->executeQuery($updateti2sql, $params);
