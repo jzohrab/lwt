@@ -11,7 +11,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\HttpKernel\Profiler\Profiler;
 
 #[Route('/read')]
 class ReadingController extends AbstractController
@@ -64,21 +63,14 @@ class ReadingController extends AbstractController
         $text,
         Request $request,
         TermRepository $termRepository,
-        TextRepository $textRepository,
-        ?Profiler $profiler): Response
+        TextRepository $textRepository
+    ): Response
     {
         // The $text is set to '-' if there *is* no text,
         // b/c otherwise the route didn't work.
         if ($text == '-')
             $text = '';
         $term = $termRepository->load($wid, $textid, $ord, $text);
-
-        // Hide the symfony profiler on the form footer,
-        // because it takes up half of the iframe!
-        // ref https://symfony.com/doc/current/profiler.html#enabling-the-profiler-conditionally
-        if (null !== $profiler) {
-            $profiler->disable();
-        }
 
         $form = $this->createForm(TermType::class, $term);
         $form->handleRequest($request);

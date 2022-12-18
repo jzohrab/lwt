@@ -45,11 +45,11 @@ class TermRepository extends ServiceEntityRepository
         if ($entity->getID() == null)
             throw new \Exception("associateTextItems can't be set for null ID (" . $entity->getText() . ")");
 
+        $woid = $entity->getID();
+        $lgid = $entity->getLanguage()->getLgID();
         $updateti2sql = "UPDATE textitems2
-              SET Ti2WoID = :woid WHERE Ti2WoID = 0 AND Ti2LgID = :lgid AND Ti2TextLC = :text";
+              SET Ti2WoID = {$woid} WHERE Ti2WoID = 0 AND Ti2LgID = {$lgid} AND Ti2TextLC = :text";
         $params = [
-            "woid" => $entity->getID(),
-            "lgid" => $entity->getLanguage()->getLgID(),
             "text" => $entity->getTextLC()
         ];
         $this->getEntityManager()

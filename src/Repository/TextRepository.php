@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Text;
 use App\Entity\Sentence;
 use App\Entity\TextItem;
+use App\Domain\Parser;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -40,7 +41,7 @@ class TextRepository extends ServiceEntityRepository
         }
     }
 
-    public function save(Text $entity, bool $flush = false): void
+    public function save(Text $entity, bool $flush = false, bool $parseTexts = true): void
     {
         $this->getEntityManager()->persist($entity);
 
@@ -50,7 +51,11 @@ class TextRepository extends ServiceEntityRepository
 
             if (! $entity->isArchived() ) {
                 $langid = $entity->getLanguage()->getLgID();
-                splitCheckText($entity->getText(), $langid, $entity->getID());
+
+                if ($parseTexts) {
+                    Parser::parse($entity);
+                }
+
                 $this->refreshStatsCache();
             }
         }

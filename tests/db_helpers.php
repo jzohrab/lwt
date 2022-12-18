@@ -112,7 +112,7 @@ you must use a dedicated test database when running tests.
             // "settings",  // Keep these????
             "tags",
             "tags2",
-            "temptextitems",
+            // "temptextitems",  // is dropped and re-created as needed.
             "tempwords",
             "textitems2",
             "texts",

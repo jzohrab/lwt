@@ -97,13 +97,14 @@
     "squizlabs/php_codesniffer": "Following code style standards is a good thing"
   },
   "scripts": {
+    "class": "./devscripts/entityInterface.sh",
     "todo:list": "composer find TODO",
     "todo:types": "composer find TODO | grep TODO | sed -E 's/.*(TODO[^ ]*).*/\\1/' | sort | uniq",
     "db:which": "grep ^\\$dbname connect.inc.php",
     "db:migrate": "php db/migrate.php",
     "db:newscript": "php db/create_migration_script.php",
-    "test": "./bin/phpunit -c phpunit.xml.dist",
-    "testgroup": "./bin/phpunit -c phpunit.xml.dist --group ",
+    "test": "SYMFONY_DEPRECATIONS_HELPER=disabled ./bin/phpunit -c phpunit.xml.dist",
+    "testgroup": "SYMFONY_DEPRECATIONS_HELPER=disabled ./bin/phpunit -c phpunit.xml.dist --group ",
     "find": "./devscripts/findstring.sh",
     "testdata": "LOAD_LOTS_OF_TEST_DATA=1 ./bin/phpunit -c phpunit.xml.dist tests/LoadTestData_Test.php",
     "nukecache": [
@@ -136,6 +137,7 @@
     
   },
   "scripts-descriptions": {
+    "class": "Show public interface methods of class",
     "todo:list": "Show code todos",
     "todo:types": "show types of todos",
     "db:migrate": "Run db migrations.",

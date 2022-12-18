@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Repository\TextRepository;
+use App\Domain\Parser;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -37,6 +38,10 @@ class IndexController extends AbstractController
             $error = "Cannot find file: connect.inc.php." .
                    " Please create the file from connect.inc.php.example.";
         }
+        elseif (!Parser::load_local_infile_enabled()) {
+            $error = "SELECT @@GLOBAL.local_infile must be 1, check your mysql configuration.";
+        }
+
         if ($error != '') {
             return $this->render('index_error.html.twig', [
                 'error' => $error,

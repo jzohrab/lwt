@@ -2668,7 +2668,7 @@ function mask_term_in_sentence_v2($s): string
  */
 function repl_tab_nl($s) 
 {
-    $s = str_replace(array("\r\n", "\r", "\n", "\t"), ' ', $s);
+    $s = str_replace(array("\r\n", "\r", "\n", "\t"), ' ', $s ?? '');
     $s = preg_replace('/\s/u', ' ', $s);
     $s = preg_replace('/\s{2,}/u', ' ', $s);
     return trim($s);
