@@ -121,7 +121,9 @@ final class Parser_Test extends DatabaseTestBase
         DbHelpers::assertTableContains($sql, $expected);
     }
 
-
+    /**
+     * @group current
+     */
     public function test_text_contains_same_term_many_times()
     {
         $spid = $this->spanish->getLgID();
@@ -206,9 +208,6 @@ final class Parser_Test extends DatabaseTestBase
         $this->assertEquals(1, 1, 'ok');
     }
 
-    /**
-     * @group current
-     */
     public function test_verify_regexes_split_each() {
         $t = new Text();
         $t->setTitle("Hacky");

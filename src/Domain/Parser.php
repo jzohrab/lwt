@@ -96,6 +96,9 @@ class Parser {
     }
 
 
+    // TODO:obsolete - currently running this in parallel with the
+    // newer method below it.  Can delete in the future after have
+    // done some more imports.
     /**
      * @param string $text Text to clean, using regexs.
      */
@@ -105,7 +108,6 @@ class Parser {
 
         $text = $entity->getText();
 
-        // TODO:parsing replace fix the preg_ query mapping mess.
         // Initial cleanup.
         $text = str_replace("\r\n", "\n", $text);
         // because of sentence special characters
@@ -289,6 +291,10 @@ class Parser {
         fwrite($fp, $text);
         fclose($fp);
 
+        echo "\n";
+        echo $text;
+        echo "\n";
+
         $this->conn->query("SET @order=0, @sid=0, @count=0");
         // TODO:parsing - fix the text file to be loaded so it already has
         // order, sid, and count ... no need for this query to have more
@@ -301,7 +307,7 @@ $sql = "LOAD DATA LOCAL INFILE '{$file_name}'
         FIELDS TERMINATED BY '\\t' LINES TERMINATED BY '\\n' (@word_count, @term)
         SET
             TiSeID = @sid,
-            TiCount = (@count:=@count+CHAR_LENGTH(@term))+1-CHAR_LENGTH(@term),
+            TiCount = 0,
             TiOrder = IF(
                 @term LIKE '%\\r',
                 CASE
@@ -315,16 +321,11 @@ $sql = "LOAD DATA LOCAL INFILE '{$file_name}'
             TiText = @term,
             TiWordCount = @word_count";
 
-// $this->conn->execute($sql);
-
-//Try to execute query (not stmt) and catch mysqli error from engine and php error
-if (!($stmt = $this->conn->query($sql))) {
-    $msg = "Query execute failed: ERRNO: (" . $this->conn->errno . ") " . $this->conn->error;
-    throw new \Exception($msg);
-};
+        if (!($this->conn->query($sql))) {
+            $msg = "Query execute failed: ERRNO: (" . $this->conn->errno . ") " . $this->conn->error;
+            throw new \Exception($msg);
+        };
         unlink($file_name);
-
-        return null;
     }
 
 
