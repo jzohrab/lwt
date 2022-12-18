@@ -95,6 +95,20 @@ class Parser {
      */
     private function parse_standard_text(Text $entity): ?array
     {
+        // A (possibly) easier way to do substitutions -- each
+        // pair in $replacements is run in order.
+        $do_replacements = function($text, $replacements) {
+            foreach($replacements as $r) {
+                [ $src, $tgt ] = $r;
+                if (substr($src, 0, 1) == '/') {
+                    $text = preg_replace($src, $tgt, $text);
+                }
+                else {
+                    $text = str_replace($src, $tgt, $text);
+                }
+            }
+            return $text;
+        };
 
         $debugtext = function($s, $text) {
             echo "\n{$s} ------------------------\n\n";
@@ -114,7 +128,12 @@ class Parser {
         // Initial cleanup.
         $text = str_replace("\r\n", "\n", $text);
         // because of sentence special characters
-        $text = str_replace(array('}','{'), array(']','['), $text);
+        // $text = str_replace(array('}','{'), array(']','['), $text);
+        $text = $do_replacements($text, [
+            ['}', ']'],
+            ['{', '[']
+        ]);
+        // $text = str_replace(...$rmap([['}', ']'], ['{', '[']], $text));
         $debugtext("brackets", $text);
         
         $replace = explode("|", $lang->getLgCharacterSubstitutions());
