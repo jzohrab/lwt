@@ -20,7 +20,10 @@ class Sentence_getRenderableTextItems_Test extends TestCase
             return $t;
         };
         $textItems = array_map($makeTextItem, $data);
-        return new Sentence(1, $textItems);
+
+        $s = new Sentence(1, $textItems);
+        $this->sentence = $s;
+        return $s;
     }
 
 
@@ -75,6 +78,34 @@ class Sentence_getRenderableTextItems_Test extends TestCase
         ];
         $expected = '[some-1][ -0][data here-2][.-0]';
         $this->assertRenderableEquals($data, $expected);
+    }
+
+    /**
+     * @group current
+     */
+    public function test_multiword_textitem_indicates_which_items_it_covers()
+    {
+        $data = [
+            [ 1, 'some', 1 ],
+            [ 5, 'here', 1 ],
+            [ 4, ' ', 0 ],
+            [ 3, 'data', 1 ],
+            [ 2, ' ', 0 ],
+            [ 3, 'data here', 2 ],  // <<<
+            [ 6, '.', 0 ]
+        ];
+        $expected = '[some-1][ -0][data here-2][.-0]';
+        $this->assertRenderableEquals($data, $expected);
+
+        $textitems = $this->sentence->getTextItems();
+        $this->assertEquals(count($textitems), 7, "all text items returned");
+        $mwords = array_filter($textitems, fn($t) => ($t->Text == 'data here'));
+        $mword = array_values($mwords)[0];
+
+        $this->assertEquals($mword->Text, 'data here', 'sanity check, ensure got the entry back');
+        $hides = array_map(fn($t) => $t->Order . '_' . $t->Text, $mword->hides);
+        sort($hides);
+        $this->assertEquals(implode(', ', $hides), '3_data, 4_ , 5_here');
     }
 
 
