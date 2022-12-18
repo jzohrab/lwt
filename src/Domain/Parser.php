@@ -639,11 +639,32 @@ array(3) {
             $logme("END allmatches[1] -------------------");
 
                       foreach($termmatches as $tm) {
+                      $logme("termmatch ----------------------------");
                       $logme("termmatch = ");
                       $logdump($tm);
-$before = mb_substr($string, 0, $tm[1] - 1, 'UTF-8');
-                      $logme("before = \"" . $before . "\"");
-                      }
+$beforesubstr = mb_substr($string, 0, $tm[1] - 1, 'UTF-8');
+                      $logme("before = \"" . $beforesubstr . "\"");
+
+                    // Number of terms before group
+                    $logme("Checking count of terms in: $beforesubstr");
+                    $before = $this->pregMatchCapture(true, "/([$termchar]+)/u", $beforesubstr);
+                    $cnt = null;
+                    if (count($before) == 0) {
+                        // Term is at start of sentence.
+                        $cnt = 0;
+                    }
+                    else {
+                        $cnt = count($before[1]);
+                    }
+                
+                    $pos = 2 * $cnt + (int) $record['SeFirstPos'];
+                    // $txt = $textlc;
+                
+                    $txt = $tm[0];
+                    $logme("Got count = $cnt, pos = $pos, txt = $txt");
+
+                      $logme("END termmatch ----------------------------");
+                      } // end foreach termmatches
 
             $last_pos = mb_strripos($string, $textlc, 0, 'UTF-8');
             if ($last_pos === false) {
