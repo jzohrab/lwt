@@ -181,6 +181,7 @@ class Parser {
             "SET @order=0, @sid=0, @count=0;"
         );
 
+        // TODO:parsing Drop the temp table and re-create it.
         $file_name = mysqli_real_escape_string($this->conn, $file_name);
         $sql = "LOAD DATA LOCAL INFILE $file_name
         INTO TABLE temptextitems
