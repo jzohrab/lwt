@@ -252,7 +252,17 @@ class Parser {
 
         // TODO:parsing replace fix the preg_ query mapping mess.
 
-        // because of sentence special characters
+        $splitSentencecallback = function($matches) use ($lang) {
+            $notEnd = $lang->getLgExceptionsSplitSentences();
+            return $this->find_latin_sentence_end($matches, $notEnd);
+        };
+
+        $splitSentence = $lang->getLgRegexpSplitSentences();
+        $resplitsent = "/(\S+)\s*((\.+)|([$splitSentence]))([]'`\"”)‘’‹›“„«»』」]*)(?=(\s*)(\S+|$))/u";
+
+        $termchar = $lang->getLgRegexpWordCharacters();
+        $punctchars = "'`\"”)\]‘’‹›“„«»』」";
+        
         $text = $do_replacements($text, [
             [ "\r\n", "\n" ],
             [ '}', ']'],
@@ -260,61 +270,26 @@ class Parser {
             [ "\n", " ¶" ],
             [ '/([^\s])/u', "$1\t", $lang->isLgSplitEachChar() ],
             'trim',
-            [ '/\s+/u', ' ' ]
+            [ '/\s+/u', ' ' ],
+            [ $resplitsent, $splitSentencecallback ],
+            [ "¶", "¶\r" ],
+            [ " ¶", "\r¶" ],
+            [ '/([^' . $termchar . '])/u', "\n$1\n" ],
+            [ '/\n([' . $splitSentence . '][' . $punctchars . ']*)\n\t/u', "\n$1\n" ],
+            [ '/([0-9])[\n]([:.,])[\n]([0-9])/u', "$1$2$3" ],
+            [ "\t", "\n" ],
+            [ "\n\n", "" ],
+            [ "/\r(?=[]'`\"”)‘’‹›“„«»』」 ]*\r)/u", "" ],
+            [ '/[\n]+\r/u', "\r" ],
+            [ '/\r([^\n])/u', "\r\n$1" ],
+            [ "/\n[.](?![]'`\"”)‘’‹›“„«»』」]*\r)/u", ".\n" ],
+            [ "/(\n|^)(?=.?[$termchar][^\n]*\n)/u", "\n1\t" ],
+            'trim',
+            [ "/(\n|^)(?!1\t)/u", "\n0\t" ],
+            [ ' ', '', $lang->isLgRemoveSpaces() ]
         ]);
         
         $debugtext("current", $text);
-
-        $splitSentence = $lang->getLgRegexpSplitSentences();
-        $callback = function($matches) use ($lang) {
-            $notEnd = $lang->getLgExceptionsSplitSentences();
-            return $this->find_latin_sentence_end($matches, $notEnd);
-        };
-        $re = "/(\S+)\s*((\.+)|([$splitSentence]))([]'`\"”)‘’‹›“„«»』」]*)(?=(\s*)(\S+|$))/u";
-        $text = preg_replace_callback($re, $callback, $text);
-
-        // Para delims include \r
-        $text = str_replace(array("¶"," ¶"), array("¶\r","\r¶"), $text);
-
-        $termchar = $lang->getLgRegexpWordCharacters();
-        $punctchars = "'`\"”)\]‘’‹›“„«»』」";
-        $text = preg_replace(
-            array(
-                '/([^' . $termchar . '])/u',
-                '/\n([' . $splitSentence . '][' . $punctchars . ']*)\n\t/u',
-                '/([0-9])[\n]([:.,])[\n]([0-9])/u'
-            ),
-            array("\n$1\n", "$1", "$1$2$3"),
-            $text
-        );
-
-        $text = str_replace(array("\t","\n\n"), array("\n",""), $text);
-
-        $text = preg_replace(
-                array(
-                    "/\r(?=[]'`\"”)‘’‹›“„«»』」 ]*\r)/u",
-                    '/[\n]+\r/u',
-                    '/\r([^\n])/u',
-                    "/\n[.](?![]'`\"”)‘’‹›“„«»』」]*\r)/u",
-                    "/(\n|^)(?=.?[$termchar][^\n]*\n)/u"
-                ),
-                array(
-                    "",
-                    "\r",
-                    "\r\n$1",
-                    ".\n",
-                    "\n1\t"
-                ),
-                $text
-        );
-
-        $text = trim($text);
-
-        $text = preg_replace("/(\n|^)(?!1\t)/u", "\n0\t", $text);
-
-        if ($lang->isLgRemoveSpaces()) {
-            $text = str_replace(' ', '', $text);
-        }
 
         return $text;
     }
