@@ -19,6 +19,13 @@ class ExpressionUpdater {
         $eu->loadExpressionsForText($text);
     }
 
+    public static function associateTermTextItems(Term $term) {
+        if ($term->getTextLC() != null && $term->getID() == null)
+            throw new \Exception("Term {$term->getTextLC()} is not saved.");
+        $eu = new ExpressionUpdater();
+        $eu->associate_term_with_existing_texts($term);
+    }
+
     public function __construct()
     {
         global $userid, $passwd, $server, $dbname; // From connect.inc.php
@@ -44,14 +51,7 @@ class ExpressionUpdater {
         return $stmt->get_result();
     }
  
-    /**
-     * Move data from temptextitems to final tables.
-     * 
-     * @param int    $id  New default text ID
-     * @param int    $lid New default language ID
-     * 
-     * @return void
-     */
+
     private function loadExpressionsForText(Text $text)
     {
         $id = $text->getID();
@@ -77,7 +77,27 @@ class ExpressionUpdater {
                 $sentenceRange);
         }
         mysqli_free_result($res);
+    }
 
+
+    private function associate_term_with_existing_texts(Term $term)
+    {
+        if ($term->getWordCount() == 1) {
+            $woid = $term->getID();
+            $lgid = $term->getLanguage()->getLgID();
+            $updateti2sql = "UPDATE textitems2
+              SET Ti2WoID = {$woid} WHERE Ti2WoID = 0 AND Ti2LgID = {$lgid} AND Ti2TextLC = ?";
+            $params = array("s", $term->getTextLC());
+            $this->exec_sql($updateti2sql, $params);
+        }
+        else {
+            $this->insertExpressions(
+                $term->getTextLC(),
+                $term->getLanguage(),
+                $term->getID(),
+                $term->getWordCount()
+            );
+        }
     }
 
 
@@ -97,6 +117,10 @@ class ExpressionUpdater {
         $textlc, Language $lang, $wid, $len, $sentenceIDRange = NULL
     )
     {
+        if ($len < 2) {
+            throw new \Exception("Only call this for multi-word terms.");
+        }
+
         $splitEachChar = $lang->isLgSplitEachChar();
         if ($splitEachChar) {
             $textlc = preg_replace('/([^\s])/u', "$1 ", $textlc);

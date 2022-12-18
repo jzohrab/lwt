@@ -4,6 +4,8 @@ namespace App\Repository;
 
 use App\Entity\Term;
 use App\Entity\Language;
+use App\Domain\ExpressionUpdater;
+
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -44,17 +46,7 @@ class TermRepository extends ServiceEntityRepository
             return;
         if ($entity->getID() == null)
             throw new \Exception("associateTextItems can't be set for null ID (" . $entity->getText() . ")");
-
-        $woid = $entity->getID();
-        $lgid = $entity->getLanguage()->getLgID();
-        $updateti2sql = "UPDATE textitems2
-              SET Ti2WoID = {$woid} WHERE Ti2WoID = 0 AND Ti2LgID = {$lgid} AND Ti2TextLC = :text";
-        $params = [
-            "text" => $entity->getTextLC()
-        ];
-        $this->getEntityManager()
-            ->getConnection()
-            ->executeQuery($updateti2sql, $params);
+        ExpressionUpdater::associateTermTextItems($entity);
     }
 
     /**
