@@ -93,15 +93,17 @@ class ReadingController extends AbstractController
                 $replace_id = $item->getSpanID();
                 if (count($hide_ids) > 0)
                     $replace_id = $hide_ids[0];
-                $el = $this->renderView('/read/textitem.html.twig', [ 'item' => $item ]);
                 $u = [
-                    'newelement' => $el,
                     'replace' => $replace_id,
                     'hide' => $hide_ids
                 ];
                 $update_js[ $item->getSpanID() ] = $u;
             }
 
+            // The updates are encoded here, and decoded in the
+            // twig javascript.  Thanks to
+            // https://stackoverflow.com/questions/38072085/
+            //   how-to-render-json-into-a-twig-in-symfony2
             return $this->render('read/updated.html.twig', [
                 'term' => $term,
                 'textitems' => $updateitems,

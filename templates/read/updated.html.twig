@@ -58,12 +58,11 @@
   top.frames.dictframe.location.href = '/read/empty';
 
   $(document).ready(function() {
-    const updates = $.parseJSON('{{ updates | raw }}');
+    const updates = {{ updates | raw }};
     for (const [spanid, data] of Object.entries(updates)) {
       console.log(spanid);
-      console.log(data.newelement);
-      console.log(data.newelement);
-      console.log(data.newelement);
+      console.log(data.replace);
+      console.log(data.hide);
     };
     update_reading_pane_elements();
   });
