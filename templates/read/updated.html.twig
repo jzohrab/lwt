@@ -5,7 +5,14 @@
 <p>Terms:</p>
 <div>
   {% for item in textitems %}
-  {% include '/read/textitem.html.twig' %}
+  <hr />
+  <p>{{ item.WoID }}, {{ item.Text }} %}</p>
+  <p>Hides:</p>
+  <ul>
+    {% for hidden in item.hides %}
+    <li>{{ hidden.WoID }}, {{ hidden.Text }} %}</li>
+    {% endfor %}
+  </ul>
   {% endfor %}
 </div>
 

@@ -77,10 +77,16 @@ class ReadingController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $termRepository->save($term, true);
             $textentity = $textRepository->find($textid);
-            $textitems = $textRepository->getTextItems($textentity, $term->getID());
+            $rawtextitems = $textRepository->getTextItems($textentity);
+
+            // Use a sentence to determine which items hide which other items.
+            $sentence = new Sentence($seid, $rawtextitems);
+            $textitems = $sentence->getTextItems();
+            $updateitems = array_filter($textitems, fn($t) => $t->WoID == $term->getID());
+
             return $this->render('read/updated.html.twig', [
                 'term' => $term,
-                'textitems' => $textitems
+                'textitems' => $updatetextitems
             ]);
         }
 
