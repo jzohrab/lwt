@@ -3,6 +3,7 @@
 namespace App\Domain;
 
 use App\Entity\Text;
+use App\Entity\Language;
 
 require_once __DIR__ . '/../../connect.inc.php';
 
@@ -407,7 +408,9 @@ if (!($stmt = $this->conn->query($sql))) {
      *
      * @psalm-return array{0: array<int, mixed|string>, 1: list<string>}
      */
-    private function insert_standard_expression(Language $lang, $textlc, $wid, $len, $sentenceIDRange): array
+    private function insert_standard_expression(
+        Language $lang, $textlc, $wid, $len, $sentenceIDRange
+    )
     {
         $lid = $lang->getLgID();
 
@@ -529,9 +532,9 @@ if (!($stmt = $this->conn->query($sql))) {
                     $params = array(
                         "iiiiiis",
                         $wid, $lid, $record['SeTxID'], $record['SeID'], $pos, $len, $txt);
-                    $this->conn->query($sql, $params);
-
-                    $logme("-----------------\nadded entry: $entry \n-----------------");
+                    $this->exec_sql($sql, $params);
+                    $pstring = implode(',', $params);
+                    $logme("-----------------\nadded entry: {$pstring} \n-----------------");
                 }
                 // Cut the sentence to before the right-most term starts
                 $string = mb_substr($string, 0, $last_pos, 'UTF-8');
