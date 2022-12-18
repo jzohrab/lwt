@@ -308,7 +308,7 @@ class Parser {
         // logic.
 
         $file_name = mysqli_real_escape_string($this->conn, $file_name);
-$sql = "LOAD DATA LOCAL INFILE '{$file_name}'
+        $sql = "LOAD DATA LOCAL INFILE '{$file_name}'
         INTO TABLE temptextitems
         FIELDS TERMINATED BY '\\t' LINES TERMINATED BY '\\n' (@word_count, @term)
         SET
