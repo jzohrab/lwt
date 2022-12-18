@@ -78,8 +78,17 @@ class Parser {
             // https://github.com/HugoFara/lwt/blob/master/inc/database_connect.php
         }
 
+        // TODO: get rid of duplicate processing.
         $cleantext = $this->legacy_clean_standard_text($text);
-        $this->load_temptextitems($cleantext);
+        $newcleantext = $this->new_clean_standard_text($text);
+        if ($cleantext != $newcleantext) {
+            echo "Legacy\n:";
+            echo $cleantext . "\n\n";
+            echo "New\n:";
+            echo $newcleantext . "\n\n";
+            throw new \Exception("not equal cleaning?");
+        }
+        $this->load_temptextitems($newcleantext);
 
         $this->import_temptextitems($text);
 
