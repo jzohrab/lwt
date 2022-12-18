@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Text;
 use App\Entity\Sentence;
 use App\Entity\TextItem;
+use App\Domain\Parser;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -51,9 +52,8 @@ class TextRepository extends ServiceEntityRepository
             if (! $entity->isArchived() ) {
                 $langid = $entity->getLanguage()->getLgID();
 
-                // TODO:parsing Change to new module when ready.
                 if ($parseTexts) {
-                    splitCheckText($entity->getText(), $langid, $entity->getID());
+                    Parser::parse($entity);
                 }
 
                 $this->refreshStatsCache();
