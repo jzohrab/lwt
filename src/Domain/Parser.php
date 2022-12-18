@@ -95,16 +95,21 @@ class Parser {
      */
     private function parse_standard_text(Text $entity): ?array
     {
+
+        $debugtext = function($s, $text) {
+            echo "\n{$s} ------------------------\n\n";
+            echo str_replace(
+                array("\n", "¶", ' '),
+                array("<NEWLINE>\n", "<P-NEWLINE>\n", '<SPC>'),
+                $text);
+            echo "\n";
+        };
+
         $lang = $entity->getLanguage();
 
         $text = $entity->getText();
+        $debugtext('initial', $text);
 
-        $debugtext = function($s, $text) {
-            echo "\n{$s} ------------------------\n";
-            echo $text;
-            echo "\n\n";
-        };
-        
         // TODO:parsing replace fix the preg_ query mapping mess.
         // Initial cleanup.
         $text = str_replace("\r\n", "\n", $text);
