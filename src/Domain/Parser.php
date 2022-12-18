@@ -475,14 +475,6 @@ class Parser {
         
         $n = $method($pattern, $subject, $matchInfo, $flag, $offset);
 
-                      if ($pattern == '/[^a-z](un gato)[^a-z]/ui') {
-                      echo "pregMatchCapture ====================\n";
-        echo "pattern: $pattern ; subject: $subject \n";
-        echo "matchinfo:\n";
-        var_dump($matchInfo);
-                      echo "end pregMatchCapture ====================\n";
-                      }
-
         $result = array();
         if ($n !== 0 && !empty($matchInfo)) {
             if (!$matchAll) {
@@ -511,7 +503,7 @@ class Parser {
 
 
     private function get_sentences_containing_textlc(
-        Language $lang, $textlc, $sentenceIDRange, $logme
+        Language $lang, $textlc, $sentenceIDRange
     ) {
 
         $lid = $lang->getLgID();
@@ -547,7 +539,6 @@ class Parser {
 
         while ($record = mysqli_fetch_assoc($res)) {
             $string = ' ' . $record['SeText'] . ' ';
-            $logme('"' . $string . '"');
             if ($splitEachChar) {
                 $string = preg_replace('/([^\s])/u', "$1 ", $string);
             } else if ($removeSpaces == 1) {
@@ -563,7 +554,6 @@ class Parser {
                 }
             }
             $last_pos = mb_strripos($string, $textlc, 0, 'UTF-8');
-            $logme("last_pos = $last_pos, notermchar = $notermchar");
 
             // For each occurence of query in sentence
             if ($last_pos !== false) {
@@ -587,30 +577,9 @@ class Parser {
         Language $lang, $textlc, $wid, $len, $sentenceIDRange
     )
     {
-        echo "\n\n\nTERM: $textlc \n\n\n";
-
         $lid = $lang->getLgID();
 
-        // DEBUGGING HELPER FOR FUTURE, because this code is brutal and
-        // needs to be completely replaced, but I need to understand it
-        // first.
-        // Change $problemterm to the term that's not getting handled
-        // correctly.  e.g.,
-        // $problemterm = mb_strtolower('de refilón');
-        $problemterm = mb_strtolower('un gato');
-        $logme = function($s) {};
-        $logdump = function($s) {};
-        if (true || $textlc == $problemterm) {
-            $logme = function($s) { echo "{$s}\n"; };
-            $logdump = function($s) { var_dump($s); };
-            $logme("\n\n================");
-            $r = implode(', ', $sentenceIDRange);
-            // $logme("match problem term = $problemterm");
-            $logme("Starting search for $textlc, lid = $lid, wid = $wid, len = $len, range = {$r}");
-        }
-
-        $sentences = $this->get_sentences_containing_textlc($lang, $textlc, $sentenceIDRange, $logme);
-        $logdump($sentences);
+        $sentences = $this->get_sentences_containing_textlc($lang, $textlc, $sentenceIDRange);
 
         $removeSpaces = $lang->isLgRemoveSpaces();
         $splitEachChar = $lang->isLgSplitEachChar();
@@ -620,75 +589,35 @@ class Parser {
         $matches = null;
         foreach ($sentences as $record) {
             $string = ' ' . $record['SeText'] . ' ';
-            echo ">>>>>>>>" . $string . "\n";
-            echo ">>>>>>>>" . $textlc . "\n";
-            echo "\n\n";
 
-            $logme('"' . $string . '"');
-
-            $logme("allmatches[1] -------------------");
-            // $rx = "/[^a-zA-ZÀ-ÖØ-öø-ȳáéíóúÁÉÍÓÚñÑ](un gato)[^a-zA-ZÀ-ÖØ-öø-ȳáéíóúÁÉÍÓÚñÑ]/ui";
-            // $rx = "/[^a-z](un gato)[^a-z]/ui";
             $rx = $notermchar;
-            $allmatches = $this->pregMatchCapture(true, $rx, " $string ");
-            $logme($string);
-            $logme($rx);
-            $logme("");
-            $logme("matches:");
-            $logdump($allmatches);
+            $allmatches = $this->pregMatchCapture(true, $notermchar, " $string ");
             $termmatches = [];
-            if (count($allmatches) > 0) {
+            if (count($allmatches) > 0)
                 $termmatches = $allmatches[1];
-            }
-            $logme("termmatch:");
-            $logdump($termmatches);
+            // Sample $termmatches data:
+            // array(3) { [0]=> array(2) { [0]=> string(7) "Un gato", [1]=> int(2) }, ... }
 
-                      /* Sample $termmatches data:
-array(3) {
-  [0]=> array(2) { [0]=> string(7) "Un gato", [1]=> int(2) }
-  [1]=> array(2) { [0]=> string(7) "un gato", [1]=> int(27) }
-  ...
-}
-                           */
-            $logme("END allmatches[1] -------------------");
-
-                      foreach($termmatches as $tm) {
-                      $logme("termmatch ----------------------------");
-                      $logme("termmatch = ");
-                      $logdump($tm);
-$beforesubstr = mb_substr($string, 0, $tm[1] - 1, 'UTF-8');
-                      $logme("before = \"" . $beforesubstr . "\"");
-
-                    // Number of terms before group
-                    $logme("Checking count of terms in: $beforesubstr");
-                    $before = $this->pregMatchCapture(true, "/([$termchar]+)/u", $beforesubstr);
-                    $cnt = null;
-                    if (count($before) == 0) {
-                        // Term is at start of sentence.
-                        $cnt = 0;
-                    }
-                    else {
-                        $cnt = count($before[1]);
-                    }
+            foreach($termmatches as $tm) {
+                // Number of terms before group
+                $beforesubstr = mb_substr($string, 0, $tm[1] - 1, 'UTF-8');
+                $termsbefore = $this->pregMatchCapture(true, "/([$termchar]+)/u", $beforesubstr);
+                $cnt = 0;
+                if (count($termsbefore) != 0)
+                    $cnt = count($termsbefore[1]);
                 
-                    $pos = 2 * $cnt + (int) $record['SeFirstPos'];
-                    // $txt = $textlc;
-                
-                    $txt = $tm[0];
-                    $logme("Got count = $cnt, pos = $pos, txt = $txt");
+                $pos = 2 * $cnt + (int) $record['SeFirstPos'];
+                $txt = $tm[0];
 
-                    $sql = "INSERT INTO textitems2
+                $sql = "INSERT INTO textitems2
                   (Ti2WoID,Ti2LgID,Ti2TxID,Ti2SeID,Ti2Order,Ti2WordCount,Ti2Text)
                   VALUES (?, ?, ?, ?, ?, ?, ?)";
-                    $params = array(
-                        "iiiiiis",
-                        $wid, $lid, $record['SeTxID'], $record['SeID'], $pos, $len, $txt);
-                    $this->exec_sql($sql, $params);
-                    $pstring = implode(',', $params);
-                    $logme("-----------------\nadded entry: {$pstring} \n-----------------");
+                $params = array(
+                    "iiiiiis",
+                    $wid, $lid, $record['SeTxID'], $record['SeID'], $pos, $len, $txt);
+                $this->exec_sql($sql, $params);
 
-                      $logme("END termmatch ----------------------------");
-                      } // end foreach termmatches
+            } // end foreach termmatches
 
         }  // next sentence
 
