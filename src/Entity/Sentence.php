@@ -35,15 +35,15 @@ class Sentence
     }
 
     /**
-     * Finding text items that should be rendered.
+     * Indicate which text items hide other items.
      *
      * Each text item has a "range", given as [ start_order, end_order ].
      * For example, for an item of WordCount = 1, the start and end are the same.
      * For item of WordCount 0, it's the same.
      * For WordCount n, [start, end] = [start, start + (2*n - 1)]
      *
-     * If any text item's range fully contains any other text item's range, the
-     * latter can be excluded.
+     * If any text item's range fully contains any other text item's range,
+     * that text item "hides" the other item.
      *
      * Graphically, suppose we had the following text items, where A-I are
      * WordCount 0 or WordCount 1, and J-M are multiwords:
@@ -53,11 +53,11 @@ class Sentence
      *                    |---L---|
      *        |-----M---|
      *
-     * J contains B and C, so B and C should not be rendered.
+     * J hides B and C, B and C should not be rendered.
      * 
-     * K contains E-I and also L, so none of those should be rendered.
+     * K hides E-I and also L, so none of those should be rendered.
      *
-     * M is _not_ contained by anything else, so it should be rendered.
+     * M is _not_ contained by anything else, so it is not hidden.
      */
     private function calculate_hides($items) {
         foreach($items as $ti) {
