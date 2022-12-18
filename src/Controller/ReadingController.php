@@ -105,7 +105,7 @@ class ReadingController extends AbstractController
             return $this->render('read/updated.html.twig', [
                 'term' => $term,
                 'textitems' => $updateitems,
-                'updates' => $update_js
+                'updates' => json_encode($update_js)
             ]);
         }
 
