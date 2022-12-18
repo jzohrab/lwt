@@ -79,14 +79,15 @@ class ReadingController extends AbstractController
             $textentity = $textRepository->find($textid);
             $rawtextitems = $textRepository->getTextItems($textentity);
 
-            // Use a sentence to determine which items hide which other items.
-            $sentence = new Sentence($seid, $rawtextitems);
+            // Use a temporary sentence to determine which items hide
+            // which other items.
+            $sentence = new Sentence(999, $rawtextitems);
             $textitems = $sentence->getTextItems();
             $updateitems = array_filter($textitems, fn($t) => $t->WoID == $term->getID());
 
             return $this->render('read/updated.html.twig', [
                 'term' => $term,
-                'textitems' => $updatetextitems
+                'textitems' => $updateitems
             ]);
         }
 
