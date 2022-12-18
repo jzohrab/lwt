@@ -160,9 +160,7 @@ final class Parser_Test extends DatabaseTestBase
 
     }
 
-    /**
-     * @group refactor
-     */
+
     public function test_text_same_sentence_contains_same_term_many_times()
     {
         $spid = $this->spanish->getLgID();
@@ -199,6 +197,49 @@ final class Parser_Test extends DatabaseTestBase
 
     }
 
+
+    // While using the legacy code, I ran into problems with specific sentences,
+    // and fixed them.  Porting those old tests here.
+    public function test_old_production_bugfixes()
+    {
+
+        $sentences = [
+            '¿Qué me dice si nos acercamos al bar de la plaza de Sarriá y nos marcamos dos bocadillos de tortilla con muchísima cebolla?',
+            'Un doctor de Cáceres le dijo una vez a mi madre que los Romero de Torres éramos el eslabón perdido entre el hombre y el pez martillo, porque el noventa por ciento de nuestro organismo es cartílago, mayormente concentrado en la nariz y en el pabellón auditivo.',
+            'En la mesa contigua, un hombre observaba a Fermín de refilón por encima del periódico, probablemente pensando lo mismo que yo.',
+            'Pese a todo lo que pasó luego y a que nos distanciamos con el tiempo, fuimos buenos amigos:',
+            'Tanto daba si había pasado el día trabajando en los campos o llevaba encima los mismos harapos de toda la semana.'
+            ];
+        $t = new Text();
+        $t->setTitle("Problemas.");
+        $t->setText(implode(' ', $sentences));
+        $t->setLanguage($this->spanish);
+        $this->text_repo->save($t, true, false);
+
+        $spid = $this->spanish->getLgID();
+        DbHelpers::add_word($spid, "Un gato", "un gato", 1, 2);
+        DbHelpers::add_word($spid, 'de refilón', 'de refilón', 1, 2);
+        DbHelpers::add_word($spid, 'Con el tiempo', 'con el tiempo', 1, 3);
+        DbHelpers::add_word($spid, 'pabellón auditivo', 'pabellón auditivo', 1, 2);
+        DbHelpers::add_word($spid, 'nos marcamos', 'nos marcamos', 1, 2);
+        DbHelpers::add_word($spid, 'Tanto daba', 'tanto daba', 1, 2);
+
+        Parser::parse($t);
+
+        $sql = "select ti2seid, ti2order, ti2text from textitems2
+          where ti2woid <> 0 order by ti2seid";
+        $expected = [
+            '1; 30; nos marcamos',
+            '2; 140; pabellón auditivo',
+            '3; 163; de refilón',
+            '4; 212; con el tiempo',
+            '5; 225; Tanto daba'
+        ];
+        DbHelpers::assertTableContains($sql, $expected);
+
+    }
+
+    /* "Tests" I was using to echo to console during debugging.
     public function test_verify_regexes() {
         $t = new Text();
         $t->setTitle("Hacky");
@@ -222,5 +263,6 @@ final class Parser_Test extends DatabaseTestBase
         Parser::parse($t);
         $this->assertEquals(1, 1, 'ok');
     }
+    */
 
 }
