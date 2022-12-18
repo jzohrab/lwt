@@ -504,6 +504,74 @@ class Parser {
     }
 
 
+    private function get_sentences_containing_textlc(
+        Language $lang, $textlc, $sentenceIDRange, $logme
+    ) {
+
+        $lid = $lang->getLgID();
+        $removeSpaces = $lang->isLgRemoveSpaces();
+        $splitEachChar = $lang->isLgSplitEachChar();
+        $termchar = $lang->getLgRegexpWordCharacters();
+
+        $whereSeIDRange = '';
+        if (! is_null($sentenceIDRange)) {
+            [ $lower, $upper ] = $sentenceIDRange;
+            $whereSeIDRange = "(SeID >= {$lower} AND SeID <= {$upper}) AND";
+        }
+        if ($removeSpaces == 1 && $splitEachChar == 0) {
+            $sql = "SELECT 
+        group_concat(Ti2Text ORDER BY Ti2Order SEPARATOR ' ') AS SeText, SeID, 
+        SeTxID, SeFirstPos 
+        FROM textitems2, sentences 
+        WHERE {$whereSeIDRange} SeID=Ti2SeID AND SeLgID = $lid AND Ti2LgID = $lid 
+        AND SeText LIKE LIKE concat('%', ?, '%') 
+        AND Ti2WordCount < 2 
+        GROUP BY SeID";
+        } else {
+            $sql = "SELECT * FROM sentences 
+        WHERE {$whereSeIDRange} SeLgID = $lid AND SeText LIKE concat('%', ?, '%')";
+        }
+        $logme($sql);
+
+        $params = [ 's', $textlc ];
+        $res = $this->exec_sql($sql, $params);
+
+        $result = [];
+
+        $notermchar = "/[^$termchar]({$textlc})[^$termchar]/ui";
+        // For each sentence in the language containing the query
+        $matches = null;
+        while ($record = mysqli_fetch_assoc($res)) {
+            $string = ' ' . $record['SeText'] . ' ';
+            $logme('"' . $string . '"');
+            if ($splitEachChar) {
+                $string = preg_replace('/([^\s])/u', "$1 ", $string);
+            } else if ($removeSpaces == 1) {
+                $ma = $this->pregMatchCapture(
+                    false,
+                    '/(?<=[ ])(' . preg_replace('/(.)/ui', "$1[ ]*", $textlc) . 
+                    ')(?=[ ])/ui', 
+                    $string
+                );
+                if (!empty($ma[1])) {
+                    $textlc = trim($ma[1]);
+                    $notermchar = "/[^$termchar]({$textlc})[^$termchar]/ui";
+                }
+            }
+            $last_pos = mb_strripos($string, $textlc, 0, 'UTF-8');
+            $logme("last_pos = $last_pos, notermchar = $notermchar");
+
+            // For each occurence of query in sentence
+            if ($last_pos !== false) {
+                $result[] = $record;
+            }
+        }
+        mysqli_free_result($res);
+
+        return $result;
+    }
+
+
     /**
      * Insert an expression without using a tool like MeCab.
      *
@@ -534,7 +602,10 @@ class Parser {
             $r = implode(', ', $sentenceIDRange);
             $logme("Starting search for $textlc, lid = $lid, wid = $wid, len = $len, range = {$r}");
         }
-        
+
+        $sentences = $this->get_sentences_containing_textlc($lang, $textlc, $sentenceIDRange, $logme);
+        $logdump($sentences);
+
         $appendtext = array();
         $sqlarr = array();
 
