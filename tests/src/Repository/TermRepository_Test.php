@@ -258,7 +258,16 @@ final class TermRepository_Test extends DatabaseTestBase
         $t->setText("tengo");
         $this->term_repo->save($t, true);
 
-        DbHelpers::assertTableContains($sql, [ "{$t->getID()}; 1; 1; tengo" ], "associated spanish text");
+        $expected = [ "{$t->getID()}; 1; 1; tengo" ];
+        DbHelpers::assertTableContains($sql, $expected, "associated spanish text");
+
+        $t = new Term();
+        $t->setLanguage($this->spanish);
+        $t->setText("un gato");
+        $this->term_repo->save($t, true);
+
+        $expected[] = "{$t->getID()}; 1; 2; un gato";
+        DbHelpers::assertTableContains($sql, $expected, "associated multi-word term");
     }
 
     /* Tests
