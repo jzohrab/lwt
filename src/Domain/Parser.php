@@ -58,7 +58,7 @@ class Parser {
 
         $id = $text->getID();
         $cleanup = [
-            "TRUNCATE TABLE temptextitems",
+            "DROP TABLE IF EXISTS temptextitems",
             "DELETE FROM sentences WHERE SeTxID = $id",
             "DELETE FROM textitems2 WHERE Ti2TxID = $id"
         ];
@@ -92,7 +92,7 @@ class Parser {
 
         $this->import_temptextitems($text);
 
-        // $this->exec_sql("TRUNCATE TABLE temptextitems");
+        // $this->exec_sql("DROP TABLE IF EXISTS temptextitems");
     }
 
 
@@ -295,19 +295,24 @@ class Parser {
         echo $text;
         echo "\n";
 
+        $this->conn->query("drop table if exists temptextitems");
+
+        $sql = "create table temptextitems (
+          TiSeID int not null, TiOrder int not null, TiWordCount int not null, TiText varchar(250) not null
+        )";
+        $this->conn->query($sql);
+
         $this->conn->query("SET @order=0, @sid=0, @count=0");
         // TODO:parsing - fix the text file to be loaded so it already has
         // order, sid, and count ... no need for this query to have more
         // logic.
 
-        // TODO:parsing Drop the temp table and re-create it.
         $file_name = mysqli_real_escape_string($this->conn, $file_name);
 $sql = "LOAD DATA LOCAL INFILE '{$file_name}'
         INTO TABLE temptextitems
         FIELDS TERMINATED BY '\\t' LINES TERMINATED BY '\\n' (@word_count, @term)
         SET
             TiSeID = @sid,
-            TiCount = 0,
             TiOrder = IF(
                 @term LIKE '%\\r',
                 CASE
@@ -388,9 +393,9 @@ $sql = "LOAD DATA LOCAL INFILE '{$file_name}'
         $lastSeID = intval($rec['maxseid']);
     
         $addti2 = "INSERT INTO textitems2 (
-                Ti2LgID, Ti2TxID, Ti2WoID, Ti2SeID, Ti2Order, Ti2WordCount, Ti2Text
+                Ti2LgID, Ti2TxID, Ti2WoID, Ti2SeID, Ti2Order, Ti2WordCount, Ti2Text, Ti2TextLC
             )
-            select {$lid}, {$id}, WoID, TiSeID + {$firstSeID}, TiOrder, TiWordCount, TiText 
+            select {$lid}, {$id}, WoID, TiSeID + {$firstSeID}, TiOrder, TiWordCount, TiText, lower(TiText) 
             FROM temptextitems 
             left join words 
             on lower(TiText) = WoTextLC and TiWordCount>0 and WoLgID = {$lid} 
