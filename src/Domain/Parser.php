@@ -627,8 +627,23 @@ class Parser {
             $logme($rx);
             $logme("");
             $logdump($allmatches[1]);
+                      $termmatches = $allmatches[1];
+
+                      /* Sample $termmatches data:
+array(3) {
+  [0]=> array(2) { [0]=> string(7) "Un gato", [1]=> int(2) }
+  [1]=> array(2) { [0]=> string(7) "un gato", [1]=> int(27) }
+  ...
+}
+                           */
             $logme("END allmatches[1] -------------------");
 
+                      foreach($termmatches as $tm) {
+                      $logme("termmatch = ");
+                      $logdump($tm);
+$before = mb_substr($string, 0, $tm[1] - 1, 'UTF-8');
+                      $logme("before = \"" . $before . "\"");
+                      }
 
             $last_pos = mb_strripos($string, $textlc, 0, 'UTF-8');
             if ($last_pos === false) {
