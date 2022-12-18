@@ -78,7 +78,7 @@ class Parser {
             // https://github.com/HugoFara/lwt/blob/master/inc/database_connect.php
         }
 
-        // TODO: get rid of duplicate processing.
+        // TODO:future:2023/02/01 get rid of duplicate processing.
         $cleantext = $this->legacy_clean_standard_text($text);
         $newcleantext = $this->new_clean_standard_text($text);
         if ($cleantext != $newcleantext) {
@@ -305,7 +305,7 @@ class Parser {
         $this->conn->query($sql);
 
         $this->conn->query("SET @order=0, @sid=0, @count=0");
-        // TODO:parsing - fix the text file to be loaded so it already has
+        // TODO:fix? - fix the text file to be loaded so it already has
         // order, sid, and count ... no need for this query to have more
         // logic.
 
@@ -426,7 +426,7 @@ class Parser {
     /** Expressions **************************/
 
 
-    // TODO:parsing - sentence range feels redundant, but is used elsewhere when new expr defined and ll texts in language have to be updated.
+    // Note that sentence range feels redundant, but is used elsewhere when new expr defined and ll texts in language have to be updated.
     /**
      * Alter the database to add a new word
      *
