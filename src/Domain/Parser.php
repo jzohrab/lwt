@@ -124,18 +124,6 @@ class Parser {
         $text = $entity->getText();
         $debugtext('initial', $text);
 
-        // TODO:parsing replace fix the preg_ query mapping mess.
-        // Initial cleanup.
-        $text = str_replace("\r\n", "\n", $text);
-        // because of sentence special characters
-        // $text = str_replace(array('}','{'), array(']','['), $text);
-        $text = $do_replacements($text, [
-            ['}', ']'],
-            ['{', '[']
-        ]);
-        // $text = str_replace(...$rmap([['}', ']'], ['{', '[']], $text));
-        $debugtext("brackets", $text);
-        
         $replace = explode("|", $lang->getLgCharacterSubstitutions());
         foreach ($replace as $value) {
             $fromto = explode("=", trim($value));
@@ -147,7 +135,20 @@ class Parser {
         }
         $debugtext("substitutions", $text);
 
+        // TODO:parsing replace fix the preg_ query mapping mess.
+        // Initial cleanup.
+        $text = str_replace("\r\n", "\n", $text);
+        // because of sentence special characters
+        // $text = str_replace(array('}','{'), array(']','['), $text);
+        $text = $do_replacements($text, [
+            ['}', ']'],
+            ['{', '[']
+        ]);
+        $debugtext("brackets", $text);
+        
         $text = str_replace("\n", " ¶", $text);
+        $debugtext("p-newline", $text);
+
         $text = trim($text);
         if ($lang->isLgSplitEachChar()) {
             $text = preg_replace('/([^\s])/u', "$1\t", $text);
