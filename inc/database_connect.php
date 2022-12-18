@@ -613,7 +613,6 @@ function parse_japanese_text($text, $id): ?array
 
     runsql(
         "CREATE TEMPORARY TABLE IF NOT EXISTS temptextitems2 (
-            TiCount smallint(5) unsigned NOT NULL,
             TiSeID mediumint(8) unsigned NOT NULL,
             TiOrder smallint(5) unsigned NOT NULL,
             TiWordCount tinyint(3) unsigned NOT NULL,
@@ -636,7 +635,6 @@ function parse_japanese_text($text, $id): ?array
         (@term, @node_type, @third)
         SET 
         TiSeID = IF(@term_type=2 OR (@term='EOS' AND @third='7'), @sid:=@sid+1,@sid),
-        TiCount = (@count:= @count + CHAR_LENGTH(@term)) + 1 - CHAR_LENGTH(@term),
         TiOrder = IF(
             CASE
                 WHEN @third = '7' THEN IF(
@@ -672,14 +670,13 @@ function parse_japanese_text($text, $id): ?array
         }
         $term_type = 0;
         $count = 0;
-        $row = array(0, 0, 0, "", 0);
+        $row = array(0, 0, "", 0);
         foreach (explode(PHP_EOL, $mecabed) as $line) {
             list($term, $node_type, $third) = explode(mb_chr(9), $line);
             if ($term_type == 2 || $term == 'EOS' && $third == '7') {
                 $sid += 1;
             }
             $row[0] = $sid; // TiSeID
-            $row[1] = $count + 1; // TiCount
             $count += mb_strlen($term);
             $last_term_type = $term_type;
             if ($third == '7') {
@@ -694,14 +691,14 @@ function parse_japanese_text($text, $id): ?array
             }
             $order += (($term_type == 0) && ($last_term_type == 0)) + 
             !(($term_type == 1) && ($last_term_type == 1));
-            $row[2] = $order; // TiOrder
-            $row[3] = convert_string_to_sqlsyntax_notrim_nonull($term); // TiText
-            $row[4] = $term_type == 0 ? 1 : 0; // TiWordCount
+            $row[1] = $order; // TiOrder
+            $row[2] = convert_string_to_sqlsyntax_notrim_nonull($term); // TiText
+            $row[3] = $term_type == 0 ? 1 : 0; // TiWordCount
             $values[] = "(" . implode(",", $row) . ")";
         }
         do_mysqli_query(
             "INSERT INTO temptextitems2 (
-                TiSeID, TiCount, TiOrder, TiText, TiWordCount
+                TiSeID, TiOrder, TiText, TiWordCount
             ) VALUES " . implode(',', $values)
         );
         // Delete elements TiOrder=@order
@@ -709,10 +706,10 @@ function parse_japanese_text($text, $id): ?array
     }
     do_mysqli_query(
         "INSERT INTO temptextitems (
-            TiCount, TiSeID, TiOrder, TiWordCount, TiText
+            TiSeID, TiOrder, TiWordCount, TiText
         ) 
-        SELECT MIN(TiCount) s, TiSeID, TiOrder, TiWordCount, 
-        group_concat(TiText ORDER BY TiCount SEPARATOR '')
+        SELECT TiSeID, TiOrder, TiWordCount, 
+        group_concat(TiText ORDER BY TiOrder SEPARATOR '')
         FROM temptextitems2
         GROUP BY TiOrder"
     );
@@ -827,7 +824,6 @@ function parse_standard_text($text, $id, $lid): ?array
         FIELDS TERMINATED BY '\\t' LINES TERMINATED BY '\\n' (@word_count, @term)
         SET 
             TiSeID = @sid, 
-            TiCount = (@count:=@count+CHAR_LENGTH(@term))+1-CHAR_LENGTH(@term),
             TiOrder = IF(
                 @term LIKE '%\\r',
                 CASE 
@@ -856,25 +852,24 @@ function parse_standard_text($text, $id, $lid): ?array
             $sid = 0;
         }
         $count = 0;
-        $row = array(0, 0, 0, "", 0);
+        $row = array(0, 0, "", 0);
         foreach (explode("\n", $text) as $line) {
             list($word_count, $term) = explode("\t", $line);
             $row[0] = $sid; // TiSeID
-            $row[1] = $count + 1; // TiCount
             $count += mb_strlen($term);
             if (str_ends_with($term, "\r")) {
                 $term = str_replace("\r", '', $term);
                 $sid++;
                 $count = 0;
             }
-            $row[2] = ++$order; // TiOrder
-            $row[3] = convert_string_to_sqlsyntax_notrim_nonull($term); // TiText
-            $row[4] = $word_count; // TiWordCount
+            $row[1] = ++$order; // TiOrder
+            $row[2] = convert_string_to_sqlsyntax_notrim_nonull($term); // TiText
+            $row[3] = $word_count; // TiWordCount
             $values[] = "(" . implode(",", $row) . ")";
         }
         do_mysqli_query(
             "INSERT INTO temptextitems (
-                TiSeID, TiCount, TiOrder, TiText, TiWordCount
+                TiSeID, TiOrder, TiText, TiWordCount
             ) VALUES " . implode(',', $values)
         );
     }

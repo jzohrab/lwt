@@ -291,10 +291,12 @@ class Parser {
         fwrite($fp, $text);
         fclose($fp);
 
+        /*
         echo "\n";
         echo $text;
         echo "\n";
-
+        */
+        
         $this->conn->query("drop table if exists temptextitems");
 
         $sql = "create table temptextitems (

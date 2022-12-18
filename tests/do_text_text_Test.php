@@ -36,6 +36,9 @@ final class do_text_text_Test extends TestCase
         // echo "tearing down ... \n";
     }
 
+    /**
+     * @group failing
+     */
     public function test_smoke_test()
     {
         // Suppressing stdout per
