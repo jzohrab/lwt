@@ -180,7 +180,9 @@ class Parser {
         do_mysqli_query(
             "SET @order=0, @sid=0, @count=0;"
         );
-        $sql = "LOAD DATA LOCAL INFILE " . convert_string_to_sqlsyntax($file_name) . "
+
+        $file_name = mysqli_real_escape_string($this->conn, $file_name);
+        $sql = "LOAD DATA LOCAL INFILE $file_name
         INTO TABLE temptextitems
         FIELDS TERMINATED BY '\\t' LINES TERMINATED BY '\\n' (@word_count, @term)
         SET
