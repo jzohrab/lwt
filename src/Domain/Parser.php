@@ -598,11 +598,12 @@ class Parser {
         $problemterm = mb_strtolower('un gato');
         $logme = function($s) {};
         $logdump = function($s) {};
-        if ($textlc == $problemterm) {
+        if (true || $textlc == $problemterm) {
             $logme = function($s) { echo "{$s}\n"; };
             $logdump = function($s) { var_dump($s); };
             $logme("\n\n================");
             $r = implode(', ', $sentenceIDRange);
+            $logme("match problem term = $problemterm");
             $logme("Starting search for $textlc, lid = $lid, wid = $wid, len = $len, range = {$r}");
         }
 
@@ -623,11 +624,18 @@ class Parser {
             $rx = "/[^a-zA-ZÀ-ÖØ-öø-ȳáéíóúÁÉÍÓÚñÑ](un gato)[^a-zA-ZÀ-ÖØ-öø-ȳáéíóúÁÉÍÓÚñÑ]/ui";
             $rx = "/[^a-z](un gato)[^a-z]/ui";
             $allmatches = $this->pregMatchCapture(true, $rx, " $string ");
+            $logme("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
             $logme($string);
             $logme($rx);
             $logme("");
-            $logdump($allmatches[1]);
-                      $termmatches = $allmatches[1];
+            $logme("HERE's all matches:");
+            $logdump($allmatches);
+            $logme("LENGTH = " . count($allmatches));
+            $termmatches = [];
+            if (count($allmatches) > 0) {
+                $termmatches = $allmatches[1];
+            }
+            $logme("YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
 
                       /* Sample $termmatches data:
 array(3) {

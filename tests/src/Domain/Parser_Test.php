@@ -73,7 +73,10 @@ final class Parser_Test extends DatabaseTestBase
         DbHelpers::assertTableContains($sql, $expected, 'after parse');
     }
 
-    
+
+    /**
+     * @group current
+     */
     public function test_parse_words_defined()
     {
         $this->load_spanish_words();
@@ -121,9 +124,6 @@ final class Parser_Test extends DatabaseTestBase
         DbHelpers::assertTableContains($sql, $expected);
     }
 
-    /**
-     * @group current
-     */
     public function test_text_contains_same_term_many_times()
     {
         $spid = $this->spanish->getLgID();
