@@ -58,7 +58,7 @@ ref https://dba.stackexchange.com/questions/48751/enabling-load-data-local-infil
 
 ## Development
 
-The project will likely eventually _require_ composer to be run, so install it following [these directions](https://getcomposer.org/download/).
+Install [composer](https://getcomposer.org/download/).
 
 Then install dependencies:
 
@@ -94,6 +94,24 @@ composer test tests/src/Repository/TextRepository_Test.php
 ```
 
 Some tests require 'load local infile' to be set to On, so you'll need to set that in your php.ini.  For me, for example, the file I changed was at `/usr/local/etc/php/8.1/php.ini`.
+
+## Useful composer commands during dev
+
+(from `composer list`):
+
+```
+  class <name>             Show public interface methods of class
+  find <string>            search specific parts of code using grep
+  nukecache                blow things away, b/c symfony likes to cache
+
+  test <filename|blank>    Run tests
+  testdata                 Abuse the testing system to load the dev db with some data.
+  testgroup <group>        Runs the testgroup script as defined in composer.json
+
+  db:migrate               Run db migrations.
+  db:newscript             Make a new db migration script
+  db:which                 What db connecting to
+```
 
 ## Contribution
 
