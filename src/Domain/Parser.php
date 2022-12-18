@@ -568,6 +568,10 @@ class Parser {
         }
         mysqli_free_result($res);
 
+$logme("AFTER CALLING GET SENTENCES");
+$logme("textlc = $textlc");
+$logme("termchar = $termchar");
+$logme("notermchar = $notermchar");
         return $result;
     }
 
@@ -641,7 +645,9 @@ class Parser {
         $notermchar = "/[^$termchar]({$textlc})[^$termchar]/ui";
         // For each sentence in the language containing the query
         $matches = null;
-        while ($record = mysqli_fetch_assoc($res)) {
+
+        // while ($record = mysqli_fetch_assoc($res)) {
+        foreach ($sentences as $record) {
             $string = ' ' . $record['SeText'] . ' ';
             $logme('"' . $string . '"');
             if ($splitEachChar) {
