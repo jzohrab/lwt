@@ -31,7 +31,7 @@ final class Parser_Test extends DatabaseTestBase
         DbHelpers::assertRecordcountEquals($sql, 0, 'after');
     }
 
-    
+
     public function test_parse_no_words_defined()
     {
         $this->load_spanish_texts(false);
@@ -193,6 +193,21 @@ final class Parser_Test extends DatabaseTestBase
         ];
         DbHelpers::assertTableContains($sql, $expected);
 
+    }
+
+    /**
+     * @group current
+     */
+    public function test_verify_regexes() {
+        $t = new Text();
+        $t->setTitle("Hacky");
+        $t->setText("{Hola} `como...`\nYo.");
+        $t->setLanguage($this->spanish);
+        $this->text_repo->save($t, true, false);
+
+        Parser::parse($t);
+
+        $this->assertEquals(1, 1, 'ok');
     }
 
 }

@@ -40,7 +40,7 @@ class Parser {
     /** PRIVATE **/
 
     private function exec_sql($sql, $params = null) {
-        echo $sql . "\n";
+        // echo $sql . "\n";
         $stmt = $this->conn->prepare($sql);
         if (!$stmt) {
             throw new \Exception($this->conn->error);
@@ -99,12 +99,19 @@ class Parser {
 
         $text = $entity->getText();
 
+        $debugtext = function($s, $text) {
+            echo "\n{$s} ------------------------\n";
+            echo $text;
+            echo "\n\n";
+        };
+        
         // TODO:parsing replace fix the preg_ query mapping mess.
         // Initial cleanup.
         $text = str_replace("\r\n", "\n", $text);
         // because of sentence special characters
         $text = str_replace(array('}','{'), array(']','['), $text);
-
+        $debugtext("brackets", $text);
+        
         $replace = explode("|", $lang->getLgCharacterSubstitutions());
         foreach ($replace as $value) {
             $fromto = explode("=", trim($value));
@@ -114,6 +121,7 @@ class Parser {
                 $text = str_replace($rfrom, $rto, $text);
             }
         }
+        $debugtext("substitutions", $text);
 
         $text = str_replace("\n", " ¶", $text);
         $text = trim($text);
@@ -174,18 +182,16 @@ class Parser {
             $text = str_replace(' ', '', $text);
         }
 
+/*
         echo "\nWRITING FILE:\n";
         echo $text;
         echo "\nDONE\n";
+*/
+
         $file_name = sys_get_temp_dir() . DIRECTORY_SEPARATOR . "tmpti.txt";
         $fp = fopen($file_name, 'w');
         fwrite($fp, $text);
         fclose($fp);
-        /*
-do_mysqli_query(
-            "SET @order=0, @sid=0, @count=0;"
-        );
-        */
 
         $this->conn->query("SET @order=0, @sid=0, @count=0");
         // TODO:parsing - fix the text file to be loaded so it already has
@@ -292,7 +298,7 @@ if (!($stmt = $this->conn->query($sql))) {
             left join words 
             on lower(TiText) = WoTextLC and TiWordCount>0 and WoLgID = {$lid} 
             order by TiOrder,TiWordCount";
-        echo "\n\n" . $addti2 . "\n\n";
+        // echo "\n\n" . $addti2 . "\n\n";
         $this->exec_sql($addti2);
 
         // For each expession in the language, add expressions for the sentence range.
