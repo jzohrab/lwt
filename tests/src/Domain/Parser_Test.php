@@ -160,6 +160,9 @@ final class Parser_Test extends DatabaseTestBase
 
     }
 
+    /**
+     * @group refactor
+     */
     public function test_text_same_sentence_contains_same_term_many_times()
     {
         $spid = $this->spanish->getLgID();

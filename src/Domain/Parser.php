@@ -526,8 +526,10 @@ class Parser {
         // $problemterm = mb_strtolower('de refilón');
         $problemterm = mb_strtolower('un gato');
         $logme = function($s) {};
+        $logdump = function($s) {};
         if ($textlc == $problemterm) {
             $logme = function($s) { echo "{$s}\n"; };
+            $logdump = function($s) { var_dump($s); };
             $logme("\n\n================");
             $r = implode(', ', $sentenceIDRange);
             $logme("Starting search for $textlc, lid = $lid, wid = $wid, len = $len, range = {$r}");
@@ -599,6 +601,9 @@ class Parser {
                 else {
                     $c = count($matches);
                     $logme("big pregmatch = $c");
+                    $logme('match data ---------------------');
+                    $logdump($matches);
+                    $logme('/end ---------------------');
                 }
                 if ($splitEachChar || $removeSpaces || count($matches) > 0) {
                     // Number of terms before group
