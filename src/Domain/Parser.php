@@ -224,20 +224,9 @@ class Parser {
             return $text;
         };
 
-        $debugtext = function($s, $text) {
-            // return;
-            echo "\n{$s} ------------------------\n\n";
-            echo str_replace(
-                array("\n", "¶", ' '),
-                array("<NEWLINE>\n", "<P-NEWLINE>\n", '<SPC>'),
-                $text);
-            echo "\n";
-        };
-
         $lang = $entity->getLanguage();
 
         $text = $entity->getText();
-        $debugtext('initial', $text);
 
         $replace = explode("|", $lang->getLgCharacterSubstitutions());
         foreach ($replace as $value) {
@@ -248,9 +237,6 @@ class Parser {
                 $text = str_replace($rfrom, $rto, $text);
             }
         }
-        $debugtext("substitutions", $text);
-
-        // TODO:parsing replace fix the preg_ query mapping mess.
 
         $splitSentencecallback = function($matches) use ($lang) {
             $notEnd = $lang->getLgExceptionsSplitSentences();
@@ -289,8 +275,6 @@ class Parser {
             [ ' ', '', $lang->isLgRemoveSpaces() ]
         ]);
         
-        $debugtext("current", $text);
-
         return $text;
     }
 
