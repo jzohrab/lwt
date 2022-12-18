@@ -516,27 +516,33 @@ class Parser {
             [ $lower, $upper ] = $sentenceIDRange;
             $whereSeIDRange = "(SeID >= {$lower} AND SeID <= {$upper}) AND";
         }
+
+        $sql = "SELECT * FROM sentences 
+            WHERE {$whereSeIDRange}
+            SeLgID = $lid AND SeText LIKE concat('%', ?, '%')";
+
         if ($removeSpaces == 1 && $splitEachChar == 0) {
             $sql = "SELECT 
-        group_concat(Ti2Text ORDER BY Ti2Order SEPARATOR ' ') AS SeText, SeID, 
-        SeTxID, SeFirstPos 
-        FROM textitems2, sentences 
-        WHERE {$whereSeIDRange} SeID=Ti2SeID AND SeLgID = $lid AND Ti2LgID = $lid 
-        AND SeText LIKE LIKE concat('%', ?, '%') 
-        AND Ti2WordCount < 2 
-        GROUP BY SeID";
-        } else {
-            $sql = "SELECT * FROM sentences 
-        WHERE {$whereSeIDRange} SeLgID = $lid AND SeText LIKE concat('%', ?, '%')";
+                group_concat(Ti2Text ORDER BY Ti2Order SEPARATOR ' ') AS SeText, SeID, 
+                SeTxID, SeFirstPos 
+                FROM textitems2, sentences 
+                WHERE {$whereSeIDRange} SeID=Ti2SeID AND SeLgID = $lid AND Ti2LgID = $lid 
+                AND SeText LIKE LIKE concat('%', ?, '%') 
+                AND Ti2WordCount < 2 
+                GROUP BY SeID";
         }
-
-        $params = [ 's', $textlc ];
-        $res = $this->exec_sql($sql, $params);
-
-        $result = [];
 
         $notermchar = "/[^$termchar]({$textlc})[^$termchar]/ui";
 
+        // TODO:japanese This is copied legacy code, but is not tested.
+        // Note that the checks for splitEachChar and removeSpaces
+        // alter the $string and $notermchar regex, but these changes
+        // are not returned to the calling method ... so the calling
+        // method won't be handling these things correctly.  Needs test cases.
+
+        $params = [ 's', $textlc ];
+        $res = $this->exec_sql($sql, $params);
+        $result = [];
         while ($record = mysqli_fetch_assoc($res)) {
             $string = ' ' . $record['SeText'] . ' ';
             if ($splitEachChar) {
@@ -554,11 +560,8 @@ class Parser {
                 }
             }
             $last_pos = mb_strripos($string, $textlc, 0, 'UTF-8');
-
-            // For each occurence of query in sentence
-            if ($last_pos !== false) {
+            if ($last_pos !== false)
                 $result[] = $record;
-            }
         }
         mysqli_free_result($res);
         return $result;
@@ -566,11 +569,10 @@ class Parser {
 
 
     /**
-     * Insert an expression without using a tool like MeCab.
-     *
+     * Insert an expression.
      * @param string $textlc Text to insert in lower case
      * @param string $lid    Language ID
-     * @param string $wid    Word ID
+     * @param int    $wid    Word ID of the expression
      * @param array  $sentenceIDRange
      */
     private function insert_standard_expression(
