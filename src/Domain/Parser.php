@@ -531,7 +531,6 @@ class Parser {
             $sql = "SELECT * FROM sentences 
         WHERE {$whereSeIDRange} SeLgID = $lid AND SeText LIKE concat('%', ?, '%')";
         }
-        $logme($sql);
 
         $params = [ 's', $textlc ];
         $res = $this->exec_sql($sql, $params);
@@ -539,8 +538,7 @@ class Parser {
         $result = [];
 
         $notermchar = "/[^$termchar]({$textlc})[^$termchar]/ui";
-        // For each sentence in the language containing the query
-        $matches = null;
+
         while ($record = mysqli_fetch_assoc($res)) {
             $string = ' ' . $record['SeText'] . ' ';
             $logme('"' . $string . '"');
@@ -567,11 +565,6 @@ class Parser {
             }
         }
         mysqli_free_result($res);
-
-$logme("AFTER CALLING GET SENTENCES");
-$logme("textlc = $textlc");
-$logme("termchar = $termchar");
-$logme("notermchar = $notermchar");
         return $result;
     }
 
@@ -610,20 +603,12 @@ $logme("notermchar = $notermchar");
         $sentences = $this->get_sentences_containing_textlc($lang, $textlc, $sentenceIDRange, $logme);
         $logdump($sentences);
 
-        $appendtext = array();
-        $sqlarr = array();
-
         $removeSpaces = $lang->isLgRemoveSpaces();
         $splitEachChar = $lang->isLgSplitEachChar();
         $termchar = $lang->getLgRegexpWordCharacters();
-        
-        $wis = $textlc;
-
         $notermchar = "/[^$termchar]({$textlc})[^$termchar]/ui";
-        // For each sentence in the language containing the query
-        $matches = null;
 
-        // while ($record = mysqli_fetch_assoc($res)) {
+        $matches = null;
         foreach ($sentences as $record) {
             $string = ' ' . $record['SeText'] . ' ';
             $logme('"' . $string . '"');
@@ -675,7 +660,7 @@ $logme("notermchar = $notermchar");
                 
                     $txt = $matches[1][0];
                     if ($txt != $textlc) {
-                        $txt = $splitEachChar ? $wis : $matches[1][0]; 
+                        $txt = $splitEachChar ? $textlc : $matches[1][0]; 
                     }
 
                 
