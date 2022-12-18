@@ -676,7 +676,7 @@ $beforesubstr = mb_substr($string, 0, $tm[1] - 1, 'UTF-8');
                       $logme("END termmatch ----------------------------");
                       } // end foreach termmatches
 
-                      return;
+                      /*
 
             $last_pos = mb_strripos($string, $textlc, 0, 'UTF-8');
             if ($last_pos === false) {
@@ -746,7 +746,9 @@ $beforesubstr = mb_substr($string, 0, $tm[1] - 1, 'UTF-8');
                 $logme("string is now: $string");
                 $logme("last_pos is now: $last_pos");
             }
-        }
+                      */
+
+        }  // next sentence
 
     }
 
