@@ -16,20 +16,33 @@ class Parser {
         $p->parseText($text);
     }
 
+    public static function load_local_infile_enabled(): bool {
+        global $userid, $passwd, $server, $dbname; // From connect.inc.php
+        $conn = @mysqli_connect($server, $userid, $passwd, $dbname);
+        $val = $conn->query("SELECT @@GLOBAL.local_infile as val")->fetch_array()[0];
+        return intval($val) == 1;
+    }
+
     public function __construct()
     {
         global $userid, $passwd, $server, $dbname; // From connect.inc.php
         $conn = @mysqli_connect($server, $userid, $passwd, $dbname);
         @mysqli_query($conn, "SET SESSION sql_mode = ''");
         $this->conn = $conn;
+
+        if (!Parser::load_local_infile_enabled()) {
+            $msg = "SELECT @@GLOBAL.local_infile must be 1, check your mysql configuration.";
+            throw new \Exception($msg);
+        }
     }
 
     /** PRIVATE **/
 
     private function exec_sql($sql, $params = null) {
+        echo $sql . "\n";
         $stmt = $this->conn->prepare($sql);
         if (!$stmt) {
-            throw new Exception($this->conn->error);
+            throw new \Exception($this->conn->error);
         }
         if ($params) {
             $stmt->bind_param(...$params);
@@ -37,7 +50,7 @@ class Parser {
         if (!$stmt->execute()) {
             throw new \Exception($stmt->error);
         }
-        // return $stmt->get_result();
+        return $stmt->get_result();
     }
  
     private function parseText(Text $text) {
@@ -108,7 +121,7 @@ class Parser {
 
         $splitSentence = $lang->getLgRegexpSplitSentences();
         
-        $callback = function($matches) {
+        $callback = function($matches) use ($lang) {
             $notEnd = $lang->getLgExceptionsSplitSentences();
             return $this->find_latin_sentence_end($matches, $notEnd);
         };
@@ -160,6 +173,9 @@ class Parser {
     // It is faster to write to a file and let SQL do its magic, but may run into
     // security restrictions
     if (get_first_value("SELECT @@GLOBAL.local_infile as value")) {
+        echo "\nWRITING FILE:\n";
+        echo $text;
+        echo "\nDONE\n";
         $file_name = sys_get_temp_dir() . DIRECTORY_SEPARATOR . "tmpti.txt";
         $fp = fopen($file_name, 'w');
         fwrite($fp, $text);
@@ -186,11 +202,10 @@ class Parser {
             TiText = @term,
             TiWordCount = @word_count";
 
-        do_mysqli_query($sql);
-        mysqli_free_result($res);
+        $this->exec_sql($sql);
         unlink($file_name);
     } else {
-        throw new Exception("SELECT @@GLOBAL.local_infile must be 1, check your mysql configuration.");
+        throw new \Exception("SELECT @@GLOBAL.local_infile must be 1, check your mysql configuration.");
 
         // TODO - this entire function should be rewritten perhaps ... lots of magic in here.
 
@@ -222,6 +237,7 @@ class Parser {
                 TiSeID, TiCount, TiOrder, TiText, TiWordCount
             ) VALUES " . implode(',', $values)
         );
+        // TODO:misc - remove TiCount, unused.
     }
     return null;
 }
