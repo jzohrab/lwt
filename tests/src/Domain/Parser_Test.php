@@ -74,9 +74,6 @@ final class Parser_Test extends DatabaseTestBase
     }
 
 
-    /**
-     * @group current
-     */
     public function test_parse_words_defined()
     {
         $this->load_spanish_words();

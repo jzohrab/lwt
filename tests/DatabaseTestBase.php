@@ -132,4 +132,13 @@ abstract class DatabaseTestBase extends WebTestCase
         $this->load_french_data();
     }
 
+    public function make_text(string $title, string $text, Language $lang): Text {
+        $t = new Text();
+        $t->setTitle($title);
+        $t->setText($text);
+        $t->setLanguage($lang);
+        $this->text_repo->save($t, true);
+        return $t;
+    }
+
 }
