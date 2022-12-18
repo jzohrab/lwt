@@ -13,6 +13,9 @@
     <li>{{ hidden.SpanID }} ({{ hidden.Text }})</li>
     {% endfor %}
   </ul>
+  {% if item.hides|length > 0 %}
+  <p>first element hidden: {{ item.hides|first.SpanID }}</p>
+  {% endif %}
   {% endfor %}
 </div>
 
