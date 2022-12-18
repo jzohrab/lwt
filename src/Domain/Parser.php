@@ -160,7 +160,7 @@ class Parser {
                     "\n1\t"
                 ),
                 $text
-            );
+        );
 
         $text = trim($text);
 
@@ -170,9 +170,6 @@ class Parser {
             $text = str_replace(' ', '', $text);
         }
 
-    // It is faster to write to a file and let SQL do its magic, but may run into
-    // security restrictions
-    if (get_first_value("SELECT @@GLOBAL.local_infile as value")) {
         echo "\nWRITING FILE:\n";
         echo $text;
         echo "\nDONE\n";
@@ -202,45 +199,11 @@ class Parser {
             TiText = @term,
             TiWordCount = @word_count";
 
-        $this->exec_sql($sql);
+        $this->conn->query($sql);
         unlink($file_name);
-    } else {
-        throw new \Exception("SELECT @@GLOBAL.local_infile must be 1, check your mysql configuration.");
 
-        // TODO - this entire function should be rewritten perhaps ... lots of magic in here.
-
-        $values = array();
-        $order = 0;
-        $sid = 1;
-        if ($id > 0) {
-            $sid = 0;
-        }
-        $count = 0;
-        $row = array(0, 0, 0, "", 0);
-        foreach (explode("\n", $text) as $line) {
-            list($word_count, $term) = explode("\t", $line);
-            $row[0] = $sid; // TiSeID
-            $row[1] = $count + 1; // TiCount
-            $count += mb_strlen($term);
-            if (str_ends_with($term, "\r")) {
-                $term = str_replace("\r", '', $term);
-                $sid++;
-                $count = 0;
-            }
-            $row[2] = ++$order; // TiOrder
-            $row[3] = convert_string_to_sqlsyntax_notrim_nonull($term); // TiText
-            $row[4] = $word_count; // TiWordCount
-            $values[] = "(" . implode(",", $row) . ")";
-        }
-        do_mysqli_query(
-            "INSERT INTO temptextitems (
-                TiSeID, TiCount, TiOrder, TiText, TiWordCount
-            ) VALUES " . implode(',', $values)
-        );
-        // TODO:misc - remove TiCount, unused.
+        return null;
     }
-    return null;
-}
 
 
 /**
