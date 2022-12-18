@@ -24,7 +24,19 @@
 
 <script>
 
-  {# This feels bananas, but it works.  Generating javascript. #}
+  {#
+   Update all of the text items.
+   Originally, I had tried to render the textitems into a variable
+   and return it in the twig options array, but had trouble with
+   the encoding/decoding of the HTML, or it would be interpreted
+   as HTML etc (eg &quot;).
+
+   This feels like it's more complicated than it should be ...
+   there is likely a simpler way to do it.  Another way would
+   perhaps have been to make an ajax call to get back HTML,
+   but that also felt somehow incorrect, since I'm already
+   rendering this template from a controller that has all the data!
+  #}
   let update_reading_pane_elements = function() {
     {% for item in textitems %}
       update_element(`{% include '/read/textitem.html.twig' %}`)
