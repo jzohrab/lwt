@@ -79,7 +79,7 @@ class Parser {
 
         $this->import_temptextitems($text);
 
-        $this->exec_sql("TRUNCATE TABLE temptextitems");
+        // $this->exec_sql("TRUNCATE TABLE temptextitems");
     }
 
 
@@ -176,13 +176,20 @@ class Parser {
         $fp = fopen($file_name, 'w');
         fwrite($fp, $text);
         fclose($fp);
-        do_mysqli_query(
+        /*
+do_mysqli_query(
             "SET @order=0, @sid=0, @count=0;"
         );
+        */
+
+        $this->conn->query("SET @order=0, @sid=0, @count=0");
+        // TODO:parsing - fix the text file to be loaded so it already has
+        // order, sid, and count ... no need for this query to have more
+        // logic.
 
         // TODO:parsing Drop the temp table and re-create it.
         $file_name = mysqli_real_escape_string($this->conn, $file_name);
-        $sql = "LOAD DATA LOCAL INFILE '{$file_name}'
+$sql = "LOAD DATA LOCAL INFILE '{$file_name}'
         INTO TABLE temptextitems
         FIELDS TERMINATED BY '\\t' LINES TERMINATED BY '\\n' (@word_count, @term)
         SET
@@ -279,6 +286,7 @@ if (!($stmt = $this->conn->query($sql))) {
             left join words 
             on lower(TiText) = WoTextLC and TiWordCount>0 and WoLgID = {$lid} 
             order by TiOrder,TiWordCount";
+        echo "\n\n" . $addti2 . "\n\n";
         $this->exec_sql($addti2);
 
         /*
