@@ -511,12 +511,6 @@ class Parser {
      * @param string $lid    Language ID
      * @param string $wid    Word ID
      * @param array  $sentenceIDRange
-     *
-     * @return array{string[], string[]} Append text, sentence id
-     *
-     * @since 2.5.2-fork Fixed multi-words insertion for languages using no space
-     *
-     * @psalm-return array{0: array<int, mixed|string>, 1: list<string>}
      */
     private function insert_standard_expression(
         Language $lang, $textlc, $wid, $len, $sentenceIDRange
@@ -530,7 +524,7 @@ class Parser {
         // Change $problemterm to the term that's not getting handled
         // correctly.  e.g.,
         // $problemterm = mb_strtolower('de refilón');
-        $problemterm = mb_strtolower('PROBLEM_TERM');
+        $problemterm = mb_strtolower('un gato');
         $logme = function($s) {};
         if ($textlc == $problemterm) {
             $logme = function($s) { echo "{$s}\n"; };
