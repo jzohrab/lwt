@@ -71,7 +71,9 @@ class Parser {
         if ($isJapanese) {
             // TODO:japanese MECAB parsing.
             throw new \Exception("MECAB parsing not supported");
-            // Ref parse_japanese_text($text, $id) in
+            // Ref parse_japanese_text($text, $id)
+            // and insert_expression_from_mecab()
+            // in
             // https://github.com/HugoFara/lwt/blob/master/inc/database_connect.php
         }
 
@@ -132,10 +134,11 @@ class Parser {
         $text = str_replace(array("¶"," ¶"), array("¶\r","\r¶"), $text);
 
         $termchar = $lang->getLgRegexpWordCharacters();
+        $punctchars = "'`\"”)\]‘’‹›“„«»』」";
         $text = preg_replace(
             array(
                 '/([^' . $termchar . '])/u',
-                '/\n([' . $splitSentence . '][\'`"”)\]‘’‹›“„«»』」]*)\n\t/u',
+                '/\n([' . $splitSentence . '][' . $punctchars . ']*)\n\t/u',
                 '/([0-9])[\n]([:.,])[\n]([0-9])/u'
             ),
             array("\n$1\n", "$1", "$1$2$3"),
@@ -291,89 +294,49 @@ if (!($stmt = $this->conn->query($sql))) {
         echo "\n\n" . $addti2 . "\n\n";
         $this->exec_sql($addti2);
 
-        /*
         // For each expession in the language, add expressions for the sentence range.
         // Inefficient, but for now I don't care -- will see how slow it is.
         $sentenceRange = [ $firstSeID, $lastSeID ];
         $mwordsql = "SELECT * FROM words WHERE WoLgID = $lid AND WoWordCount > 1";
-        $res = do_mysqli_query($mwordsql);
+        $res = $this->conn->query($mwordsql);
         while ($record = mysqli_fetch_assoc($res)) {
-            insertExpressions(
+            $this->insertExpressions(
                 $record['WoTextLC'],
-                $lid,
+                $text->getLanguage(),
                 $record['WoID'],
                 $record['WoWordCount'],
-                1,
                 $sentenceRange);
         }
         mysqli_free_result($res);
-        */
+
     }
 
 
     /** Expressions **************************/
 
 
+    // TODO:parsing - sentence range feels redundant, but is used elsewhere when new expr defined and ll texts in language have to be updated.
     /**
      * Alter the database to add a new word
      *
      * @param string $textlc Text in lower case
-     * @param string $lid    Language ID
+     * @param Language the language
      * @param string $len
-     * @param int    $mode   Function mode
-     *                       - 0: Default mode, do nothing special
-     *                       - 1: Runs an expresion inserter interactable 
-     *                       - 2: Return the sql output
      * @param array  $sentenceIDRange   [ lower SeID, upper SeID ] to consider.
-     *
-     * @return null|string If $mode == 2 return values to insert in textitems2, nothing otherwise.
-     *
      */
-    function insertExpressions($textlc, $lid, $wid, $len, $mode, $sentenceIDRange = NULL): ?string 
+    private function insertExpressions(
+        $textlc, Language $lang, $wid, $len, $sentenceIDRange = NULL
+    )
     {
-        $sql = "SELECT * FROM languages WHERE LgID=$lid";
-        $res = do_mysqli_query($sql);
-        $record = mysqli_fetch_assoc($res);
-        $mecab = 'MECAB' == strtoupper(trim($record['LgRegexpWordCharacters']));
-        $splitEachChar = !$mecab && $record['LgSplitEachChar'];
-        mysqli_free_result($res);
+        $splitEachChar = $lang->isLgSplitEachChar();
         if ($splitEachChar) {
             $textlc = preg_replace('/([^\s])/u', "$1 ", $textlc);
-    }
-        
-        if ($mecab) {
-            list($appendtext, $sqlarr) = insert_expression_from_mecab(
-                $textlc, $lid, $wid, $len, $sentenceIDRange
-            );
-        } else {
-            list($appendtext, $sqlarr) = insert_standard_expression(
-                $textlc, $lid, $wid, $len, $sentenceIDRange
-            );
         }
-        $sqltext = null;
-        if (!empty($sqlarr)) {
-            $sqltext = '';
-            if ($mode != 2) {
-                $sqltext .= 
-                         "INSERT INTO textitems2
-             (Ti2WoID,Ti2LgID,Ti2TxID,Ti2SeID,Ti2Order,Ti2WordCount,Ti2Text)
-             VALUES ";
-            }
-            $sqltext .= implode(',', $sqlarr);
-            unset($sqlarr);
-        }
-        
-        if ($mode == 0) {
-            $hex = strToClassName(prepare_textdata($textlc)); 
-            new_expression_interactable2($hex, $appendtext, $wid, $len);
-        }
-        if ($mode == 2) { 
-            return $sqltext; 
-        }
-        if (isset($sqltext)) {
-            do_mysqli_query($sqltext);
-        }
-        return null;
+
+        $lid = $lang->getLgID();
+        $this->insert_standard_expression(
+            $lang, $textlc, $wid, $len, $sentenceIDRange
+        );
     }
     
     
@@ -388,7 +351,7 @@ if (!($stmt = $this->conn->query($sql))) {
      * @param int    $offset   The place from which to start the search (in bytes).
      * @return array
      */
-    function pregMatchCapture($matchAll, $pattern, $subject, $offset = 0)
+    private function pregMatchCapture($matchAll, $pattern, $subject, $offset = 0)
     {
         if ($offset != 0) { $offset = strlen(mb_substr($subject, 0, $offset)); }
         
@@ -436,7 +399,6 @@ if (!($stmt = $this->conn->query($sql))) {
      * @param string $textlc Text to insert in lower case
      * @param string $lid    Language ID
      * @param string $wid    Word ID
-     * @param mixed  $mode   Unnused
      * @param array  $sentenceIDRange
      *
      * @return array{string[], string[]} Append text, sentence id
@@ -445,8 +407,10 @@ if (!($stmt = $this->conn->query($sql))) {
      *
      * @psalm-return array{0: array<int, mixed|string>, 1: list<string>}
      */
-    function insert_standard_expression($textlc, $lid, $wid, $len, $sentenceIDRange): array
+    private function insert_standard_expression(Language $lang, $textlc, $wid, $len, $sentenceIDRange): array
     {
+        $lid = $lang->getLgID();
+
         // DEBUGGING HELPER FOR FUTURE, because this code is brutal and
         // needs to be completely replaced, but I need to understand it
         // first.
@@ -464,12 +428,10 @@ if (!($stmt = $this->conn->query($sql))) {
         
         $appendtext = array();
         $sqlarr = array();
-        $res = do_mysqli_query("SELECT * FROM languages WHERE LgID=$lid");
-        $record = mysqli_fetch_assoc($res);
-        $removeSpaces = $record["LgRemoveSpaces"];
-        $splitEachChar = $record['LgSplitEachChar'];
-        $termchar = $record['LgRegexpWordCharacters'];
-        mysqli_free_result($res);
+
+        $removeSpaces = $lang->isLgRemoveSpaces();
+        $splitEachChar = $lang->isLgSplitEachChar();
+        $termchar = $lang->getLgRegexpWordCharacters();
         
         $whereSeIDRange = '';
         if (! is_null($sentenceIDRange)) {
@@ -482,108 +444,103 @@ if (!($stmt = $this->conn->query($sql))) {
         SeTxID, SeFirstPos 
         FROM textitems2, sentences 
         WHERE {$whereSeIDRange} SeID=Ti2SeID AND SeLgID = $lid AND Ti2LgID = $lid 
-        AND SeText LIKE " . convert_string_to_sqlsyntax_notrim_nonull("%$textlc%") . " 
+        AND SeText LIKE LIKE concat('%', ?, '%') 
         AND Ti2WordCount < 2 
         GROUP BY SeID";
         } else {
             $sql = "SELECT * FROM sentences 
-        WHERE {$whereSeIDRange} SeLgID = $lid AND SeText LIKE " . 
-                 convert_string_to_sqlsyntax_notrim_nonull("%$textlc%");
+        WHERE {$whereSeIDRange} SeLgID = $lid AND SeText LIKE concat('%', ?, '%')";
         }
         $logme($sql);
+
+        $params = [ 's', $textlc ];
+        $res = $this->exec_sql($sql, $params);
         
         $wis = $textlc;
-        $res = do_mysqli_query($sql);
+
         $notermchar = "/[^$termchar]({$textlc})[^$termchar]/ui";
         // For each sentence in the language containing the query
         $matches = null;
-        while ($record = mysqli_fetch_assoc($res)){
+        while ($record = mysqli_fetch_assoc($res)) {
             $string = ' ' . $record['SeText'] . ' ';
             $logme('"' . $string . '"');
             if ($splitEachChar) {
                 $string = preg_replace('/([^\s])/u', "$1 ", $string);
             } else if ($removeSpaces == 1) {
-                $ma = pregMatchCapture(
+                $ma = $this->pregMatchCapture(
                     false,
                     '/(?<=[ ])(' . preg_replace('/(.)/ui', "$1[ ]*", $textlc) . 
-                ')(?=[ ])/ui', 
-                $string
-            );
-            if (!empty($ma[1])) {
-                $textlc = trim($ma[1]);
-                $notermchar = "/[^$termchar]({$textlc})[^$termchar]/ui";
+                    ')(?=[ ])/ui', 
+                    $string
+                );
+                if (!empty($ma[1])) {
+                    $textlc = trim($ma[1]);
+                    $notermchar = "/[^$termchar]({$textlc})[^$termchar]/ui";
+                }
             }
-        }
-        $last_pos = mb_strripos($string, $textlc, 0, 'UTF-8');
-        $logme("last_pos = $last_pos, notermchar = $notermchar");
+            $last_pos = mb_strripos($string, $textlc, 0, 'UTF-8');
+            $logme("last_pos = $last_pos, notermchar = $notermchar");
 
-        // For each occurence of query in sentence
-        while ($last_pos !== false) {
-            $logme("searching string = ' $string '");
-            $matches = null;
-            $matches = pregMatchCapture(false, $notermchar, " $string ", $last_pos - 1);
-            if (count($matches) == 0) {
-                $logme("preg_match returned no matches?");
-            }
-            else {
-                $c = count($matches);
-                $logme("big pregmatch = $c");
-            }
-            
-            if ($splitEachChar || $removeSpaces || count($matches) > 0) {
-                // Number of terms before group
-                $beforesubstr = mb_substr($string, 0, $last_pos, 'UTF-8');
-                $logme("Checking count of terms in: $beforesubstr");
-                $before = pregMatchCapture(true, "/([$termchar]+)/u", $beforesubstr);
-                // var_dump($before);
-                
-                $cnt = null;
-                if (count($before) == 0) {
-                    // Term is at start of sentence.
-                    $cnt = 0;
+            // For each occurence of query in sentence
+            while ($last_pos !== false) {
+                $logme("searching string = ' $string '");
+                $matches = null;
+                $matches = $this->pregMatchCapture(false, $notermchar, " $string ", $last_pos - 1);
+                if (count($matches) == 0) {
+                    $logme("preg_match returned no matches?");
                 }
                 else {
-                    // Note pregMatchCapture returns a few arrays, we want
-                    // the first one.  (I confess I don't grok what's
-                    // happening here, but inspecting a var_dump of the
-                    // returned data led me to this.  jz)
-                    $cnt = count($before[0]);
+                    $c = count($matches);
+                    $logme("big pregmatch = $c");
                 }
+                if ($splitEachChar || $removeSpaces || count($matches) > 0) {
+                    // Number of terms before group
+                    $beforesubstr = mb_substr($string, 0, $last_pos, 'UTF-8');
+                    $logme("Checking count of terms in: $beforesubstr");
+                    $before = $this->pregMatchCapture(true, "/([$termchar]+)/u", $beforesubstr);
+                    // var_dump($before);
                 
-                $pos = 2 * $cnt + (int) $record['SeFirstPos'];
-                $logme("Got count = $cnt, pos = $pos");
-                // $txt = $textlc;
+                    $cnt = null;
+                    if (count($before) == 0) {
+                        // Term is at start of sentence.
+                        $cnt = 0;
+                    }
+                    else {
+                        // Note pregMatchCapture returns a few arrays, we want
+                        // the first one.  (I confess I don't grok what's
+                        // happening here, but inspecting a var_dump of the
+                        // returned data led me to this.  jz)
+                        $cnt = count($before[0]);
+                    }
                 
-                $txt = $matches[1][0];
-                if ($txt != $textlc) {
-                    $txt = $splitEachChar ? $wis : $matches[1][0]; 
+                    $pos = 2 * $cnt + (int) $record['SeFirstPos'];
+                    $logme("Got count = $cnt, pos = $pos");
+                    // $txt = $textlc;
+                
+                    $txt = $matches[1][0];
+                    if ($txt != $textlc) {
+                        $txt = $splitEachChar ? $wis : $matches[1][0]; 
+                    }
+
+                
+                    $sql = "INSERT INTO textitems2
+                  (Ti2WoID,Ti2LgID,Ti2TxID,Ti2SeID,Ti2Order,Ti2WordCount,Ti2Text)
+                  VALUES (?, ?, ?, ?, ?, ?, ?)";
+                    $params = (
+                        "iiiiiis",
+                        $wid, $lid, $record['SeTxID'], $record['SeID'], $pos, $len, $txt);
+                    $this->conn->query($sql, $params);
+
+                    $logme("-----------------\nadded entry: $entry \n-----------------");
                 }
-                
-                $insert = convert_string_to_sqlsyntax_notrim_nonull($txt);
-                $entry = "($wid, $lid, {$record['SeTxID']}, {$record['SeID']}, $pos, $len, $insert)";
-                $sqlarr[] = $entry;
-                $logme("-----------------\nadded entry: $entry \n-----------------");
-                
-                if (getSettingZeroOrOne('showallwords', 1)) {
-                    $appendtext[$pos] = "&nbsp;$len&nbsp";
-                } else { 
-                    $appendtext[$pos] = $splitEachChar || $removeSpaces ? $wis : $txt;
-                }
+                // Cut the sentence to before the right-most term starts
+                $string = mb_substr($string, 0, $last_pos, 'UTF-8');
+                $last_pos = mb_strripos($string, $textlc, 0, 'UTF-8');
+                $logme("string is now: $string");
+                $logme("last_pos is now: $last_pos");
             }
-            // Cut the sentence to before the right-most term starts
-            $string = mb_substr($string, 0, $last_pos, 'UTF-8');
-            $last_pos = mb_strripos($string, $textlc, 0, 'UTF-8');
-            $logme("string is now: $string");
-            $logme("last_pos is now: $last_pos");
-        }
         }
         mysqli_free_result($res);
-        
-        $logme("final sqlarr:" . implode('; ', $sqlarr));
-        $logme("ENDING SEARCH FOR $textlc");
-        $logme("================");
-        
-        return array($appendtext, $sqlarr);
     }
 
 }
