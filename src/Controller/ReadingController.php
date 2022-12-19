@@ -77,10 +77,37 @@ class ReadingController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $termRepository->save($term, true);
             $textentity = $textRepository->find($textid);
-            $textitems = $textRepository->getTextItems($textentity, $term->getID());
+            $rawtextitems = $textRepository->getTextItems($textentity);
+
+            // Use a temporary sentence to determine which items hide
+            // which other items.
+            $sentence = new Sentence(999, $rawtextitems);
+            $textitems = $sentence->getTextItems();
+            $updateitems = array_filter($textitems, fn($t) => $t->WoID == $term->getID());
+
+            // what updates to do.
+            $update_js = [];
+            foreach ($updateitems as $item) {
+                $hide_ids = array_map(fn($i) => $i->getSpanID(), $item->hides);
+                $hide_ids = array_values($hide_ids);
+                $replace_id = $item->getSpanID();
+                if (count($hide_ids) > 0)
+                    $replace_id = $hide_ids[0];
+                $u = [
+                    'replace' => $replace_id,
+                    'hide' => $hide_ids
+                ];
+                $update_js[ $item->getSpanID() ] = $u;
+            }
+
+            // The updates are encoded here, and decoded in the
+            // twig javascript.  Thanks to
+            // https://stackoverflow.com/questions/38072085/
+            //   how-to-render-json-into-a-twig-in-symfony2
             return $this->render('read/updated.html.twig', [
                 'term' => $term,
-                'textitems' => $textitems
+                'textitems' => $updateitems,
+                'updates' => json_encode($update_js)
             ]);
         }
 

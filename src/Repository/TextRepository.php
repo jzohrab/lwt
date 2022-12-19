@@ -7,6 +7,7 @@ use App\Entity\Sentence;
 use App\Entity\TextItem;
 use App\Domain\Parser;
 use App\Domain\ExpressionUpdater;
+use App\Domain\TextStatsCache;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -49,6 +50,7 @@ class TextRepository extends ServiceEntityRepository
         if ($flush) {
             $this->getEntityManager()->flush();
             $this->removeSentencesAndWords($entity->getID());
+            TextStatsCache::markStale([$entity->getID()]);
 
             if (! $entity->isArchived() ) {
                 $langid = $entity->getLanguage()->getLgID();
@@ -56,9 +58,8 @@ class TextRepository extends ServiceEntityRepository
                 if ($parseTexts) {
                     Parser::parse($entity);
                     ExpressionUpdater::associateExpressionsInText($entity);
+                    TextStatsCache::refresh();
                 }
-
-                $this->refreshStatsCache();
             }
         }
     }
@@ -74,128 +75,6 @@ class TextRepository extends ServiceEntityRepository
         }
     }
 
-
-    /**
-     * refresh records in textstatscache.
-     *
-     * When listing texts, it's far too slow to query and rebuild
-     * stats all the time.
-     */
-    public function refreshStatsCache() {
-
-        // TODO:storedproc Replace temp table with stored proc.
-        //
-        // Using a temp table to determine which texts to update.
-        // I tried using left joins back to textstatscache, but it
-        // was slow, despite indexing.  There is probably a better
-        // way to do this, but this works for now.
-        //
-        // Ideally, this would be a temp table ... but then the stats update
-        // query complains about "reopening the table", as it's used several
-        // times in the query.
-        //
-        // This could be moved to a stored procedure, but this is good
-        // enough for now.
-
-        $sql = "
--- Temp table of textids.
-drop table if exists TEMPupdateStatsTxIDs;
-create table TEMPupdateStatsTxIDs (TxID int primary key);
-
-insert into TEMPupdateStatsTxIDs
-select t.TxID from texts t
-left join textstatscache c on c.TxID = t.TxID
-where c.TxID is null
-and t.TxArchived = 0;
-
--- Load stats.
-insert into textstatscache (
-  TxID,
-  wordcount,
-  distinctterms,
-  multiwordexpressions,
-  sUnk,
-  s1,
-  s2,
-  s3,
-  s4,
-  s5,
-  sIgn,
-  sWkn
-)
-SELECT
-t.TxID As TxID,
-
-wordcount.n as wordcount,
-distinctterms.n as distinctterms,
-coalesce(mwordexpressions.n, 0) as multiwordexpressions,
-sUnk, s1, s2, s3, s4, s5, sIgn, sWkn
-
-FROM texts t
-inner join TEMPupdateStatsTxIDs u on u.TxID = t.TxID
-
-LEFT OUTER JOIN (
-  SELECT Ti2TxID as TxID, COUNT(*) AS n
-  FROM textitems2
-  inner join TEMPupdateStatsTxIDs u on u.TxID = textitems2.Ti2TxID
-  WHERE Ti2WordCount = 1
-  GROUP BY Ti2TxID
-) AS wordcount on wordcount.TxID = t.TxID
-
-LEFT OUTER JOIN (
-  SELECT Ti2TxID as TxID, COUNT(distinct Ti2WoID) AS n
-  FROM textitems2
-  inner join TEMPupdateStatsTxIDs u on u.TxID = textitems2.Ti2TxID
-  WHERE Ti2WoID <> 0
-  GROUP BY Ti2TxID
-) AS distinctterms on distinctterms.TxID = t.TxID
-
-LEFT OUTER JOIN (
-  SELECT Ti2TxID AS TxID, COUNT(DISTINCT Ti2WoID) as n
-  FROM textitems2
-  inner join TEMPupdateStatsTxIDs u on u.TxID = textitems2.Ti2TxID
-  WHERE Ti2WordCount > 1
-  GROUP BY Ti2TxID
-) AS mwordexpressions on mwordexpressions.TxID = t.TxID
-
-LEFT OUTER JOIN (
-
-      SELECT TxID,
-      SUM(CASE WHEN status=0 THEN c ELSE 0 END) AS sUnk,
-      SUM(CASE WHEN status=1 THEN c ELSE 0 END) AS s1,
-      SUM(CASE WHEN status=2 THEN c ELSE 0 END) AS s2,
-      SUM(CASE WHEN status=3 THEN c ELSE 0 END) AS s3,
-      SUM(CASE WHEN status=4 THEN c ELSE 0 END) AS s4,
-      SUM(CASE WHEN status=5 THEN c ELSE 0 END) AS s5,
-      SUM(CASE WHEN status=98 THEN c ELSE 0 END) AS sIgn,
-      SUM(CASE WHEN status=99 THEN c ELSE 0 END) AS sWkn
-
-      FROM (
-      SELECT Ti2TxID AS TxID, WoStatus AS status, COUNT(*) as c
-      FROM textitems2
-      inner join TEMPupdateStatsTxIDs u on u.TxID = textitems2.Ti2TxID
-      INNER JOIN words ON WoID = Ti2WoID
-      WHERE Ti2WoID <> 0
-      GROUP BY Ti2TxID, WoStatus
-
-      UNION
-      SELECT Ti2TxID as TxID, 0 as status, COUNT(*) as c
-      FROM textitems2
-      inner join TEMPupdateStatsTxIDs u on u.TxID = textitems2.Ti2TxID
-      WHERE Ti2WoID = 0 AND Ti2WordCount = 1
-      GROUP BY Ti2TxID
-  
-      ) rawdata
-      GROUP BY TxID
-) AS statuses on statuses.TxID = t.TxID;
-
-drop table if exists TEMPupdateStatsTxIDs;
-";
-
-        $conn = $this->getEntityManager()->getConnection();
-        $stmt = $conn->prepare($sql);
-        $res = $stmt->executeQuery();
-    }
 
     /** Returns data for ajax paging. */
     public function getDataTablesList($parameters, $archived = false) {

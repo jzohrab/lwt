@@ -242,9 +242,6 @@ final class TermRepository_Test extends DatabaseTestBase
         $this->assertEquals(count($p), 0);
     }
 
-    /**
-     * @group current
-     */
     public function test_save_updates_associated_textitems() {
         $this->make_text("Hola.", "Hola tengo un gato.", $this->spanish);
         $this->make_text("Bonj.", "Je veux un tengo.", $this->french);

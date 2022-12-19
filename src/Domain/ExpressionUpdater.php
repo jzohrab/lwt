@@ -17,6 +17,7 @@ class ExpressionUpdater {
     public static function associateExpressionsInText(Text $text) {
         $eu = new ExpressionUpdater();
         $eu->loadExpressionsForText($text);
+        TextStatsCache::markStale([$text->getID()]);
     }
 
     public static function associateTermTextItems(Term $term) {
@@ -89,6 +90,16 @@ class ExpressionUpdater {
               SET Ti2WoID = {$woid} WHERE Ti2WoID = 0 AND Ti2LgID = {$lgid} AND Ti2TextLC = ?";
             $params = array("s", $term->getTextLC());
             $this->exec_sql($updateti2sql, $params);
+
+            $sql = "SELECT DISTINCT Ti2TxID FROM textitems2 WHERE Ti2WoID = {$woid}";
+            $res = $this->exec_sql($sql);
+            $ids = [];
+            while ($rec = $res->fetch_array(MYSQLI_NUM)) {
+                $ids[] = $rec[0];
+            }
+            mysqli_free_result($res);
+
+            TextStatsCache::markStale($ids);
         }
         else {
             $this->insertExpressions(
@@ -299,7 +310,9 @@ class ExpressionUpdater {
 
         }  // next sentence
 
+        $this->markCacheStaleForSentences($sentences);
     }
+
 
     private function get_term_count_before($string, $pos, $termchar): int {
         $beforesubstr = mb_substr($string, 0, $pos - 1, 'UTF-8');
@@ -309,4 +322,10 @@ class ExpressionUpdater {
         return 0;
     }
 
+
+    private function markCacheStaleForSentences($sentences) {
+        $ids = array_map(fn($r) => intval($r['SeTxID']), $sentences);
+        $ids = array_unique($ids, SORT_NUMERIC);
+        TextStatsCache::markStale($ids);
+    }
 }

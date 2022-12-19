@@ -4,8 +4,9 @@ require_once __DIR__ . '/../../db_helpers.php';
 require_once __DIR__ . '/../../DatabaseTestBase.php';
 
 use App\Entity\Text;
-    
-final class TextRepository_refreshStatsCache_Test extends DatabaseTestBase
+use App\Domain\TextStatsCache;
+
+final class TextStatsCache_Test extends DatabaseTestBase
 {
 
     public function childSetUp(): void
@@ -29,6 +30,13 @@ final class TextRepository_refreshStatsCache_Test extends DatabaseTestBase
         DbHelpers::add_word_tag($lid, "lista", "another");
         DbHelpers::add_word_tag($lid, "listo", "padj1");
         DbHelpers::add_word_tag($lid, "listo", "padj2");
+    }
+
+
+    public function test_saving_text_loads_cache()
+    {
+        DbHelpers::exec_sql("delete from textstatscache");
+        DbHelpers::assertRecordcountEquals("textstatscache", 0, "nothing loaded");
 
         $t = new Text();
         $t->setTitle("Hola.");
@@ -37,14 +45,33 @@ final class TextRepository_refreshStatsCache_Test extends DatabaseTestBase
         $t->setLanguage($lang);
         $this->text_repo->save($t, true);
         $this->text = $t;
+
+        DbHelpers::assertRecordcountEquals("textstatscache", 1, "one record after save");
     }
 
-
-    public function test_smoke_test()
+    public function test_mark_stale_and_refresh_updates_stats()
     {
-        DbHelpers::exec_sql("delete from textstatscache");
-        $sentences = $this->text_repo->refreshStatsCache();
-        DbHelpers::assertRecordcountEquals("textstatscache", 1, "one record");
+        $t = new Text();
+        $t->setTitle("Hola.");
+        $t->setText("Hola tengo un gato.  No tengo una lista.\nElla tiene una bebida.");
+        $lang = $this->language_repo->find($this->langid);
+        $t->setLanguage($lang);
+        $this->text_repo->save($t, true);
+        $this->text = $t;
+
+        $sql = "select sUnk from textstatscache where TxID = {$t->getID()}";
+        DbHelpers::assertTableContains($sql, [ "11" ], "one record after save");
+
+        DbHelpers::exec_sql("update textstatscache set sUnk = 999");
+        DbHelpers::assertTableContains($sql, [ "999" ], "updated");
+
+        TextStatsCache::refresh();
+        DbHelpers::assertTableContains($sql, [ "999" ], "refreshed, but still old value");
+
+        TextStatsCache::markStale([ $t->getID() ]);
+        TextStatsCache::refresh();
+        DbHelpers::assertTableContains($sql, [ "11" ], "Updated");
     }
+
 
 }

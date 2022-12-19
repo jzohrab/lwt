@@ -4,10 +4,14 @@
  * Prepare the interaction events with the text.
  */
 function prepareTextInteractions(textid) {
-  $('.word').on('click', word_clicked);
-  $('.word').mousedown(select_started);
-  $('.word').mouseover(select_over);
-  $('.word').mouseup(select_ended);
+  const t = $('#thetext');
+  // Using "t.on" here because .word elements
+  // are added and removed dynamically, and "t.on"
+  // ensures that events remain for each element.
+  t.on('click', '.word', word_clicked);
+  t.on('mousedown', '.word', select_started);
+  t.on('mouseover', '.word', select_over);
+  t.on('mouseup', '.word', select_ended);
 
   $(document).on('keydown', handle_keydown);
 
@@ -186,7 +190,10 @@ function select_ended(e) {
 var words = null;
 var maxindex = null;
 
-let load_word_globals = function() {
+// A public function because this is called from
+// read/updated.html.twig, when elements are added/removed.
+function load_reading_pane_globals() {
+  // console.log('loading reading pane globals');
   words = $('span.word').sort(function(a, b) {
     return $(a).attr('data_order') - $(b).attr('data_order');
   });
@@ -194,7 +201,7 @@ let load_word_globals = function() {
   maxindex = words.size() - 1;
 }
 
-$(document).ready(load_word_globals);
+$(document).ready(load_reading_pane_globals);
 
 
 let current_word_index = function() {

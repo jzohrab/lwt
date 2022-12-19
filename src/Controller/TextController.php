@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Text;
 use App\Form\TextType;
+use App\Domain\TextStatsCache;
 use App\Repository\TextRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -24,7 +25,7 @@ class TextController extends AbstractController
 
     private function datatables_source(Request $request, TextRepository $repo, $archived = false): JsonResponse
     {
-        $repo->refreshStatsCache();
+        TextStatsCache::refresh();
         $parameters = $request->request->all();
         $data = $repo->getDataTablesList($parameters, $archived);
         $data["draw"] = $parameters['draw'];

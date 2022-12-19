@@ -101,6 +101,7 @@ Some tests require 'load local infile' to be set to On, so you'll need to set th
 
 ```
   class <name>             Show public interface methods of class
+  dumpserver               Start the dump server
   find <string>            search specific parts of code using grep
   nukecache                blow things away, b/c symfony likes to cache
 
@@ -112,6 +113,11 @@ Some tests require 'load local infile' to be set to On, so you'll need to set th
   db:newscript             Make a new db migration script
   db:which                 What db connecting to
 ```
+
+### Notes
+
+* re "dumpserver" : ref https://symfony.com/doc/current/components/var_dumper.html
+
 
 ## Contribution
 
