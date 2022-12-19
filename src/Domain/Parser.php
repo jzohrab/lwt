@@ -185,47 +185,47 @@ class Parser {
         return $text;
     }
 
- 
+
+    // A (possibly) easier way to do substitutions -- each
+    // pair in $replacements is run in order.
+    // Possible entries:
+    // ( <src string or regex string (starting with '/')>, <target (string or callback)> [, <condition>] )
+    private function do_replacements($text, $replacements) {
+        foreach($replacements as $r) {
+            if ($r == 'trim') {
+                $text = trim($text);
+                continue;
+            }
+
+            $src = $r[0];
+            $tgt = $r[1];
+
+            if (count($r) == 3) {
+                if ($r[2] == false) {
+                    continue;
+                }
+            }
+
+            if (is_string($tgt)) {
+                if (substr($src, 0, 1) == '/') {
+                    $text = preg_replace($src, $tgt, $text);
+                }
+                else {
+                    $text = str_replace($src, $tgt, $text);
+                }
+            }
+            else {
+                $text = preg_replace_callback($src, $tgt, $text);
+            }
+        }
+        return $text;
+    }
+
      /**
      * @param string $text Text to clean, using regexs.
      */
     private function new_clean_standard_text(Text $entity): string
     {
-        // A (possibly) easier way to do substitutions -- each
-        // pair in $replacements is run in order.
-        // Possible entries:
-        // ( <src string or regex string (starting with '/')>, <target (string or callback)> [, <condition>] )
-        $do_replacements = function($text, $replacements) {
-            foreach($replacements as $r) {
-                if ($r == 'trim') {
-                    $text = trim($text);
-                    continue;
-                }
-
-                $src = $r[0];
-                $tgt = $r[1];
-
-                if (count($r) == 3) {
-                    if ($r[2] == false) {
-                        continue;
-                    }
-                }
-
-                if (is_string($tgt)) {
-                    if (substr($src, 0, 1) == '/') {
-                        $text = preg_replace($src, $tgt, $text);
-                    }
-                    else {
-                        $text = str_replace($src, $tgt, $text);
-                    }
-                }
-                else {
-                    $text = preg_replace_callback($src, $tgt, $text);
-                }
-            }
-            return $text;
-        };
-
         $lang = $entity->getLanguage();
 
         $text = $entity->getText();
@@ -251,7 +251,7 @@ class Parser {
         $termchar = $lang->getLgRegexpWordCharacters();
         $punctchars = "'`\"”)\]‘’‹›“„«»』」";
         
-        $text = $do_replacements($text, [
+        $text = $this->do_replacements($text, [
             [ "\r\n", "\n" ],
             [ '}', ']'],
             [ '{', '['],
