@@ -53,16 +53,22 @@ final class DataTablesMySqlQuery_Test extends TestCase
     }
 
 
+    private function assertHashesEqual($actual, $expected) {
+        $flds = [ 'recordsTotal', 'recordsFiltered', 'data', 'params' ];
+        foreach ($flds as $f)
+            $this->assertEquals($actual[$f], $expected[$f], $f);
+    }
+    
     public function test_smoke_test()
     {
         $actual = DataTablesMySqlQuery::getSql($this->basesql, $this->parameters);
         $expected = [
-            'recordsTotal' => 'select count(*) from (select CatID, Color, Food from Cats) src',
-            'recordsFiltered' => 'select count(*) from (select CatID, Color, Food from Cats ) src',
-            'data' => 'SELECT CatID, Color, Food FROM (select CatID, Color, Food from Cats  ORDER BY Color asc, Color, Food LIMIT 10, 50) src ORDER BY Color asc, Color, Food',
+            'recordsTotal' => 'select count(*) from (select CatID, Color, Food from Cats) realbase',
+            'recordsFiltered' => 'select count(*) from (select CatID, Color, Food from Cats) realbase ',
+            'data' => 'SELECT CatID, Color, Food FROM (select * from (select CatID, Color, Food from Cats) realbase  ORDER BY Color asc, Color, Food LIMIT 10, 50) src ORDER BY Color asc, Color, Food',
             'params' => []
         ];
-        $this->assertEquals($actual, $expected, 'sql');
+        $this->assertHashesEqual($actual, $expected);
     }
 
 
@@ -73,12 +79,12 @@ final class DataTablesMySqlQuery_Test extends TestCase
 
         $actual = DataTablesMySqlQuery::getSql($this->basesql, $this->parameters);
         $expected = [
-            'recordsTotal' => 'select count(*) from (select CatID, Color, Food from Cats) src',
-            'recordsFiltered' => 'select count(*) from (select CatID, Color, Food from Cats ) src',
-            'data' => 'SELECT CatID, Color, Food FROM (select CatID, Color, Food from Cats  ORDER BY Food desc, Color, Food LIMIT 10, 50) src ORDER BY Food desc, Color, Food',
+            'recordsTotal' => 'select count(*) from (select CatID, Color, Food from Cats) realbase',
+            'recordsFiltered' => "select count(*) from (select CatID, Color, Food from Cats) realbase ",
+            'data' => "SELECT CatID, Color, Food FROM (select * from (select CatID, Color, Food from Cats) realbase  ORDER BY Food desc, Color, Food LIMIT 10, 50) src ORDER BY Food desc, Color, Food",
             'params' => []
         ];
-        $this->assertEquals($actual, $expected, 'sql');
+        $this->assertHashesEqual($actual, $expected);
     }
 
     public function test_single_search()
@@ -87,14 +93,13 @@ final class DataTablesMySqlQuery_Test extends TestCase
 
         $actual = DataTablesMySqlQuery::getSql($this->basesql, $this->parameters);
 
-        $expectedWHERE = "WHERE (Color LIKE CONCAT('%', :s0, '%') OR Food LIKE CONCAT('%', :s0, '%'))";
         $expected = [
-            "recordsTotal" => "select count(*) from (select CatID, Color, Food from Cats) src",
-            "recordsFiltered" => "select count(*) from (select CatID, Color, Food from Cats $expectedWHERE) src",
-            "data" => "SELECT CatID, Color, Food FROM (select CatID, Color, Food from Cats $expectedWHERE ORDER BY Color asc, Color, Food LIMIT 10, 50) src ORDER BY Color asc, Color, Food",
+            "recordsTotal" => "select count(*) from (select CatID, Color, Food from Cats) realbase",
+            "recordsFiltered" => "select count(*) from (select CatID, Color, Food from Cats) realbase WHERE (Color LIKE CONCAT('%', :s0, '%') OR Food LIKE CONCAT('%', :s0, '%'))",
+            "data" => "SELECT CatID, Color, Food FROM (select * from (select CatID, Color, Food from Cats) realbase WHERE (Color LIKE CONCAT('%', :s0, '%') OR Food LIKE CONCAT('%', :s0, '%')) ORDER BY Color asc, Color, Food LIMIT 10, 50) src ORDER BY Color asc, Color, Food",
             'params' => [ 's0' => 'XXX' ]
         ];
-        $this->assertEquals($actual, $expected, "sql");
+        $this->assertHashesEqual($actual, $expected);
     }
 
     public function test_multiple_search_terms()
@@ -103,17 +108,13 @@ final class DataTablesMySqlQuery_Test extends TestCase
 
         $actual = DataTablesMySqlQuery::getSql($this->basesql, $this->parameters);
 
-        $expectedWHERE = "WHERE " .
-           "(Color LIKE CONCAT('%', :s0, '%') OR Food LIKE CONCAT('%', :s0, '%'))" .
-           " AND " .
-           "(Color LIKE CONCAT('%', :s1, '%') OR Food LIKE CONCAT('%', :s1, '%'))";
         $expected = [
-            "recordsTotal" => "select count(*) from (select CatID, Color, Food from Cats) src",
-            "recordsFiltered" => "select count(*) from (select CatID, Color, Food from Cats $expectedWHERE) src",
-            "data" => "SELECT CatID, Color, Food FROM (select CatID, Color, Food from Cats $expectedWHERE ORDER BY Color asc, Color, Food LIMIT 10, 50) src ORDER BY Color asc, Color, Food",
+            "recordsTotal" => "select count(*) from (select CatID, Color, Food from Cats) realbase",
+            "recordsFiltered" => "select count(*) from (select CatID, Color, Food from Cats) realbase WHERE (Color LIKE CONCAT('%', :s0, '%') OR Food LIKE CONCAT('%', :s0, '%')) AND (Color LIKE CONCAT('%', :s1, '%') OR Food LIKE CONCAT('%', :s1, '%'))",
+            "data" => "SELECT CatID, Color, Food FROM (select * from (select CatID, Color, Food from Cats) realbase WHERE (Color LIKE CONCAT('%', :s0, '%') OR Food LIKE CONCAT('%', :s0, '%')) AND (Color LIKE CONCAT('%', :s1, '%') OR Food LIKE CONCAT('%', :s1, '%')) ORDER BY Color asc, Color, Food LIMIT 10, 50) src ORDER BY Color asc, Color, Food",
             'params' => [ 's0' => 'XXX', 's1' => 'YYY' ]
         ];
-        $this->assertEquals($actual, $expected, "sql");
+        $this->assertHashesEqual($actual, $expected);
     }
 
 

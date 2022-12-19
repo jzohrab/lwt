@@ -87,10 +87,14 @@ class DataTablesMySqlQuery
         }
 
 
-        $recordsTotal_sql = "select count(*) from ({$base_sql}) src";
-        $recordsFiltered_sql = "select count(*) from ({$base_sql} {$where}) src";
+        // base_sql might have its own where condition, so put that
+        // select into its own table so that subsequent WHEREs added
+        // by the filtering don't cause problems.
+        $realbase = "({$base_sql}) realbase";
+        $recordsTotal_sql = "select count(*) from {$realbase}";
+        $recordsFiltered_sql = "select count(*) from {$realbase} {$where}";
         $select_field_list = implode(', ', $select_fields);
-        $data_sql = "SELECT $select_field_list FROM ({$base_sql} {$where} {$orderby} LIMIT $start, $length) src {$orderby}";
+        $data_sql = "SELECT $select_field_list FROM (select * from {$realbase} {$where} {$orderby} LIMIT $start, $length) src {$orderby}";
         // dump('TOTAL: ' . $recordsTotal_sql);
         // dump("FILTERED:\n\n" . $recordsFiltered_sql);
         // dump("DATA:\n\n" . $data_sql);
@@ -107,14 +111,24 @@ class DataTablesMySqlQuery
     /** Returns data for ajax paging. */
     public static function getData($base_sql, $parameters, $conn) {
 
-        $sqla = DataTablesMySqlQuery::getSql($base_sql, $parameters);
-        $recordsTotal = $conn->executeQuery($sqla['recordsTotal'])->fetchNumeric()[0];
-        $recordsFiltered = $conn->executeQuery($sqla['recordsFiltered'], $sqla['params'])->fetchNumeric()[0];
+        $recordsTotal = null;
+        $recordsFiltered = null;
+        $data = null;
 
-        $res = $conn->executeQuery($sqla['data'], $sqla['params']);
-        $ret = [];
-        while (($row = $res->fetchNumeric())) {
-            $ret[] = array_values($row);
+        try {
+            $sqla = DataTablesMySqlQuery::getSql($base_sql, $parameters);
+            $recordsTotal = $conn->executeQuery($sqla['recordsTotal'])->fetchNumeric()[0];
+            $recordsFiltered = $conn->executeQuery($sqla['recordsFiltered'], $sqla['params'])->fetchNumeric()[0];
+
+            $res = $conn->executeQuery($sqla['data'], $sqla['params']);
+            $ret = [];
+            while (($row = $res->fetchNumeric())) {
+                $ret[] = array_values($row);
+            }
+        }
+        catch (\Exception $e) {
+            dump($sqla);
+            throw $e;
         }
 
         $result = [
