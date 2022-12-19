@@ -51,8 +51,10 @@
     const newid = newel.attr('id');
     console.log(`got element id = ${newid}`);
 
+    const context = window.parent.document;
+
     const replaceid = updates.replace;
-    const repel = $(`#${replaceid}`, window.parent.document);
+    const repel = $(`#${replaceid}`, context);
     if (repel.length == 0) {
       console.log(` ... could not find ${replaceid} ?`);
       return;
@@ -63,8 +65,18 @@
     const removeids = updates.hide;
     for(let i = 0; i < removeids.length; i++) {
       const delid = removeids[i];
-      $(`#${delid}`, window.parent.document).remove();
+      $(`#${delid}`, context).remove();
     }
+
+    const k = 'span.kwordmarked';
+    $(k, context).removeClass(k)
+
+    const refocus = $(`#${newid}`, context);
+    if (refocus.length == 0) {
+      console.log(`could not find id #${newid} to refocus ???`);
+      return;
+    }
+    refocus.addClass(k);
   }
 
   top.frames.dictframe.location.href = '/read/empty';
