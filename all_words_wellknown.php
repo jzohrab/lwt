@@ -66,13 +66,13 @@ function all_words_wellknown_process_word($status, $term, $termlc, $langid): arr
     } else {
         $message = runsql(
             "INSERT INTO words (
-                WoLgID, WoText, WoTextLC, WoStatus, WoStatusChanged," 
+                WoLgID, WoText, WoTextLC, WoWordCount, WoStatus, WoStatusChanged," 
                 . make_score_random_insert_update('iv') . 
             ") 
             VALUES( 
                 $langid, " . 
                 convert_string_to_sqlsyntax($term) . ", " . 
-                convert_string_to_sqlsyntax($termlc) . ", $status, NOW(), " .  
+                convert_string_to_sqlsyntax($termlc) . ", 1, $status, NOW(), " .  
                 make_score_random_insert_update('id') .
             ")", 
             ''
