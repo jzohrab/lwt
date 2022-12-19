@@ -88,6 +88,8 @@ class Parser {
             echo $newcleantext . "\n\n";
             throw new \Exception("not equal cleaning?");
         }
+        // echo "\n\nNEW CLEAN TEXT:\n" . $newcleantext . "\n\n";
+
         $this->load_temptextitems($newcleantext);
 
         $this->import_temptextitems($text);
@@ -182,6 +184,9 @@ class Parser {
             $text = str_replace(' ', '', $text);
         }
 
+        // Final trim, in case the text was a single word.
+        $text = trim($text);
+
         return $text;
     }
 
@@ -274,7 +279,8 @@ class Parser {
             [ "/(\n|^)(?=.?[$termchar][^\n]*\n)/u", "\n1\t" ],
             'trim',
             [ "/(\n|^)(?!1\t)/u", "\n0\t" ],
-            [ ' ', '', $lang->isLgRemoveSpaces() ]
+            [ ' ', '', $lang->isLgRemoveSpaces() ],
+            'trim'
         ]);
         
         return $text;
@@ -292,11 +298,11 @@ class Parser {
         fclose($fp);
 
         /*
-        echo "\n";
+        echo "\n-------------\n";
         echo $text;
-        echo "\n";
+        echo "\n-------------\n";
         */
-        
+
         $this->conn->query("drop table if exists temptextitems");
 
         // Note the charset/collation here is very important!
