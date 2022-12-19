@@ -5,6 +5,9 @@
  */
 function prepareTextInteractions(textid) {
   const t = $('#thetext');
+  // Using "t.on" here because .word elements
+  // are added and removed dynamically, and "t.on"
+  // ensures that events remain for each element.
   t.on('click', '.word', word_clicked);
   t.on('mousedown', '.word', select_started);
   t.on('mouseover', '.word', select_over);
