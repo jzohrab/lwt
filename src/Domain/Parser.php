@@ -184,7 +184,7 @@ class Parser {
             $text = str_replace(' ', '', $text);
         }
 
-        // Final trim, in case the text was a single word.
+        // Remove any leading or trailing spaces.
         $text = trim($text);
 
         return $text;

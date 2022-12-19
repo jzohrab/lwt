@@ -32,9 +32,6 @@ final class Parser_Test extends DatabaseTestBase
         DbHelpers::assertRecordcountEquals($sql, 0, 'after');
     }
 
-    /**
-     * @group loader
-     */
     // Parsing was failing when the db trigger wasn't defined, so
     // verify it's set!
     public function test_parse_textitems2_textlc_is_set()
@@ -219,6 +216,9 @@ final class Parser_Test extends DatabaseTestBase
 
     // While using the legacy code, I ran into problems with specific sentences,
     // and fixed them.  Porting those old tests here.
+    /**
+     * @group current
+     */
     public function test_old_production_bugfixes()
     {
 
@@ -249,11 +249,11 @@ final class Parser_Test extends DatabaseTestBase
         $sql = "select ti2seid, ti2order, ti2text from textitems2
           where ti2woid <> 0 order by ti2seid";
         $expected = [
-            '1; 30; nos marcamos',
-            '2; 140; pabellón auditivo',
-            '3; 163; de refilón',
-            '4; 212; con el tiempo',
-            '5; 225; Tanto daba'
+            '1; 29; nos marcamos',
+            '2; 139; pabellón auditivo',
+            '3; 162; de refilón',
+            '4; 211; con el tiempo',
+            '5; 224; Tanto daba'
         ];
         DbHelpers::assertTableContains($sql, $expected);
 
