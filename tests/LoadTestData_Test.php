@@ -40,6 +40,8 @@ Cuando Caperucita se disponía  a salir de casa, su mamá, con gesto un poco ser
         $t->setLanguage($this->spanish);
         $this->text_repo->save($t, true);
 
+        $this->load_spanish_texts();
+
         $this->load_french_data();
 
         // Load a pile of terms.

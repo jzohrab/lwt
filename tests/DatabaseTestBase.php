@@ -105,7 +105,7 @@ abstract class DatabaseTestBase extends WebTestCase
     {
         $t = new Text();
         $t->setTitle("Hola.");
-        $t->setText("Hola tengo un gato.  No tengo una lista.\nElla tiene una bebida.");
+        $t->setText("Hola tengo un gato.  No tengo una lista.\nElla tiene una bebida.  No tengo una bebida.");
         $t->setLanguage($this->spanish);
         $this->text_repo->save($t, true, $parseTexts);
         $this->spanish_hola_text = $t;
