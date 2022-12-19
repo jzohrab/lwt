@@ -62,21 +62,31 @@
     console.log(`replacing ${replaceid} with content.`);
     repel.replaceWith(content);
 
+    console.log('removing elements');
     const removeids = updates.hide;
     for(let i = 0; i < removeids.length; i++) {
-      const delid = removeids[i];
-      $(`#${delid}`, context).remove();
+      let delid = removeids[i];
+      delid = `#${delid}`;
+      console.log(`removing id = ${delid}`);
+      $(`${delid}`, context).remove();
+      console.log('removed');
     }
 
-    const k = 'span.kwordmarked';
+    const k = 'kwordmarked';
+    const markedel = $(`span.${k}`, context);
+    if (markedel.length == 0)
+      console.log('unabled to find ' + k + '??');
     $(k, context).removeClass(k)
 
+    console.log('refocus');
     const refocus = $(`#${newid}`, context);
     if (refocus.length == 0) {
       console.log(`could not find id #${newid} to refocus ???`);
-      return;
     }
-    refocus.addClass(k);
+    else {
+      console.log('adding class to el id = ' + refocus.attr('id'));
+      refocus.addClass(k);
+    }
   }
 
   top.frames.dictframe.location.href = '/read/empty';
