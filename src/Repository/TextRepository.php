@@ -127,7 +127,7 @@ SELECT
 t.TxID As TxID,
 
 wordcount.n as wordcount,
-distinctterms.n as distinctterms,
+coalesce(distinctterms.n, 0) as distinctterms,
 coalesce(mwordexpressions.n, 0) as multiwordexpressions,
 sUnk, s1, s2, s3, s4, s5, sIgn, sWkn
 
