@@ -38,18 +38,25 @@
       #}
       
       let update_reading_pane_elements = function(updates_dict) {
+        let content = null;
+
+        {#
+         Note that the two js lines get re-rendered for every
+         item, so, e.g., content cannot be declared as "const".
+        #}
         {% for item in textitems %}
-        const content = `{% include '/read/textitem.html.twig' %}`;
+        content = `{% include '/read/textitem.html.twig' %}`;
+        update_element(content, updates_dict);
+        {% endfor %}
+      }
+  
+      let update_element = function(content, updates_dict) {
+        const context = window.parent.document;
+
         const newel = $($.parseHTML(content));
         const newid = newel.attr('id');
         const replaceid = updates_dict[newid].replace;
         const removeids = updates_dict[newid].hide;
-        update_element(newid, content, replaceid, removeids);
-        {% endfor %}
-      }
-  
-      let update_element = function(newid, content, replaceid, removeids) {
-        const context = window.parent.document;
 
         const repel = $(`#${replaceid}`, context);
         if (repel.length == 0) {
@@ -65,16 +72,12 @@
           $(`#${delid}`, context).remove();
         }
 
-        const k = 'kwordmarked';
-        const markedel = $(`span.${k}`, context);
-        if (markedel.length == 0)
-          console.log('unabled to find ' + k + '??');
-        $(k, context).removeClass(k)
-
         // console.log('refocus');
+        const k = 'kwordmarked';
+        $(`span.${k}`, context).removeClass(k)
         const refocus = $(`#${newid}`, context);
         if (refocus.length == 0)
-          console.log(`could not find id #${newid} to refocus ???`);
+          console.log(`could not find id #${newid} to refocus?`);
         refocus.addClass(k);
 
         // Reload the array so that navigation works!
