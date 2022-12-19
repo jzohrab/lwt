@@ -1,81 +1,101 @@
-# To-do
-
-(This list is likely incomplete.)  Sorted more-or-less by priority.  As things are done, they're moved to the Done list and possibly referenced in the top-level README.
-
-## MVP Phase 1
+# MVP Phase 1
 
 The initial goal of this project is to get the minimum set of features implemented under the new Symfony framework:
 
-* define Language - DONE
-* create a text - DONE
-* rework rendering - DONE
-* right pane word definition pop-up
-** create terms and multiword terms
-* import a long text file
+* run all legacy code tests in parallel, to ensure DB compatibility of old code.
 * ajax set statuses
 * bulk status updates
-* move parsing stuff to separate class with smaller interface.
-** Note: after creating a multiword expression, just re-render the current page - the "insert expressions (mode)" stuff is just too messy.
 ** Remove all deps on database_connection.php in this class.
 ** On text open, just re-parse it.  This takes care of any parsing and expression issues, and should speed up status updates for the current page too.
 * settings?  Not sure if needed at the moment.
+* _REMOVE ALL LEGACY CODE_.
 
-A lot of things will be removed at first, and *might* be re-introduced after the MVP is done.  They should be removed for the MVP so that the code becomes more manageable, and old/really bad stuff can be tossed.
+## Done
 
-* all old pages and inc files.
-* themes
-* rss feeds
-* all anki-like testing
-* texts.TxAnnotatedText field, and all "Improved annotation" eg. `/print_impr_text.php?text=1` (this really needs to be reworked, it stores data in a structured but non-intuitive way in the Texts table ...)
-* db import and export
-* old documentation
-* docker
-* multi-word edit screen `/edit_words.php`
-* bulk translation
-* overlib
+* define Language
+* create a text
+* rework rendering
+* right pane word definition pop-up
+** create terms and multiword terms
+* move parsing stuff to separate class with smaller interface.
+
+## LWT features to be scrapped
+
+Most or all of the legacy code should be scrapped, it's not manageable.  These features *might* be re-introduced after the MVP is done.
+
+### All anki-like testing
+
+The current testing code isn't the best.  It assumes that it should just potentially test everything.  I should be able to select the terms I want to test, especially parent terms that implicitly include many child sentences.  Needs a big rearchitecture.
+
+### multi-word edit screen
+
+`/edit_words.php` - to be replaced by a datatables-type view.
+
+### bulk translation
+
+A good idea, but the code was pretty rough.
+
+### docker
+
+This is probably a very good thing to look into, but users would have to have docker on their systems, which might not be common.  Who knows?  And, of course, the docker-to-database issue, which was a big deal a few years ago, might be tricky.
+
+### theming (needs big re-architecture)
+
+Symfony has theming options, should look into that.
+
+### rss feeds
+
+The current code is too crazy to work with, and for me at least, setting up the import didn't work.
+
+### text annotations
+
+i.e., texts.TxAnnotatedText field, and all "Improved annotation" such as `/print_impr_text.php?text=1`.  The data is currently stored in a non-relational way in the database, and doesn't need to be.
+
+### db import and export
+
+Exports are pretty trivial, but imports are a *big deal* -- it's too easy to write over things.  With database migrations, it's also easy (aka bad) for users to restore non-compatible schema versions, and they'd have to run db migrations.
+
+In a real-world system, devs or DBAs would handle backups and restores.
+
+So, this is important, but needs to be looked at more carefully -- probably some kind of command-line tool would be best.
+
+### overlib
+
+An out-of-date library.
+
+### old documentation
+
+Has too many screenshots that don't apply now!
 
 
-## MVP Phase 2
+# MVP Phase 2
+
+A rough list of big-ish features to add once MVP1 is done:
 
 * statistics
 * import terms
 * help/info
 * manage term tags
 * manage text tags
+* import a long text file
 
-## Small projects
+# Small-ish features to add at any point
 
-* Listing of text tags with link to texts with tag
+* Check text length constraint - 65K too long.
 * Add repeatable migrations to db migrator
 * Move trigger creation to repeatable migration
 * Fix docs for exporting a DB backup, skip triggers (trigger in dumpfile was causing mysql to fail on import)
-* Word list (very big for DataTables, will need to ajax things in)
+* Language "reparse all texts" on language change - or just reparse on open
 
-## Unfinished work on existing pages
+# Post-MVP
 
-Some pages are sufficiently implemented for the MVP (minimum viable product) stage of Lute, but may need to be added to match the existing LWT feature set.
-
-### Language listing `/language/`
-
-* Add "reparse all texts".  Will actually be handled by the TextRepository.
-* Possibly add link to get all texts for the language (maybe not needed, as the text listing can be filtered)
-* Link to get all terms
-* Link to all RSS feeds?
-* Delete Language.  This is a big deal, will cause loss (or archive) of all texts.  Much better would be to just be to archive/deactivate the language (which would archive all the texts).
-
-### Add/edit text `/text/1/edit`
-
-* Check text length constraint - 65K too long.
+* anki export
+* bulk translation (?)
+* archive language.  (Deleting would lose all texts, so just archive the language and all its texts, and have option to re-activate).
 * Playing media in /public/media or from other sources.
 
-## Longer term
 
-* remove all existing testing code
+# Why scrapping
 
-The current testing code isn't the best.  It assumes that it should just potentially test everything.  I should be able to select the terms I want to test, especially parent terms that implicitly include many child sentences.  Needs a big rearchitecture.
+* remove all existing anki testing code
 
-## Done
-
-* Text tags
-* Text actions from list: edit text from list, archive, unarchive.
-* Language input form styling
