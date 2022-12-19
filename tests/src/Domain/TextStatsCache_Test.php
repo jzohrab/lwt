@@ -49,7 +49,7 @@ final class TextStatsCache_Test extends DatabaseTestBase
         DbHelpers::assertRecordcountEquals("textstatscache", 1, "one record after save");
     }
 
-    public function test_mark_as_stale_and_refresh_updates_stats()
+    public function test_mark_stale_and_refresh_updates_stats()
     {
         $t = new Text();
         $t->setTitle("Hola.");
@@ -68,7 +68,7 @@ final class TextStatsCache_Test extends DatabaseTestBase
         TextStatsCache::refresh();
         DbHelpers::assertTableContains($sql, [ "999" ], "refreshed, but still old value");
 
-        TextStatsCache::markAsStale([ $t->getID() ]);
+        TextStatsCache::markStale([ $t->getID() ]);
         TextStatsCache::refresh();
         DbHelpers::assertTableContains($sql, [ "11" ], "Updated");
     }

@@ -17,6 +17,7 @@ class ExpressionUpdater {
     public static function associateExpressionsInText(Text $text) {
         $eu = new ExpressionUpdater();
         $eu->loadExpressionsForText($text);
+        TextStatsCache::markStale([$text->getID()]);
     }
 
     public static function associateTermTextItems(Term $term) {
@@ -299,7 +300,9 @@ class ExpressionUpdater {
 
         }  // next sentence
 
+        $this->markCacheStaleForSentences($sentences);
     }
+
 
     private function get_term_count_before($string, $pos, $termchar): int {
         $beforesubstr = mb_substr($string, 0, $pos - 1, 'UTF-8');
@@ -309,4 +312,10 @@ class ExpressionUpdater {
         return 0;
     }
 
+
+    private function markCacheStaleForSentences($sentences) {
+        $ids = array_map(fn($r) => intval($r['SeTxID']), $sentences);
+        $ids = array_unique($ids, SORT_NUMERIC);
+        TextStatsCache::markStale($ids);
+    }
 }

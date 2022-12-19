@@ -136,7 +136,9 @@ LEFT OUTER JOIN (
             TextStatsCache::exec_sql($sql);
     }
 
-    public static function markAsStale(array $text_ids) {
+    public static function markStale(array $text_ids) {
+        if (count($text_ids) == 0)
+            return;
         $ids = implode(', ', $text_ids);
         $sql = "DELETE from textstatscache where TxID in ({$ids})";
         TextStatsCache::exec_sql($sql);
