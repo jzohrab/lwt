@@ -249,7 +249,7 @@ final class Parser_Test extends DatabaseTestBase
         $sql = "select ti2seid, ti2order, ti2text from textitems2
           where ti2woid <> 0 order by ti2seid";
         $expected = [
-            '1; 29; nos marcamos',
+            '1; 30; nos marcamos',
             '2; 139; pabellón auditivo',
             '3; 162; de refilón',
             '4; 211; con el tiempo',
