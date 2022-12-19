@@ -1,7 +1,6 @@
 <html>
   <head>
     <script type="text/javascript" src="/js/jquery.js" charset="utf-8"></script>
-
     <style>
       .flash {
           margin-top: 20px;
@@ -11,16 +10,14 @@
       }
     </style>
   </head>
+
   <body>
+
     <div id="flash" class="flash">
       <p>&quot;{{ term.Text }}&quot; updated.</p>
     </div>
 
     <script>
-
-      $(function() {
-        $('#flash').delay(1000).fadeOut();
-      });
 
       {#
        Update all of the text items.
@@ -45,18 +42,15 @@
         const content = `{% include '/read/textitem.html.twig' %}`;
         const newel = $($.parseHTML(content));
         const newid = newel.attr('id');
-        update_element(content, updates_dict[newid]);
+        const replaceid = updates_dict[newid].replace;
+        const removeids = updates_dict[newid].hide;
+        update_element(newid, content, replaceid, removeids);
         {% endfor %}
       }
   
-      let update_element = function(content, updates) {
-        const newel = $($.parseHTML(content));
-        const newid = newel.attr('id');
-        // console.log(`got element id = ${newid}`);
-
+      let update_element = function(newid, content, replaceid, removeids) {
         const context = window.parent.document;
 
-        const replaceid = updates.replace;
         const repel = $(`#${replaceid}`, context);
         if (repel.length == 0) {
           console.log(` ... could not find ${replaceid} ?`);
@@ -66,11 +60,9 @@
         repel.replaceWith(content);
 
         // console.log('removing elements');
-        const removeids = updates.hide;
         for(let i = 0; i < removeids.length; i++) {
-          let delid = removeids[i];
-          delid = `#${delid}`;
-          $(`${delid}`, context).remove();
+          const delid = removeids[i];
+          $(`#${delid}`, context).remove();
         }
 
         const k = 'kwordmarked';
@@ -81,12 +73,9 @@
 
         // console.log('refocus');
         const refocus = $(`#${newid}`, context);
-        if (refocus.length == 0) {
+        if (refocus.length == 0)
           console.log(`could not find id #${newid} to refocus ???`);
-        }
-        else {
-          refocus.addClass(k);
-        }
+        refocus.addClass(k);
 
         // Reload the array so that navigation works!
         parent.load_reading_pane_globals();
@@ -97,6 +86,7 @@
       $(document).ready(function() {
         const updates_by_spanid = {{ updates | raw }};
         update_reading_pane_elements(updates_by_spanid);
+        $('#flash').delay(1000).fadeOut();
       });
     </script>
 
