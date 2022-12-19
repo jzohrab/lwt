@@ -49,7 +49,7 @@
   let update_element = function(content, updates) {
     const newel = $($.parseHTML(content));
     const newid = newel.attr('id');
-    console.log(`got element id = ${newid}`);
+    // console.log(`got element id = ${newid}`);
 
     const context = window.parent.document;
 
@@ -59,17 +59,15 @@
       console.log(` ... could not find ${replaceid} ?`);
       return;
     }
-    console.log(`replacing ${replaceid} with content.`);
+    // console.log(`replacing ${replaceid} with content.`);
     repel.replaceWith(content);
 
-    console.log('removing elements');
+    // console.log('removing elements');
     const removeids = updates.hide;
     for(let i = 0; i < removeids.length; i++) {
       let delid = removeids[i];
       delid = `#${delid}`;
-      console.log(`removing id = ${delid}`);
       $(`${delid}`, context).remove();
-      console.log('removed');
     }
 
     const k = 'kwordmarked';
@@ -78,13 +76,12 @@
       console.log('unabled to find ' + k + '??');
     $(k, context).removeClass(k)
 
-    console.log('refocus');
+    // console.log('refocus');
     const refocus = $(`#${newid}`, context);
     if (refocus.length == 0) {
       console.log(`could not find id #${newid} to refocus ???`);
     }
     else {
-      console.log('adding class to el id = ' + refocus.attr('id'));
       refocus.addClass(k);
     }
 
