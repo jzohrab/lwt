@@ -5,13 +5,13 @@ class MysqlMigrator {
   var $db;
   var $showlogging;
 
-  function __construct($showlogging = false) {
+  public function __construct($showlogging = false) {
     date_default_timezone_set('UTC');
     $this->showlogging = $showlogging;
   }
 
-  function process($location, $repeatable, $host, $db, $user, $pass) {
-    $this->log("mysql migrate (files: '$location', repeatable: '$repeatable', host: '$host', db: '$db', user: '$user', pass: '$pass')");
+  public function process($location, $repeatable, $host, $db, $user, $pass) {
+    // $this->log("mysql migrate (files: '$location', repeatable: '$repeatable', host: '$host', db: '$db', user: '$user', pass: '$pass')");
     $this->dbname = $db;
     $this->create_connection($host, $db, $user, $pass);
     if (is_dir($location)) {
@@ -23,6 +23,15 @@ class MysqlMigrator {
     $this->db->close();
   }
 
+  public function exec($sql, $host, $db, $user, $pass) {
+    // $this->log("mysql exec (sql: '$sql', host: '$host', db: '$db', user: '$user', pass: '$pass')");
+    $this->log($sql);
+    $this->dbname = $db;
+    $this->create_connection($host, $db, $user, $pass);
+    $this->exec_commands($sql);
+    $this->db->close();
+  }
+
   private function log($message) {
     if ($this->showlogging) {
       echo "$message\n";
@@ -30,7 +39,7 @@ class MysqlMigrator {
   }
 
   private function create_connection($host, $db, $user, $pass) {
-    $this->log("connecting to db: mysqli($host, $user, $pass, $db)");
+    // $this->log("connecting to db: mysqli($host, $user, $pass, $db)");
     $this->db = new mysqli($host, $user, $pass, $db);
     if ($this->db->connect_errno) {
         $n = $this->db->connect_errno;
@@ -41,7 +50,7 @@ class MysqlMigrator {
     $this->db->options(MYSQLI_READ_DEFAULT_GROUP,"max_allowed_packet=128M");
   }
 
-  function process_folder($folder) {
+  private function process_folder($folder) {
     $this->create_migrations_table_if_needed();
     $this->log("running migrations in $folder");
     chdir($folder);
@@ -61,7 +70,7 @@ class MysqlMigrator {
     }
   }
 
-  function process_repeatable($folder) {
+  private function process_repeatable($folder) {
     chdir($folder);
     $files = glob("*.sql");
     $n = count($files);
@@ -79,7 +88,7 @@ class MysqlMigrator {
     }
   }
 
-  function create_migrations_table_if_needed() {
+  private function create_migrations_table_if_needed() {
     $check_sql = "SELECT TABLE_NAME FROM information_schema.TABLES
       WHERE TABLE_SCHEMA = '{$this->dbname}' AND TABLE_NAME = '_migrations'";
     $res = $this->db->query($check_sql);
@@ -93,7 +102,7 @@ class MysqlMigrator {
     }
   }
 
-  function should_apply($filename) {
+  private function should_apply($filename) {
     if (is_dir($filename)) {
       return false;
     }
@@ -109,12 +118,15 @@ class MysqlMigrator {
     }
   }
 
-  function process_file($file, $showmsg = true) {
+  private function process_file($file, $showmsg = true) {
     if ($showmsg) {
       $this->log("  running $file");
     }
     $commands = file_get_contents($file);
+    $this->exec_commands($commands);
+  }
 
+  private function exec_commands($commands) {
     /* execute multi query */
     $this->db->multi_query($commands);
     do {
