@@ -10,8 +10,8 @@ class MysqlMigrator {
     $this->showlogging = $showlogging;
   }
 
-  function process($location, $host, $db, $user, $pass) {
-    $this->log("mysql migrate (location: '$location', host: '$host', db: '$db', user: '$user', pass: '$pass')");
+  function process($location, $repeatable, $host, $db, $user, $pass) {
+    $this->log("mysql migrate (files: '$location', repeatable: '$repeatable', host: '$host', db: '$db', user: '$user', pass: '$pass')");
     $this->dbname = $db;
     $this->create_connection($host, $db, $user, $pass);
     if (is_dir($location)) {
@@ -19,6 +19,7 @@ class MysqlMigrator {
     } else {
       $this->process_file($location);
     }
+    $this->process_repeatable($repeatable);
     $this->db->close();
   }
 
@@ -42,7 +43,7 @@ class MysqlMigrator {
 
   function process_folder($folder) {
     $this->create_migrations_table_if_needed();
-    $this->log("processing folder: $folder");
+    $this->log("running migrations in $folder");
     chdir($folder);
     $files = glob("*.sql");
     $outstanding = array_filter($files, fn($f) => $this->should_apply($f));
@@ -57,6 +58,24 @@ class MysqlMigrator {
         die;
       }
       $this->add_migration_to_database($file);
+    }
+  }
+
+  function process_repeatable($folder) {
+    chdir($folder);
+    $files = glob("*.sql");
+    $n = count($files);
+    $this->log("running {$n} repeatable migrations in $folder");
+    foreach ($files as $file) {
+      try {
+        $this->process_file($file, false);
+      }
+      catch (Exception $e) {
+        $msg = $e->getMessage();
+        echo "\nFile {$file} exception:\n{$msg}\n";
+        echo "Quitting.\n\n";
+        die;
+      }
     }
   }
 
@@ -90,8 +109,10 @@ class MysqlMigrator {
     }
   }
 
-  function process_file($file) {
-    $this->log("  running $file");
+  function process_file($file, $showmsg = true) {
+    if ($showmsg) {
+      $this->log("  running $file");
+    }
     $commands = file_get_contents($file);
 
     /* execute multi query */
