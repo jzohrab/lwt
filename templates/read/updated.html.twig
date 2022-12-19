@@ -1,28 +1,27 @@
+<html>
+  <head>
 <script type="text/javascript" src="/js/jquery.js" charset="utf-8"></script>
 
-<p>Updated: {{ term.ID }}</p>
-
-<p>Updates:</p>
-<p>{{ updates }}</p>
-
-<p>Terms:</p>
-<div>
-  {% for item in textitems %}
-  <hr />
-  <p>{{ item.SpanID }}, {{ item.Text }} %}</p>
-  <p>Hides:</p>
-  <ul>
-    {% for hidden in item.hides %}
-    <li>{{ hidden.SpanID }} ({{ hidden.Text }})</li>
-    {% endfor %}
-  </ul>
-  {% if item.hides|length > 0 %}
-  <p>first element hidden: {{ item.hides|first.SpanID }}</p>
-  {% endif %}
-  {% endfor %}
+<style>
+  .flash {
+      margin-top: 20px;
+      padding: 20px;
+      background-color: #fff3cd;
+      border-color: #ffeeba;
+  }
+</style>
+  </head>
+  <body>
+<div id="flash" class="flash">
+  <p>&quot;{{ term.Text }}&quot; updated.</p>
 </div>
 
+
 <script>
+
+  $(function() {
+    $('#flash').delay(1000).fadeOut();
+  });
 
   {#
    Update all of the text items.
@@ -95,3 +94,7 @@
     update_reading_pane_elements(updates_by_spanid);
   });
 </script>
+
+</body>
+
+  </html>
