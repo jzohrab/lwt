@@ -14,12 +14,12 @@ final class word_input_form__Loader_Test extends word_input_form_TestBase {
         DbHelpers::add_text($this->text, $this->langid);
 
         splitCheckText($this->text, $this->langid, 1);
-        $spot_check_sql = "select ti2woid, ti2seid, ti2order, ti2text from textitems2
+        $spot_check_sql = "select ti2woid, ti2seid, ti2order, ti2text, concat('*', ti2textlc, '*') from textitems2
 where ti2order in (1, 12, 25) order by ti2order";
         $expected = [
-            "0; 1; 1; Hola",
-            "0; 2; 12; TENGO",
-            "0; 3; 25; bebida"
+            "0; 1; 1; Hola; *hola*",
+            "0; 2; 12; TENGO; *tengo*",
+            "0; 3; 25; bebida; *bebida*"
         ];
         DbHelpers::assertTableContains($spot_check_sql, $expected);
 

@@ -32,45 +32,62 @@ final class Parser_Test extends DatabaseTestBase
         DbHelpers::assertRecordcountEquals($sql, 0, 'after');
     }
 
+    /**
+     * @group loader
+     */
+    // Parsing was failing when the db trigger wasn't defined, so
+    // verify it's set!
+    public function test_parse_textitems2_textlc_is_set()
+    {
+        $t = new Text();
+        $t->setTitle("Hola");
+        $t->setText("Hola");
+        $t->setLanguage($this->spanish);
+        $this->text_repo->save($t, true, true);
+
+        $sql = "select ti2text, concat('*', ti2textlc, '*') from textitems2 where ti2txid = {$t->getID()}";
+        $expected = [ "Hola; *hola*" ];
+        DbHelpers::assertTableContains($sql, $expected, 'lowercase set');
+    }
 
     public function test_parse_no_words_defined()
     {
         $this->load_spanish_texts(false);
         $t = $this->spanish_hola_text;
 
-        $sql = "select ti2seid, ti2order, ti2text from textitems2 where ti2woid = 0 order by ti2order";
+        $sql = "select ti2seid, ti2order, ti2text, ti2textlc from textitems2 where ti2woid = 0 order by ti2order";
         DbHelpers::assertTableContains($sql, [], 'nothing in table before parsing.');
         
         Parser::parse($t);
         ExpressionUpdater::associateExpressionsInText($t);
 
         $expected = [
-            "1; 1; Hola",
-            "1; 2;  ",
-            "1; 3; tengo",
-            "1; 4;  ",
-            "1; 5; un",
-            "1; 6;  ",
-            "1; 7; gato",
-            "1; 8; .",
-            "2; 9;  ",
-            "2; 10; No",
-            "2; 11;  ",
-            "2; 12; tengo",
-            "2; 13;  ",
-            "2; 14; una",
-            "2; 15;  ",
-            "2; 16; lista",
-            "2; 17; .",
-            "3; 18; ¶",
-            "4; 19; Ella",
-            "4; 20;  ",
-            "4; 21; tiene",
-            "4; 22;  ",
-            "4; 23; una",
-            "4; 24;  ",
-            "4; 25; bebida",
-            "4; 26; ."
+            "1; 1; Hola; hola",
+            "1; 2;  ;  ",
+            "1; 3; tengo; tengo",
+            "1; 4;  ;  ",
+            "1; 5; un; un",
+            "1; 6;  ;  ",
+            "1; 7; gato; gato",
+            "1; 8; .; .",
+            "2; 9;  ;  ",
+            "2; 10; No; no",
+            "2; 11;  ;  ",
+            "2; 12; tengo; tengo",
+            "2; 13;  ;  ",
+            "2; 14; una; una",
+            "2; 15;  ;  ",
+            "2; 16; lista; lista",
+            "2; 17; .; .",
+            "3; 18; ¶; ¶",
+            "4; 19; Ella; ella",
+            "4; 20;  ;  ",
+            "4; 21; tiene; tiene",
+            "4; 22;  ;  ",
+            "4; 23; una; una",
+            "4; 24;  ;  ",
+            "4; 25; bebida; bebida",
+            "4; 26; .; ."
         ];
         DbHelpers::assertTableContains($sql, $expected, 'after parse');
     }

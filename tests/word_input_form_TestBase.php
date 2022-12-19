@@ -55,11 +55,13 @@ abstract class word_input_form_TestBase extends TestCase
         DbHelpers::assertTableContains($sql, $expected, $message);
     }
 
+    /*
     public function test_dummy() {
         // Needed this base class to have a test to prevent warning:
         // "No tests found in class "word_input_form_Test".
         // Probably a better way to do this, but who cares.
         $this->assertTrue(true);
     }
+    */
 
 }
