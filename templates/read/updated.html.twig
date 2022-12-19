@@ -60,7 +60,9 @@
 
         const repel = $(`#${replaceid}`, context);
         if (repel.length == 0) {
-          console.log(` ... could not find ${replaceid} ?`);
+          // console.log(` ... could not find ${replaceid} ?`);
+          // Sometimes ids may have been hidden by other terms,
+          // so they're not rendered.  Not an issue, just quit.
           return;
         }
         // console.log(`replacing ${replaceid} with content.`);
