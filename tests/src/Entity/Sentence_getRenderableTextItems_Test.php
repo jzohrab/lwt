@@ -80,9 +80,6 @@ class Sentence_getRenderableTextItems_Test extends TestCase
         $this->assertRenderableEquals($data, $expected);
     }
 
-    /**
-     * @group current
-     */
     public function test_multiword_textitem_indicates_which_items_it_covers()
     {
         $data = [

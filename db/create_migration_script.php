@@ -10,6 +10,11 @@
 
 $outdir = __DIR__ . "/migrations";
 
+if (count($argv) != 2) {
+    echo "\nPlease supply new script name base.\n\n";
+    die();
+}
+
 $name = array_pop($argv);
 $d = date("Ymd_His");
 $filename = "{$outdir}/{$d}_{$name}.sql";

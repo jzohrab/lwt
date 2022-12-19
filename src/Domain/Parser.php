@@ -88,6 +88,8 @@ class Parser {
             echo $newcleantext . "\n\n";
             throw new \Exception("not equal cleaning?");
         }
+        // echo "\n\nNEW CLEAN TEXT:\n" . $newcleantext . "\n\n";
+
         $this->load_temptextitems($newcleantext);
 
         $this->import_temptextitems($text);
@@ -182,50 +184,53 @@ class Parser {
             $text = str_replace(' ', '', $text);
         }
 
+        // Remove any leading or trailing spaces.
+        $text = trim($text);
+
         return $text;
     }
 
- 
+
+    // A (possibly) easier way to do substitutions -- each
+    // pair in $replacements is run in order.
+    // Possible entries:
+    // ( <src string or regex string (starting with '/')>, <target (string or callback)> [, <condition>] )
+    private function do_replacements($text, $replacements) {
+        foreach($replacements as $r) {
+            if ($r == 'trim') {
+                $text = trim($text);
+                continue;
+            }
+
+            $src = $r[0];
+            $tgt = $r[1];
+
+            if (count($r) == 3) {
+                if ($r[2] == false) {
+                    continue;
+                }
+            }
+
+            if (is_string($tgt)) {
+                if (substr($src, 0, 1) == '/') {
+                    $text = preg_replace($src, $tgt, $text);
+                }
+                else {
+                    $text = str_replace($src, $tgt, $text);
+                }
+            }
+            else {
+                $text = preg_replace_callback($src, $tgt, $text);
+            }
+        }
+        return $text;
+    }
+
      /**
      * @param string $text Text to clean, using regexs.
      */
     private function new_clean_standard_text(Text $entity): string
     {
-        // A (possibly) easier way to do substitutions -- each
-        // pair in $replacements is run in order.
-        // Possible entries:
-        // ( <src string or regex string (starting with '/')>, <target (string or callback)> [, <condition>] )
-        $do_replacements = function($text, $replacements) {
-            foreach($replacements as $r) {
-                if ($r == 'trim') {
-                    $text = trim($text);
-                    continue;
-                }
-
-                $src = $r[0];
-                $tgt = $r[1];
-
-                if (count($r) == 3) {
-                    if ($r[2] == false) {
-                        continue;
-                    }
-                }
-
-                if (is_string($tgt)) {
-                    if (substr($src, 0, 1) == '/') {
-                        $text = preg_replace($src, $tgt, $text);
-                    }
-                    else {
-                        $text = str_replace($src, $tgt, $text);
-                    }
-                }
-                else {
-                    $text = preg_replace_callback($src, $tgt, $text);
-                }
-            }
-            return $text;
-        };
-
         $lang = $entity->getLanguage();
 
         $text = $entity->getText();
@@ -251,7 +256,7 @@ class Parser {
         $termchar = $lang->getLgRegexpWordCharacters();
         $punctchars = "'`\"”)\]‘’‹›“„«»』」";
         
-        $text = $do_replacements($text, [
+        $text = $this->do_replacements($text, [
             [ "\r\n", "\n" ],
             [ '}', ']'],
             [ '{', '['],
@@ -274,7 +279,8 @@ class Parser {
             [ "/(\n|^)(?=.?[$termchar][^\n]*\n)/u", "\n1\t" ],
             'trim',
             [ "/(\n|^)(?!1\t)/u", "\n0\t" ],
-            [ ' ', '', $lang->isLgRemoveSpaces() ]
+            [ ' ', '', $lang->isLgRemoveSpaces() ],
+            'trim'
         ]);
         
         return $text;
@@ -292,11 +298,11 @@ class Parser {
         fclose($fp);
 
         /*
-        echo "\n";
+        echo "\n-------------\n";
         echo $text;
-        echo "\n";
+        echo "\n-------------\n";
         */
-        
+
         $this->conn->query("drop table if exists temptextitems");
 
         // Note the charset/collation here is very important!
