@@ -190,12 +190,14 @@ function select_ended(e) {
 var words = null;
 var maxindex = null;
 
+// A public function because this is called from
+// read/updated.html.twig, when elements are added/removed.
 function load_reading_pane_globals() {
-  console.log('loading reading pane globals');
+  // console.log('loading reading pane globals');
   words = $('span.word').sort(function(a, b) {
     return $(a).attr('data_order') - $(b).attr('data_order');
   });
-  console.log('have ' + words.size() + ' words');
+  // console.log('have ' + words.size() + ' words');
   maxindex = words.size() - 1;
 }
 
