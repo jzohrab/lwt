@@ -299,9 +299,15 @@ class Parser {
         
         $this->conn->query("drop table if exists temptextitems");
 
-        $sql = "create table temptextitems (
-          TiSeID int not null, TiOrder int not null, TiWordCount int not null, TiText varchar(250) not null
-        )";
+        // Note the charset/collation here is very important!
+        // If not used, then when the import is done, a new text item
+        // can match to both an accented *and* unaccented word.
+        $sql = "CREATE TABLE temptextitems (
+          TiSeID mediumint(8) unsigned NOT NULL,
+          TiOrder smallint(5) unsigned NOT NULL,
+          TiWordCount tinyint(3) unsigned NOT NULL,
+          TiText varchar(250) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL
+        ) ENGINE=MEMORY DEFAULT CHARSET=utf8";
         $this->conn->query($sql);
 
         $this->conn->query("SET @order=0, @sid=0, @count=0");
