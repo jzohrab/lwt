@@ -4,10 +4,11 @@
  * Prepare the interaction events with the text.
  */
 function prepareTextInteractions(textid) {
-  $('.word').on('click', word_clicked);
-  $('.word').mousedown(select_started);
-  $('.word').mouseover(select_over);
-  $('.word').mouseup(select_ended);
+  const t = $('#thetext');
+  t.on('click', '.word', word_clicked);
+  t.on('mousedown', '.word', select_started);
+  t.on('mouseover', '.word', select_over);
+  t.on('mouseup', '.word', select_ended);
 
   $(document).on('keydown', handle_keydown);
 
@@ -186,15 +187,16 @@ function select_ended(e) {
 var words = null;
 var maxindex = null;
 
-let load_word_globals = function() {
+function load_reading_pane_globals() {
+  console.log('loading reading pane globals');
   words = $('span.word').sort(function(a, b) {
     return $(a).attr('data_order') - $(b).attr('data_order');
   });
-  // console.log('have ' + words.size() + ' words');
+  console.log('have ' + words.size() + ' words');
   maxindex = words.size() - 1;
 }
 
-$(document).ready(load_word_globals);
+$(document).ready(load_reading_pane_globals);
 
 
 let current_word_index = function() {

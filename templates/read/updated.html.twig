@@ -87,6 +87,8 @@
       console.log('adding class to el id = ' + refocus.attr('id'));
       refocus.addClass(k);
     }
+
+    parent.load_reading_pane_globals();
   }
 
   top.frames.dictframe.location.href = '/read/empty';
