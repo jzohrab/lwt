@@ -1,100 +1,105 @@
 <html>
   <head>
-<script type="text/javascript" src="/js/jquery.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/js/jquery.js" charset="utf-8"></script>
 
-<style>
-  .flash {
-      margin-top: 20px;
-      padding: 20px;
-      background-color: #fff3cd;
-      border-color: #ffeeba;
-  }
-</style>
+    <style>
+      .flash {
+          margin-top: 20px;
+          padding: 20px;
+          background-color: #fff3cd;
+          border-color: #ffeeba;
+      }
+    </style>
   </head>
   <body>
-<div id="flash" class="flash">
-  <p>&quot;{{ term.Text }}&quot; updated.</p>
-</div>
+    <div id="flash" class="flash">
+      <p>&quot;{{ term.Text }}&quot; updated.</p>
+    </div>
 
+    <script>
 
-<script>
+      $(function() {
+        $('#flash').delay(1000).fadeOut();
+      });
 
-  $(function() {
-    $('#flash').delay(1000).fadeOut();
-  });
+      {#
+       Update all of the text items.
+       Originally, I had tried to render the textitems
+       into a variable and return it in the twig options
+       array, but had trouble with the encoding/decoding
+       of the HTML, or it would be interpreted
+       as HTML etc (eg &quot;).
 
-  {#
-   Update all of the text items.
-   Originally, I had tried to render the textitems into a variable
-   and return it in the twig options array, but had trouble with
-   the encoding/decoding of the HTML, or it would be interpreted
-   as HTML etc (eg &quot;).
+       This feels like it's too complicated ...
+       there is likely a simpler way to do it.  Another way
+       would perhaps have been to make an ajax call to get
+       back HTML, but that also felt incorrect, since I'm
+       already rendering this template from a controller
+       that has all the data!
 
-   This feels like it's more complicated than it should be ...
-   there is likely a simpler way to do it.  Another way would
-   perhaps have been to make an ajax call to get back HTML,
-   but that also felt somehow incorrect, since I'm already
-   rendering this template from a controller that has all the data!
-  #}
-  let update_reading_pane_elements = function(updates_dict) {
-    {% for item in textitems %}
-    const content = `{% include '/read/textitem.html.twig' %}`;
-    const newel = $($.parseHTML(content));
-    const newid = newel.attr('id');
-    update_element(content, updates_dict[newid]);
-    {% endfor %}
-  }
+       Regardless, this works.
+      #}
+      
+      let update_reading_pane_elements = function(updates_dict) {
+        {% for item in textitems %}
+        const content = `{% include '/read/textitem.html.twig' %}`;
+        const newel = $($.parseHTML(content));
+        const newid = newel.attr('id');
+        update_element(content, updates_dict[newid]);
+        {% endfor %}
+      }
   
-  let update_element = function(content, updates) {
-    const newel = $($.parseHTML(content));
-    const newid = newel.attr('id');
-    // console.log(`got element id = ${newid}`);
+      let update_element = function(content, updates) {
+        const newel = $($.parseHTML(content));
+        const newid = newel.attr('id');
+        // console.log(`got element id = ${newid}`);
 
-    const context = window.parent.document;
+        const context = window.parent.document;
 
-    const replaceid = updates.replace;
-    const repel = $(`#${replaceid}`, context);
-    if (repel.length == 0) {
-      console.log(` ... could not find ${replaceid} ?`);
-      return;
-    }
-    // console.log(`replacing ${replaceid} with content.`);
-    repel.replaceWith(content);
+        const replaceid = updates.replace;
+        const repel = $(`#${replaceid}`, context);
+        if (repel.length == 0) {
+          console.log(` ... could not find ${replaceid} ?`);
+          return;
+        }
+        // console.log(`replacing ${replaceid} with content.`);
+        repel.replaceWith(content);
 
-    // console.log('removing elements');
-    const removeids = updates.hide;
-    for(let i = 0; i < removeids.length; i++) {
-      let delid = removeids[i];
-      delid = `#${delid}`;
-      $(`${delid}`, context).remove();
-    }
+        // console.log('removing elements');
+        const removeids = updates.hide;
+        for(let i = 0; i < removeids.length; i++) {
+          let delid = removeids[i];
+          delid = `#${delid}`;
+          $(`${delid}`, context).remove();
+        }
 
-    const k = 'kwordmarked';
-    const markedel = $(`span.${k}`, context);
-    if (markedel.length == 0)
-      console.log('unabled to find ' + k + '??');
-    $(k, context).removeClass(k)
+        const k = 'kwordmarked';
+        const markedel = $(`span.${k}`, context);
+        if (markedel.length == 0)
+          console.log('unabled to find ' + k + '??');
+        $(k, context).removeClass(k)
 
-    // console.log('refocus');
-    const refocus = $(`#${newid}`, context);
-    if (refocus.length == 0) {
-      console.log(`could not find id #${newid} to refocus ???`);
-    }
-    else {
-      refocus.addClass(k);
-    }
+        // console.log('refocus');
+        const refocus = $(`#${newid}`, context);
+        if (refocus.length == 0) {
+          console.log(`could not find id #${newid} to refocus ???`);
+        }
+        else {
+          refocus.addClass(k);
+        }
 
-    parent.load_reading_pane_globals();
-  }
+        // Reload the array so that navigation works!
+        parent.load_reading_pane_globals();
+      }
 
-  top.frames.dictframe.location.href = '/read/empty';
+      top.frames.dictframe.location.href = '/read/empty';
 
-  $(document).ready(function() {
-    const updates_by_spanid = {{ updates | raw }};
-    update_reading_pane_elements(updates_by_spanid);
-  });
-</script>
+      $(document).ready(function() {
+        const updates_by_spanid = {{ updates | raw }};
+        update_reading_pane_elements(updates_by_spanid);
+      });
+    </script>
 
-</body>
+  </body>
 
-  </html>
+</html>
