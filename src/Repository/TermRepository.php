@@ -168,7 +168,7 @@ LEFT OUTER JOIN (
     // scenarios in /hopefully/ enough detail.
 
     /**
-     * Get fully populated Term from database.
+     * Get fully populated Term from database, or create a new one with available data.
      *
      * @param wid  int    WoID, an actual ID, or 0 if new.
      * @param tid  int    TxID, text ID

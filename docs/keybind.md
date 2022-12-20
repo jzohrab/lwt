@@ -1,10 +1,10 @@
 # Key Bindings
 
-* **Important**: Before using the keyboard you must set the focus within the frame by clicking once on the frame!
+> Note: Before using the keyboard you must set the focus within the frame by clicking once on the frame.
 
-Key Bindings in the TEXT Frame
+## Navigation
 
-| Key(s)         | Action(s)                                                           |
+| Key         | Action                                                           |
 |----------------|---------------------------------------------------------------------|
 | RETURN         | Move to next unknown word   |
 | RIGHT          | Move to next word                                                   |
@@ -13,29 +13,16 @@ Key Bindings in the TEXT Frame
 | LEFT + Shift   | Move to previous unknown or learning word (skip known and ignored)  |
 | HOME           | Move to first word  |
 | END            | Move to last word   |
-| E              | Edit marked term                                                    |
-| 1, 2, 3, 4, 5  | Set status of marked term to 1, 2, 3, 4, or 5                       |
-| I              | Set status of marked term to "Ignored"                              |
-| W              | Set status of marked term to "Well Known"                           |
-| G              | Edit marked term and open Google Translate                          |
-| J              | Edit marked term and open Google Image Search                       |
-| A              | Set audio position according to position of marked term.            |
-| T              | Translate sentence                                                  |
-| P              | Pronounce term                                                      |
 | ESC            | Reset marked term(s)                                                |
 
 
-(*) Only saved terms with the status(es) defined/filtered in the settings are visited and marked!
+## Updating status
 
-Key Bindings in the TEST Frame
+| Key            | Set status of marked term(s) to        |
+|----------------|----------------------------------------|
+| 1, 2, 3, 4, 5  | 1, 2, 3, 4, or 5                       |
+| I              | "Ignored"                              |
+| W              | "Well Known"                           |
 
-| Key(s)        | Action(s)                                         |
-|---------------|---------------------------------------------------|
-| SPACE         | Show solution                                     |
-| UP            | Set status of tested term to (old status plus 1)  |
-| DOWN          | Set status of tested term to (old status minus 1) |
-| ESC           | Do not change status of tested term               |
-| 1, 2, 3, 4, 5 | Set status of tested term to 1, 2, 3, 4, or 5     |
-| I             | Set status of tested term to "Ignored"            |
-| W             | Set status of tested term to "Well Known"         |
-| E             | Edit tested term                                  |
+
+You can also "bulk update" statuses by holding down Shift and clicking with the mouse.  All of the underlined terms will then be affected when you hit 1,2,...,W.

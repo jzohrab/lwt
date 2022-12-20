@@ -2,10 +2,7 @@
 
 The initial goal of this project is to get the minimum set of features implemented under the new Symfony framework:
 
-* "mark all terms well known"
-* increase reading font size.
-* ajax set statuses while reading
-* bulk status updates, which I use a lot.
+* saving read texts.
 * settings?  Not sure if needed at the moment.
 
 ## Done
@@ -16,6 +13,7 @@ The initial goal of this project is to get the minimum set of features implement
 * right pane word definition pop-up
 * create terms and multiword terms
 * remove all legacy code
+* setting statuses, and bulk status updates.
 
 ## LWT features that were scrapped, and reasons for it.
 
