@@ -266,10 +266,8 @@ function handle_keydown (e) {
   const kRIGHT = 39;
   const kRETURN = 13;
   const kE = 69; // E)dit
-  const kI = 73; // I)gnore
-  const kW = 87; // W)ell known
   const kT = 84; // T)ranslate
-  
+
   const currindex = current_word_index();
   let newindex = currindex;
 
@@ -326,22 +324,20 @@ function handle_keydown (e) {
     return false;
   }
 
-
-  // Setting status 1-5:
-  for (var i = 1; i <= 5; i++) {
-    if (e.which == (48 + i) || e.which == (96 + i)) { // 1,.. : status=i
-      update_status_for_marked_elements(i);
-      return;
-    }
-  }
-
-  if (e.which == kI) {
-    update_status_for_marked_elements(98);
+  // Statuses.
+  const status_key_map = {
+    49: 1,  // key 1
+    50: 2,  // key 2
+    51: 3,
+    52: 4,
+    53: 5,
+    73: 98, // key I)gnore
+    87: 99  // key W)ell known
+  };
+  var newstatus = status_key_map[e.which] ?? 0;
+  if (newstatus != 0) {
+    update_status_for_marked_elements(newstatus);
     return;
-  }
-  if (e.which == kW) {
-    update_status_for_marked_elements(99);
-    return false;
   }
 
   if (e.which == kT) {
