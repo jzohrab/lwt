@@ -38,7 +38,16 @@ back-end data cleanup job, that should be run as a separate command.
 -- the same range.
 --
 -- This query doesn't fix anything, but it could be used to do a fix.
-select wotext, srcdata.* from
+select
+wotext,
+txtitle,
+txid,
+ti2order as ord,
+ti2woid as wid,
+ti2wordcount as wc,
+multitermtext as mterm,
+rawjoinedtext
+from
 (
   select ti2txid, ti2order, ti2woid, ti2wordcount, ti2text as multitermtext,
   (
@@ -53,6 +62,7 @@ select wotext, srcdata.* from
   where ti2wordcount > 1
 ) srcdata
 inner join words on woid = ti2woid
+inner join texts on txid = ti2txid
 where multitermtext != rawjoinedtext
 order by ti2txid, ti2order;
 
