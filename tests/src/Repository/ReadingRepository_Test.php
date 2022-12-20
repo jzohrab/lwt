@@ -26,13 +26,10 @@ final class ReadingRepository_Test extends DatabaseTestBase
         DbHelpers::assertRecordcountEquals("texts", 1, 'setup texts');
     }
 
-    /**
-     * @group current
-     */
     public function test_smoke_test_get_textitems()
     {
         $ti = $this->reading_repo->getTextItems($this->text);
-        $this->assertEquals(87, count($ti), "items");
+        $this->assertEquals(8, count($ti), "items");
     }
 
 }
