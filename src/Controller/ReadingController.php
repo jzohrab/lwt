@@ -41,7 +41,7 @@ class ReadingController extends AbstractController
     #[Route('/text/{TxID}', name: 'app_read_text', methods: ['GET'])]
     public function text(Request $request, Text $text, ReadingFacade $facade): Response
     {
-        $facade->setCurrentText($text);
+        $facade->set_current_text($text);
         $sentences = $facade->getSentences($text);
         return $this->render('read/text.html.twig', [
             'dictionary_url' => $text->getLanguage()->getLgGoogleTranslateURI(),

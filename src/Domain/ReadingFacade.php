@@ -101,5 +101,7 @@ class ReadingFacade {
         return $this->textrepo->get_prev_next($text);
     }
 
-
+    public function set_current_text(Text $text) {
+        $this->settingsrepo->saveCurrentTextID($text->getID());
+    }
 }
