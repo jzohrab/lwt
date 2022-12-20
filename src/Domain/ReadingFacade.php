@@ -8,15 +8,17 @@ use App\Entity\Status;
 use App\Entity\Sentence;
 use App\Repository\ReadingRepository;
 use App\Repository\TermRepository;
+use App\Repository\TextRepository;
 
 require_once __DIR__ . '/../../connect.inc.php';
 
 
 class ReadingFacade {
 
-    public function __construct(ReadingRepository $repo, TermRepository $termrepo) {
+    public function __construct(ReadingRepository $repo, TextRepository $textrepo, TermRepository $termrepo) {
         $this->repo = $repo;
         $this->termrepo = $termrepo;
+        $this->textrepo = $textrepo;
     }
 
     public function getTextItems(Text $text)
@@ -92,4 +94,9 @@ class ReadingFacade {
             $this->termrepo->save($t, true);
         }
     }
+
+    public function get_prev_next(Text $text) {
+        return $this->textrepo->get_prev_next($text);
+    }
+
 }

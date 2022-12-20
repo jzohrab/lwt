@@ -6,7 +6,18 @@
 
 <div id="reading-frames-left" style="width: 50%;">
   <div id="reading-header">
-    <h2>{{ text.Title }}</h2>
+    <h2>
+      {% if prevtext %}
+      <a href="read/{{ prevtext.ID }}" title="{{ prevtext.Title }}">&lt;</a>
+      {% endif %}
+
+      {{ text.Title }}
+
+      {% if nexttext %}
+      <a href="read/{{ nexttext.ID }}" title="{{ nexttext.Title }}">&gt;</a>
+      {% endif %}
+    </h2>
+
 
     <form action="/read/{{ text.ID }}/allknown" method="post">
       <button type="submit" name="fallknown" onclick="return confirm('Setting all to unknown words to known.  OK?');">Set all to known</button>
