@@ -112,15 +112,17 @@ class TextRepository extends ServiceEntityRepository
         $op = $getprev ? " < " : " > ";
         $sortorder = $getprev ? " desc " : "";
 
+        // DQL can be -- non-intuitive.
         $dql = "SELECT t FROM App\Entity\Text t
         JOIN App\Entity\Language L WITH L = t.language
         WHERE L.LgID = :langid AND t.TxID $op :currid
         ORDER BY t.TxID $sortorder";
+
         $query = $this->getEntityManager()
                ->createQuery($dql)
                ->setParameter('langid', $text->getLanguage()->getLgID())
                ->setParameter('currid', $text->getID())
-               ->limit(1);
+               ->setMaxResults(1);
         $texts = $query->getResult();
 
         if (count($texts) == 0)
