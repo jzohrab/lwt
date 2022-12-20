@@ -81,6 +81,7 @@ A rough list of big-ish features to add once MVP1 is done:
 
 # Small-ish features to add at any point
 
+* Command-line job to fix bad multiword expressions.  See devscripts/verify_mwords.sql for a starting point.
 * Check text length constraint - 65K too long.
 * Add repeatable migrations to db migrator
 * Move trigger creation to repeatable migration
