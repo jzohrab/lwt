@@ -101,6 +101,11 @@ function showDictionaryFrame(url) {
 }
 
 
+function add_active(e) {
+  e.addClass('kwordmarked');
+}
+
+
 function mark_active(e) {
   $('span.kwordmarked').removeClass('kwordmarked');
   e.addClass('kwordmarked');
@@ -108,22 +113,21 @@ function mark_active(e) {
 
 function word_clicked(e) {
   if (e.shiftKey) {
-    add_shift_clicked_element($(this));
-    return;
+    console.log('shift click, adding to ' + $(this).text());
+    add_active($(this));
+    const els = $('span.kwordmarked').toArray().map(el => $(el).text());
+    els.forEach(function (m) { console.log(m); });
   }
   else {
-    clear_shift_clicked_elements();
+    mark_active($(this));
+    showEditFrame($(this));
   }
-
-  mark_active($(this));
-
-  showEditFrame($(this));
 }
 
 let selection_start_el = null;
 
 function select_started(e) {
-  mark_active($(this));
+  // mark_active($(this));
   $(this).addClass('newmultiterm');
   selection_start_el = $(this);
 }
@@ -208,6 +212,10 @@ let current_word_index = function() {
   var currmarked = $('span.kwordmarked');
   if (currmarked.length == 0) {
     return -1;
+  }
+  if (currmarked.length > 1) {
+    console.log('multiple marked, using the first one.');
+    currmarked = currmarked.first();
   }
   const ord = currmarked.attr('data_order');
   const i = words.toArray().findIndex(x => x.getAttribute('data_order') === ord);
@@ -310,39 +318,29 @@ function handle_keydown (e) {
   }
 
   let curr = $('span.kwordmarked');
-  const stat = curr.attr('data_status');
+  if (curr.length == 0)
+    return;
+
+  if (e.which == kE) {
+    showEditFrame(curr[0]);
+    return false;
+  }
+
 
   // Setting status 1-5:
   for (var i = 1; i <= 5; i++) {
     if (e.which == (48 + i) || e.which == (96 + i)) { // 1,.. : status=i
-      if (stat == '0') {
-        console.log('TODO - ajax new term and set status');
-      } else {
-        console.log('TODO - ajax set status');
-      }
+      update_status_for_marked_elements(i);
       return;
     }
   }
 
-  if (e.which == kE) {
-    showEditFrame(curr);
-    return false;
-  }
-
   if (e.which == kI) {
-    if (stat == '0') {
-      console.log('TODO - create word and ignore it');
-    } else {
-      console.log('TODO - ajax ignore word');
-      return false;
-    }
+    update_status_for_marked_elements(98);
+    return;
   }
   if (e.which == kW) {
-    if (stat == '0') {
-      console.log('TODO - create word and well-known');
-    } else {
-      console.log('TODO - ajax well-known');
-    }
+    update_status_for_marked_elements(99);
     return false;
   }
 
@@ -389,4 +387,41 @@ function handle_keydown (e) {
   */
   
   return true;
+}
+
+
+function update_status_for_marked_elements(newStatus) {
+
+  const els = $('span.kwordmarked').toArray().map(el => $(el).text());
+  if (els.length == 0)
+    return;
+
+  console.log('To update to ' + newStatus + ': ' + els.join(', '));
+
+  return;
+  
+  // console.log(`wids: ${JSON.stringify(wids)}`);
+  // console.log(`unknowns: ${JSON.stringify(unknowns)}`);
+
+  $.ajax({
+    url: 'inc/ajax_bulk_status_update.php',
+    type: 'post',
+    data: { status: newStatus, terms: wids, newterms: unknowns },
+    dataType: 'JSON',
+    success: function(response) {
+      // console.log('success, ajax_bulk_status_update');
+      update_ui_for_bulk_status_changes(newStatus);
+      cClick();
+      clear_shift_clicked_elements();
+    },
+    error: function(response, status, err) {
+      const msg = {
+        response: response,
+        status: status,
+        error: err
+      };
+      console.log(`failed: ${JSON.stringify(msg, null, 2)}`);
+    }
+  });
+
 }
