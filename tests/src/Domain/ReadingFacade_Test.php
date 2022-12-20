@@ -32,7 +32,9 @@ final class ReadingFacade_Test extends DatabaseTestBase
         $this->assertEquals(0, count($sentences), "nothing for new text");
     }
 
-    /*
+    /**
+     * @group current
+     */
     public function disabled_test_parse_textitems2_textlc_is_set()
     {
         $t = new Text();
@@ -44,6 +46,5 @@ final class ReadingFacade_Test extends DatabaseTestBase
         $sentences = $this->facade->getSentences($t);
         $this->assertEquals(2, count($sentences));
     }
-    */
 
 }
