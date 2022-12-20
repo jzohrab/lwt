@@ -11,8 +11,6 @@ use App\Domain\TextStatsCache;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-// TODO: pull splitCheckText into its own parsing library.
-require_once __DIR__ . '/../../inc/database_connect.php';
 
 /**
  * @extends ServiceEntityRepository<Text>

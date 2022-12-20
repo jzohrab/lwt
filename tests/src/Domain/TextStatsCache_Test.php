@@ -12,10 +12,9 @@ final class TextStatsCache_Test extends DatabaseTestBase
     public function childSetUp(): void
     {
         // Set up db.
-        DbHelpers::load_language_spanish();
-        $this->langid = (int) get_first_value("select LgID as value from languages");
+        $this->load_languages();
 
-        $lid = $this->langid;
+        $lid = $this->spanish->getLgID();
         DbHelpers::add_word($lid, "Un gato", "un gato", 1, 2);
         DbHelpers::add_word($lid, "lista", "lista", 1, 1);
         DbHelpers::add_word($lid, "tiene una", "tiene una", 1, 2);
@@ -41,8 +40,7 @@ final class TextStatsCache_Test extends DatabaseTestBase
         $t = new Text();
         $t->setTitle("Hola.");
         $t->setText("Hola tengo un gato.  No tengo una lista.\nElla tiene una bebida.");
-        $lang = $this->language_repo->find($this->langid);
-        $t->setLanguage($lang);
+        $t->setLanguage($this->spanish);
         $this->text_repo->save($t, true);
         $this->text = $t;
 
@@ -54,8 +52,7 @@ final class TextStatsCache_Test extends DatabaseTestBase
         $t = new Text();
         $t->setTitle("Hola.");
         $t->setText("Hola tengo un gato.  No tengo una lista.\nElla tiene una bebida.");
-        $lang = $this->language_repo->find($this->langid);
-        $t->setLanguage($lang);
+        $t->setLanguage($this->spanish);
         $this->text_repo->save($t, true);
         $this->text = $t;
 
