@@ -115,17 +115,7 @@
       "composer clearcache",
       "php bin/console cache:warmup"
     ],
-    "minify": "php -r \"require 'src/php/minifier.php';minify_everything();\"",
-    "no-minify": [
-      "cp -r src/js/ .",
-      "cp src/js/third_party/* js/",
-      "cp src/js/pgm.js js/",
-      "cat src/js/* >> pgm/js",
-      "cat src/js/third_party/* >> js/pgm.js",
-      "rm -rf js/third_party",
-      "cp -r src/css .",
-      "cp -r src/themes/ ."
-    ],
+    "minify": "php -r \"require 'devscripts/minifier.php';minify_everything();\"",
     "auto-scripts": {
       "cache:clear": "symfony-cmd",
       "assets:install %PUBLIC_DIR%": "symfony-cmd"
@@ -147,8 +137,7 @@
     "db:which": "What db connecting to",
     "dumpserver": "Start the dump server",
     "find": "search specific parts of code using grep",
-    "minify": "Regenerate minified JS, CSS and themes",
-    "no-minify": "Development versions do not need minification",
+    "minify": "Regenerate minified CSS",
     "nukecache": "blow things away, b/c symfony likes to cache",
     "test": "Run tests",
     "testdata": "Abuse the testing system to load the dev db with some data."
