@@ -34,37 +34,10 @@ class ReadingController extends AbstractController
         ]);
     }
 
-    // TODO:remove - move to facade, add test.
-    private function textItemsBySentenceID($textitems) {
-        $textitems_by_sentenceid = array();
-        foreach($textitems as $t) {
-            $textitems_by_sentenceid[$t->SeID][] = $t;
-        }
-
-        $sentences = [];
-        foreach ($textitems_by_sentenceid as $seid => $textitems)
-            $sentences[] = new Sentence($seid, $textitems);
-
-        return $sentences;
-    }
 
     #[Route('/text/{TxID}', name: 'app_read_text', methods: ['GET'])]
     public function text(Request $request, Text $text, ReadingFacade $facade): Response
     {
-        // TODO:remove - move to facade, add test.
-        /*
-        $textitems = $textRepository->getTextItems($text);
-        if (count($textitems) == 0) {
-            // Catch-all to clean up bad parsing data.
-            // TODO:future:2023/02/01 - remove this, slow, when text re-rendering is done.
-            Parser::parse($text);
-            // TODO:parsing - Seems odd to have to call this separately after parsing.
-            ExpressionUpdater::associateExpressionsInText($text);
-
-            // Re-load.
-            $textitems = $textRepository->getTextItems($text);
-        }
-        */
         $textitems = $facade->getTextItems($text);
         $sentences = $this->textItemsBySentenceID($textitems);
         return $this->render('read/text.html.twig', [

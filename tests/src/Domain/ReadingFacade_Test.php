@@ -34,14 +34,20 @@ final class ReadingFacade_Test extends DatabaseTestBase
      */
     public function test_get_sentences_with_text()
     {
-        $t = new Text();
-        $t->setTitle("Hola");
-        $t->setText("Hola. Adios amigo.");
-        $t->setLanguage($this->spanish);
-        $this->text_repo->save($t, true, true);
-
+        $t = $this->create_text("Hola", "Hola. Adios amigo.", $this->spanish);
         $sentences = $this->facade->getSentences($t);
         $this->assertEquals(2, count($sentences));
+    }
+
+    /**
+     * @group current
+     */
+    public function test_get_sentences_reparses_text_if_no_sentences()
+    {
+        $t = $this->create_text("Hola", "Hola. Adios amigo.", $this->spanish);
+        DbHelpers::exec_sql("delete from textitems2");
+        $sentences = $this->facade->getSentences($t);
+        $this->assertEquals(2, count($sentences), "reparsed");
     }
 
 }

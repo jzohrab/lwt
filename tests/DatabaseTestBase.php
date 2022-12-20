@@ -104,6 +104,15 @@ abstract class DatabaseTestBase extends WebTestCase
         DbHelpers::add_word_tag($spid, "listo", "padj2");
     }
 
+    public function create_text($title, $content, $language, $parseText = true): Text {
+        $t = new Text();
+        $t->setTitle($title);
+        $t->setText($content);
+        $t->setLanguage($language);
+        $this->text_repo->save($t, true, $parseText);
+        return $t;
+    }
+
     public function load_spanish_texts(bool $parseTexts = true): void
     {
         $t = new Text();
