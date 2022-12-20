@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Repository\TextRepository;
 use App\Repository\TermRepository;
 use App\Domain\Parser;
+use App\Domain\ExpressionUpdater;
 use App\Entity\Text;
 use App\Entity\Sentence;
 use App\Form\TermType;
@@ -48,10 +49,17 @@ class ReadingController extends AbstractController
     #[Route('/text/{TxID}', name: 'app_read_text', methods: ['GET'])]
     public function text(Request $request, Text $text, TextRepository $textRepository): Response
     {
-        // Catch-all to clean up bad parsing data.
-        // TODO:future:2023/02/01 - remove this, slow, when text re-rendering is done.
-        Parser::parse($text);
         $textitems = $textRepository->getTextItems($text);
+        if (count($textitems) == 0) {
+            // Catch-all to clean up bad parsing data.
+            // TODO:future:2023/02/01 - remove this, slow, when text re-rendering is done.
+            Parser::parse($text);
+            // TODO:parsing - Seems odd to have to call this separately after parsing.
+            ExpressionUpdater::associateExpressionsInText($text);
+
+            // Re-load.
+            $textitems = $textRepository->getTextItems($text);
+        }
         $sentences = $this->textItemsBySentenceID($textitems);
         return $this->render('read/text.html.twig', [
             'dictionary_url' => $text->getLanguage()->getLgGoogleTranslateURI(),

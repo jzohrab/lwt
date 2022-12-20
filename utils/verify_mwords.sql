@@ -33,6 +33,8 @@ back-end data cleanup job, that should be run as a separate command.
 -- Check multiwords -- sometimes the text is null!
 -- select * from textitems2 where ti2woid != 0 and (ti2text is null or ti2text = '') and ti2wordcount > 1;
 
+
+/*
 -- Heavy query to compare the multi-word-terms with the mword that
 -- _would_ be created if we just joined the parse textitem2 entries in
 -- the same range.
@@ -65,4 +67,50 @@ inner join words on woid = ti2woid
 inner join texts on txid = ti2txid
 where multitermtext != rawjoinedtext
 order by ti2txid, ti2order;
+*/
 
+
+-- Lighter query to find mwords with no text!
+select distinct ti2txid
+from textitems2
+where ti2wordcount > 1 and (ti2text is null or ti2text = '');
+
+
+-- Cleanup bad (no text) mwords:
+/*
+drop table if exists zzcleanup;
+
+create table zzcleanup(ti2txid int);
+
+insert into zzcleanup
+select distinct ti2txid
+from textitems2
+where ti2wordcount > 1 and (ti2text is null or ti2text = '');
+
+-- select * from zzcleanup;
+
+-- cleanup, to force re-parsing on read:
+delete from textitems2 where ti2txid in
+(select ti2txid from zzcleanup);
+
+drop table zzcleanup;
+*/
+
+
+/*
+-- spot-check
+select *
+from textitems2
+where ti2wordcount > 1
+order by ti2txid, ti2order;
+*/
+
+
+-- Non-archived texts that have 0 textitems2
+-- (aka have been cleaned, ready for re-parse)
+select
+txid, txtitle
+from texts
+left outer join textitems2 on txid = ti2txid
+where ti2txid is null and txarchived = 0
+order by txtitle;
