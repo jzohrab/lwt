@@ -1,39 +1,33 @@
 # Wordpress Integration
 
-The following instructions are for users who have installed WordPress, and want to install LWT for multiple WordPress users in conjunction with WordPress authentication.
-
-**Every WordPress user will automatically be given his/her own LWT database.**
-    
-
-1.  [Download](http://wordpress.org/) and install WordPress.
-2.  [Download](http://sourceforge.net/projects/learning-with-texts/files/) and install LWT into a new subdirectory "lwt", located in the main directory of your WordPress installation.
-3.  In subdirectory "lwt", rename the file _connect\_wordpress.inc.php_ into _connect.inc.php_, and enter the database parameters $server (database server), $userid (database user id), $passwd (database password), and $rootdbname (database name "root") by editing the file with a text editor.
-4.  In the WordPress General Settings, decide whether anyone can register and use LWT (Membership = "Anyone can register"), or not (an administrator must create new users). The "New User Default Role" should be "Subscriber".
-5.  The link to start LWT with **complete** WordPress authentication is:  
-    _http://...path-to-wp-blog.../lwt/wp\_lwt\_start.php_
-6.  The link to start LWT (without WordPress authentication, only by checking the session cookie that is valid until the browser is closed) is:  
-    _http://...path-to-wp-blog.../lwt/_  
-    If the session cookie does not exist, both above start methods are the same.
-7.  To properly log out from both WordPress and LWT, use the link:  
-    _http://...path-to-wp-blog.../lwt/wp\_lwt\_stop.php_  
-    The LWT home page has such a link. If you only log out via the links on the WordPress pages, you will still be able to use LWT until the browser is closed. If you want to log out from both WordPress and LWT, use the above link, or click on the link on the LWT home page!
-8.  If you delete a user, you must find out its user number (table "wp\_users"). After deleting the user in WordPress, you can delete the database for that user ($rootdbname + the user number, e.g., "wordpress_lwt_42").  You can do this in phpMyAdmin.
-
-
-## Each WP user gets a separate database -- migration required
-
-**This is a change from the upstream repo.**
+**Discontinued.**
 
 The original LWT project gives each WordPress user their own set of
 tables within the mysql LWT database.  For example, given users 1, 2,
-and 3, there would be `1_words`, `2_words`, `3_words`.  This makes the
-code harder to work with.
+and 3, there would be `1_words`, `2_words`, `3_words`.  This made the
+code harder much harder to work with.
 
-This version of LWT instead gives each separate user their own
+I could have changed the code to give each separate user their own
 database, running on the same server, e.g. `lwt_1`, `lwt_2`, `lwt_3`,
-with their own standard tables.
+with their own standard tables ...
 
-If any existing WordPress+LWT users would like to use this code,
-they'll need to migrate the data from their LWT installations to use
-this database.  E.g, the table `1_words` would need to be migrated to
-`lwt_1` database, `words` table.
+However, that creates challenges when it comes to database change
+management.
+
+To support wp integration sensibly, the code needs to be modified to
+have multi-user support.  In summary, something like the following:
+
+* add a "users" table, with UserID
+* in "languages", add foreign key column LgUserID
+* add user stuff to tests
+* add tests for multiple users
+* add login screen or similar
+* add security measures to ensure that users can only access resources
+  that they own.  Hopefully this won't be a _huge_ problem, because it
+  could pretty much all be handled by the front controller, through
+  which everything is routed.
+
+After that, everything should _pretty much_ be fine.  Anything that
+joins to the Language table will be differentiated by the user ID.
+
+Simple, right?

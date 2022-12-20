@@ -7,7 +7,7 @@ _Everything is, of course, a work in progress._
 * [links.md](./links.md): Links to various posts about LWT and the method of "learning with texts"
 * [keybind.md](./keybind.md): Key bindings while reading
 * [langsetup.md](./langsetup.md): Setting up a new language
-* [wordpress.md](./wordpress.md): Using this project as a wordpress sub-site
+* [wordpress.md](./wordpress.md): Discontinued support
 
 ## More technical things.
 
