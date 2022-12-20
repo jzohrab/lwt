@@ -28,10 +28,13 @@ class ReadingController extends AbstractController
     }
 
     #[Route('/{TxID}', name: 'app_read', methods: ['GET'])]
-    public function read(Request $request, Text $text, TextRepository $textRepository): Response
+    public function read(Request $request, Text $text, ReadingFacade $facade): Response
     {
+        [ $prev, $next ] = $facade->get_prev_next($text);
         return $this->render('read/index.html.twig', [
             'text' => $text,
+            'prevtext' => $prev,
+            'nexttext' => $next
         ]);
     }
 
