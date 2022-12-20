@@ -95,11 +95,6 @@ function showEditFrame(el, extra_args = {}) {
   top.frames.wordframe.location.href = url;
 }
 
-function showDictionaryFrame(url) {
-  // TODO
-  console.log('show lower right frame: ' + url);
-}
-
 
 function add_active(e) {
   e.addClass('kwordmarked');
@@ -113,10 +108,8 @@ function mark_active(e) {
 
 function word_clicked(e) {
   if (e.shiftKey) {
-    console.log('shift click, adding to ' + $(this).text());
+    // console.log('shift click, adding to ' + $(this).text());
     add_active($(this));
-    const els = $('span.kwordmarked').toArray().map(el => $(el).text());
-    els.forEach(function (m) { console.log(m); });
   }
   else {
     mark_active($(this));
@@ -214,7 +207,7 @@ let current_word_index = function() {
     return -1;
   }
   if (currmarked.length > 1) {
-    console.log('multiple marked, using the first one.');
+    // console.log('multiple marked, using the first one.');
     currmarked = currmarked.first();
   }
   const ord = currmarked.attr('data_order');
@@ -254,7 +247,7 @@ let next_unknown_word_index = function(currindex) {
 
 function handle_keydown (e) {
   if (words.size() == 0) {
-    console.log('no words, exiting');
+    // console.log('no words, exiting');
     return; // Nothing to do.
   }
 
@@ -341,11 +334,10 @@ function handle_keydown (e) {
   }
 
   if (e.which == kT) {
-    console.log('TODO - translation');
+    // TODO:translation
     /*
     const trans = 'trans.php?i=' + ord + '&t=' + tid;
     const userdict = $('#translateURL').val();
-    console.log('translate using ' + userdict);
     if (userdict.substr(0, 5) == '*http') {
       const settings = 'width=800, height=400, scrollbars=yes, menubar=no, resizable=yes, status=no';
       window.open(trans, 'dictwin', settings);
@@ -390,13 +382,10 @@ function handle_keydown (e) {
  * post update ajax call, fix the UI.
  */
 function update_selected_statuses(newStatus) {
-  console.log('called update_selected_statuses');
   const newClass = `status${newStatus}`;
-  console.log('updating ' + $('span.kwordmarked').length + ' parent els');
   $('span.kwordmarked').each(function (e) {
     const curr = $(this);
     ltext = curr.text().toLowerCase();
-    console.log(`updating words with text = ${ltext}`);
     matches = $('span.word').toArray().filter(el => $(el).text().toLowerCase() == ltext);
     matches.forEach(function (m) {
       $(m).removeClass('status98 status99 status1 status2 status3 status4 status5 shiftClicked')
@@ -420,10 +409,7 @@ function update_status_for_marked_elements(new_status) {
     data: { textid: textid, terms: els, new_status: new_status },
     dataType: 'JSON',
     success: function(response) {
-      console.log('success, ajax_bulk_status_update');
-      console.log('about to call update ...');
       update_selected_statuses(new_status);
-      console.log('called update');
     },
     error: function(response, status, err) {
       const msg = {
