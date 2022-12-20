@@ -97,7 +97,7 @@
     "squizlabs/php_codesniffer": "Following code style standards is a good thing"
   },
   "scripts": {
-    "class": "./devscripts/entityInterface.sh",
+    "class": "./utils/entityInterface.sh",
     "todo:list": "composer find TODO",
     "todo:types": "composer find TODO | grep TODO | sed -E 's/.*(TODO[^ ]*).*/\\1/' | sort | uniq",
     "db:which": "grep ^\\$dbname connect.inc.php",
@@ -107,7 +107,7 @@
     "dumpserver": "php bin/console server:dump",
     "test": "SYMFONY_DEPRECATIONS_HELPER=disabled ./bin/phpunit -c phpunit.xml.dist",
     "testgroup": "SYMFONY_DEPRECATIONS_HELPER=disabled ./bin/phpunit -c phpunit.xml.dist --group ",
-    "find": "./devscripts/findstring.sh",
+    "find": "./utils/findstring.sh",
     "testdata": "./bin/phpunit -c phpunit.xml.dist tests/LoadTestData_Test.php",
     "nukecache": [
       "rm -rf var/cache",
@@ -115,7 +115,7 @@
       "composer clearcache",
       "php bin/console cache:warmup"
     ],
-    "minify": "php -r \"require 'devscripts/minifier.php';minify_everything();\"",
+    "minify": "php -r \"require 'utils/minifier.php';minify_everything();\"",
     "auto-scripts": {
       "cache:clear": "symfony-cmd",
       "assets:install %PUBLIC_DIR%": "symfony-cmd"
