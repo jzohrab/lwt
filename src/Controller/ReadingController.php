@@ -38,8 +38,7 @@ class ReadingController extends AbstractController
     #[Route('/text/{TxID}', name: 'app_read_text', methods: ['GET'])]
     public function text(Request $request, Text $text, ReadingFacade $facade): Response
     {
-        $textitems = $facade->getTextItems($text);
-        $sentences = $this->textItemsBySentenceID($textitems);
+        $sentences = $facade->getSentences($text);
         return $this->render('read/text.html.twig', [
             'dictionary_url' => $text->getLanguage()->getLgGoogleTranslateURI(),
             'sentences' => $sentences
@@ -54,7 +53,8 @@ class ReadingController extends AbstractController
         $text,
         Request $request,
         TermRepository $termRepository,
-        TextRepository $textRepository
+        TextRepository $textRepository,
+        ReadingFacade $facade
     ): Response
     {
         // The $text is set to '-' if there *is* no text,
@@ -68,7 +68,7 @@ class ReadingController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $termRepository->save($term, true);
             $textentity = $textRepository->find($textid);
-            $rawtextitems = $textRepository->getTextItems($textentity);
+            $rawtextitems = $facade->getTextItems($textentity);
 
             // Use a temporary sentence to determine which items hide
             // which other items.
