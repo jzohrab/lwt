@@ -12,6 +12,8 @@ use App\Entity\Language;
 use App\Entity\Text;
 use App\Entity\TextTag;
 use App\Entity\TermTag;
+use App\Repository\ReadingRepository;
+
 
 abstract class DatabaseTestBase extends WebTestCase
 {
@@ -34,6 +36,7 @@ abstract class DatabaseTestBase extends WebTestCase
         $this->texttag_repo = $this->entity_manager->getRepository(App\Entity\TextTag::class);
         $this->termtag_repo = $this->entity_manager->getRepository(App\Entity\TermTag::class);
         $this->term_repo = $this->entity_manager->getRepository(App\Entity\Term::class);
+        $this->reading_repo = new ReadingRepository($this->entity_manager);
 
         $this->childSetUp();
     }
