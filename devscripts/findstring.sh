@@ -19,8 +19,6 @@ function runsearch() {
 
 runsearch . 1
 
-runsearch inc 1
-
 runsearch public 8
 
 runsearch config 8
