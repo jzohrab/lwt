@@ -1,38 +1,16 @@
-# Learning with Texts
+# LUTE - Learning Using Texts
 
-This is a fork of [Hugo Fara's fork](https://github.com/hugofara) of the original Learning with Texts project on [Sourceforge](https://sourceforge.net/projects/learning-with-texts).
+This is a fork and ground-up rewrite of [Hugo Fara's fork](https://github.com/hugofara) of the original Learning with Texts project on [Sourceforge](https://sourceforge.net/projects/learning-with-texts).
 
-## Introductory links:
+This will be moved to a new repo when the MVP phase 1 is done.
 
-* Project overview: See [old readme](./docs/old_README.md), or the README on Hugo's fork
-* [Why this is forked](./docs/why_the_fork.md)
-
-## Major differences with Hugo Fara's repo
-
-*Also see [the todo list](./docs/todo.md)*.
-
-### Functionality changes
-
-* Wordpress logins give new users their own separate LWT database instance.  See [docs.wordpress](./docs/wordpress.md) for notes.
-* Added "parent term" for things like verb declensions etc.
-* Removed most text archiving/unarchiving functions.  See [docs/archivingchanges.md](./docs/archivingchanges.md).
-* Some changes to the text frame keyboard bindings (i.e. while reading), and new ones added.  See [docs/keybind.md](./docs/keybind.md).
-
-### Code changes
-
-Biggest changes:
-
-* Added simple automatic database migrations.  See [db/README.md](./db/README.md).
-* Introduced [Symfony](https://symfony.com/), gradually moving the application to that.  See [docs/symfony.md](./docs/symfony.md).
-
-Other changes:
-
-* Backup/restore removed from the UI: use `sqldump` from the command line, instead of verbose/error-prone PHP code.
-* More tests, which can generally only be run using a "test_xxx" database.
+See [the docs](./docs/README.md) for notes about this project, why it was forked, to-dos, etc.
 
 ## Installation, usage, etc.
 
 Most of the docs at https://github.com/hugofara are still valid.  If anything changes vastly in this fork, I'll briefly document it, and will add detail if requested.
+
+TODO:documentation about installation.
 
 For installation from this fork, `git clone` this repo and use the master branch.
 
@@ -66,7 +44,8 @@ Then install dependencies:
 
 ## Branches
 
-* **master**: the main branch I use for my own LWT work.
+* **master**: the main branch I use for Lute.
+* **master_frozen**: cutover point, after which I started aggressively removing legacy LWT code in `master`
 * other branches: features I'm working on.
 
 ## Tests
