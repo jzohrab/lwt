@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Domain\ReadingFacade;
 use App\Repository\TextRepository;
 use App\Repository\TermRepository;
 use App\Domain\Parser;
@@ -47,8 +48,10 @@ class ReadingController extends AbstractController
     }
 
     #[Route('/text/{TxID}', name: 'app_read_text', methods: ['GET'])]
-    public function text(Request $request, Text $text, TextRepository $textRepository): Response
+    public function text(Request $request, Text $text, ReadingFacade $facade): Response
     {
+        // TODO:remove - move to facade, add test.
+        /*
         $textitems = $textRepository->getTextItems($text);
         if (count($textitems) == 0) {
             // Catch-all to clean up bad parsing data.
@@ -60,6 +63,8 @@ class ReadingController extends AbstractController
             // Re-load.
             $textitems = $textRepository->getTextItems($text);
         }
+        */
+        $textitems = $facade->getTextItems($text);
         $sentences = $this->textItemsBySentenceID($textitems);
         return $this->render('read/text.html.twig', [
             'dictionary_url' => $text->getLanguage()->getLgGoogleTranslateURI(),

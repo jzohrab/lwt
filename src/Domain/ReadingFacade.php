@@ -13,7 +13,12 @@ class ReadingFacade {
     public function __construct(ReadingRepository $repo) {
         $this->repo = $repo;
     }
-    
+
+    public function getTextItems(Text $text)
+    {
+        return $this->repo->getTextItems($text);
+    }
+
     public function getSentences(Text $text)
     {
         return $this->repo->getTextItems($text);
