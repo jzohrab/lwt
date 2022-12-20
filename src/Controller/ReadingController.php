@@ -123,14 +123,21 @@ class ReadingController extends AbstractController
     }
 
     #[Route('/update_status', name: 'app_read_update_status', methods: ['POST'])]
-    public function update_status(Request $request, ReadingFacade $facade): JsonResponse
+    public function update_status(
+        Request $request,
+        ReadingFacade $facade,
+        TextRepository $textRepository
+    ): JsonResponse
     {
-        dump($request);
         $prms = $request->request->all();
-        dump($prms['terms']);
-        dump($prms['textid']);
-        dump($prms['new_status']);
-        return $this->json(['hello there']);
+        $words = $prms['terms'];
+        $textid = intval($prms['textid']);
+        $newstatus = intval($prms['new_status']);
+        $text = $textRepository->find($textid);
+
+        $facade->update_status($text, $words, $newstatus);
+
+        return $this->json('ok');
     }
 
 
