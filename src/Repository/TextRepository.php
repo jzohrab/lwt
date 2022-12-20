@@ -113,6 +113,7 @@ class TextRepository extends ServiceEntityRepository
         $sortorder = $getprev ? " desc " : "";
 
         // DQL can be -- non-intuitive.
+        // Leaving this for now b/c it works, but I'd prefer regular SQL.
         $dql = "SELECT t FROM App\Entity\Text t
         JOIN App\Entity\Language L WITH L = t.language
         WHERE L.LgID = :langid AND t.TxID $op :currid

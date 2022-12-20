@@ -198,14 +198,29 @@ final class ReadingFacade_Test extends DatabaseTestBase
      * @group current
      */
     public function test_get_prev_next_stays_in_current_language() {
+
         $s1 = $this->create_text("a 1", "Hola.", $this->spanish);
         $s2 = $this->create_text("a 2", "Hola.", $this->spanish);
         $fr = $this->create_text("f", "Bonjour.", $this->french);
         $s3 = $this->create_text("a 3", "Hola.", $this->spanish);
 
+        DbHelpers::assertRecordcountEquals("texts", 4, "sanity check, only 4");
+        
+        [ $prev, $next ] = $this->facade->get_prev_next($s1);
+        $this->assertTrue($prev == null, 's1 prev');
+        $this->assertEquals($next->getID(), $s2->getID(), 's1 next');
+
         [ $prev, $next ] = $this->facade->get_prev_next($s2);
         $this->assertEquals($prev->getID(), $s1->getID(), 's2 prev');
         $this->assertEquals($next->getID(), $s3->getID(), 's2 next');
+
+        [ $prev, $next ] = $this->facade->get_prev_next($s3);
+        $this->assertEquals($prev->getID(), $s2->getID(), 's3 prev');
+        $this->assertTrue($next == null, 's3 next');
+
+        [ $prev, $next ] = $this->facade->get_prev_next($fr);
+        $this->assertTrue($prev == null, 'fr prev');
+        $this->assertTrue($next == null, 'fr next');
 
         // then the rest
     }
