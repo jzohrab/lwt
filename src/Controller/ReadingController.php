@@ -13,6 +13,7 @@ use App\Form\TermType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
 #[Route('/read')]
@@ -119,6 +120,17 @@ class ReadingController extends AbstractController
         return $this->render('read/index.html.twig', [
             'text' => $text,
         ]);
+    }
+
+    #[Route('/update_status', name: 'app_read_update_status', methods: ['POST'])]
+    public function update_status(Request $request, ReadingFacade $facade): JsonResponse
+    {
+        dump($request);
+        $prms = $request->request->all();
+        dump($prms['terms']);
+        dump($prms['textid']);
+        dump($prms['new_status']);
+        return $this->json(['hello there']);
     }
 
 

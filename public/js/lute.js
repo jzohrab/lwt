@@ -386,29 +386,44 @@ function handle_keydown (e) {
 }
 
 
-function update_status_for_marked_elements(newStatus) {
+/**
+ * post update ajax call, fix the UI.
+ */
+function update_selected_statuses(newStatus) {
+  console.log('called update_selected_statuses');
+  const newClass = `status${newStatus}`;
+  console.log('updating ' + $('span.kwordmarked').length + ' parent els');
+  $('span.kwordmarked').each(function (e) {
+    const curr = $(this);
+    ltext = curr.text().toLowerCase();
+    console.log(`updating words with text = ${ltext}`);
+    matches = $('span.word').toArray().filter(el => $(el).text().toLowerCase() == ltext);
+    matches.forEach(function (m) {
+      $(m).removeClass('status98 status99 status1 status2 status3 status4 status5 shiftClicked')
+        .addClass(newClass)
+        .attr('data_status',`${newStatus}`);
+    });
+  });
+}
 
+
+function update_status_for_marked_elements(new_status) {
   const els = $('span.kwordmarked').toArray().map(el => $(el).text());
   if (els.length == 0)
     return;
-
-  console.log('To update to ' + newStatus + ': ' + els.join(', '));
-
-  return;
-  
-  // console.log(`wids: ${JSON.stringify(wids)}`);
-  // console.log(`unknowns: ${JSON.stringify(unknowns)}`);
+  const textid = $('span.kwordmarked').first().attr('tid');
+  // console.log('To update to ' + newStatus + ': ' + els.join(', '));
 
   $.ajax({
-    url: 'inc/ajax_bulk_status_update.php',
+    url: '/read/update_status',
     type: 'post',
-    data: { status: newStatus, terms: wids, newterms: unknowns },
+    data: { textid: textid, terms: els, new_status: new_status },
     dataType: 'JSON',
     success: function(response) {
-      // console.log('success, ajax_bulk_status_update');
-      update_ui_for_bulk_status_changes(newStatus);
-      cClick();
-      clear_shift_clicked_elements();
+      console.log('success, ajax_bulk_status_update');
+      console.log('about to call update ...');
+      update_selected_statuses(new_status);
+      console.log('called update');
     },
     error: function(response, status, err) {
       const msg = {
