@@ -53,4 +53,19 @@ class ReadingFacade {
         return $this->buildSentences($tis);
     }
 
+    public function mark_unknowns_as_known(Text $text) {
+        $tis = $this->repo->getTextItems($text);
+
+        $is_unknown = function($ti) {
+            return $ti->WoID == 0 && $ti->WordCount == 1;
+        };
+        $unknowns = array_filter($tis, $is_unknown);
+        $words_lc = array_map(fn($ti) => $ti->TextLC, $unknowns);
+        $uniques = array_unique($words_lc, SORT_STRING);
+        sort($uniques);
+        echo "will create terms for:\n";
+        foreach ($uniques as $u) {
+            echo $u . "\n";
+        }
+    }
 }
