@@ -3,7 +3,7 @@
 <p>
 
 {% elseif item.WordCount == 0 %}
-<span id="{{ item.SpanID }} style="user-select: none;">{{ item.Text }}</span>
+<span id="{{ item.SpanID }}" class="wsty" style="user-select: none;">{{ item.Text }}</span>
 
 {% elseif item.WoID is null %}
 <span id="{{ item.SpanID }}"

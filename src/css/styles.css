@@ -23,7 +23,13 @@
      margin-left: 20px;
      margin-right: 20px;
  }
- 
+
+ div#thetext p {
+     line-height: 1.25;
+     margin-top: 1em;
+     margin-bottom: 1em;
+ }
+
  table#text
  {
      width: 80%;
@@ -154,25 +160,20 @@
 
  span.status99
  {
+   /* no styling, just regular text.
    background-color: #F8F8F8;
    border-bottom: solid 2px #CCFFCC;
    color: #000000;
+   */
  }
  
  span.status98
  {
+   /*
    background-color: #F8F8F8;
+   color: #000000;
+   */
    border-bottom: dashed 1px #000000;
-   color: #000000;
- }
- 
- span.mwsty
- {
-   margin-right: 2px;
-   font-size: 60%;
-   font-weight: bold;
-   color: #000000;
-   vertical-align: top;
  }
  
  span.wsty
