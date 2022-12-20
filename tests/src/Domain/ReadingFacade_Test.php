@@ -23,9 +23,6 @@ final class ReadingFacade_Test extends DatabaseTestBase
 
     // tests
 
-    /**
-     * @group current
-     */
     public function test_get_sentences_no_sentences() {
         $t = new Text();
         $sentences = $this->facade->getSentences($t);
@@ -35,11 +32,11 @@ final class ReadingFacade_Test extends DatabaseTestBase
     /**
      * @group current
      */
-    public function disabled_test_parse_textitems2_textlc_is_set()
+    public function test_get_sentences_with_text()
     {
         $t = new Text();
         $t->setTitle("Hola");
-        $t->setText("Hola. Adios.");
+        $t->setText("Hola. Adios amigo.");
         $t->setLanguage($this->spanish);
         $this->text_repo->save($t, true, true);
 

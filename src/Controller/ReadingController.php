@@ -34,6 +34,7 @@ class ReadingController extends AbstractController
         ]);
     }
 
+    // TODO:remove - move to facade, add test.
     private function textItemsBySentenceID($textitems) {
         $textitems_by_sentenceid = array();
         foreach($textitems as $t) {
