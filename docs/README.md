@@ -9,6 +9,10 @@ _Everything is, of course, a work in progress._
 * [langsetup.md](./langsetup.md): Setting up a new language
 * [wordpress.md](./wordpress.md): Using this project as a wordpress sub-site
 
+## More technical things.
+
+* [Exporting and restoring the db](./db_export_restore.md): notes about mysqldump, restoring.
+
 ## About Lute
 
 * [why_the_fork.md](./why_the_fork.md): Why this project was forked off of LWT, rather than contributing to that project.

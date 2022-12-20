@@ -53,11 +53,7 @@ i.e., texts.TxAnnotatedText field, and all "Improved annotation" such as `/print
 
 ### db import and export
 
-Exports are pretty trivial, but imports are a *big deal* -- it's too easy to write over things.  With database migrations, it's also easy (aka bad) for users to restore non-compatible schema versions, and they'd have to run db migrations.
-
-In a real-world system, devs or DBAs would handle backups and restores.
-
-So, this is important, but needs to be looked at more carefully -- probably some kind of command-line tool would be best.
+This is important, but needs to be looked at more carefully -- probably some kind of command-line tool would be best.  See [Exporting and restoring the database](./db_export_restore.md).
 
 ### overlib
 
