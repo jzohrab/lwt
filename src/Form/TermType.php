@@ -58,7 +58,7 @@ class TermType extends AbstractType
             ->add('Translation',
                   TextareaType::class,
                   [ 'label' => 'Translation',
-                    'attr' => [ 'class' => 'form-text' ],
+                    'attr' => [ 'class' => 'textarea' ],
                     'required' => false
                   ]
             )

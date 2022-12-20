@@ -2,6 +2,8 @@
 
 The initial goal of this project is to get the minimum set of features implemented under the new Symfony framework:
 
+* "mark all terms well known"
+* increase reading font size.
 * ajax set statuses while reading
 * bulk status updates, which I use a lot.
 * settings?  Not sure if needed at the moment.

@@ -44,6 +44,13 @@
      box-sizing: border-box;
  }
 
+ .textarea
+ {
+   font: 85% "Lucida Grande",Arial,sans-serif,STHeiti,"Arial Unicode MS",MingLiu;
+   border: 1px solid #C6C6C6;
+   padding: 3px;
+ }
+
  .nomarginblock {
      margin-block-start: 0px;
      margin-block-end: 0px;
