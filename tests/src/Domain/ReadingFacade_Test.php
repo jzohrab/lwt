@@ -14,7 +14,10 @@ final class ReadingFacade_Test extends DatabaseTestBase
         $this->load_languages();
         $this->load_spanish_words();
 
-        $this->facade = new ReadingFacade($this->reading_repo);
+        $this->facade = new ReadingFacade(
+            $this->reading_repo,
+            $this->term_repo
+        );
     }
 
 
@@ -66,7 +69,7 @@ final class ReadingFacade_Test extends DatabaseTestBase
             "0; 23; una",
             "0; 25; bebida"
         ];
-        DbHelpers::assertTableContains($textitemssql, $expected, "prior to mark as known");
+        DbHelpers::assertTableContains($textitemssql, $expected, "initial ti2s");
 
         $wordssql = "select wotext, wowordcount, wostatus from words order by woid";
         // DbHelpers::dumpTable($wordssql);
@@ -76,7 +79,19 @@ final class ReadingFacade_Test extends DatabaseTestBase
             "tiene una; 2; 1",
             "listo; 1; 1"
         ];
-        DbHelpers::assertTableContains($wordssql, $expected, "prior to mark as known");
+        DbHelpers::assertTableContains($wordssql, $expected, "initial words");
+
+        // Check mapping.
+        $joinedti2s = "select ti2order, ti2text, wotext, wostatus from textitems2
+          inner join words on woid = ti2woid
+          order by ti2order, ti2wordcount desc";
+        // DbHelpers::dumpTable($joinedti2s);
+        $expected = [
+            "5; un gato; Un gato; 1",
+            "16; lista; lista; 1",
+            "21; tiene una; tiene una; 1"
+        ];
+        DbHelpers::assertTableContains($joinedti2s, $expected, "initial ti2s mapped to words");
 
         $this->facade->mark_unknowns_as_known($t);
 
@@ -85,36 +100,36 @@ final class ReadingFacade_Test extends DatabaseTestBase
             "lista; 1; 1",
             "tiene una; 2; 1",
             "listo; 1; 1",
-            "bebida; 1; 1",
-            "ella; 1; 1",
-            "gato; 1; 1",
-            "hola; 1; 1",
-            "no; 1; 1",
-            "tengo; 1; 1",
-            "tiene; 1; 1",
-            "un; 1; 1",
-            "una; 1; 1"
+            "bebida; 1; 99",
+            "ella; 1; 99",
+            "gato; 1; 99",
+            "hola; 1; 99",
+            "no; 1; 99",
+            "tengo; 1; 99",
+            "tiene; 1; 99",
+            "un; 1; 99",
+            "una; 1; 99"
         ];
-        DbHelpers::assertTableContains($wordssql, $expected, "words after");
+        DbHelpers::assertTableContains($wordssql, $expected, "words created");
 
-        DbHelpers::dumpTable($textitemssql);
+        // DbHelpers::dumpTable($joinedti2s);
         $expected = [
-            "1; 1; Hola",
-            "2; 3; tengo",
-            "1; 5; un gato",
-            "0; 5; un",
-            "0; 7; gato",
-            "0; 10; No",
-            "0; 12; tengo",
-            "0; 14; una",
-            "2; 16; lista",
-            "0; 19; Ella",
-            "3; 21; tiene una",
-            "0; 21; tiene",
-            "0; 23; una",
-            "0; 25; bebida"
+            "1; Hola; hola; 99",
+            "3; tengo; tengo; 99",
+            "5; un gato; Un gato; 1",
+            "5; un; un; 99",
+            "7; gato; gato; 99",
+            "10; No; no; 99",
+            "12; tengo; tengo; 99",
+            "14; una; una; 99",
+            "16; lista; lista; 1",
+            "19; Ella; ella; 99",
+            "21; tiene una; tiene una; 1",
+            "21; tiene; tiene; 99",
+            "23; una; una; 99",
+            "25; bebida; bebida; 99"
         ];
-        DbHelpers::assertTableContains($textitemssql, $expected, "ti2 after");
+        DbHelpers::assertTableContains($joinedti2s, $expected, "ti2s mapped to words");
 
     }
 }

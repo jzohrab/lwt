@@ -3,16 +3,20 @@
 namespace App\Domain;
 
 use App\Entity\Text;
+use App\Entity\Term;
+use App\Entity\Status;
 use App\Entity\Sentence;
 use App\Repository\ReadingRepository;
+use App\Repository\TermRepository;
 
 require_once __DIR__ . '/../../connect.inc.php';
 
 
 class ReadingFacade {
 
-    public function __construct(ReadingRepository $repo) {
+    public function __construct(ReadingRepository $repo, TermRepository $termrepo) {
         $this->repo = $repo;
+        $this->termrepo = $termrepo;
     }
 
     public function getTextItems(Text $text)
@@ -63,9 +67,13 @@ class ReadingFacade {
         $words_lc = array_map(fn($ti) => $ti->TextLC, $unknowns);
         $uniques = array_unique($words_lc, SORT_STRING);
         sort($uniques);
-        echo "will create terms for:\n";
+        $lang =$text->getLanguage();
         foreach ($uniques as $u) {
-            echo $u . "\n";
+            $t = new Term();
+            $t->setLanguage($lang);
+            $t->setText($u);
+            $t->setStatus(Status::WELLKNOWN);
+            $this->termrepo->save($t, true);
         }
     }
 }
