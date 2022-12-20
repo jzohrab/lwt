@@ -30,7 +30,7 @@ class ReadingController extends AbstractController
     public function read(Request $request, Text $text, TextRepository $textRepository): Response
     {
         return $this->render('read/index.html.twig', [
-            'textid' => $text->getID(),
+            'text' => $text,
         ]);
     }
 
@@ -110,6 +110,16 @@ class ReadingController extends AbstractController
             'disabletermediting' => true
         ]);
     }
-    
+
+    #[Route('/{TxID}/allknown', name: 'app_read_allknown', methods: ['POST'])]
+    public function allknown(Request $request, Text $text, ReadingFacade $facade): Response
+    {
+        $facade->mark_unknowns_as_known($text);
+        // Just re-render, that's the fastest.
+        return $this->render('read/index.html.twig', [
+            'text' => $text,
+        ]);
+    }
+
 
 }
