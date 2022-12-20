@@ -119,8 +119,11 @@ class ReadingController extends AbstractController
     public function allknown(Request $request, Text $text, ReadingFacade $facade): Response
     {
         $facade->mark_unknowns_as_known($text);
-        // Just re-render, fastest and easiest.
-        return $this->read($request, $text, $facade);
+        return $this->redirectToRoute(
+            'app_read',
+            [ 'TxID' => $text->getID() ],
+            Response::HTTP_SEE_OTHER
+        );
     }
 
     #[Route('/update_status', name: 'app_read_update_status', methods: ['POST'])]

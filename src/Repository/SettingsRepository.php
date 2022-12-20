@@ -19,9 +19,21 @@ class SettingsRepository
         $stmt = $conn->prepare($sql);
         $res = $stmt->executeQuery();
     }
- 
+
+    private function getSetting($key) {
+        $sql = "select StValue from settings where StKey = '{$key}'";
+        $conn = $this->manager->getConnection();
+        $stmt = $conn->prepare($sql);
+        $ret = $stmt->executeQuery()->fetchNumeric()[0];
+        return $ret;
+    }
+
     public function saveCurrentTextID(int $textid) {
         $this->saveSetting('currenttext', $textid);
+    }
+
+    public function getCurrentTextID(): int {
+        return intval($this->getSetting('currenttext'));;
     }
 
 }

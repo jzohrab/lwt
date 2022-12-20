@@ -6,6 +6,7 @@ use App\Entity\Text;
 use App\Form\TextType;
 use App\Domain\TextStatsCache;
 use App\Repository\TextRepository;
+use App\Repository\SettingsRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -72,7 +73,7 @@ class TextController extends AbstractController
     }
 
     #[Route('/{TxID}/edit', name: 'app_text_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Text $text, TextRepository $textRepository): Response
+    public function edit(Request $request, Text $text, TextRepository $textRepository, SettingsRepository $settingsRepository): Response
     {
         $form = $this->createForm(TextType::class, $text);
         $form->handleRequest($request);
@@ -80,7 +81,18 @@ class TextController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $textRepository->save($text, true);
 
-            return $this->redirectToRoute('app_text_index', [], Response::HTTP_SEE_OTHER);
+            $currtext = $settingsRepository->getCurrentTextID();
+            dump($currtext);
+            dump("and the text saved was");
+            dump($text->getID());
+            if ($currtext == $text->getID()) {
+                dump('redirecting back to read');
+                return $this->redirectToRoute('app_read', [ 'TxID' => $text->getID() ], Response::HTTP_SEE_OTHER);
+            }
+            else {
+                dump('red to index');
+                return $this->redirectToRoute('app_text_index', [], Response::HTTP_SEE_OTHER);
+            }
         }
 
         return $this->renderForm('text/edit.html.twig', [
