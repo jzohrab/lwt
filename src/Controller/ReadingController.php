@@ -119,10 +119,8 @@ class ReadingController extends AbstractController
     public function allknown(Request $request, Text $text, ReadingFacade $facade): Response
     {
         $facade->mark_unknowns_as_known($text);
-        // Just re-render, that's the fastest.
-        return $this->render('read/index.html.twig', [
-            'text' => $text,
-        ]);
+        // Just re-render, fastest and easiest.
+        return $this->read($request, $text, $facade);
     }
 
     #[Route('/update_status', name: 'app_read_update_status', methods: ['POST'])]
