@@ -11,14 +11,12 @@ final class TextRepository_Test extends DatabaseTestBase
     public function childSetUp(): void
     {
         // Set up db.
-        DbHelpers::load_language_spanish();
-        $this->langid = (int) get_first_value("select LgID as value from languages");
+        $this->load_languages();
 
         $t = new Text();
         $t->setTitle("Hola.");
         $t->setText("Hola tengo un gato.");
-        $lang = $this->language_repo->find($this->langid);
-        $t->setLanguage($lang);
+        $t->setLanguage($this->spanish);
         $this->text_repo->save($t, true);
 
         $this->text = $t;

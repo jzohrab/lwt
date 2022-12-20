@@ -242,7 +242,7 @@ you must use a dedicated test database when running tests.
         if (stripos($sql, 'select') === false) {
             $sql = "select * from {$sql}";
         }
-        $c = get_first_value("select count(*) as value from ({$sql}) src");
+        $c = DbHelpers::get_first_value("select count(*) as value from ({$sql}) src");
 
         if ($c != $expected) {
             $content = [];
