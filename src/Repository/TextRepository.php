@@ -108,6 +108,7 @@ class TextRepository extends ServiceEntityRepository
     }
 
 
+    // TODO:remove - moved to readingrepository.
     public function getTextItems(Text $entity, int $woid = null) {
         $textid = $textid = $entity->getID();
 
