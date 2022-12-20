@@ -76,4 +76,20 @@ class ReadingFacade {
             $this->termrepo->save($t, true);
         }
     }
+
+    public function update_status(Text $text, array $words, int $newstatus) {
+        if (count($words) == 0)
+            return;
+
+        $uniques = array_unique($words, SORT_STRING);
+
+        $lang =$text->getLanguage();
+        $tid = $text->getID();
+        foreach ($uniques as $u) {
+            $t = $this->termrepo->load(0, $tid, 0, $u);
+            $t->setLanguage($lang);
+            $t->setStatus($newstatus);
+            $this->termrepo->save($t, true);
+        }
+    }
 }

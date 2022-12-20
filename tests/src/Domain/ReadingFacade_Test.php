@@ -42,9 +42,6 @@ final class ReadingFacade_Test extends DatabaseTestBase
         $this->assertEquals(2, count($sentences), "reparsed");
     }
 
-    /**
-     * @group current
-     */
     public function test_mark_unknown_as_known_creates_words_and_updates_ti2s()
     {
         $content = "Hola tengo un gato.  No tengo una lista.\nElla tiene una bebida.";
@@ -128,6 +125,72 @@ final class ReadingFacade_Test extends DatabaseTestBase
             "21; tiene; tiene; 99",
             "23; una; una; 99",
             "25; bebida; bebida; 99"
+        ];
+        DbHelpers::assertTableContains($joinedti2s, $expected, "ti2s mapped to words");
+
+    }
+
+    /**
+     * @group current
+     */
+    public function test_update_status_creates_words_and_updates_ti2s()
+    {
+        $content = "Hola tengo un gato.  No tengo una lista.\nElla tiene una bebida.";
+        $t = $this->create_text("Hola", $content, $this->spanish);
+
+        $textitemssql = "select ti2woid, ti2order, ti2text from textitems2
+          inner join words on woid = ti2woid
+          where ti2wordcount > 0 order by ti2order, ti2wordcount desc";
+        // DbHelpers::dumpTable($textitemssql);
+        $expected = [
+            "1; 5; un gato",
+            "2; 16; lista",
+            "3; 21; tiene una"
+        ];
+        DbHelpers::assertTableContains($textitemssql, $expected, "initial ti2s");
+
+        $wordssql = "select wotext, wowordcount, wostatus from words order by woid";
+        // DbHelpers::dumpTable($wordssql);
+        $expected = [
+            "Un gato; 2; 1",
+            "lista; 1; 1",
+            "tiene una; 2; 1",
+            "listo; 1; 1"
+        ];
+        DbHelpers::assertTableContains($wordssql, $expected, "initial words");
+
+        // Check mapping.
+        $joinedti2s = "select ti2order, ti2text, wotext, wostatus from textitems2
+          inner join words on woid = ti2woid
+          order by ti2order, ti2wordcount desc";
+        // DbHelpers::dumpTable($joinedti2s);
+        $expected = [
+            "5; un gato; Un gato; 1",
+            "16; lista; lista; 1",
+            "21; tiene una; tiene una; 1"
+        ];
+        DbHelpers::assertTableContains($joinedti2s, $expected, "initial ti2s mapped to words");
+
+        $this->facade->update_status($t, ["tengo", "lista", "perro"], 5);
+
+        $expected = [
+            "Un gato; 2; 1",
+            "lista; 1; 5", // updated
+            "tiene una; 2; 1",
+            "listo; 1; 1",
+            "tengo; 1; 5", // new
+            "perro; 1; 5"  // new, even if not in text, who cares?
+        ];
+        // DbHelpers::dumpTable($wordssql);
+        DbHelpers::assertTableContains($wordssql, $expected, "words created");
+
+        // DbHelpers::dumpTable($joinedti2s);
+        $expected = [
+            "3; tengo; tengo; 5",
+            "5; un gato; Un gato; 1",
+            "12; tengo; tengo; 5",
+            "16; lista; lista; 5",
+            "21; tiene una; tiene una; 1"
         ];
         DbHelpers::assertTableContains($joinedti2s, $expected, "ti2s mapped to words");
 
