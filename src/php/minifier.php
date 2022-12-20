@@ -117,56 +117,9 @@ function minifyAllCSS()
     }
 }
 
-/**
- * Regenerate a single theme.
- * 
- * @param string $parent_folder Path to the parent folder (I. E. src/themes/)
- * @param string $theme_folder  Name of the theme folder
- * 
- * @return void
- */
-function regenerateSingleTheme($parent_folder, $theme_folder)
-{
-    if (!is_dir('themes/' . $theme_folder)) {
-        mkdir('themes/' . $theme_folder);
-    }
-    $file_scan = scandir($parent_folder . $theme_folder);
-    foreach ($file_scan as $file) {
-        if (!is_dir($file) && $file != '.' && $file != '..') {
-            $filepath = $parent_folder . $theme_folder . '/' . $file;
-            $outputpath = 'themes/' . $theme_folder . '/' . $file;
-            if (str_ends_with($filepath, '.css')) {
-                minifyCSS($filepath, $outputpath);
-            } else {
-                copy($filepath, $outputpath);
-            }
-        }
-    }
-}
 
 /**
- * Find and regenerate all themes. CSS is minified while other files are copied.
- * 
- * Nested folders are ignored.
- * 
- * @return void 
- */
-function regenerateThemes()
-{
-    $folder = 'src/themes/';
-    $folder_scan = scandir($folder);
-    foreach ($folder_scan as $parent_file) {
-        if (
-            is_dir($folder . $parent_file) && 
-            $parent_file != '.' && $parent_file != '..'
-        ) {
-            regenerateSingleTheme($folder, $parent_file);
-        }
-    }
-}
-
-/**
- * One-do-all command to minify all your JS, CSS, and regenerate themes.
+ * One-do-all command to minify all your JS, CSS.
  * 
  * @return void
  */
@@ -178,9 +131,6 @@ function minify_everything()
     minifyAllJS();
     echo "Lute extra JS -- note that the main file is just committed in public src, for dev speed.\n";
     minifyLuteJS();
-    echo "(Disabled theme regeneration, to be replaced by Symfony themes.)\n";
-    // echo "Regenerating themes...\n";
-    // regenerateThemes();
 }
 
 /**
