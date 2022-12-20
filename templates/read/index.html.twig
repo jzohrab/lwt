@@ -6,9 +6,15 @@
 
 <div id="reading-frames-left" style="width: 50%;">
   <div id="reading-header">
-    <p>header for {{ textid }}</p>
+    <h2>{{ text.Title }}</h2>
+
+    <form action="/read/{{ text.ID }}/allknown" method="post">
+      <button type="submit" name="fallknown" onclick="return confirm('Setting all to unknown words to known.  OK?');">Set all to known</button>
+    </form>
+
+    <hr />
   </div>
-    {{ render(url('app_read_text', { 'TxID': textid })) }}
+    {{ render(url('app_read_text', { 'TxID': text.ID })) }}
   </div>
 </div>
 

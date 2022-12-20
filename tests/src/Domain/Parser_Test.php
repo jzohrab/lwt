@@ -216,9 +216,6 @@ final class Parser_Test extends DatabaseTestBase
 
     // While using the legacy code, I ran into problems with specific sentences,
     // and fixed them.  Porting those old tests here.
-    /**
-     * @group current
-     */
     public function test_old_production_bugfixes()
     {
 

@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Domain\ReadingFacade;
 use App\Repository\TextRepository;
 use App\Repository\TermRepository;
 use App\Domain\Parser;
@@ -29,38 +30,15 @@ class ReadingController extends AbstractController
     public function read(Request $request, Text $text, TextRepository $textRepository): Response
     {
         return $this->render('read/index.html.twig', [
-            'textid' => $text->getID(),
+            'text' => $text,
         ]);
     }
 
-    private function textItemsBySentenceID($textitems) {
-        $textitems_by_sentenceid = array();
-        foreach($textitems as $t) {
-            $textitems_by_sentenceid[$t->SeID][] = $t;
-        }
-
-        $sentences = [];
-        foreach ($textitems_by_sentenceid as $seid => $textitems)
-            $sentences[] = new Sentence($seid, $textitems);
-
-        return $sentences;
-    }
 
     #[Route('/text/{TxID}', name: 'app_read_text', methods: ['GET'])]
-    public function text(Request $request, Text $text, TextRepository $textRepository): Response
+    public function text(Request $request, Text $text, ReadingFacade $facade): Response
     {
-        $textitems = $textRepository->getTextItems($text);
-        if (count($textitems) == 0) {
-            // Catch-all to clean up bad parsing data.
-            // TODO:future:2023/02/01 - remove this, slow, when text re-rendering is done.
-            Parser::parse($text);
-            // TODO:parsing - Seems odd to have to call this separately after parsing.
-            ExpressionUpdater::associateExpressionsInText($text);
-
-            // Re-load.
-            $textitems = $textRepository->getTextItems($text);
-        }
-        $sentences = $this->textItemsBySentenceID($textitems);
+        $sentences = $facade->getSentences($text);
         return $this->render('read/text.html.twig', [
             'dictionary_url' => $text->getLanguage()->getLgGoogleTranslateURI(),
             'sentences' => $sentences
@@ -75,7 +53,8 @@ class ReadingController extends AbstractController
         $text,
         Request $request,
         TermRepository $termRepository,
-        TextRepository $textRepository
+        TextRepository $textRepository,
+        ReadingFacade $facade
     ): Response
     {
         // The $text is set to '-' if there *is* no text,
@@ -89,7 +68,7 @@ class ReadingController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $termRepository->save($term, true);
             $textentity = $textRepository->find($textid);
-            $rawtextitems = $textRepository->getTextItems($textentity);
+            $rawtextitems = $facade->getTextItems($textentity);
 
             // Use a temporary sentence to determine which items hide
             // which other items.
@@ -131,6 +110,16 @@ class ReadingController extends AbstractController
             'disabletermediting' => true
         ]);
     }
-    
+
+    #[Route('/{TxID}/allknown', name: 'app_read_allknown', methods: ['POST'])]
+    public function allknown(Request $request, Text $text, ReadingFacade $facade): Response
+    {
+        $facade->mark_unknowns_as_known($text);
+        // Just re-render, that's the fastest.
+        return $this->render('read/index.html.twig', [
+            'text' => $text,
+        ]);
+    }
+
 
 }
