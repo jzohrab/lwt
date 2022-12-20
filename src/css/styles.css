@@ -11,7 +11,7 @@
    margin: 20px;
    padding: 0px;
  }
- 
+
  input[type=text]
  {
    font: 85% "Lucida Grande",Arial,sans-serif,STHeiti,"Arial Unicode MS",MingLiu;
@@ -19,6 +19,11 @@
    padding: 3px;
  }
 
+ div#thetext {
+     margin-left: 20px;
+     margin-right: 20px;
+ }
+ 
  table#text
  {
      width: 80%;
@@ -172,6 +177,7 @@
  
  span.wsty
  {
+   font-size: 150%;
    margin-right: 2px;
    color: #000000;
  }
