@@ -130,9 +130,6 @@ final class ReadingFacade_Test extends DatabaseTestBase
 
     }
 
-    /**
-     * @group current
-     */
     public function test_update_status_creates_words_and_updates_ti2s()
     {
         $content = "Hola tengo un gato.  No tengo una lista.\nElla tiene una bebida.";
@@ -195,4 +192,21 @@ final class ReadingFacade_Test extends DatabaseTestBase
         DbHelpers::assertTableContains($joinedti2s, $expected, "ti2s mapped to words");
 
     }
+
+    /**
+     * @group current
+     */
+    public function test_get_prev_next_stays_in_current_language() {
+        $s1 = $this->create_text("a 1", "Hola.", $this->spanish);
+        $s2 = $this->create_text("a 2", "Hola.", $this->spanish);
+        $fr = $this->create_text("f", "Bonjour.", $this->french);
+        $s3 = $this->create_text("a 3", "Hola.", $this->spanish);
+
+        [ $prev, $next ] = $this->facade->get_prev_next($s2);
+        $this->assertEquals($prev->getID(), $s1->getID(), 's2 prev');
+        $this->assertEquals($next->getID(), $s3->getID(), 's2 next');
+
+        // then the rest
+    }
+    
 }
