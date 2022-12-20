@@ -13,11 +13,7 @@
 
 {% if currtxid is not null %}
 <li>
-  Continue reading &quot;{{ currtxtitle }}&quot;
-  <ul>
-    <li><a href="/read/{{ currtxid }}">New-UI</a></li>
-    <li><a href="/do_text.php?start={{ currtxid }}">Legacy</a></li>
-  </ul>
+  <a href="/read/{{ currtxid }}">Continue</a> reading &quot;{{ currtxtitle }}&quot;
 </li>
 {% endif %}
 
