@@ -107,4 +107,33 @@ class TextRepository extends ServiceEntityRepository
         return DataTablesMySqlQuery::getData($base_sql, $parameters, $conn);
     }
 
+
+    private function get_prev_or_next(Text $text, bool $getprev = true) {
+        $op = $getprev ? " < " : " > ";
+        $sortorder = $getprev ? " desc " : "";
+
+        $dql = "SELECT t FROM App\Entity\Text t
+        JOIN App\Entity\Language L WITH L = t.language
+        WHERE L.LgID = :langid AND t.TxID $op :currid
+        ORDER BY t.TxID $sortorder";
+        $query = $this->getEntityManager()
+               ->createQuery($dql)
+               ->setParameter('langid', $text->getLanguage()->getLgID())
+               ->setParameter('currid', $text->getID())
+               ->limit(1);
+        $texts = $query->getResult();
+
+        if (count($texts) == 0)
+            return null;
+        return $texts[0];
+    }
+
+    
+    public function get_prev_next(Text $text) {
+        $p = $this->get_prev_or_next($text, true);
+        $n = $this->get_prev_or_next($text, false);
+        return [ $p, $n ];
+    }
+
+
 }
