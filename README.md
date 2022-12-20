@@ -10,9 +10,13 @@ See [the docs](./docs/README.md) for notes about this project, why it was forked
 
 Most of the docs at https://github.com/hugofara are still valid.  If anything changes vastly in this fork, I'll briefly document it, and will add detail if requested.
 
-TODO:documentation about installation.
+
+> TODO:documentation about installation.  This section is pretty messy.
+
 
 For installation from this fork, `git clone` this repo and use the master branch.
+
+Copy the file `connect.inc.php.example` to `connect.inc.php`, and specify your values for the variables (server, userid, password, db name).
 
 ## Use the correct version of php on the server
 
