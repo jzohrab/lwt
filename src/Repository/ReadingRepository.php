@@ -22,6 +22,8 @@ class ReadingRepository
 
     public function getTextItems(Text $entity, int $woid = null) {
         $textid = $textid = $entity->getID();
+        if ($textid == null)
+            return [];
 
         $where = [ "Ti2TxID = $textid" ];
         if ($woid != null)
