@@ -298,7 +298,7 @@ class ExpressionUpdater {
                 $pos = 2 * $cnt + (int) $record['SeFirstPos'];
                 $txt = $tm[0];
 
-                $sql = "INSERT INTO textitems2
+                $sql = "INSERT IGNORE INTO textitems2
                   (Ti2WoID,Ti2LgID,Ti2TxID,Ti2SeID,Ti2Order,Ti2WordCount,Ti2Text)
                   VALUES (?, ?, ?, ?, ?, ?, ?)";
                 $params = array(

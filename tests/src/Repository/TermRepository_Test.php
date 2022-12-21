@@ -267,6 +267,29 @@ final class TermRepository_Test extends DatabaseTestBase
         DbHelpers::assertTableContains($sql, $expected, "associated multi-word term");
     }
 
+
+    // Production bug.
+    /**
+     * @group prodbug
+     */
+    public function test_save_multiword_term_multiple_times_is_ok() {
+        $this->make_text("Hola.", "Hola tengo un gato.", $this->spanish);
+
+        $t = new Term();
+        $t->setLanguage($this->spanish);
+        $t->setText("un gato");
+        $this->term_repo->save($t, true);
+
+        $sql = "select Ti2WoID, Ti2LgID, Ti2WordCount, Ti2Text from textitems2 where Ti2WoID <> 0 order by Ti2Order";
+        $expected[] = "{$t->getID()}; 1; 2; un gato";
+        DbHelpers::assertTableContains($sql, $expected, "associated multi-word term");
+
+        // Update and resave
+        $t->setStatus(5);
+        $this->term_repo->save($t, true);
+        DbHelpers::assertTableContains($sql, $expected, "still associated correctly");
+    }
+
     /* Tests
     // TODO:fix Can't change the text of a saved word.
     */
