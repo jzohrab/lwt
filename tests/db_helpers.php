@@ -62,7 +62,7 @@ class DbHelpers {
     }
 
     /** Gets first field of first record. */
-    private static function get_first_value($sql) 
+    public static function get_first_value($sql) 
     {
         $res = DbHelpers::exec_sql_get_result($sql);
         $record = mysqli_fetch_array($res, MYSQLI_NUM);
