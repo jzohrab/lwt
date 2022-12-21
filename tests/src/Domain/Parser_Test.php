@@ -282,4 +282,38 @@ final class Parser_Test extends DatabaseTestBase
     }
     */
 
+    /**
+     * @group current
+     */
+    public function test_parser_stores_cleaned_text_after_parsing() {
+        $ugly_content = "    
+
+		{Hola}.   Hay muchos espacios y tabs
+
+y retornos de carro
+
+en este text.
+
+Y tambien hay carácteres como `éste` y más.
+
+Qué pasará con los párrafos?  Nunca
+
+se
+
+sabe.
+
+
+";
+        $t = new Text();
+        $t->setTitle("Messy");
+        $t->setText($ugly_content);
+        $t->setLanguage($this->spanish);
+        $this->text_repo->save($t, true, false);
+
+        Parser::parse($t);
+        $sql = "select TxCleanedText from texts where TxID = {$t->getID()}";
+        $expected = [ "cannos" ];
+        DbHelpers::assertTableContains($sql, $expected);
+    }
+
 }

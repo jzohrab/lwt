@@ -11,9 +11,6 @@ final class SettingsRepository_Test extends DatabaseTestBase
         DBHelpers::exec_sql("delete from settings where stkey='zztrash'");
     }
 
-    /**
-     * @group current
-     */
     public function test_save_and_retrieve() {
         $this->settings_repo->saveSetting('zztrash', 42);
         $v = $this->settings_repo->getSetting('zztrash');
