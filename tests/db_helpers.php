@@ -110,7 +110,7 @@ you must use a dedicated test database when running tests.
             "languages",
             "newsfeeds",
             "sentences",
-            // "settings",  // Keep these????
+            "settings",
             "tags",
             "tags2",
             // "temptextitems",  // is dropped and re-created as needed.

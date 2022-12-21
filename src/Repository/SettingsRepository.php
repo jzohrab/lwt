@@ -13,14 +13,20 @@ class SettingsRepository
         $this->manager = $manager;
     }
 
-    private function saveSetting($key, $value) {
-        $sql = "update settings set StValue = $value where StKey = '{$key}'";
+    // Very hacky setting saver.
+    public function saveSetting($key, $value) {
+        // sql injection is fun.
+        $sql = "insert ignore into settings (StKey, StValue) values ('{$key}', '$value')";
         $conn = $this->manager->getConnection();
+        $stmt = $conn->prepare($sql);
+        $res = $stmt->executeQuery();
+
+        $sql = "update settings set StValue = '$value' where StKey = '{$key}'";
         $stmt = $conn->prepare($sql);
         $res = $stmt->executeQuery();
     }
 
-    private function getSetting($key) {
+    public function getSetting($key) {
         $sql = "select StValue from settings where StKey = '{$key}'";
         $conn = $this->manager->getConnection();
         $stmt = $conn->prepare($sql);

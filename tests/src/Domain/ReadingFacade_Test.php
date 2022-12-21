@@ -195,9 +195,6 @@ final class ReadingFacade_Test extends DatabaseTestBase
 
     }
 
-    /**
-     * @group current
-     */
     public function test_get_prev_next_stays_in_current_language() {
 
         $s1 = $this->create_text("a 1", "Hola.", $this->spanish);
