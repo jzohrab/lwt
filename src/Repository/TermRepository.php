@@ -181,12 +181,12 @@ LEFT OUTER JOIN (
     {
         $ret = null;
 
-        if ($wid > 0) {
-            $ret = $this->find($wid);
-        }
-        elseif ($text != '') {
+        if ($text != '') {
             $language = $this->getTextLanguage($tid);
             $ret = $this->loadFromText($text, $language);
+        }
+        elseif ($wid > 0) {
+            $ret = $this->find($wid);
         }
         elseif ($tid != 0 && $ord != 0) {
             $language = $this->getTextLanguage($tid);
