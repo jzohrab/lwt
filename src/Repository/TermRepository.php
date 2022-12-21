@@ -181,12 +181,14 @@ LEFT OUTER JOIN (
     {
         $ret = null;
 
-        if ($text != '') {
+        if ($wid > 0 && ($text == '' || $text != '-')) {
+            // Specified text overrides wid, but if that's missing,
+            // wid will do.
+            $ret = $this->find($wid);
+        }
+        elseif ($text != '') {
             $language = $this->getTextLanguage($tid);
             $ret = $this->loadFromText($text, $language);
-        }
-        elseif ($wid > 0) {
-            $ret = $this->find($wid);
         }
         elseif ($tid != 0 && $ord != 0) {
             $language = $this->getTextLanguage($tid);
