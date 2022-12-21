@@ -282,9 +282,6 @@ final class Parser_Test extends DatabaseTestBase
     }
     */
 
-    /**
-     * @group current
-     */
     public function test_parser_stores_cleaned_text_after_parsing() {
         $ugly_content = "    
 
@@ -322,6 +319,24 @@ ok?";
         $expected = [ '' ];
         DbHelpers::assertTableContains($sql, $expected, "other text not touched (sanity check)");
 
+    }
+
+
+    /**
+     * @group current
+     */
+    public function test_parser_sets_lastparse_in_stats() {
+        $h = new Text();
+        $h->setTitle("Hola");
+        $h->setText("Hola.");
+        $h->setLanguage($this->spanish);
+        $this->text_repo->save($h, true, false);
+
+        Parser::parse($h);
+        $sql = "select LastParse from textstatscache where TxID = {$h->getID()}";
+        $d = DbHelpers::get_first_value($sql);
+        $this->assertTrue($d != '' && isset($d) && $d != null, "got lastparse, d = $d");
+        $this->assertTrue($d != '1970-01-01 00:00:00', "changed from default");
     }
 
 }

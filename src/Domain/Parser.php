@@ -96,6 +96,7 @@ class Parser {
 
         $this->store_clean_text($text);
 
+        $this->set_LastParse($text);
         // $this->exec_sql("DROP TABLE IF EXISTS temptextitems");
     }
 
@@ -445,6 +446,17 @@ class Parser {
         if (!$stmt->execute()) {
             throw new Exception($stmt->error);
         }
+    }
+
+
+    private function set_LastParse(Text $text) {
+        // TODO:stats - have to be sure that this doesn't block stats updating.
+        $id = $text->getID();
+        $sql = "insert ignore into textstatscache (TxID) values ({$id})";
+        $this->conn->query($sql);
+        $sql = "update textstatscache
+          set LastParse = CURRENT_TIMESTAMP where TxID = {$id}";
+        $this->conn->query($sql);
     }
 
 }
