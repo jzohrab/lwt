@@ -5,7 +5,6 @@ use MatthiasMullie\Minify;
 function minify_css() 
 {
     $cssFiles = array(
-        'jplayer.css',
         'jquery-ui.css',
         'jquery.tagit.css',
         'styles.css',
