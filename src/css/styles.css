@@ -258,30 +258,32 @@
    display: none;
  }
  
- a
- {
-   text-decoration: none;
- }
+a {
+    text-decoration: none;
+    color: #0000FF;
+}
  
- a:link
- {
-   color: #0000EE;
- }
+a:link {
+    color: #0000EE;
+}
+
+a:visited {
+    color: #0000EE;
+}
+
+a:hover {
+    color: #C00000;
+    text-decoration: underline;
+}
+
+a:focus {
+    color: #C00000;
+}
+
+a:active {
+    color: #C00000;
+}
  
- a:visited
- {
-   color: #0000EE;
- }
- 
- a:active
- {
-   color: #C00000;
- }
- 
- a:focus
- {
-   color: #C00000;
- }
  
  img
  {
