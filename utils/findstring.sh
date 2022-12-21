@@ -12,7 +12,7 @@ function runsearch() {
     echo
     echo "$SEARCHFOR IN $1 at depth $2"
     echo
-    find . -name '*.*' -maxdepth $2 -print0 | xargs -0 grep "$SEARCHFOR" 2>/dev/null | grep -v .min.js | grep -v phpunit.result.cache | grep -v findstring.sh | grep -v composer.json
+    find . -name '*.*' -maxdepth $2 -print0 | xargs -0 grep -i "$SEARCHFOR" 2>/dev/null | grep -v .min.js | grep -v phpunit.result.cache | grep -v findstring.sh | grep -v composer.json
     popd > /dev/null
     echo
 }

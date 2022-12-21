@@ -2,7 +2,7 @@
 <phpunit bootstrap="vendor/autoload.php" colors="true">
 
     <testsuites>
-        <testsuite name="LWT Test Suite">
+        <testsuite name="Lute Test Suite">
             <directory>tests/</directory>
         </testsuite>
     </testsuites>

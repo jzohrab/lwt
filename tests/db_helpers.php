@@ -1,16 +1,17 @@
 <?php
 
 /**
- * IMPORTANT!
- *
  * This file should be included at the top of any files that hit the
  * db.
+ *
+ * Optionally (preferably?) use DatabaseTestBase.php.
  */
 
 /**
- * LWT users create a connect.inc.php file with db settings, so just
+ * Users create a connect.inc.php file with db settings, so just
  * use that to create the db connection for symfony.
- * Gah this is brutal.  Can't be helped while transitioning.
+ *
+ * This should be replaced with .env files or similar at some point.
  */
 require_once __DIR__ . '/../connect.inc.php';
 global $userid, $passwd, $server, $dbname;
