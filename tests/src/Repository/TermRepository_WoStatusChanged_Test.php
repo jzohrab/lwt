@@ -27,10 +27,7 @@ final class TermRepository_WoStatusChanged_Test extends DatabaseTestBase
         DbHelpers::exec_sql($sql);
     }
 
-    private function assertUpdated($msg = '') {
-        // Cleanest way to check is to timestampdiff ... can't check
-        // vs current time because comparison would change with clock
-        // ticks.  Yes, this is totally geeky.
+    private function get_field_value() {
         $sql = "SELECT
           WoStatusChanged,
           TIMESTAMPDIFF(SECOND, WoStatusChanged, NOW()) as diffsecs
@@ -38,7 +35,15 @@ final class TermRepository_WoStatusChanged_Test extends DatabaseTestBase
         $rec = DbHelpers::exec_sql_get_result($sql);
         $a = mysqli_fetch_assoc($rec);
         $diff = intval($a['diffsecs']);
-        $msg = $msg . " Was updated (set to " . $a['WoStatusChanged'] . ")";
+        return [ $a['WoStatusChanged'], $diff ];
+    }
+
+    private function assertUpdated($msg = '') {
+        // Cleanest way to check is to timestampdiff ... can't check
+        // vs current time because comparison would change with clock
+        // ticks.  Yes, this is totally geeky.
+        [ $val, $diff ] = $this->get_field_value();
+        $msg = $msg . " Was updated (set to " . $val . ")";
         $this->assertTrue($diff < 10, $msg);
     }
     
@@ -56,11 +61,26 @@ final class TermRepository_WoStatusChanged_Test extends DatabaseTestBase
         $this->term_repo->save($this->term, true);
         $this->assertUpdated();
     }
-    
-    // term update status = today
-    //         $rec = DbHelpers::exec_sql("update words set WoStatusChanged = '1970-01-01'");
 
-    // term change status to same = not changed
-    // sql update to same = not changed
-    // sql update = changed
+    public function test_setting_status_to_same_value_leaves_date() {
+        $this->set_WoStatusChanged("1970-01-01 00:00:00");
+        $this->term->setStatus(1);
+        $this->term_repo->save($this->term, true);
+        [ $val, $diff ] = $this->get_field_value();
+        $this->assertEquals($val, "1970-01-01 00:00:00", "not changed");
+    }
+
+    public function test_updating_status_via_sql_updates_field() {
+        DbHelpers::exec_sql("update words set WoStatusChanged = '1970-01-01 00:00:00'");
+        DbHelpers::exec_sql("update words set WoStatus = 2");
+        $this->assertUpdated();
+    }
+
+    public function test_setting_status_to_same_value_via_sql_no_change() {
+        DbHelpers::exec_sql("update words set WoStatusChanged = '1970-01-01 00:00:00'");
+        DbHelpers::exec_sql("update words set WoStatus = 1");
+        [ $val, $diff ] = $this->get_field_value();
+        $this->assertEquals($val, "1970-01-01 00:00:00", "not changed");
+    }
+
 }
