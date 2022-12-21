@@ -152,12 +152,6 @@
    color: #000000;
  }
 
- span.shiftClicked
- {
-   margin-right: 2px;
-   color: red !important;
- }
-
  span.status99
  {
    /* no styling, just regular text.
@@ -181,21 +175,6 @@
    font-size: 150%;
    margin-right: 2px;
    color: #000000;
- }
- 
- span.todosty
- {
-   background-color: #F5E1A9;
- }
- 
- span.doneoksty
- {
-   background-color: #A9F5A9;
- }
- 
- span.donewrongsty
- {
-   background-color: #F5B8A9;
  }
  
  span.status5stat
@@ -274,11 +253,6 @@
    color: #C00000;
  }
  
- .clickedit
- {
-   cursor: pointer;
- }
- 
  .hide
  {
    display: none;
@@ -291,12 +265,12 @@
  
  a:link
  {
-   color: #C00000;
+   color: #0000EE;
  }
  
  a:visited
  {
-   color: #C00000;
+   color: #0000EE;
  }
  
  a:active
@@ -305,11 +279,6 @@
  }
  
  a:focus
- {
-   color: #C00000;
- }
- 
- a:hover
  {
    color: #C00000;
  }
@@ -326,37 +295,6 @@
    background-color: #FFFFD0;
    text-align: center;
    font-size: 120%;
- }
- 
- .msgblue
- {
-   color: #0000FF;
-   font-weight: bold;
-   background-color: #FFFFE0;
-   text-align: center;
-   font-size: 120%;
- }
- 
- .red2
- {
-   color: #FF0000;
-   font-weight: bold;
- }
- 
- .red3
- {
-   color: #FF0000;
- }
- 
- .scorered
- {
-   font-weight: bold;
-   color: #FF0000;
- }
- 
- .scoregreen
- {
-   color: #006400;
  }
  
  .left
@@ -400,41 +338,11 @@
    font-size: 60%;
  }
  
- .smallgray
- {
-   color: gray;
-   font-size: 60%;
- }
- 
- .smallgray2
- {
-   color: gray;
-   font-size: 80%;
- }
- 
- .smallgray3
- {
-   color: gray;
-   font-size: 70%;
-   width: 850px;
-   margin-bottom: 20px;
- }
- 
  #learnstatus
  {
    color: #000000;
    font-size: 120%;
    font-weight: bold;
- }
- 
- #iknowall
- {
-   background-color: #ADDFFF;
-   cursor: pointer;
-   color: #C00000;
-   padding: 5px;
-   border: 1px solid #000000;
-   text-align: center;
  }
  
  img.lwtlogo
@@ -449,23 +357,6 @@
    float: right;
  }
 
- /* Floating menu in docs/info.html */
- #floatdiv {
-  position: fixed;
-  top: 10px;
-  right: 10px; 
-	padding: 5px;
-  z-index: 2;
-  font-size: 10pt;
-  text-align:center;
-  border: 1px gray solid;
- }
-
- #floatdiv > * {
-   display: block;
-   width: 75px;
- }
- 
  .inline
  {
    display: inline;
@@ -476,22 +367,6 @@
    border: 1pt solid #808080;
  }
  
- /* Separate a footer section from the document */
- .graydotted
- {
-   margin-top: 30px;
-   padding-top: 5px;
-   border-top: 1px dotted #808080;
- }
- 
- #printoptions
- {
-   margin-bottom: 15px;
-   padding-bottom: 15px;
-   border-bottom: 1px dotted #808080;
-   line-height: 1.8;
-   margin-top: 20px;
- }
  
  .width50px
  {
@@ -506,60 +381,6 @@
  .width45pc
  {
    width: 45%;
- }
- 
- .annterm
- {
-   font-weight: bold;
-   border-bottom: 2px solid #CCCCCC;
- }
- 
- .anntermruby
- {
-   font-weight: normal;
-   border-bottom: 2px solid #FFFFFF;
- }
- 
- .annrom
- {
-   color: #999999;
-   font-size: 60%;
-   font-style: italic;
- }
- 
- .annromruby
- {
-   color: #000000;
-   font-size: 100%;
-   font-style: italic;
- }
- 
- .annromrubysolo
- {
-   color: #000000;
-   font-size: 100%;
-   font-style: normal;
- }
- 
- .anntrans
- {
-   color: #0099CC;
-   font-size: 60%;
-   font-style: normal;
- }
- 
- .anntransruby
- {
-   color: #0099CC;
-   font-size: 100%;
-   font-style: normal;
- }
- 
- .anntransruby2
- {
-   color: #006699;
-   font-size: 125%;
-   font-style: normal;
  }
  
  #footer
@@ -659,11 +480,6 @@
    background-color: #EEEEEE;
  }
  
- .wizard
- {
-   margin: 20px 0 5px 0;
- } 
-
  /** Make any block resizable */
  .resizable
  {
@@ -673,22 +489,5 @@
   overflow: auto;
   max-height: fit-content;
   max-width: fit-content;
- }
- 
- /**************************************************************
- Additional styles for printing
- ***************************************************************/
- 
- @media print
- {
-   .noprint
-   {
-	 display: none;
-   }
- 
-   #print
-   {
-	 font-size: 75%;
-   }
  }
  
