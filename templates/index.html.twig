@@ -9,33 +9,35 @@
 <h1 style="margin-block-end: 4px;">LUTE</h1>
 <p style="font-size: 0.8em;"><i>Learning Using Texts</i></p>
 
-<div style="margin-top: 30px;">
-<ul>
+<div id="userlinks" style="margin-top: 30px;">
+  <ul>
 
-{% if currtxid is not null %}
-<li>
-  <a href="/read/{{ currtxid }}">Continue reading</a> &quot;{{ currtxtitle }}&quot;
-</li>
-{% endif %}
+    {% if currtxid is not null %}
+    <li>
+      <a href="/read/{{ currtxid }}">Continue reading</a> &quot;{{ currtxtitle }}&quot;
+    </li>
+    {% endif %}
 
-<li><a href="/text/index">Texts</a></li>
-<li><a href="/text/archived">Text Archive</a></li>
-<li><a href="/term">Terms</a></li>
-<li><a href="/language">Languages</a></li>
-<li><a href="https://github.com/jzohrab/lwt/tree/master/docs">Docs (on GitHub)</a></li>
-</ul>
+    <li><a href="/text/index">Texts</a></li>
+    <li><a href="/text/archived">Text Archive</a></li>
+    <li><a href="/term">Terms</a></li>
+    <li><a href="/language">Languages</a></li>
+  </ul>
+</div>
+
+<div id="techlinks" style="margin-top: 30px;">
+  <ul>
+    <li><a href="/server_info">Server details</a></li>
+    <li><a href="https://github.com/jzohrab/lwt/tree/master/docs">Docs (on GitHub)</a></li>
+  </ul>
 </div>
 
 <footer id="myfooter">
-<p>Db: {{ dbname }} on {{ server }}; Symfony connection = {{ symfconn }}</p>
-<p>Web server: {{ webhost }} running {{ apache }}, PHP {{ php }}.</p>
-
 <p>
   Lute is free and unencumbered software released into the 
   <a href="https://en.wikipedia.org/wiki/Public_domain_software" target="_blank">PUBLIC DOMAIN</a>. 
   Ref <a href="http://unlicense.org/" target="_blank">http://unlicense.org/</a>
 </p>
-
 </footer>
   
 {% endblock %}
