@@ -11,6 +11,8 @@ class MigrationHelper {
 
     public static function apply_migrations($showlogging = false) {
         global $server, $dbname, $userid, $passwd;
+        echo "\nMigrating $dbname on $server.\n";
+
         $dir = __DIR__ . '/../migrations';
         $repdir = __DIR__ . '/../migrations_repeatable';
         $migration = new MysqlMigrator($dir, $repdir, $server, $dbname, $userid, $passwd, $showlogging);
