@@ -1,6 +1,6 @@
 <?php
 /**
- * Migrates the LWT db defined in connect.inc.php.
+ * Migrates the Lute db defined in connect.inc.php.
  */
 
 require_once __DIR__ . '/../../connect.inc.php';

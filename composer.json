@@ -1,14 +1,14 @@
 {
   "name": "jzohrab/lute",
-  "description": "Lute - Learn Using Texts.  A rewrite of LWT (Learning With Texts).",
+  "description": "Lute (Learn Using Texts).  A rewrite of LWT (Learning With Texts).",
   "type": "library",
   "keywords": ["language-learning","reading","lwt","Learning-with-Texts", "Lute"],
   "homepage": "https://jzohrab.github.io/lute",
   "license": "UNLICENSE",
   "minimum-stability": "stable",
   "support": {
-    "issues": "https://github.com/jzohrab/lwt/issues",
-    "source": "https://github.com/jzohrab/lwt"
+    "issues": "https://github.com/jzohrab/lute/issues",
+    "source": "https://github.com/jzohrab/lute"
   },
   "require": {
     "php": ">=8.1",
