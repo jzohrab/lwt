@@ -6,6 +6,7 @@ require_once __DIR__ . '/../../DatabaseTestBase.php';
 use App\Entity\TermTag;
 use App\Entity\Term;
 use App\Entity\Text;
+use App\Domain\ExpressionUpdater;
 
 final class TermRepository_Test extends DatabaseTestBase
 {
@@ -242,7 +243,7 @@ final class TermRepository_Test extends DatabaseTestBase
         $this->assertEquals(count($p), 0);
     }
 
-    public function test_save_updates_associated_textitems() {
+    public function test_save_does_not_update_associated_textitems() {
         $this->make_text("Hola.", "Hola tengo un gato.", $this->spanish);
         $this->make_text("Bonj.", "Je veux un tengo.", $this->french);
 
@@ -254,14 +255,17 @@ final class TermRepository_Test extends DatabaseTestBase
         $t->setLanguage($this->spanish);
         $t->setText("tengo");
         $this->term_repo->save($t, true);
+        DbHelpers::assertTableContains($sql, [], "still no");
 
+        ExpressionUpdater::associateTermTextItems($t);
         $expected = [ "{$t->getID()}; 1; 1; tengo" ];
-        DbHelpers::assertTableContains($sql, $expected, "associated spanish text");
+        DbHelpers::assertTableContains($sql, $expected, "_NOW_ associated spanish text");
 
         $t = new Term();
         $t->setLanguage($this->spanish);
         $t->setText("un gato");
         $this->term_repo->save($t, true);
+        ExpressionUpdater::associateTermTextItems($t);
 
         $expected[] = "{$t->getID()}; 1; 2; un gato";
         DbHelpers::assertTableContains($sql, $expected, "associated multi-word term");
@@ -269,9 +273,6 @@ final class TermRepository_Test extends DatabaseTestBase
 
 
     // Production bug.
-    /**
-     * @group prodbug
-     */
     public function test_save_multiword_term_multiple_times_is_ok() {
         $this->make_text("Hola.", "Hola tengo un gato.", $this->spanish);
 
@@ -282,6 +283,7 @@ final class TermRepository_Test extends DatabaseTestBase
 
         $sql = "select Ti2WoID, Ti2LgID, Ti2WordCount, Ti2Text from textitems2 where Ti2WoID <> 0 order by Ti2Order";
         $expected[] = "{$t->getID()}; 1; 2; un gato";
+        ExpressionUpdater::associateTermTextItems($t);
         DbHelpers::assertTableContains($sql, $expected, "associated multi-word term");
 
         // Update and resave
