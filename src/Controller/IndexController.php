@@ -85,6 +85,7 @@ class IndexController extends AbstractController
         // TODO: eventually, get rid of this config file. :-)
         $connect_inc = __DIR__ . '/../../connect.inc.php';
         require $connect_inc;
+        global $dbname, $server;
 
         [ $txid, $txtitle ] = $this->get_current_text($conn);
 
@@ -121,6 +122,7 @@ class IndexController extends AbstractController
         // TODO:config eventually, get rid of this config file. :-)
         $connect_inc = __DIR__ . '/../../connect.inc.php';
         require $connect_inc;
+        global $dbname, $server;
 
         return $this->render('server_info.html.twig', [
             'serversoft' => $serversoft,

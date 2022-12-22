@@ -14,7 +14,12 @@
  * This should be replaced with .env files or similar at some point.
  */
 require_once __DIR__ . '/../connect.inc.php';
+
+/**
+ * @psalm-suppress InvalidGlobal
+ */
 global $userid, $passwd, $server, $dbname;
+
 $DATABASE_URL = "mysql://{$userid}:{$passwd}@{$server}/{$dbname}?serverVersion=8&charset=utf8";
 $_ENV['DATABASE_URL'] = $DATABASE_URL;
 $_SERVER['DATABASE_URL'] = $DATABASE_URL;
@@ -78,9 +83,6 @@ class DbHelpers {
         global $dbname;
         $conn_db_name = DbHelpers::get_first_value("SELECT DATABASE()");
 
-        $istestdbname = function($s) {
-            return (strtolowersubstr($s, 0, 5) == 'test_');
-        };
         foreach([$dbname, $conn_db_name] as $s) {
             $prefix = substr($s, 0, 5);
             if (strtolower($prefix) != 'test_') {

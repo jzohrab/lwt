@@ -16,6 +16,11 @@ require_once __DIR__ . '/../../connect.inc.php';
 
 class ReadingFacade {
 
+    private ReadingRepository $repo;
+    private TextRepository $textrepo;
+    private TermRepository $termrepo;
+    private SettingsRepository $settingsrepo;
+
     public function __construct(ReadingRepository $repo, TextRepository $textrepo, TermRepository $termrepo, SettingsRepository $settingsrepo) {
         $this->repo = $repo;
         $this->termrepo = $termrepo;

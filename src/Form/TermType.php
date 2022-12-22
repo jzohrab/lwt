@@ -19,6 +19,8 @@ use Doctrine\ORM\EntityManagerInterface;
 class TermType extends AbstractType
 {
 
+    private EntityManagerInterface $manager;
+
     public function __construct(EntityManagerInterface $manager)
     {
         $this->manager = $manager;

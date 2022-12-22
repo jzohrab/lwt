@@ -9,6 +9,8 @@ use App\Entity\Text;
 final class ReadingFacade_Test extends DatabaseTestBase
 {
 
+    private ReadingFacade $facade;
+
     public function childSetUp(): void
     {
         $this->load_languages();

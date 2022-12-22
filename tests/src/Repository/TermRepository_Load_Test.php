@@ -9,6 +9,8 @@ use App\Domain\ExpressionUpdater;
 
 final class TermRepository_Load_Test extends DatabaseTestBase {
 
+    private Term $bebida;
+
     public function childSetUp() {
         // set up the text
         $this->load_languages();

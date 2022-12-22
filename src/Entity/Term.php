@@ -206,8 +206,12 @@ class Term
     public function setParent(?Term $parent): self
     {
         $this->parents = new ArrayCollection();
-        if ($parent != null)
-            $this->parents[] = $parent;
+        if ($parent != null) {
+            /**
+             * @psalm-suppress InvalidArgument
+             */
+            $this->parents->add($parent);
+        }
 
         // Hacky code to allow for set/getParentText.
         // TODO:TermDTO create TermDTO so that the form doesn't directly use entity

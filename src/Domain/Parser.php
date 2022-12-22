@@ -25,6 +25,9 @@ class Parser {
         return intval($val) == 1;
     }
 
+
+    private $conn;
+
     public function __construct()
     {
         global $userid, $passwd, $server, $dbname; // From connect.inc.php

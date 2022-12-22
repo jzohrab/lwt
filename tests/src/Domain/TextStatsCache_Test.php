@@ -42,7 +42,6 @@ final class TextStatsCache_Test extends DatabaseTestBase
         $t->setText("Hola tengo un gato.  No tengo una lista.\nElla tiene una bebida.");
         $t->setLanguage($this->spanish);
         $this->text_repo->save($t, true);
-        $this->text = $t;
 
         DbHelpers::assertRecordcountEquals("textstatscache", 1, "one record after save");
     }
@@ -58,7 +57,6 @@ final class TextStatsCache_Test extends DatabaseTestBase
         $t->setText("Hola tengo un gato.  No tengo una lista.\nElla tiene una bebida.");
         $t->setLanguage($this->spanish);
         $this->text_repo->save($t, true);
-        $this->text = $t;
 
         TextStatsCache::refresh();
         $sql = "select sUnk from textstatscache where TxID = {$t->getID()}";

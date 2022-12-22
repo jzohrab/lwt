@@ -17,18 +17,18 @@ class TextTagsCollection implements DataTransformerInterface
         $this->manager = $manager;
     }
  
-    public function transform($tags)
+    public function transform($value)
     {
-        return $tags;
+        return $value;
     }
  
-    public function reverseTransform($tags)
+    public function reverseTransform($value)
     {
         $coll = new ArrayCollection();
  
         $repo = $this->manager->getRepository(\App\Entity\TextTag::class);
  
-        foreach ($tags as $tag) {
+        foreach ($value as $tag) {
  
             $tagInRepo = $repo->findByText($tag->getText());
  

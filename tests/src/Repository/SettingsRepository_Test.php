@@ -8,7 +8,7 @@ final class SettingsRepository_Test extends DatabaseTestBase
 {
 
     public function childSetUp() {
-        DBHelpers::exec_sql("delete from settings where stkey='zztrash'");
+        DbHelpers::exec_sql("delete from settings where stkey='zztrash'");
     }
 
     public function test_save_and_retrieve() {

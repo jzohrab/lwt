@@ -9,6 +9,10 @@ use App\Repository\DataTablesMySqlQuery;
 final class DataTablesMySqlQuery_Test extends TestCase
 {
 
+    private string $basesql;
+    private array $columns;
+    private array $parameters;
+
     public function setUp(): void
     {
         $this->basesql = "select CatID, Color, Food from Cats";

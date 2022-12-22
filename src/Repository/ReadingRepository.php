@@ -90,7 +90,7 @@ class ReadingRepository
             }
             $intkeys = [ 'TextID', 'WordCount', 'Order', 'SeID', 'IsWord', 'TextLength', 'WoID', 'WoStatus', 'ParentWoID' ];
             foreach ($intkeys as $key) {
-                $t->key = intval($t->$key);
+                $t->$key = intval($t->$key);
             }
             $textitems[] = $t;
         }

@@ -8,6 +8,8 @@ use App\Entity\TermTag;
 final class TermTagRepository_Test extends DatabaseTestBase
 {
 
+    private TermTag $t;
+
     public function childSetUp() {
         $this->t = new TermTag();
         $this->t->setText("Hola");

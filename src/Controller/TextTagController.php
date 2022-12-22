@@ -18,7 +18,7 @@ class TextTagController extends AbstractController
     public function jsonlist(TextTagRepository $repo): JsonResponse
     {
         $tags = $repo->findAll();
-        $ret = array_map(fn($t): string => $t->getText(), $tags);
+        $ret = array_map(fn($t): string => $t->getText() ?? '<?>', $tags);
         sort($ret);
         return $this->json($ret);
     }
