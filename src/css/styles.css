@@ -12,6 +12,14 @@
    padding: 0px;
  }
 
+ .lutelogo
+ {
+     margin-right: 15px;
+     float: left;
+     width: 75px;
+     height: auto;
+ }
+
  input[type=text]
  {
    font: 85% "Lucida Grande",Arial,sans-serif,STHeiti,"Arial Unicode MS",MingLiu;
@@ -32,14 +40,14 @@
 
  table#text
  {
-     width: 80%;
+     width: 70%;
  }
 
- table#text > th, td {
+ th, td {
      padding: 2px;
  }
 
- table#text > thead tr th:first-child, tbody tr td:first-child {
+ table#text thead, table#text tr, table#text th:first-child, table#text tbody, table#text tr, table#text td:first-child {
      width: 20%;
      min-width: 20%;
      max-width: 20%;
@@ -52,14 +60,10 @@
      width: 80%;
  }
 
- table#language > th, td {
-     padding: 2px;
- }
-
- table#language > thead tr th:first-child, tbody tr td:first-child {
-     width: 40%;
-     min-width: 40%;
-     max-width: 40%;
+ table#language thead, table#language tr, table#language th:first-child, table#language tbody, table#language tr, table#language td:first-child {
+     width: 30%;
+     min-width: 30%;
+     max-width: 30%;
      vertical-align: top;
      word-break: break-word;
  }
@@ -80,11 +84,13 @@
      textareas-rows-and-cols-attribute-in-css),
      but on my machine at least it doesn't appear to be so!
      */
-     width:40em;
+     width:50em;
      height:20em;
      padding: 5px 5px;
      margin: 2px 0;
      box-sizing: border-box;
+     font: 85% "Lucida Grande",Arial,sans-serif,STHeiti,"Arial Unicode MS",MingLiu;
+     border: 1px solid #C6C6C6;
  }
 
  div.help-text {
