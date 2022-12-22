@@ -21,6 +21,4 @@ Pretty much everything else is just "CRUD" (i.e., it's a simple database "Create
 
 ## Current state
 
-(As of Dec 15, 2022)
-
-Working towards an MVP release of Lute, gradually re-implementing key features from LWT.
+MVP phase 1 completed late December 2022.
