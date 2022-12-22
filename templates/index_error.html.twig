@@ -6,8 +6,13 @@
 
 <h1>LUTE</h1>
 
-<h2>Configuration error?</h2>
-<p>{{ error }}<p>
+<h2>Configuration errors</h2>
+
+<ul>
+  {% for error in errors %}
+  <li>{{ error }}</li>
+  {% endfor %}
+</ul>
 
 {% endblock %}
 

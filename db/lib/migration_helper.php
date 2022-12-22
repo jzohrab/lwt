@@ -24,7 +24,7 @@ class MigrationHelper {
         global $server, $dbname, $userid, $passwd;
         $dir = __DIR__ . '/../migrations';
         $repdir = __DIR__ . '/../migrations_repeatable';
-        $migration = new MysqlMigrator($dir, $repdir, $server, $dbname, $userid, $passwd, $showlogging);
+        $migration = new MysqlMigrator($dir, $repdir, $server, $dbname, $userid, $passwd);
         return $migration->get_pending();
     }
 

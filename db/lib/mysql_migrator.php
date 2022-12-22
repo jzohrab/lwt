@@ -25,7 +25,7 @@ class MysqlMigrator {
     chdir($this->location);
     $files = glob("*.sql");
     $outstanding = array_filter($files, fn($f) => $this->should_apply($f));
-    return $outstanding;
+    return array_values($outstanding);
   }
 
   public function process() {
