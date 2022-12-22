@@ -274,8 +274,6 @@ class ExpressionUpdater {
 
         $sentences = $this->get_sentences_containing_textlc($lang, $textlc, $sentenceIDRange);
 
-        $removeSpaces = $lang->isLgRemoveSpaces();
-        $splitEachChar = $lang->isLgSplitEachChar();
         $termchar = $lang->getLgRegexpWordCharacters();
         $notermchar = "/[^$termchar]({$textlc})[^$termchar]/ui";
 
