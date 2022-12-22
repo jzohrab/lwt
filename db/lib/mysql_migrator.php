@@ -21,13 +21,8 @@ class MysqlMigrator {
   }
 
   public function process() {
-    // $this->log("mysql migrate (files: '$location', repeatable: '$repeatable', host: '$host', db: '$db', user: '$user', pass: '$pass')");
-    if (is_dir($this->location)) {
-      $this->process_folder($this->location);
-    } else {
-      $this->process_file($this->location);
-    }
-    $this->process_repeatable($this->repeatable);
+    $this->process_folder();
+    $this->process_repeatable();
   }
 
   public function exec($sql) {
@@ -55,8 +50,9 @@ class MysqlMigrator {
     return $conn;
   }
 
-  private function process_folder($folder) {
+  private function process_folder() {
     $this->create_migrations_table_if_needed();
+    $folder = $this->location;
     $this->log("running migrations in $folder");
     chdir($folder);
     $files = glob("*.sql");
@@ -75,7 +71,8 @@ class MysqlMigrator {
     }
   }
 
-  private function process_repeatable($folder) {
+  private function process_repeatable() {
+    $folder = $this->repeatable;
     chdir($folder);
     $files = glob("*.sql");
     $n = count($files);
