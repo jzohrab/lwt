@@ -135,9 +135,9 @@ class ExpressionUpdater {
             $textlc = preg_replace('/([^\s])/u', "$1 ", $textlc);
         }
 
-        $lid = $lang->getLgID();
+        $sentences = $this->get_sentences_containing_textlc($lang, $textlc, $sentenceIDRange);
         $this->insert_standard_expression(
-            $lang, $textlc, $wid, $len, $sentenceIDRange
+            $sentences, $lang, $textlc, $wid, $len
         );
     }
     
@@ -267,17 +267,13 @@ class ExpressionUpdater {
      * @param array  $sentenceIDRange
      */
     private function insert_standard_expression(
-        Language $lang, $textlc, $wid, $len, $sentenceIDRange
+        $sentences, Language $lang, $textlc, $wid, $len
     )
     {
         $lid = $lang->getLgID();
-
-        $sentences = $this->get_sentences_containing_textlc($lang, $textlc, $sentenceIDRange);
-
         $termchar = $lang->getLgRegexpWordCharacters();
         $notermchar = "/[^$termchar]({$textlc})[^$termchar]/ui";
 
-        $matches = null;
         foreach ($sentences as $record) {
             $string = ' ' . $record['SeText'] . ' ';
 
