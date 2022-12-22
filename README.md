@@ -2,10 +2,47 @@
 
 This is a fork and ground-up rewrite of [Hugo Fara's fork](https://github.com/hugofara) of the original Learning with Texts project on [Sourceforge](https://sourceforge.net/projects/learning-with-texts).
 
+> Lute would never have existed without the original Learning With Texts and Hugo Fara's subsequent efforts, so **a big thanks to both of these projects.**
+
 See [the docs](./docs/README.md) for notes about this project, why it was forked, to-dos, etc.
 
 > TODO:docs - add a screencast gif.
 
+
+## Should I use Lute, LWT, or Hugo's fork?
+
+Sensible question, and it's up to you.
+
+* The [original LWT project](https://sourceforge.net/projects/learning-with-texts/) is, as far as I can tell, still *massively popular.*  Even if the code is old, and it might have bugs or be slow, it has the advantage of being tried-and-tested, and you might find people who can help you with issues.
+* [Hugo Fara's fork](https://github.com/hugofara) has taken the original project and refined the code, but has kept the same features and overall design/architecture.
+
+### So why even consider Lute?
+
+I believe that Lute is a useful contribution to the language-learning-software landscape.  It implements what I consider the core features of LWT in a far-more-maintainable codebase, using modern PHP tools, and with automated tests for stability.
+
+This might not mean much to regular peeps who just want to learn languages. :-)  At least, at the moment ...
+
+But if you are into software, like the idea of LWT, and want to contribute to an open-source project, I believe that Lute is a compelling place to start.
+
+Note: if you are currently using LWT, you should be able to export a copy of your database, and start using it with Lute, after setting up the necessary software.  You'll just need to migrate your old LWT-style database to the new Lute database (see [database migrations](./db/README.md)).
+
+### And why might you **not** use Lute?
+
+* Currently, Lute is an MVP.  As a regular user of it, I removed things that I felt were not core features, so I could limit scope but still have a useful product.  So, if you currently loooove an LWT feature that was [removed for the MVP](lwt_features_that_were_removed.md), Lute's not for you.
+
+
+### ... and why did I write it?
+
+* I started using LWT, but wanted a single new feature: adding "parent terms" to terms.  To me, it doesn't make sense to think of a conjugated form of a verb ("I _speak_", "yo _hablo_") as a separate thing from the root form ("to speak", "_hablar_").  I added the feature, but it was very tough.  Lute has that feature.
+* There were some bugs in LWT that were impossible to track down.  For example, when adding multi-term expressions, LWT would sometimes find them, and sometimes miss them.  Lute corrects those issues, and adds a series of automated tests to help track down those problems.
+* As a former dev, there were some things about LWT that I simply couldn't get behind: lack of automated testing, tough database management, tough architecture, etc.
+
+In summary, I felt that LWT was **an extremely important idea**, but I felt that **its implementation created barriers for its improvement**.
+
+Even if Lute doesn't become "the new LWT" that I hope it can be, perhaps it will be useful as a reference implementation.
+
+
+<hr />
 ## Installation, usage, etc.
 
 > TODO:docs - the docs for installation need work, and perhaps some things can be simplified, such as removing vhosts.
