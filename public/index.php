@@ -10,6 +10,7 @@ use App\Kernel;
 use Symfony\Component\Dotenv\Dotenv;
 use Symfony\Component\ErrorHandler\Debug;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 require dirname(__DIR__).'/vendor/autoload.php';
 
@@ -19,7 +20,19 @@ require dirname(__DIR__).'/vendor/autoload.php';
  * Users create a connect.inc.php file with db settings, so for now
  * just use that to create the db connection.
  */
-require_once __DIR__ . '/../connect.inc.php';
+$connect_inc = __DIR__ . '/../connect.inc.php';
+if (!file_exists($connect_inc)) {
+    $content = "<html><body>
+      <h1>Hi there!</h1>
+      <p>You're missing the file connect.inc.php, in the root directory</p>
+      <p>Please create the file from connect.inc.php.example.  (See the README for notes.)</p>
+    </body></html>";
+    $response = new Response($content);
+    $response->send();
+    die();
+}
+
+require_once $connect_inc;
 global $userid, $passwd, $server, $dbname;
 $DATABASE_URL = "mysql://{$userid}:{$passwd}@{$server}/{$dbname}?serverVersion=8&charset=utf8";
 $_ENV['DATABASE_URL'] = $DATABASE_URL;

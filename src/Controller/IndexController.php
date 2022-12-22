@@ -10,6 +10,9 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Doctrine\Persistence\ManagerRegistry;
 
+require_once __DIR__ . '/../../db/lib/migration_helper.php';
+
+
 class IndexController extends AbstractController
 {
 
@@ -31,20 +34,38 @@ class IndexController extends AbstractController
     #[Route('/', name: 'app_index', methods: ['GET'])]
     public function index(ManagerRegistry $doctrine): Response
     {
+        $errors = [];
 
-        $error = '';
+        /*
+        // Note: the presence of connect.inc.php is already checked in 
+        // the front controller public/index.php.
+        //
+        // In future that check might be moved here, so leaving this code.
+        //
         $connect_inc = __DIR__ . '/../../connect.inc.php';
         if (!file_exists($connect_inc)) {
-            $error = "Cannot find file: connect.inc.php." .
+            $errors[] = "Cannot find file: connect.inc.php." .
                    " Please create the file from connect.inc.php.example.";
+            // Quit, no point in going further.
+            return $this->render('index_error.html.twig', [
+                'errors' => $errors,
+            ]);
         }
-        elseif (!Parser::load_local_infile_enabled()) {
-            $error = "SELECT @@GLOBAL.local_infile must be 1, check your mysql configuration.";
+        */
+
+        if (!Parser::load_local_infile_enabled()) {
+            $errors[] = "SELECT @@GLOBAL.local_infile must be 1, check your mysql configuration.";
         }
 
-        if ($error != '') {
+        $outstanding = \MigrationHelper::get_pending_migrations();
+        if (count($outstanding) > 0) {
+            $n = count($outstanding);
+            $errors[] = "{$n} migrations outstanding (e.g., {$outstanding[0]}).  Please run 'composer db:migrate'";
+        }
+
+        if (count($errors) != 0) {
             return $this->render('index_error.html.twig', [
-                'error' => $error,
+                'errors' => $errors,
             ]);
         }
 
@@ -62,6 +83,7 @@ class IndexController extends AbstractController
                ->fetchNumeric()[0];
 
         // TODO: eventually, get rid of this config file. :-)
+        $connect_inc = __DIR__ . '/../../connect.inc.php';
         require $connect_inc;
 
         [ $txid, $txtitle ] = $this->get_current_text($conn);
