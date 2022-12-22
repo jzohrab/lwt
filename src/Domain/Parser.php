@@ -98,8 +98,6 @@ class Parser {
 
         $this->import_temptextitems($text);
 
-        $this->set_LastParse($text);
-
         TextStatsCache::force_refresh($text);
 
         // $this->exec_sql("DROP TABLE IF EXISTS temptextitems");
@@ -424,17 +422,6 @@ class Parser {
             order by TiOrder,TiWordCount";
 
         $this->exec_sql($addti2);
-    }
-
-
-    private function set_LastParse(Text $text) {
-        // TODO:stats - have to be sure that this doesn't block stats updating.
-        $id = $text->getID();
-        $sql = "insert ignore into textstatscache (TxID) values ({$id})";
-        $this->conn->query($sql);
-        $sql = "update textstatscache
-          set LastParse = CURRENT_TIMESTAMP where TxID = {$id}";
-        $this->conn->query($sql);
     }
 
 }
