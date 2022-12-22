@@ -85,7 +85,13 @@ class TextRepository extends ServiceEntityRepository
           TxTitle,
           TxArchived,
           tags.taglist AS TagList,
-          CONCAT(c.distinctterms, ' / ', c.sUnk) as TermStats
+          CONCAT(c.distinctterms, ' / ', c.sUnk) as TermStats,
+          c.wordcount as WordCount,
+          c.sUnk as Unknown,
+          c.s1 + c.s2 as Learn1_2,
+          c.s3 + c.s4 as Learn3_4,
+          c.s5 as Learn5,
+          c.sWkn as WellKnown
 
           FROM texts t
           INNER JOIN languages on LgID = t.TxLgID

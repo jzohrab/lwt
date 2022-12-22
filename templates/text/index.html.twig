@@ -13,7 +13,8 @@
       <th>Title</th>
       <th>Language</th>
       <th>Tags</th>
-      <th title="known / unknown">Stats</th>
+      <th>Word count</th>
+      <th title="Unknown, learn 1-2, learn 3-4, learn 5.">Stats</th>
       <th>Archived</th>
       <th>Actions</th>
     </tr>
@@ -24,6 +25,7 @@
       <th>Title</th>
       <th>Language</th>
       <th>Tags</th>
+      <th>Word count</th>
       <th>Stats</th>
       <th>Archived</th>
       <th>Actions</th>
@@ -46,7 +48,7 @@
     var table = $('#texttable').DataTable({
       responsive: true,
       select: true,
-      lengthMenu: [ 10, 25, 50 ],
+      lengthMenu: [ 25, 50 ],
       paging: true,
       info: true,
       searching: true,
@@ -74,21 +76,33 @@
         { "name": "TxTitle", "targets": 1 },
         { "name": "LgName", "targets": 2 },
         { "name": "TagList", "targets": 3 },
+        { "name": "WordCount", "targets": 4 },
         {
           "name": "TermStats",
-          "targets": 4,
+          "targets": 5,
           "searchable": false,
-          "orderable": false
+          "orderable": false,
+          "render": function ( data, type, row, meta ) {
+            // columns are defined below.
+            let mkspan = (col, style) => `<span class="${style}">${row[col]}</span>`;
+            const arr = [
+              mkspan(7, 'status0'),
+              mkspan(8, 'status1'),
+              mkspan(9, 'status3'),
+              mkspan(10, 'status5')
+            ];
+            return arr.join(' ');
+          }
         },
         {
           "name": "TxArchived",
-          "targets": 5,
+          "targets": 6,
           "searchable": false,
           "orderable": false,
           "visible": false
         },
         {
-          "targets": 6,
+          "targets": 7,
           "data": null,
           "searchable": false,
           "orderable": false,
@@ -106,8 +120,13 @@
             ret += `<img src="/icn/minus-button.png" title="Delete onclick="confirm_delete(${txid})" />`;
             return ret;
           }
-        }
+        },
 
+        /* Extra data that is returned in the row for rendering, but not shown. */
+        { "name": "Unknown", "targets": 8, "data": null, "visible": false },
+        { "name": "Learn1_2", "targets": 9, "data": null, "visible": false },
+        { "name": "Learn3_4", "targets": 10, "data": null, "visible": false },
+        { "name": "Learn5", "targets": 11, "data": null, "visible": false }
       ],
 
       // Ajax call
