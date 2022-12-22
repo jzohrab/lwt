@@ -12,12 +12,20 @@ class MysqlMigrator {
     $this->dbname = $db;
 
     $this->conn = $this->create_connection($host, $db, $user, $pass);
+    $this->create_migrations_table_if_needed();
     date_default_timezone_set('UTC');
   }
 
   public function __destruct()
   {
     $this->conn->close();
+  }
+
+  public function get_pending() {
+    chdir($this->location);
+    $files = glob("*.sql");
+    $outstanding = array_filter($files, fn($f) => $this->should_apply($f));
+    return $outstanding;
   }
 
   public function process() {
@@ -51,12 +59,8 @@ class MysqlMigrator {
   }
 
   private function process_folder() {
-    $this->create_migrations_table_if_needed();
-    $folder = $this->location;
-    $this->log("running migrations in $folder");
-    chdir($folder);
-    $files = glob("*.sql");
-    $outstanding = array_filter($files, fn($f) => $this->should_apply($f));
+    $outstanding = $this->get_pending();
+    $this->log("running migrations in $this->location");
     foreach ($outstanding as $file) {
       try {
         $this->process_file($file);
