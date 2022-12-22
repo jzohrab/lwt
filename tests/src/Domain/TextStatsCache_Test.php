@@ -46,7 +46,11 @@ final class TextStatsCache_Test extends DatabaseTestBase
 
         DbHelpers::assertRecordcountEquals("textstatscache", 1, "one record after save");
     }
+    
 
+    /**
+     * @group debug
+     */
     public function test_mark_stale_and_refresh_updates_stats()
     {
         $t = new Text();
@@ -56,6 +60,7 @@ final class TextStatsCache_Test extends DatabaseTestBase
         $this->text_repo->save($t, true);
         $this->text = $t;
 
+        TextStatsCache::refresh();
         $sql = "select sUnk from textstatscache where TxID = {$t->getID()}";
         DbHelpers::assertTableContains($sql, [ "11" ], "one record after save");
 
