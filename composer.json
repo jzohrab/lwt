@@ -135,6 +135,7 @@
     "todo:types": "Show types of todos",
     "db:migrate": "Run db migrations.",
     "db:newscript": "Make a new db migration script",
+    "db:newrepeat": "Make a new repeatable db migration script (for triggers, etc)",
     "db:which": "What db connecting to",
     "dev:dumpserver": "Start the dump server",
     "dev:find": "search specific parts of code using grep",

@@ -2,12 +2,9 @@
  * \file
  * \brief Check for unsaved changes when unloading window.
  * 
- * @package Lwt
+ * @package Lute
  * @license unlicense
  * @author  andreask7 <andreasks7@users.noreply.github.com>
- * @since   1.6.16-fork
- * @since   2.3.1-fork You should not only include this script to check before unload
- * 					but also call ask_before_exiting once.
  */
 
 /**

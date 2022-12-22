@@ -23,19 +23,16 @@ Unlike LWT, which just uses plain php files, Lute uses the [symfony](https://sym
 * You'll need [composer](https://getcomposer.org/download/) to install the dependencies
 * PHP version least 8.1
 * Apache: enable virtual hosts and URL rewrites.
-* Apache: create a Virtual Host to redirect requests to the Lute "front controller", and edit your `etc/hosts`.
+* Apache: create a Virtual Host to redirect requests to the Lute "front controller"
+# Edit your `etc/hosts` to use the new Lute URL in your browser
 
 My personal Lute is running Apache/2.4.54, with PHP version 8.1.13.
 
-### connect.inc.php
-
-Copy the file `connect.inc.php.example` to `connect.inc.php`, and specify your values for the variables (server, userid, password, db name).
-
 ### PHP version
 
-For Mac installing later versions of PHP on MAMP, see [this link](https://gist.github.com/codeadamca/09efb674f54172cbee887f04f700fe7c)
+For Mac installing later versions of PHP on MAMP, see [this link](https://gist.github.com/codeadamca/09efb674f54172cbee887f04f700fe7c).
 
-## Apache virtual host
+### Apache virtual host
 
 Ref https://davescripts.com/set-up-a-virtual-host-on-mamp-on-mac-os-x
 
@@ -60,6 +57,15 @@ sudo apachectl restart    # Restart :-)
 apachectl -S              # Check your vhost config:
 ```
 
+### MySQL load local infile
+
+ref https://dba.stackexchange.com/questions/48751/enabling-load-data-local-infile-in-mysql
+
+The app and many tests require 'load local infile' to be set to On, so you'll need to set that in your php.ini.  For me, for example, the file I changed was at `/usr/local/etc/php/8.1/php.ini`.
+
+
+### Edit your /etc/hosts
+
 Note that the `ServerName` above is `lute.local` ... so then you need to edit your `/etc/hosts` file so that you can enter "http://lute.local:8080/" in your browser.
 
 For a mac, do the following:
@@ -76,11 +82,10 @@ Add the line
 
 Then in a browser window, go to http://lute.local:8080/ - if it pops up, your basic mappings are fine.
 
-### MySQL load local infile
+### connect.inc.php
 
-ref https://dba.stackexchange.com/questions/48751/enabling-load-data-local-infile-in-mysql
+Copy the file `connect.inc.php.example` to `connect.inc.php`, and specify your values for the variables (server, userid, password, db name).
 
-The app and many tests require 'load local infile' to be set to On, so you'll need to set that in your php.ini.  For me, for example, the file I changed was at `/usr/local/etc/php/8.1/php.ini`.
 
 ## Development
 
@@ -129,7 +134,7 @@ composer test:group xxx
 ```
  db
   db:migrate               Run db migrations.
-  db:newrepeat             Runs the db:newrepeat script as defined in composer.json
+  db:newrepeat             Make a new repeatable db migration script (for triggers, etc)
   db:newscript             Make a new db migration script
   db:which                 What db connecting to
  dev
