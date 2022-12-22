@@ -283,9 +283,6 @@ final class Parser_Test extends DatabaseTestBase
     */
 
 
-    /**
-     * @group current
-     */
     public function test_parser_sets_lastparse_in_stats() {
         $h = new Text();
         $h->setTitle("Hola");
@@ -298,6 +295,22 @@ final class Parser_Test extends DatabaseTestBase
         $d = DbHelpers::get_first_value($sql);
         $this->assertTrue($d != '' && isset($d) && $d != null, "got lastparse, d = $d");
         $this->assertTrue($d != '1970-01-01 00:00:00', "changed from default");
+    }
+
+    /**
+     * @group current
+     */
+    public function test_parser_loads_stats_for_text() {
+        $h = new Text();
+        $h->setTitle("Hola");
+        $h->setText("Hola tengo un gato.");
+        $h->setLanguage($this->spanish);
+        $this->text_repo->save($h, true, false);
+
+        Parser::parse($h);
+        $sql = "select wordcount from textstatscache where TxID = {$h->getID()}";
+        $d = DbHelpers::get_first_value($sql);
+        $this->assertEquals($d, 4, "loaded, spot check only");
     }
 
 }

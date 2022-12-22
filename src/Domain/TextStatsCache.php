@@ -10,17 +10,17 @@ use App\Repository\TermRepository;
 require_once __DIR__ . '/../../connect.inc.php';
 
 
+/**
+ * Cached Text stats.
+ *
+ * When listing texts, it's far too slow to query and rebuild
+ * stats all the time.
+ */
 class TextStatsCache {
 
-    /**
-     * refresh records in textstatscache.
-     *
-     * When listing texts, it's far too slow to query and rebuild
-     * stats all the time.
-     */
-    public static function refresh() {
+    /** refresh */
+    private static function do_refresh($sql_ids_to_update) {
 
-        
         // TODO:storedproc Replace temp table with stored proc.
         //
         // Using a temp table to determine which texts to update.
@@ -54,19 +54,7 @@ where ti2woid = 0",
             "create table TEMPupdateStatsTxIDs (TxID int primary key)",
 
             // Load IDs to update.
-            "insert into TEMPupdateStatsTxIDs
-select src.TxID
-from (
-  select
-  t.TxID,
-  max(WoStatusChanged) as maxwsc
-  from texts t
-  inner join textitems2 on Ti2TxID = t.TxID
-  inner join words on WoID = Ti2WoID
-  group by t.TxID
-) src
-inner join textstatscache tsc on tsc.TxID = src.TxID
-where maxwsc > tsc.updatedDate",
+            "insert into TEMPupdateStatsTxIDs " . $sql_ids_to_update,
 
             // Remove old
             "delete from textstatscache where TxID in
@@ -161,6 +149,36 @@ LEFT OUTER JOIN (
         foreach ($sqls as $sql)
             TextStatsCache::exec_sql($sql);
     }
+    
+    /**
+     * Refresh stats for records that have all records in textstatscache.
+     */
+    public static function refresh() {
+        $sql_text_ids_with_updated_words = "
+select src.TxID
+from (
+  select
+  t.TxID,
+  max(WoStatusChanged) as maxwsc
+  from texts t
+  inner join textitems2 on Ti2TxID = t.TxID
+  inner join words on WoID = Ti2WoID
+  group by t.TxID
+) src
+inner join textstatscache tsc on tsc.TxID = src.TxID
+where maxwsc > tsc.updatedDate";
+
+        TextStatsCache::do_refresh($sql_text_ids_with_updated_words);
+    }
+
+
+    /**
+     * Force refresh stats for $text
+     */
+    public static function force_refresh($text) {
+        TextStatsCache::do_refresh("select {$text->getID()}");
+    }
+
 
     public static function markStale(array $text_ids) {
         if (count($text_ids) == 0)
@@ -169,6 +187,7 @@ LEFT OUTER JOIN (
         $sql = "DELETE from textstatscache where TxID in ({$ids})";
         TextStatsCache::exec_sql($sql);
     }
+
 
     // Private.
 

@@ -4,6 +4,7 @@ namespace App\Domain;
 
 use App\Entity\Text;
 use App\Entity\Language;
+use App\Domain\TextStatsCache;
 
 require_once __DIR__ . '/../../connect.inc.php';
 
@@ -95,6 +96,9 @@ class Parser {
         $this->import_temptextitems($text);
 
         $this->set_LastParse($text);
+
+        TextStatsCache::force_refresh($text);
+
         // $this->exec_sql("DROP TABLE IF EXISTS temptextitems");
     }
 
