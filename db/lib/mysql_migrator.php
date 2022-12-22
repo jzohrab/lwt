@@ -5,31 +5,35 @@ class MysqlMigrator {
   var $db;
   var $showlogging;
 
-  public function __construct($showlogging = false) {
-    date_default_timezone_set('UTC');
+  public function __construct($location, $repeatable, $host, $db, $user, $pass, $showlogging = false) {
+    $this->location = $location;
+    $this->repeatable = $repeatable;
     $this->showlogging = $showlogging;
-  }
-
-  public function process($location, $repeatable, $host, $db, $user, $pass) {
-    // $this->log("mysql migrate (files: '$location', repeatable: '$repeatable', host: '$host', db: '$db', user: '$user', pass: '$pass')");
     $this->dbname = $db;
-    $this->create_connection($host, $db, $user, $pass);
-    if (is_dir($location)) {
-      $this->process_folder($location);
-    } else {
-      $this->process_file($location);
-    }
-    $this->process_repeatable($repeatable);
-    $this->db->close();
+
+    $this->conn = $this->create_connection($host, $db, $user, $pass);
+    date_default_timezone_set('UTC');
   }
 
-  public function exec($sql, $host, $db, $user, $pass) {
+  public function __destruct()
+  {
+    $this->conn->close();
+  }
+
+  public function process() {
+    // $this->log("mysql migrate (files: '$location', repeatable: '$repeatable', host: '$host', db: '$db', user: '$user', pass: '$pass')");
+    if (is_dir($this->location)) {
+      $this->process_folder($this->location);
+    } else {
+      $this->process_file($this->location);
+    }
+    $this->process_repeatable($this->repeatable);
+  }
+
+  public function exec($sql) {
     // $this->log("mysql exec (sql: '$sql', host: '$host', db: '$db', user: '$user', pass: '$pass')");
     $this->log($sql);
-    $this->dbname = $db;
-    $this->create_connection($host, $db, $user, $pass);
     $this->exec_commands($sql);
-    $this->db->close();
   }
 
   private function log($message) {
@@ -40,14 +44,15 @@ class MysqlMigrator {
 
   private function create_connection($host, $db, $user, $pass) {
     // $this->log("connecting to db: mysqli($host, $user, $pass, $db)");
-    $this->db = new mysqli($host, $user, $pass, $db);
-    if ($this->db->connect_errno) {
-        $n = $this->db->connect_errno;
-        $e = $this->db->connect_error;
+    $conn = new mysqli($host, $user, $pass, $db);
+    if ($conn->connect_errno) {
+        $n = $conn->connect_errno;
+        $e = $conn->connect_error;
         $this->log("Failed to connect to MySQL: ({$n}) {$e}\n");
         die;
     }
-    $this->db->options(MYSQLI_READ_DEFAULT_GROUP,"max_allowed_packet=128M");
+    $conn->options(MYSQLI_READ_DEFAULT_GROUP,"max_allowed_packet=128M");
+    return $conn;
   }
 
   private function process_folder($folder) {
@@ -91,13 +96,13 @@ class MysqlMigrator {
   private function create_migrations_table_if_needed() {
     $check_sql = "SELECT TABLE_NAME FROM information_schema.TABLES
       WHERE TABLE_SCHEMA = '{$this->dbname}' AND TABLE_NAME = '_migrations'";
-    $res = $this->db->query($check_sql);
+    $res = $this->conn->query($check_sql);
     if ($res->num_rows != 0) {
       return;
     }
     $this->log("Creating _migrations table in database");
-    if (!$this->db->query("CREATE TABLE _migrations (filename varchar(255), PRIMARY KEY (filename))")) {
-      $this->log("Table creation failed: (" . $this->db->errno . ") " . $this->db->error);
+    if (!$this->conn->query("CREATE TABLE _migrations (filename varchar(255), PRIMARY KEY (filename))")) {
+      $this->log("Table creation failed: (" . $this->conn->errno . ") " . $this->conn->error);
       die;
     }
   }
@@ -107,13 +112,13 @@ class MysqlMigrator {
       return false;
     }
     $sql = "select filename from _migrations where filename = '{$filename}'";
-    $res = $this->db->query($sql);
+    $res = $this->conn->query($sql);
     return ($res->num_rows == 0);
   }
 
   function add_migration_to_database($file) {
-    if (!$this->db->query("INSERT INTO _migrations values ('$file')")) {
-      $this->log("Table insert failed: (" . $this->db->errno . ") " . $this->db->error);
+    if (!$this->conn->query("INSERT INTO _migrations values ('$file')")) {
+      $this->log("Table insert failed: (" . $this->conn->errno . ") " . $this->conn->error);
       die;
     }
   }
@@ -128,17 +133,17 @@ class MysqlMigrator {
 
   private function exec_commands($commands) {
     /* execute multi query */
-    $this->db->multi_query($commands);
+    $this->conn->multi_query($commands);
     do {
-      $this->db->store_result();
-      if ($this->db->info) {
-        $this->log($this->db->info);
+      $this->conn->store_result();
+      if ($this->conn->info) {
+        $this->log($this->conn->info);
       }
-    } while ($this->db->next_result());
+    } while ($this->conn->next_result());
 
-    if ($this->db->error) {
+    if ($this->conn->error) {
       $this->log("error:");
-      $this->log($this->db->error);
+      $this->log($this->conn->error);
       die;
     }
   }

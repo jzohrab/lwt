@@ -11,8 +11,8 @@ function apply_migrations($showlogging = false) {
     // echo "\nMigrating $dbname on $server\n\n";
     $dir = __DIR__ . '/../migrations';
     $repdir = __DIR__ . '/../migrations_repeatable';
-    $migration = new MysqlMigrator($showlogging);
-    $migration->exec("ALTER DATABASE `{$dbname}` CHARACTER SET utf8 COLLATE utf8_general_ci", $server, $dbname, $userid, $passwd);
-    $migration->process($dir, $repdir, $server, $dbname, $userid, $passwd);
+    $migration = new MysqlMigrator($dir, $repdir, $server, $dbname, $userid, $passwd, $showlogging);
+    $migration->exec("ALTER DATABASE `{$dbname}` CHARACTER SET utf8 COLLATE utf8_general_ci");
+    $migration->process();
 }
 ?>
