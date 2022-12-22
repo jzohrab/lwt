@@ -97,6 +97,8 @@ class ReadingFacade {
             $t->setStatus($newstatus);
             $this->termrepo->save($t, true);
         }
+
+        ExpressionUpdater::associateAllExactMatches($text);
     }
 
     public function get_prev_next(Text $text) {
