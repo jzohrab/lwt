@@ -20,6 +20,14 @@
      height: auto;
  }
 
+ .lutelogo_small
+ {
+     margin-right: 2px;
+     float: left;
+     width: 50px;
+     height: auto;
+ }
+
  input[type=text]
  {
    font: 85% "Lucida Grande",Arial,sans-serif,STHeiti,"Arial Unicode MS",MingLiu;
