@@ -4,7 +4,6 @@ namespace App\Repository;
 
 use App\Entity\Term;
 use App\Entity\Language;
-use App\Domain\ExpressionUpdater;
 
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -35,18 +34,7 @@ class TermRepository extends ServiceEntityRepository
 
         if ($flush) {
             $this->getEntityManager()->flush();
-            $this->associateTextItems($entity);
-            $this->associateTextItems($parent);
         }
-    }
-
-    private function associateTextItems(?Term $entity): void
-    {
-        if ($entity == null)
-            return;
-        if ($entity->getID() == null)
-            throw new \Exception("associateTextItems can't be set for null ID (" . $entity->getText() . ")");
-        ExpressionUpdater::associateTermTextItems($entity);
     }
 
     /**
@@ -181,12 +169,14 @@ LEFT OUTER JOIN (
     {
         $ret = null;
 
-        if ($text != '') {
+        if ($wid > 0 && ($text == '' || $text != '-')) {
+            // Specified text overrides wid, but if that's missing,
+            // wid will do.
+            $ret = $this->find($wid);
+        }
+        elseif ($text != '') {
             $language = $this->getTextLanguage($tid);
             $ret = $this->loadFromText($text, $language);
-        }
-        elseif ($wid > 0) {
-            $ret = $this->find($wid);
         }
         elseif ($tid != 0 && $ord != 0) {
             $language = $this->getTextLanguage($tid);

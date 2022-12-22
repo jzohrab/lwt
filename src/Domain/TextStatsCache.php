@@ -36,20 +36,46 @@ class TextStatsCache {
         // enough for now.
 
         $sqls = [
+
+            //prep stats records.
+            "insert ignore into textstatscache (TxID)
+select TxID from texts
+where TxArchived = 0",
+
+            // Assoc any pending textitem2's
+            "update textitems2
+inner join words on ti2textlc = wotextlc and ti2lgid = wolgid
+set ti2woid = woid
+where ti2woid = 0",
+
+
             // Temp table of textids.
             "drop table if exists TEMPupdateStatsTxIDs",
             "create table TEMPupdateStatsTxIDs (TxID int primary key)",
 
             // Load IDs to update.
             "insert into TEMPupdateStatsTxIDs
-select t.TxID from texts t
-left join textstatscache c on c.TxID = t.TxID
-where c.TxID is null
-and t.TxArchived = 0;",
+select src.TxID
+from (
+  select
+  t.TxID,
+  max(WoStatusChanged) as maxwsc
+  from texts t
+  inner join textitems2 on Ti2TxID = t.TxID
+  inner join words on WoID = Ti2WoID
+  group by t.TxID
+) src
+inner join textstatscache tsc on tsc.TxID = src.TxID
+where maxwsc > tsc.updatedDate",
+
+            // Remove old
+            "delete from textstatscache where TxID in
+(select TxID from TEMPupdateStatsTxIDs)",
 
             // Load stats.
             "insert into textstatscache (
   TxID,
+  updatedDate,
   wordcount,
   distinctterms,
   multiwordexpressions,
@@ -64,7 +90,7 @@ and t.TxArchived = 0;",
 )
 SELECT
 t.TxID As TxID,
-
+CURRENT_TIMESTAMP,
 wordcount.n as wordcount,
 coalesce(distinctterms.n, 0) as distinctterms,
 coalesce(mwordexpressions.n, 0) as multiwordexpressions,

@@ -56,7 +56,6 @@ class TextRepository extends ServiceEntityRepository
                 if ($parseTexts) {
                     Parser::parse($entity);
                     ExpressionUpdater::associateExpressionsInText($entity);
-                    TextStatsCache::refresh();
                 }
             }
         }

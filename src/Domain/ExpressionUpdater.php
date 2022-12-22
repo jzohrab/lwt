@@ -17,7 +17,6 @@ class ExpressionUpdater {
     public static function associateExpressionsInText(Text $text) {
         $eu = new ExpressionUpdater();
         $eu->loadExpressionsForText($text);
-        TextStatsCache::markStale([$text->getID()]);
     }
 
     public static function associateTermTextItems(Term $term) {
@@ -25,6 +24,11 @@ class ExpressionUpdater {
             throw new \Exception("Term {$term->getTextLC()} is not saved.");
         $eu = new ExpressionUpdater();
         $eu->associate_term_with_existing_texts($term);
+    }
+
+    public static function associateAllExactMatches() {
+        $eu = new ExpressionUpdater();
+        $eu->associate_all_exact_text_matches();
     }
 
     public function __construct()
@@ -51,7 +55,17 @@ class ExpressionUpdater {
         }
         return $stmt->get_result();
     }
- 
+
+
+    private function associate_all_exact_text_matches() {
+        $sql = "update textitems2
+inner join words on ti2textlc = wotextlc and ti2lgid = wolgid
+set ti2woid = woid
+where ti2woid = 0";
+        $this->exec_sql($sql);
+    }
+    
+
 
     private function loadExpressionsForText(Text $text)
     {
@@ -98,8 +112,6 @@ class ExpressionUpdater {
                 $ids[] = $rec[0];
             }
             mysqli_free_result($res);
-
-            TextStatsCache::markStale($ids);
         }
         else {
             $this->insertExpressions(
@@ -137,9 +149,9 @@ class ExpressionUpdater {
             $textlc = preg_replace('/([^\s])/u', "$1 ", $textlc);
         }
 
-        $lid = $lang->getLgID();
+        $sentences = $this->get_sentences_containing_textlc($lang, $textlc, $sentenceIDRange);
         $this->insert_standard_expression(
-            $lang, $textlc, $wid, $len, $sentenceIDRange
+            $sentences, $lang, $textlc, $wid, $len
         );
     }
     
@@ -269,19 +281,13 @@ class ExpressionUpdater {
      * @param array  $sentenceIDRange
      */
     private function insert_standard_expression(
-        Language $lang, $textlc, $wid, $len, $sentenceIDRange
+        $sentences, Language $lang, $textlc, $wid, $len
     )
     {
         $lid = $lang->getLgID();
-
-        $sentences = $this->get_sentences_containing_textlc($lang, $textlc, $sentenceIDRange);
-
-        $removeSpaces = $lang->isLgRemoveSpaces();
-        $splitEachChar = $lang->isLgSplitEachChar();
         $termchar = $lang->getLgRegexpWordCharacters();
         $notermchar = "/[^$termchar]({$textlc})[^$termchar]/ui";
 
-        $matches = null;
         foreach ($sentences as $record) {
             $string = ' ' . $record['SeText'] . ' ';
 
@@ -309,8 +315,6 @@ class ExpressionUpdater {
             } // end foreach termmatches
 
         }  // next sentence
-
-        $this->markCacheStaleForSentences($sentences);
     }
 
 
@@ -322,10 +326,4 @@ class ExpressionUpdater {
         return 0;
     }
 
-
-    private function markCacheStaleForSentences($sentences) {
-        $ids = array_map(fn($r) => intval($r['SeTxID']), $sentences);
-        $ids = array_unique($ids, SORT_NUMERIC);
-        TextStatsCache::markStale($ids);
-    }
 }

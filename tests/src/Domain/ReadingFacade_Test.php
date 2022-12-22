@@ -44,6 +44,9 @@ final class ReadingFacade_Test extends DatabaseTestBase
         $this->assertEquals(2, count($sentences), "reparsed");
     }
 
+    /**
+     * @group fixing
+     */
     public function test_mark_unknown_as_known_creates_words_and_updates_ti2s()
     {
         $content = "Hola tengo un gato.  No tengo una lista.\nElla tiene una bebida.";
