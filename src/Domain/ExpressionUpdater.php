@@ -17,7 +17,6 @@ class ExpressionUpdater {
     public static function associateExpressionsInText(Text $text) {
         $eu = new ExpressionUpdater();
         $eu->loadExpressionsForText($text);
-        TextStatsCache::markStale([$text->getID()]);
     }
 
     public static function associateTermTextItems(Term $term) {
