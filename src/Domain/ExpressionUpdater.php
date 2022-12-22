@@ -98,8 +98,6 @@ class ExpressionUpdater {
                 $ids[] = $rec[0];
             }
             mysqli_free_result($res);
-
-            TextStatsCache::markStale($ids);
         }
         else {
             $this->insertExpressions(
@@ -309,8 +307,6 @@ class ExpressionUpdater {
             } // end foreach termmatches
 
         }  // next sentence
-
-        $this->markCacheStaleForSentences($sentences);
     }
 
 
@@ -322,10 +318,4 @@ class ExpressionUpdater {
         return 0;
     }
 
-
-    private function markCacheStaleForSentences($sentences) {
-        $ids = array_map(fn($r) => intval($r['SeTxID']), $sentences);
-        $ids = array_unique($ids, SORT_NUMERIC);
-        TextStatsCache::markStale($ids);
-    }
 }
