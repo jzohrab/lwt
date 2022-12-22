@@ -26,6 +26,11 @@ class ExpressionUpdater {
         $eu->associate_term_with_existing_texts($term);
     }
 
+    public static function associateAllExactMatches() {
+        $eu = new ExpressionUpdater();
+        $eu->associate_all_exact_text_matches();
+    }
+
     public function __construct()
     {
         global $userid, $passwd, $server, $dbname; // From connect.inc.php
@@ -50,7 +55,17 @@ class ExpressionUpdater {
         }
         return $stmt->get_result();
     }
- 
+
+
+    private function associate_all_exact_text_matches() {
+        $sql = "update textitems2
+inner join words on ti2textlc = wotextlc and ti2lgid = wolgid
+set ti2woid = woid
+where ti2woid = 0";
+        $this->exec_sql($sql);
+    }
+    
+
 
     private function loadExpressionsForText(Text $text)
     {

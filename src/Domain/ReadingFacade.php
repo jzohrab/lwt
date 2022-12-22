@@ -79,6 +79,8 @@ class ReadingFacade {
             $t->setStatus(Status::WELLKNOWN);
             $this->termrepo->save($t, true);
         }
+
+        ExpressionUpdater::associateAllExactMatches($text);
     }
 
     public function update_status(Text $text, array $words, int $newstatus) {
