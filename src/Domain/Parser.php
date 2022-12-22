@@ -94,8 +94,6 @@ class Parser {
 
         $this->import_temptextitems($text);
 
-        $this->store_clean_text($text);
-
         $this->set_LastParse($text);
         // $this->exec_sql("DROP TABLE IF EXISTS temptextitems");
     }
@@ -419,33 +417,6 @@ class Parser {
             order by TiOrder,TiWordCount";
 
         $this->exec_sql($addti2);
-    }
-
-    /**
-     * Store the clean text ... this is useful for later regexing to see
-     * if we need to update stats.
-     * Note: I'm not updating TxText, because that was user data.
-     */
-    private function store_clean_text(Text $text) {
-        // refs:
-        // https://stackoverflow.com/questions/7208773/mysql-row-30153-was-cut-by-group-concat-error
-        // https://dev.mysql.com/doc/refman/8.0/en/server-system-variables.html#sysvar_group_concat_max_len
-        // Setting to max bytes for 32-bit platforms, just because.
-        $this->conn->query("SET SESSION group_concat_max_len=4294967295;");
-
-        $sql = "update texts
-          set txcleanedtext = (
-             SELECT replace(group_concat(ti2text order by ti2order separator ''), '¶', '\n')
-             FROM textitems2 WHERE ti2txid = {$text->getID()} and ti2wordcount < 2
-          ) where txid = {$text->getID()}";
-
-        $stmt = $this->conn->prepare($sql);
-        if (!$stmt) {
-            throw new Exception($this->conn->error);
-        }
-        if (!$stmt->execute()) {
-            throw new Exception($stmt->error);
-        }
     }
 
 
