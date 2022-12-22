@@ -58,7 +58,9 @@
   </head>
 
   <body>
+    {% if block("hide_home_link") is not defined %}
     <p><a href="/" tabindex="-1">Home</a></p>
+    {% endif %}
     {% block body %}{% endblock %}
   </body>
 
