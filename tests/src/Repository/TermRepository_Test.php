@@ -68,6 +68,8 @@ final class TermRepository_Test extends DatabaseTestBase
         $t->setRomanization('ho-la');
         $this->term_repo->save($t, true);
 
+        ExpressionUpdater::associateTermTextItems($t);
+
         $sql = "select Ti2WoID, Ti2LgID, Ti2Text from textitems2 order by Ti2LgID";
         $expected = [
             "{$t->getID()}; {$this->spanish->getLgID()}; hoLA",

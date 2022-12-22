@@ -5,6 +5,7 @@ require_once __DIR__ . '/../../DatabaseTestBase.php';
 
 use App\Entity\Term;
 use App\Entity\Text;
+use App\Domain\ExpressionUpdater;
 
 final class TermRepository_Load_Test extends DatabaseTestBase {
 
@@ -35,6 +36,7 @@ where ti2order in (1, 12, 25) order by ti2order";
         $term->setWordCount(1);
         $this->term_repo->save($term, true);
         $this->bebida = $term;
+        ExpressionUpdater::associateTermTextItems($term);
 
         $spot_check_sql = "select ti2woid, Ti2TxID, Ti2Order, ti2seid, ti2text from textitems2
 where ti2order = 25";
@@ -82,6 +84,9 @@ where ti2order = 25";
     }
 
 
+    /**
+     * @group fixing
+     */
     public function test_missing_tid_or_ord_throws() {
         $msg = '';
         try { $this->term_repo->load(0, 0, 0); }
