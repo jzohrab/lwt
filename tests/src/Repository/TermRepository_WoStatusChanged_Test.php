@@ -11,6 +11,8 @@ use App\Entity\Text;
 final class TermRepository_WoStatusChanged_Test extends DatabaseTestBase
 {
 
+    private Term $term;
+
     public function childSetUp() {
         $this->load_languages();
         $t = new Term();

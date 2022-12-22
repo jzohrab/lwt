@@ -11,15 +11,16 @@ use Doctrine\ORM\EntityManagerInterface;
  
 class TermParentTransformer implements DataTransformerInterface
 {
-    private $manager;
- 
+    private EntityManagerInterface $manager;
+    private Term $term;
+    
     public function __construct(EntityManagerInterface $manager, Term $term)
     {
         $this->manager = $manager;
         $this->term = $term;
     }
  
-    public function transform($parent): ?string
+    public function transform($value)
     {
         if ($this->term->getParent() == null)
             return null;
@@ -27,8 +28,8 @@ class TermParentTransformer implements DataTransformerInterface
     }
 
     
-    public function reverseTransform($parent_text) {
-        return $parent_text;
+    public function reverseTransform($value) {
+        return $value;
     }
  
 }

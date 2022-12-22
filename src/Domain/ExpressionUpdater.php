@@ -31,6 +31,9 @@ class ExpressionUpdater {
         $eu->associate_all_exact_text_matches();
     }
 
+
+    private $conn;
+
     public function __construct()
     {
         global $userid, $passwd, $server, $dbname; // From connect.inc.php

@@ -18,6 +18,8 @@ use Doctrine\ORM\EntityManagerInterface;
 class TextType extends AbstractType
 {
 
+    private EntityManagerInterface $manager;
+
     public function __construct(EntityManagerInterface $manager)
     {
         $this->manager = $manager;

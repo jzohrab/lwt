@@ -19,6 +19,9 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class TermRepository extends ServiceEntityRepository
 {
+
+    private LanguageRepository $lang_repo;
+
     public function __construct(ManagerRegistry $registry, LanguageRepository $langrepo)
     {
         parent::__construct($registry, Term::class);
@@ -62,8 +65,12 @@ class TermRepository extends ServiceEntityRepository
         $p->setStatus($entity->getStatus());
         $p->setTranslation($entity->getTranslation());
         $p->setSentence($entity->getSentence());
-        foreach ($entity->getTermTags() as $tag)
-            $p->addTermTag($tag);
+        foreach ($entity->getTermTags() as $termtag) {
+            /**
+             * @psalm-suppress InvalidArgument
+             */
+            $p->addTermTag($termtag);
+        }
         return $p;
     }
 
@@ -194,7 +201,7 @@ LEFT OUTER JOIN (
         return $ret;
     }
 
-    private function getTextLanguage($tid): Language {
+    private function getTextLanguage($tid): ?Language {
         $sql = "SELECT TxLgID FROM texts WHERE TxID = {$tid}";
         $record = $this
             ->getEntityManager()
@@ -213,7 +220,7 @@ LEFT OUTER JOIN (
      *
      * @return Term.
      */
-    private function loadFromTidAndOrd($tid, $ord, Language $lang): Term {
+    private function loadFromTidAndOrd($tid, $ord, Language $lang): ?Term {
         $sql = "SELECT ifnull(WoID, 0) as WoID,
           Ti2Text AS t
           FROM textitems2

@@ -17,18 +17,18 @@ class TermTagsCollection implements DataTransformerInterface
         $this->manager = $manager;
     }
  
-    public function transform($tags)
+    public function transform($value)
     {
-        return $tags;
+        return $value;
     }
  
-    public function reverseTransform($tags)
+    public function reverseTransform($value)
     {
         $coll = new ArrayCollection();
  
         $repo = $this->manager->getRepository(\App\Entity\TermTag::class);
  
-        foreach ($tags as $tag) {
+        foreach ($value as $tag) {
  
             $tagInRepo = $repo->findByText($tag->getText());
  

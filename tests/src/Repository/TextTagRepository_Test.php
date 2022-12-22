@@ -8,6 +8,8 @@ use App\Entity\TextTag;
 final class TextTagRepository_Test extends DatabaseTestBase
 {
 
+    private TextTag $t;
+
     public function childSetUp() {
         $this->t = new TextTag();
         $this->t->setText("Hola");

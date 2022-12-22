@@ -43,31 +43,6 @@ Cuando Caperucita se disponía  a salir de casa, su mamá, con gesto un poco ser
         $this->load_spanish_texts();
 
         $this->load_french_data();
-
-        // Load a pile of terms.
-        // $spid = $this->spanish->getLgID();
-        // DbHelpers::add_word($spid, "Un gato", "un gato", 1, 2);
-        if (getenv("LOAD_LOTS_OF_TEST_DATA")) {
-            $terms = $this->create_term_texts();
-            echo "\nAdding " . count($terms) . " terms to db.\n";
-            $this->load_terms($terms);
-        }
-
-    }
-
-    private function create_term_texts() {
-        $s = "abcde";
-        $chars = array();
-        for ($i = 0; $i < strlen($s); $i++)
-            $chars[] = $s[$i];
-
-        $result = array();
-        for ($a = 0; $a < strlen($s); $a++)
-            for ($b = 0; $b < strlen($s); $b++)
-                for ($c = 0; $c < strlen($s); $c++)
-                    for ($d = 0; $d < strlen($s); $d++)
-                        $result[] = $chars[$a] . $chars[$b] . $chars[$c] . $chars[$d];
-        return $result;
     }
 
     private function load_terms($terms) {

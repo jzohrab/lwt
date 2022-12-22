@@ -12,13 +12,36 @@ use App\Entity\Language;
 use App\Entity\Text;
 use App\Entity\TextTag;
 use App\Entity\TermTag;
+
+use App\Repository\TextRepository;
+use App\Repository\LanguageRepository;
+use App\Repository\TextTagRepository;
+use App\Repository\TermTagRepository;
+use App\Repository\TermRepository;
 use App\Repository\ReadingRepository;
 use App\Repository\SettingsRepository;
 
+use Doctrine\ORM\EntityManagerInterface;
 
 abstract class DatabaseTestBase extends WebTestCase
 {
 
+    public EntityManagerInterface $entity_manager;
+
+    public TextRepository $text_repo;
+    public LanguageRepository $language_repo;
+    public TextTagRepository $texttag_repo;
+    public TermTagRepository $termtag_repo;
+    public TermRepository $term_repo;
+    public ReadingRepository $reading_repo;
+    public SettingsRepository $settings_repo;
+
+    public Language $spanish;
+    public Language $french;
+    public Language $english;
+
+    public Text $spanish_hola_text;
+    
     public function setUp(): void
     {
         $inimsg = 'php.ini must set mysqli.allow_local_infile to 1.';

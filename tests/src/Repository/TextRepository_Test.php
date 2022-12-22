@@ -8,6 +8,8 @@ use App\Entity\Text;
 final class TextRepository_Test extends DatabaseTestBase
 {
 
+    private Text $text;
+    
     public function childSetUp(): void
     {
         // Set up db.
