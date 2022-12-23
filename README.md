@@ -16,20 +16,27 @@ Sensible question, and it's up to you.
 * The [original LWT project](https://sourceforge.net/projects/learning-with-texts/) is, as far as I can tell, still *massively popular.*  Even if the code is old, and it might have bugs or be slow, it has the advantage of being tried-and-tested, and you might find people who can help you with issues.
 * [Hugo Fara's fork](https://github.com/hugofara) has taken the original project and refined the code, but has kept the same features and overall design/architecture.
 
+I am currently using Lute to read texts in Spanish, and it works great.  It should work very well for other left-to-right languages like French, German, English, Italian, etc.
+
 ### So why even consider Lute?
 
-I believe that Lute is a useful contribution to the language-learning-software landscape.  It implements what I consider the core features of LWT in a far-more-maintainable codebase, using modern PHP tools, and with automated tests for stability.
+Top answer: For me, it feels faster and lighter than LWT, and it has just enough features to be useful.  The UI's a bit leaner, if that matters to you.
+
+**Note:** if you are currently using LWT, you should be able to export a copy of your database, and start using it with Lute, after setting up the necessary software.  You'll just need to migrate your old LWT-style database to the new Lute database (see [database migrations](./db/README.md)).
+
+More geeky reasons:
+
+I believe that Lute is a useful contribution to the language-learning-software landscape.  It implements the core features of LWT in a fraction of the size of the LWT codebase, using modern PHP tools, and with automated tests for stability.
 
 This might not mean much to regular peeps who just want to learn languages. :-)  At least, at the moment ...
 
 But if you are into software, like the idea of LWT, and want to contribute to an open-source project, I believe that Lute is a compelling place to start.
 
-Note: if you are currently using LWT, you should be able to export a copy of your database, and start using it with Lute, after setting up the necessary software.  You'll just need to migrate your old LWT-style database to the new Lute database (see [database migrations](./db/README.md)).
+### Why might you **not** use Lute?
 
-### And why might you **not** use Lute?
-
-* Currently, Lute is an MVP.  As a regular user of it, I removed things that I felt were not core features, so I could limit scope but still have a useful product.  So, if you currently loooove an LWT feature that was [removed for the MVP](lwt_features_that_were_removed.md), Lute's not for you.
-
+* Currently, Lute is an MVP, and many LWT features were [removed for the MVP](lwt_features_that_were_removed.md).  If that's a dealbreaker, Lute's not for you.
+* Lute currently doesn't support languages like Japanese.  I didn't have good test data for that, and so couldn't implement it, or port the old LWT code over for it.
+* Like LWT, Lute is currently the work of just one guy ... me.  And it has a user base of one ... also me.  I'll answer questions and fix issues as I can, but it's _currently_ just me working on this project.
 
 ### ... and why did I write it?
 
@@ -37,13 +44,14 @@ Note: if you are currently using LWT, you should be able to export a copy of you
 * There were some bugs in LWT that were impossible to track down.  For example, when adding multi-term expressions, LWT would sometimes find them, and sometimes miss them.  Lute corrects those issues, and adds a series of automated tests to help track down those problems.
 * As a former dev, there were some things about LWT that I simply couldn't get behind: lack of automated testing, tough database management, tough architecture, etc.
 
-In summary, I felt that LWT was **an extremely important idea**, but I felt that **its implementation created barriers for its improvement**.
+In summary, I felt that LWT was **an extremely important idea**, but I felt that **its implementation made it hard to fix problems, and created barriers for its improvement**.
 
 Even if Lute doesn't become "the new LWT" that I hope it can be, perhaps it will be useful as a reference implementation.
 
 
 <hr />
-## Installation, usage, etc.
+
+# Installation, usage, etc.
 
 > TODO:docs - the docs for installation need work, and perhaps some things can be simplified, such as removing vhosts.
 
@@ -61,7 +69,7 @@ Unlike LWT, which just uses plain php files, Lute uses the [symfony](https://sym
 * PHP version least 8.1
 * Apache: enable virtual hosts and URL rewrites.
 * Apache: create a Virtual Host to redirect requests to the Lute "front controller"
-# Edit your `etc/hosts` to use the new Lute URL in your browser
+* Edit your `etc/hosts` to use the new Lute URL in your browser
 
 My personal Lute is running Apache/2.4.54, with PHP version 8.1.13.
 
@@ -124,7 +132,7 @@ Then in a browser window, go to http://lute.local:8080/ - if it pops up, your ba
 Copy the file `connect.inc.php.example` to `connect.inc.php`, and specify your values for the variables (server, userid, password, db name).
 
 
-## Development
+# Development
 
 Install [composer](https://getcomposer.org/download/).
 
@@ -202,3 +210,7 @@ composer test:group xxx
 
 ## Unlicense
 Under unlicense, view [UNLICENSE.md](UNLICENSE.md), please look at [http://unlicense.org/].
+
+## Lute is free :-)
+
+... but if it makes your life better and you feel like saying thanks, I do drink <a href="https://www.buymeacoffee.com/jzohrab" target="_blank">coffee.</a>  I'll use the caffiene to implement features, or recruit devs to grow the project.
