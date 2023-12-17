@@ -1,3 +1,5 @@
+# Dummy pull request
+
 # Learning with Texts
 
 [![Latest Stable Version](https://poser.pugx.org/hugofara/lwt/v)](https://packagist.org/packages/hugofara/lwt)
